@@ -4,10 +4,14 @@
 #include <QtSql/QSqlError>
 #include <QtSql/QSqlQuery>
 
+/*-------------------------------------------------------------*/
+
 GCDataBaseInterface::GCDataBaseInterface( QObject *parent ) :
   QObject( parent )
 {
 }
+
+/*-------------------------------------------------------------*/
 
 bool GCDataBaseInterface::initDB( QString dbFileName, QString &errMsg )
 {
@@ -46,6 +50,8 @@ bool GCDataBaseInterface::initDB( QString dbFileName, QString &errMsg )
 
   return true;
 }
+
+/*-------------------------------------------------------------*/
 
 
 /* Example code from a previous pet project:
