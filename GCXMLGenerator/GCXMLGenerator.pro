@@ -12,14 +12,17 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
     db/gcdatabaseinterface.cpp \
-    gcmainwindow.cpp
+    gcmainwindow.cpp \
+    db/gcsessiondbform.cpp
 
 HEADERS  += \
     db/gcdatabaseinterface.h \
-    gcmainwindow.h
+    gcmainwindow.h \
+    db/gcsessiondbform.h
 
 FORMS    += \
-    gcmainwindow.ui
+    gcmainwindow.ui \
+    db/gcsessiondbform.ui
 
 RESOURCES += \
     resources/gcresources.qrc

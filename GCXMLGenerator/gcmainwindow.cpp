@@ -1,11 +1,15 @@
 #include "gcmainwindow.h"
 #include "ui_gcmainwindow.h"
+#include "db/gcdatabaseinterface.h"
+#include "db/gcsessiondbform.h"
+#include <QMessageBox>
 
 /*-------------------------------------------------------------*/
 
 GCMainWindow::GCMainWindow( QWidget *parent ) :
-  QMainWindow( parent ),
-  ui         ( new Ui::GCMainWindow )
+  QMainWindow   ( parent ),
+  ui            ( new Ui::GCMainWindow ),
+  m_dbInterface ( new GCDataBaseInterface )
 {
   ui->setupUi( this );
 
@@ -34,12 +38,30 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   /* Direct DOM edit. */
   connect( ui->dockWidgetRevertButton, SIGNAL( clicked() ), this, SLOT( revert() ) );
   connect( ui->dockWidgetSaveButton,   SIGNAL( clicked() ), this, SLOT( saveChanges() ) );
+
+  /* Initialise the database interface and retrieve the list of database names (this will
+    include the path references to the ".db" files). */
+  if( !m_dbInterface->initialise() )
+  {
+    QMessageBox::critical( this, "Error!", m_dbInterface->getLastError() );
+    this->close();
+  }
+
+  /* If the interface was successfully initialised, prompt the user to choose a database
+    connection for this session. */
+  GCSessionDBForm *sessionForm = new GCSessionDBForm( m_dbInterface->getDBList(), this );
+  connect( sessionForm, SIGNAL( userCancelled() ),       this,          SLOT( close() ) );
+  connect( sessionForm, SIGNAL( dbSelected( QString ) ), m_dbInterface, SLOT( setSessionDB( QString ) ) );
+  sessionForm->move( window()->frameGeometry().topLeft() + window()->rect().center() - sessionForm->rect().center() );
+  sessionForm->show();
+
 }
 
 /*-------------------------------------------------------------*/
 
 GCMainWindow::~GCMainWindow()
 {
+  delete m_dbInterface;
   delete ui;
 }
 
@@ -129,14 +151,14 @@ void GCMainWindow::update()
 
 /*-------------------------------------------------------------*/
 
-void GCMainWindow::deleteElement()
+void GCMainWindow::deleteElementFromDB()
 {
 
 }
 
 /*-------------------------------------------------------------*/
 
-void GCMainWindow::deleteAttributeValues()
+void GCMainWindow::deleteAttributeValuesFromDB()
 {
 
 }

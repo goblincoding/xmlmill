@@ -2,6 +2,7 @@
 #define GCDATABASEINTERFACE_H
 
 #include <QObject>
+#include <QMap>
 
 class GCDataBaseInterface : public QObject
 {
@@ -11,8 +12,8 @@ public:
   bool initialise();
 
   /* Getters. */
-  const QStringList &getDBList() const;
-  QString getLastError() const;
+  QStringList getDBList() const;
+  QString  getLastError() const;
   
 public slots:
   bool addDatabase ( QString dbName );
@@ -23,9 +24,9 @@ private:
   bool openDBConnection( QString dbName, QString &errMsg );
   bool initialiseDB    ( QString dbName, QString &errMsg );
 
-  QString     m_sessionDBName;
-  QString     m_lastErrorMsg;
-  QStringList m_dbList;
+  QString                  m_sessionDBName;
+  QString                  m_lastErrorMsg;
+  QMap< QString, QString > m_dbMap;
 };
 
 #endif // GCDATABASEINTERFACE_H

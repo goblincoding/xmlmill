@@ -7,6 +7,8 @@ namespace Ui {
   class GCMainWindow;
 }
 
+class GCDataBaseInterface;
+
 class GCMainWindow : public QMainWindow
 {
   Q_OBJECT
@@ -16,7 +18,8 @@ public:
   ~GCMainWindow();
   
 private:
-  Ui::GCMainWindow *ui;
+  Ui::GCMainWindow    *ui;
+  GCDataBaseInterface *m_dbInterface;
 
 private slots:
   /* XML file related. */
@@ -38,8 +41,8 @@ private slots:
 
   /* Edit XML store. */
   void update();
-  void deleteElement();
-  void deleteAttributeValues();
+  void deleteElementFromDB();
+  void deleteAttributeValuesFromDB();
 
   /* Direct DOM edit. */
   void revert();

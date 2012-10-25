@@ -1,6 +1,7 @@
 #include "gcdatabaseinterface.h"
 #include <QStringList>
 #include <QFile>
+#include <QTextStream>
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlError>
 #include <QtSql/QSqlQuery>
@@ -8,20 +9,20 @@
 /*-------------------------------------------------------------*/
 
 /* SQL Command Strings. */
-static const QLatin1String CREATE_TABLE_ELEMENTS     = "CREATE TABLE xmlelements( element QString primary key,"
-                                                       "compulsory_attributes QString, optional_attributes )";
+static const QLatin1String CREATE_TABLE_ELEMENTS    ( "CREATE TABLE xmlelements( element QString primary key,"
+                                                      "compulsory_attributes QString, optional_attributes )" );
 
-static const QLatin1String CREATE_TABLE_ATTRIBUTES   = "CREATE TABLE xmlattributes( attribute QString primary key,"
-                                                       "possible_values QString )";
+static const QLatin1String CREATE_TABLE_ATTRIBUTES  ( "CREATE TABLE xmlattributes( attribute QString primary key,"
+                                                      "possible_values QString )" );
 
-static const QLatin1String PREPARE_INSERT_ELEMENTS   = "INSERT INTO xmlelements( compulsory_attributes, optional_attributes) VALUES( ?,? )";
-static const QLatin1String PREPARE_INSERT_ATTRIBUTES = "INSERT INTO xmlattributes( possible_values ) VALUES( ? )";
+static const QLatin1String PREPARE_INSERT_ELEMENTS  ( "INSERT INTO xmlelements( compulsory_attributes, optional_attributes) VALUES( ?,? )" );
+static const QLatin1String PREPARE_INSERT_ATTRIBUTES( "INSERT INTO xmlattributes( possible_values ) VALUES( ? )" );
 
-static const QLatin1String PREPARE_DELETE_ELEMENTS   = "DELETE FROM xmlelements WHERE element = ?";
-static const QLatin1String PREPARE_DELETE_ATTRIBUTES = "DELETE FROM xmlattributes WHERE attribute = ?";
+static const QLatin1String PREPARE_DELETE_ELEMENTS  ( "DELETE FROM xmlelements WHERE element = ?" );
+static const QLatin1String PREPARE_DELETE_ATTRIBUTES( "DELETE FROM xmlattributes WHERE attribute = ?" );
 
-static const QLatin1String PREPARE_UPDATE_ELEMENTS   = "UPDATE xmlelements SET compulsory_attributes = ?, optional_attributes = ? WHERE element = ?";
-static const QLatin1String PREPARE_UPDATE_ATTRIBUTES = "UPDATE xmlattributes SET possible_values = ? WHERE attribute = ?";
+static const QLatin1String PREPARE_UPDATE_ELEMENTS  ( "UPDATE xmlelements SET compulsory_attributes = ?, optional_attributes = ? WHERE element = ?" );
+static const QLatin1String PREPARE_UPDATE_ATTRIBUTES( "UPDATE xmlattributes SET possible_values = ? WHERE attribute = ?" );
 
 /*-------------------------------------------------------------*/
 
@@ -34,7 +35,7 @@ GCDataBaseInterface::GCDataBaseInterface( QObject *parent ) :
   QObject         ( parent ),
   m_sessionDBName ( "" ),
   m_lastErrorMsg  ( "" ),
-  m_dbList        ()
+  m_dbMap         ()
 {
 }
 
@@ -44,16 +45,34 @@ bool GCDataBaseInterface::initialise()
 {
   QFile flatFile( DB_FILE );
 
-  if( !flatFile.open())
+  if( flatFile.open( QIODevice::ReadWrite | QIODevice::Text ) )
   {
+    QTextStream inStream( &flatFile );
+    QString fileContent = inStream.readAll();
+    flatFile.close();
 
+    /* Split the input into separate lines (path/to/file lines). */
+    QStringList list = fileContent.split( "\n", QString::SkipEmptyParts );
+
+    foreach( QString str, list )
+    {
+      /* Split the path/directory structure to use the file name as the key. */
+      m_dbMap.insert( str.split( QRegExp( "(\\\\|\\/)" ), QString::SkipEmptyParts ).last(), str );
+    }
+
+    return true;
   }
+
+  m_lastErrorMsg = QString( "Failed to access list of databases, file open error: [%1]." ).arg( flatFile.errorString() );
+  return false;
 }
 
 /*-------------------------------------------------------------*/
 
 bool GCDataBaseInterface::addDatabase( QString dbName )
 {
+  // Need to add the database from the map, not necessarily from the name...
+
   if( !dbName.isEmpty() )
   {
     m_lastErrorMsg = QString( "" );
@@ -70,6 +89,9 @@ bool GCDataBaseInterface::addDatabase( QString dbName )
 
 bool GCDataBaseInterface::addDBConnection( QString dbName, QString &errMsg )
 {
+  // The dbName should be a full path+file name, split and enter into map...
+
+
   QSqlDatabase db = QSqlDatabase::addDatabase( "QSQLITE", dbName );
 
   if( !db.isValid() )
@@ -130,8 +152,7 @@ bool GCDataBaseInterface::openDBConnection( QString dbName, QString &errMsg )
   }
   else
   {
-    errMsg = QString( "Database \"%1\" does not exist (are you sure you added it?).").arg( dbName );
-    return false;
+    return addDBConnection( dbName, errMsg );
   }
 
   return true;
@@ -170,9 +191,9 @@ bool GCDataBaseInterface::initialiseDB( QString dbName, QString &errMsg )
 
 /*-------------------------------------------------------------*/
 
-const QStringList &GCDataBaseInterface::getDBList() const
+QStringList GCDataBaseInterface::getDBList() const
 {
-  return m_dbList;
+  return m_dbMap.values();
 }
 
 /*-------------------------------------------------------------*/
