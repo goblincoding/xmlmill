@@ -12,6 +12,7 @@ GCSessionDBForm::GCSessionDBForm( QStringList dbList, QWidget *parent ) :
 
   if( dbList.empty() )
   {
+    ui->okButton->setEnabled( false );
     ui->comboBox->addItem( "No DB Connections yet, hit \"Add New\" below!" );
   }
   else

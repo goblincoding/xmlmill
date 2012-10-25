@@ -231,7 +231,7 @@ bool GCDataBaseInterface::initialiseDB( QString dbConName, QString &errMsg )
 
 QStringList GCDataBaseInterface::getDBList() const
 {
-  return m_dbMap.values();
+  return m_dbMap.keys();
 }
 
 /*-------------------------------------------------------------*/
