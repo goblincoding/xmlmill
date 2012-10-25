@@ -9,6 +9,8 @@ class GCDataBaseInterface : public QObject
   Q_OBJECT
 public:
   explicit GCDataBaseInterface( QObject *parent = 0 );
+  ~GCDataBaseInterface();
+
   bool initialise();
 
   /* Getters. */
@@ -20,7 +22,7 @@ public slots:
   bool setSessionDB( QString dbName );
 
 private:
-  bool addDBConnection ( QString dbName, QString &errMsg );
+  bool addDBConnection ( QString dbCName, QString &errMsg );
   bool openDBConnection( QString dbName, QString &errMsg );
   bool initialiseDB    ( QString dbName, QString &errMsg );
 

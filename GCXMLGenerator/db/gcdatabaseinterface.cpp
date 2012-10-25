@@ -27,7 +27,10 @@ static const QLatin1String PREPARE_UPDATE_ATTRIBUTES( "UPDATE xmlattributes SET 
 /*-------------------------------------------------------------*/
 
 /* Flat file containing list of databases. */
-static const QString DB_FILE = "dblist.txt";
+static const QString DB_FILE( "dblist.txt" );
+
+/* Regular expression string to split "\" (Windows) or "/" (Unix) from file path. */
+static const QString REGEXP_SLASHES( "(\\\\|\\/)" );
 
 /*-------------------------------------------------------------*/
 
@@ -38,6 +41,17 @@ GCDataBaseInterface::GCDataBaseInterface( QObject *parent ) :
   m_dbMap         ()
 {
 }
+
+/*-------------------------------------------------------------*/
+
+GCDataBaseInterface::~GCDataBaseInterface()
+{
+  /* Upon exit, replace the database list on record with what we
+    currently have in the map (to cater for updates, additions,
+    removals and so forth). */
+
+}
+
 
 /*-------------------------------------------------------------*/
 
@@ -57,7 +71,7 @@ bool GCDataBaseInterface::initialise()
     foreach( QString str, list )
     {
       /* Split the path/directory structure to use the file name as the key. */
-      m_dbMap.insert( str.split( QRegExp( "(\\\\|\\/)" ), QString::SkipEmptyParts ).last(), str );
+      m_dbMap.insert( str.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last(), str );
     }
 
     return true;
@@ -71,13 +85,13 @@ bool GCDataBaseInterface::initialise()
 
 bool GCDataBaseInterface::addDatabase( QString dbName )
 {
-  // Need to add the database from the map, not necessarily from the name...
-
   if( !dbName.isEmpty() )
   {
     m_lastErrorMsg = QString( "" );
 
-    // Flat file functionality here...
+    /* Pass the entire path/to/file string through, this string will be
+      stripped and manipulated in addDBConnection (to ensure we only add
+      it to the map once a connection has been successfully created). */
     return addDBConnection( dbName, m_lastErrorMsg );
   }
 
@@ -89,18 +103,19 @@ bool GCDataBaseInterface::addDatabase( QString dbName )
 
 bool GCDataBaseInterface::addDBConnection( QString dbName, QString &errMsg )
 {
-  // The dbName should be a full path+file name, split and enter into map...
-
+  /* The DB name passed in will most probably consist of a path/to/file string. */
+  QString dbFileName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
 
   QSqlDatabase db = QSqlDatabase::addDatabase( "QSQLITE", dbName );
 
   if( !db.isValid() )
   {
-    errMsg = QString( "Failed to add database \"%1\": [%2]." ).arg( dbName ).arg( db.lastError().text() );
+    errMsg = QString( "Failed to add database \"%1\": [%2]." ).arg( dbFileName ).arg( db.lastError().text() );
     return false;
   }
 
-  db.setDatabaseName( dbName );
+  db.setDatabaseName( dbFileName );
+  m_dbMap.insert( dbFileName, dbName );
   return true;
 }
 
@@ -110,7 +125,9 @@ bool GCDataBaseInterface::setSessionDB( QString dbName )
 {
   m_lastErrorMsg = QString( "" );
 
-  if( openDBConnection( dbName, m_lastErrorMsg ) )
+  /* We get the database name as parameter, but wish to work with
+    the connection name from here on. */
+  if( openDBConnection( m_dbMap.value( dbName ), m_lastErrorMsg ) )
   {
     m_sessionDBName = dbName;
     return true;
