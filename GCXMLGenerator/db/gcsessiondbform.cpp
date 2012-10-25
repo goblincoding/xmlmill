@@ -1,18 +1,28 @@
 #include "gcsessiondbform.h"
 #include "ui_gcsessiondbform.h"
+#include <QFileDialog>
 
 /*-------------------------------------------------------------*/
 
 GCSessionDBForm::GCSessionDBForm( QStringList dbList, QWidget *parent ) :
-  QWidget( parent),
+  QDialog( parent),
   ui     ( new Ui::GCSessionDBForm )
 {
-  ui->setupUi(this);
-  ui->comboBox->addItems( dbList );
+  ui->setupUi( this );
 
-  connect( ui->addNewButton, SIGNAL( clicked() ), this, SLOT( addNew() ) );
-  connect( ui->okButton,     SIGNAL( clicked() ), this, SLOT( open() ) );
+  if( dbList.empty() )
+  {
+    ui->comboBox->addItem( "No DB Connections yet, hit \"Add New\" below!" );
+  }
+  else
+  {
+    ui->comboBox->addItems( dbList );
+  }
+
+  connect( ui->addNewButton, SIGNAL( clicked() ), this, SLOT  ( addNew() ) );
+  connect( ui->okButton,     SIGNAL( clicked() ), this, SLOT  ( open() ) );
   connect( ui->cancelButton, SIGNAL( clicked() ), this, SIGNAL( userCancelled() ) );
+  connect( ui->cancelButton, SIGNAL( clicked() ), this, SLOT  ( close() ) );
 }
 
 /*-------------------------------------------------------------*/
@@ -26,18 +36,22 @@ GCSessionDBForm::~GCSessionDBForm()
 
 void GCSessionDBForm::open()
 {
-  QString dbName( "" );
-
-  emit dbSelected( dbName );
+  emit dbSelected( ui->comboBox->currentText() );
+  this->close();
 }
 
 /*-------------------------------------------------------------*/
 
 void GCSessionDBForm::addNew()
 {
-  QString dbName( "" );
+  QString file = QFileDialog::getSaveFileName( this, "Add Database", QDir::homePath(), "DB Files (*.db)" );
 
-  emit dbSelected( dbName );
+  /* If the user clicked "OK". */
+  if( !file.isEmpty() )
+  {
+    emit newConnection( file );
+    this->close();
+  }
 }
 
 /*-------------------------------------------------------------*/

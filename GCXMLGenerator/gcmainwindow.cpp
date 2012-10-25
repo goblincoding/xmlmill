@@ -32,8 +32,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 
   /* Edit XML store. */
   connect( ui->editXMLAddButton,              SIGNAL( clicked() ), this, SLOT( update() ) );
-  connect( ui->editXMLDeleteAttributesButton, SIGNAL( clicked() ), this, SLOT( deleteAttributeValues() ) );
-  connect( ui->editXMLDeleteElementsButton,   SIGNAL( clicked() ), this, SLOT( deleteElement() ) );
+  connect( ui->editXMLDeleteAttributesButton, SIGNAL( clicked() ), this, SLOT( deleteAttributeValuesFromDB() ) );
+  connect( ui->editXMLDeleteElementsButton,   SIGNAL( clicked() ), this, SLOT( deleteElementFromDB() ) );
 
   /* Direct DOM edit. */
   connect( ui->dockWidgetRevertButton, SIGNAL( clicked() ), this, SLOT( revert() ) );
@@ -48,13 +48,16 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   }
 
   /* If the interface was successfully initialised, prompt the user to choose a database
-    connection for this session. */
-  GCSessionDBForm *sessionForm = new GCSessionDBForm( m_dbInterface->getDBList(), this );
-  connect( sessionForm, SIGNAL( userCancelled() ),       this,          SLOT( close() ) );
-  connect( sessionForm, SIGNAL( dbSelected( QString ) ), m_dbInterface, SLOT( setSessionDB( QString ) ) );
-  sessionForm->move( window()->frameGeometry().topLeft() + window()->rect().center() - sessionForm->rect().center() );
-  sessionForm->show();
+    connection for this session. Since we trigger the DB interface methods via signals,
+    we won't know if they returned successfully unless we query the last error message. */
+  showSessionForm();
 
+  if( m_dbInterface->getLastError() != "" )
+  {
+    QString errorMsg = QString( "Something terrible happened and we can't fix it: %1" ).arg( m_dbInterface->getLastError() );
+    QMessageBox::critical( this, "Error!", errorMsg );
+    this->close();
+  }
 }
 
 /*-------------------------------------------------------------*/
@@ -63,6 +66,19 @@ GCMainWindow::~GCMainWindow()
 {
   delete m_dbInterface;
   delete ui;
+}
+
+/*-------------------------------------------------------------*/
+
+void GCMainWindow::showSessionForm()
+{
+  GCSessionDBForm *sessionForm = new GCSessionDBForm( m_dbInterface->getDBList(), this );
+
+  connect( sessionForm,   SIGNAL( userCancelled() ),          this,          SLOT  ( close() ) );
+  connect( sessionForm,   SIGNAL( dbSelected   ( QString ) ), m_dbInterface, SLOT  ( setSessionDB( QString ) ) );
+  connect( sessionForm,   SIGNAL( newConnection( QString ) ), m_dbInterface, SLOT  ( addDatabase ( QString ) ) );
+
+  sessionForm->show();
 }
 
 /*-------------------------------------------------------------*/

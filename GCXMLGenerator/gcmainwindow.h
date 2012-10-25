@@ -18,6 +18,8 @@ public:
   ~GCMainWindow();
   
 private:
+  void showSessionForm();
+
   Ui::GCMainWindow    *ui;
   GCDataBaseInterface *m_dbInterface;
 

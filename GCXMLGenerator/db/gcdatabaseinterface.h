@@ -22,9 +22,8 @@ public slots:
   bool setSessionDB( QString dbName );
 
 private:
-  bool addDBConnection ( QString dbCName, QString &errMsg );
-  bool openDBConnection( QString dbName, QString &errMsg );
-  bool initialiseDB    ( QString dbName, QString &errMsg );
+  bool openDBConnection( QString dbConName, QString &errMsg );
+  bool initialiseDB    ( QString dbConName, QString &errMsg );
 
   QString                  m_sessionDBName;
   QString                  m_lastErrorMsg;

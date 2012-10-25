@@ -1,13 +1,13 @@
 #ifndef GCSESSIONDBFORM_H
 #define GCSESSIONDBFORM_H
 
-#include <QWidget>
+#include <QDialog>
 
 namespace Ui {
   class GCSessionDBForm;
 }
 
-class GCSessionDBForm : public QWidget
+class GCSessionDBForm : public QDialog
 {
   Q_OBJECT
   
@@ -16,7 +16,8 @@ public:
   ~GCSessionDBForm();
 
 signals:
-  void dbSelected( QString dbName );
+  void dbSelected   ( QString );
+  void newConnection( QString );
   void userCancelled();
   
 private:

@@ -49,7 +49,19 @@ GCDataBaseInterface::~GCDataBaseInterface()
   /* Upon exit, replace the database list on record with what we
     currently have in the map (to cater for updates, additions,
     removals and so forth). */
+  QFile flatFile( DB_FILE );
 
+  if( flatFile.open( QIODevice::ReadWrite | QIODevice::Text | QIODevice::Truncate ) )
+  {
+    QTextStream outStream( &flatFile );
+
+    foreach( QString str, m_dbMap.values() )
+    {
+      outStream << str << "\n";
+    }
+
+    flatFile.close();
+  }
 }
 
 
@@ -59,6 +71,8 @@ bool GCDataBaseInterface::initialise()
 {
   QFile flatFile( DB_FILE );
 
+  /* ReadWrite mode is really only required for the first time
+    the file is opened so that QFile may create it in the process. */
   if( flatFile.open( QIODevice::ReadWrite | QIODevice::Text ) )
   {
     QTextStream inStream( &flatFile );
@@ -89,34 +103,23 @@ bool GCDataBaseInterface::addDatabase( QString dbName )
   {
     m_lastErrorMsg = QString( "" );
 
-    /* Pass the entire path/to/file string through, this string will be
-      stripped and manipulated in addDBConnection (to ensure we only add
-      it to the map once a connection has been successfully created). */
-    return addDBConnection( dbName, m_lastErrorMsg );
+    /* The DB name passed in will most probably consist of a path/to/file string. */
+    QSqlDatabase db = QSqlDatabase::addDatabase( "QSQLITE", dbName );
+    QString dbFileName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
+
+    if( db.isValid() )
+    {
+      db.setDatabaseName( dbFileName );
+      m_dbMap.insert( dbFileName, dbName );
+      return true;
+    }
+
+    m_lastErrorMsg = QString( "Failed to add database \"%1\": [%2]." ).arg( dbFileName ).arg( db.lastError().text() );
+    return false;
   }
 
   m_lastErrorMsg = QString( "Database name is empty." );
   return false;
-}
-
-/*-------------------------------------------------------------*/
-
-bool GCDataBaseInterface::addDBConnection( QString dbName, QString &errMsg )
-{
-  /* The DB name passed in will most probably consist of a path/to/file string. */
-  QString dbFileName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
-
-  QSqlDatabase db = QSqlDatabase::addDatabase( "QSQLITE", dbName );
-
-  if( !db.isValid() )
-  {
-    errMsg = QString( "Failed to add database \"%1\": [%2]." ).arg( dbFileName ).arg( db.lastError().text() );
-    return false;
-  }
-
-  db.setDatabaseName( dbFileName );
-  m_dbMap.insert( dbFileName, dbName );
-  return true;
 }
 
 /*-------------------------------------------------------------*/
@@ -132,44 +135,61 @@ bool GCDataBaseInterface::setSessionDB( QString dbName )
     m_sessionDBName = dbName;
     return true;
   }
+  else if( m_lastErrorMsg == "ADD_NEW_DB" )
+  {
+    /* If we somehow tried to set a DB for the session that doesn't exist,
+      then we'll automatically try to add it and set it as active. */
+    if( addDatabase( dbName ) )
+    {
+      if( openDBConnection( m_dbMap.value( dbName ), m_lastErrorMsg ) )
+      {
+        m_sessionDBName = dbName;
+        return true;
+      }
+    }
+
+    return false;
+  }
 
   return false;
 }
 
 /*-------------------------------------------------------------*/
 
-bool GCDataBaseInterface::openDBConnection( QString dbName, QString &errMsg )
+bool GCDataBaseInterface::openDBConnection( QString dbConName, QString &errMsg )
 {
-  if( QSqlDatabase::contains( dbName ) )
+  if( !QSqlDatabase::contains( dbConName ) )
   {
-    /* If we have a previous connection open, close it. */
-    QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
-
-    if( db.isValid() )
-    {
-      db.close();
-    }
-
-    /* Open the new connection. */
-    db = QSqlDatabase::database( dbName );
-
-    if ( !db.open() )
-    {
-      errMsg = QString( "Failed to open database \"%1\": [%2]." ).arg( dbName ).arg( db.lastError().text() );
-      return false;
-    }
-
-    /* If the DB has not yet been initialised. */
-    QStringList tables = db.tables();
-
-    if ( !tables.contains( "xmlelements", Qt::CaseInsensitive ) )
-    {
-      return initialiseDB( dbName, errMsg );
-    }
+    m_lastErrorMsg = "ADD_NEW_DB";
+    return false;
   }
-  else
+
+  /* If we have a previous connection open, and there are any
+      outstanding active queries, commit and close it. */
+  QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
+
+  if( db.isValid() )
   {
-    return addDBConnection( dbName, errMsg );
+    db.commit();
+    db.close();
+  }
+
+  /* Open the new connection. */
+  db = QSqlDatabase::database( dbConName );
+
+  if ( !db.open() )
+  {
+    errMsg = QString( "Failed to open database \"%1\": [%2]." ).arg( m_dbMap.key( dbConName ) )
+                                                               .arg( db.lastError().text() );
+    return false;
+  }
+
+  /* If the DB has not yet been initialised. */
+  QStringList tables = db.tables();
+
+  if ( !tables.contains( "xmlelements", Qt::CaseInsensitive ) )
+  {
+    return initialiseDB( dbConName, errMsg );
   }
 
   return true;
@@ -177,32 +197,33 @@ bool GCDataBaseInterface::openDBConnection( QString dbName, QString &errMsg )
 
 /*-------------------------------------------------------------*/
 
-bool GCDataBaseInterface::initialiseDB( QString dbName, QString &errMsg )
+bool GCDataBaseInterface::initialiseDB( QString dbConName, QString &errMsg )
 {
-  QSqlDatabase db = QSqlDatabase::database( dbName );
+  QSqlDatabase db = QSqlDatabase::database( dbConName );
 
-  if( db.isValid() )
+  if( !db.isValid() )
   {
-    QSqlQuery query( db );
-
-    if( !query.exec( CREATE_TABLE_ELEMENTS ) )
-    {
-      errMsg = QString( "Failed to create elements table for \"%1\": [%2]." ).arg( dbName ).arg( query.lastError().text() );
-      return false;
-    }
-
-    if( !query.exec( CREATE_TABLE_ATTRIBUTES ) )
-    {
-      errMsg = QString( "Failed to create attributes table for \"%1\": [%2]" ).arg( dbName ).arg( query.lastError().text() );
-      return false;
-    }
-  }
-  else
-  {
-    errMsg = QString( "Couldn't establish a valid connection to \"%1\".").arg( dbName );
+    errMsg = QString( "Couldn't establish a valid connection to \"%1\".").arg( m_dbMap.key( dbConName ) );
     return false;
   }
 
+  QSqlQuery query( db );
+
+  if( !query.exec( CREATE_TABLE_ELEMENTS ) )
+  {
+    errMsg = QString( "Failed to create elements table for \"%1\": [%2]." ).arg( m_dbMap.key( dbConName ) )
+                                                                           .arg( query.lastError().text() );
+    return false;
+  }
+
+  if( !query.exec( CREATE_TABLE_ATTRIBUTES ) )
+  {
+    errMsg = QString( "Failed to create attributes table for \"%1\": [%2]" ).arg( m_dbMap.key( dbConName ) )
+                                                                            .arg( query.lastError().text() );
+    return false;
+  }
+
+  db.commit();
   return true;
 }
 
