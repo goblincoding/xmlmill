@@ -2,12 +2,14 @@
 #define GCMAINWINDOW_H
 
 #include <QMainWindow>
+#include <QDomDocument>
 
 namespace Ui {
   class GCMainWindow;
 }
 
 class GCDataBaseInterface;
+class QTreeWidgetItem;
 
 class GCMainWindow : public QMainWindow
 {
@@ -19,21 +21,28 @@ public:
   
 private:
   void showSessionForm();
+  void showErrorMessageBox( QString errorMsg );
+  void processInputXML();
+  void populateTreeWidget( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
 
   Ui::GCMainWindow    *ui;
   GCDataBaseInterface *m_dbInterface;
+  QDomDocument         m_domDoc;
+  QString              m_fileName;
+
+  QMap< QString, QStringList > m_elementAttributes;
+  QMap< QString, QStringList > m_attributeValues;
 
 private slots:
   /* XML file related. */
-  void newFile();
   void openFile();
   void saveFile();
 
   /* Database related. */
-  void newDB();
-  void existingDB();
+  void addNewDB();
+  void addExistingDB();
   void removeDB();
-  void switchDB();
+  void switchDBSession();
 
   /* Build XML. */
   void addNewElement();
@@ -47,8 +56,8 @@ private slots:
   void deleteAttributeValuesFromDB();
 
   /* Direct DOM edit. */
-  void revert();
-  void saveChanges();
+  void revertDirectEdit();
+  void saveDirectEdit();
 };
 
 #endif // GCMAINWINDOW_H

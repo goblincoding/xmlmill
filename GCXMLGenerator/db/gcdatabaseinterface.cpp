@@ -85,7 +85,11 @@ bool GCDataBaseInterface::initialise()
     foreach( QString str, list )
     {
       /* Split the path/directory structure to use the file name as the key. */
-      m_dbMap.insert( str.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last(), str );
+      if( !addDatabase( str ) )
+      {
+        m_lastErrorMsg = QString( "Failed to load existing connection: \n %1" );
+        return false;
+      }
     }
 
     return true;
