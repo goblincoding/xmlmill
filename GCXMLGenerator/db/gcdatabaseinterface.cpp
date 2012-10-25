@@ -1,54 +1,185 @@
 #include "gcdatabaseinterface.h"
 #include <QStringList>
+#include <QFile>
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlError>
 #include <QtSql/QSqlQuery>
 
 /*-------------------------------------------------------------*/
 
+/* SQL Command Strings. */
+static const QLatin1String CREATE_TABLE_ELEMENTS     = "CREATE TABLE xmlelements( element QString primary key,"
+                                                       "compulsory_attributes QString, optional_attributes )";
+
+static const QLatin1String CREATE_TABLE_ATTRIBUTES   = "CREATE TABLE xmlattributes( attribute QString primary key,"
+                                                       "possible_values QString )";
+
+static const QLatin1String PREPARE_INSERT_ELEMENTS   = "INSERT INTO xmlelements( compulsory_attributes, optional_attributes) VALUES( ?,? )";
+static const QLatin1String PREPARE_INSERT_ATTRIBUTES = "INSERT INTO xmlattributes( possible_values ) VALUES( ? )";
+
+static const QLatin1String PREPARE_DELETE_ELEMENTS   = "DELETE FROM xmlelements WHERE element = ?";
+static const QLatin1String PREPARE_DELETE_ATTRIBUTES = "DELETE FROM xmlattributes WHERE attribute = ?";
+
+static const QLatin1String PREPARE_UPDATE_ELEMENTS   = "UPDATE xmlelements SET compulsory_attributes = ?, optional_attributes = ? WHERE element = ?";
+static const QLatin1String PREPARE_UPDATE_ATTRIBUTES = "UPDATE xmlattributes SET possible_values = ? WHERE attribute = ?";
+
+/*-------------------------------------------------------------*/
+
+/* Flat file containing list of databases. */
+static const QString DB_FILE = "dblist.txt";
+
+/*-------------------------------------------------------------*/
+
 GCDataBaseInterface::GCDataBaseInterface( QObject *parent ) :
-  QObject( parent )
+  QObject         ( parent ),
+  m_sessionDBName ( "" ),
+  m_lastErrorMsg  ( "" ),
+  m_dbList        ()
 {
 }
 
 /*-------------------------------------------------------------*/
 
-bool GCDataBaseInterface::initDB( QString dbFileName, QString &errMsg )
+bool GCDataBaseInterface::initialise()
 {
-  /* Opens connection to embedded DB. */
-  QSqlDatabase db = QSqlDatabase::addDatabase( "QSQLITE" );
-  db.setDatabaseName( dbFileName );
+  QFile flatFile( DB_FILE );
 
-  if ( !db.open() )
+  if( !flatFile.open())
   {
-    errMsg = QString( "Failed to open database: [%1]." ).arg( db.lastError().text() );
+
+  }
+}
+
+/*-------------------------------------------------------------*/
+
+bool GCDataBaseInterface::addDatabase( QString dbName )
+{
+  if( !dbName.isEmpty() )
+  {
+    m_lastErrorMsg = QString( "" );
+
+    // Flat file functionality here...
+    return addDBConnection( dbName, m_lastErrorMsg );
+  }
+
+  m_lastErrorMsg = QString( "Database name is empty." );
+  return false;
+}
+
+/*-------------------------------------------------------------*/
+
+bool GCDataBaseInterface::addDBConnection( QString dbName, QString &errMsg )
+{
+  QSqlDatabase db = QSqlDatabase::addDatabase( "QSQLITE", dbName );
+
+  if( !db.isValid() )
+  {
+    errMsg = QString( "Failed to add database \"%1\": [%2]." ).arg( dbName ).arg( db.lastError().text() );
     return false;
   }
 
-  /* If DB not yet initialised. */
-  QStringList tables = db.tables();
+  db.setDatabaseName( dbName );
+  return true;
+}
 
-  if ( !tables.contains( "xmlnodes", Qt::CaseInsensitive ) )
+/*-------------------------------------------------------------*/
+
+bool GCDataBaseInterface::setSessionDB( QString dbName )
+{
+  m_lastErrorMsg = QString( "" );
+
+  if( openDBConnection( dbName, m_lastErrorMsg ) )
   {
-    QSqlQuery query;
+    m_sessionDBName = dbName;
+    return true;
+  }
 
-    if( !query.exec( QLatin1String( "CREATE TABLE xmlnodes( element QString primary key,"
-                                    "compulsory_attributes QString, optional_attributes )" ) ) )
+  return false;
+}
+
+/*-------------------------------------------------------------*/
+
+bool GCDataBaseInterface::openDBConnection( QString dbName, QString &errMsg )
+{
+  if( QSqlDatabase::contains( dbName ) )
+  {
+    /* If we have a previous connection open, close it. */
+    QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
+
+    if( db.isValid() )
     {
-      errMsg = QString( "Failed to create table for XML nodes [%1]." ).arg( query.lastError().text() );
+      db.close();
+    }
+
+    /* Open the new connection. */
+    db = QSqlDatabase::database( dbName );
+
+    if ( !db.open() )
+    {
+      errMsg = QString( "Failed to open database \"%1\": [%2]." ).arg( dbName ).arg( db.lastError().text() );
       return false;
     }
 
-    if( !query.exec( QLatin1String( "CREATE TABLE attributes( attribute QString primary key,"
-                                    "possible_values QString )" ) ) )
-    {
-      errMsg = QString( "Failed to create table for XML attributes [%1]." ).arg( query.lastError().text() );
-      return false;
-    }
+    /* If the DB has not yet been initialised. */
+    QStringList tables = db.tables();
 
+    if ( !tables.contains( "xmlelements", Qt::CaseInsensitive ) )
+    {
+      return initialiseDB( dbName, errMsg );
+    }
+  }
+  else
+  {
+    errMsg = QString( "Database \"%1\" does not exist (are you sure you added it?).").arg( dbName );
+    return false;
   }
 
   return true;
+}
+
+/*-------------------------------------------------------------*/
+
+bool GCDataBaseInterface::initialiseDB( QString dbName, QString &errMsg )
+{
+  QSqlDatabase db = QSqlDatabase::database( dbName );
+
+  if( db.isValid() )
+  {
+    QSqlQuery query( db );
+
+    if( !query.exec( CREATE_TABLE_ELEMENTS ) )
+    {
+      errMsg = QString( "Failed to create elements table for \"%1\": [%2]." ).arg( dbName ).arg( query.lastError().text() );
+      return false;
+    }
+
+    if( !query.exec( CREATE_TABLE_ATTRIBUTES ) )
+    {
+      errMsg = QString( "Failed to create attributes table for \"%1\": [%2]" ).arg( dbName ).arg( query.lastError().text() );
+      return false;
+    }
+  }
+  else
+  {
+    errMsg = QString( "Couldn't establish a valid connection to \"%1\".").arg( dbName );
+    return false;
+  }
+
+  return true;
+}
+
+/*-------------------------------------------------------------*/
+
+const QStringList &GCDataBaseInterface::getDBList() const
+{
+  return m_dbList;
+}
+
+/*-------------------------------------------------------------*/
+
+QString GCDataBaseInterface::getLastError() const
+{
+  return m_lastErrorMsg;
 }
 
 /*-------------------------------------------------------------*/

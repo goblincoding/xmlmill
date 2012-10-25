@@ -3,11 +3,11 @@
 
 /*-------------------------------------------------------------*/
 
-GCMainWindow::GCMainWindow(QWidget *parent) :
-  QMainWindow(parent),
-  ui(new Ui::GCMainWindow)
+GCMainWindow::GCMainWindow( QWidget *parent ) :
+  QMainWindow( parent ),
+  ui         ( new Ui::GCMainWindow )
 {
-  ui->setupUi(this);
+  ui->setupUi( this );
 
   /* XML File related. */
   connect( ui->actionNew,  SIGNAL( triggered() ), this, SLOT( newFile() ) );
@@ -15,9 +15,10 @@ GCMainWindow::GCMainWindow(QWidget *parent) :
   connect( ui->actionSave, SIGNAL( triggered() ), this, SLOT( saveFile() ) );
 
   /* Database related. */
-  connect( ui->actionAddNewDatabase,      SIGNAL( triggered() ), this, SLOT( newDB() ) );
-  connect( ui->actionAddExistingDatabase, SIGNAL( triggered() ), this, SLOT( existingDB() ) );
-  connect( ui->actionRemoveDatabase,      SIGNAL( triggered() ), this, SLOT( removeDB() ) );
+  connect( ui->actionAddNewDatabase,        SIGNAL( triggered() ), this, SLOT( newDB() ) );
+  connect( ui->actionAddExistingDatabase,   SIGNAL( triggered() ), this, SLOT( existingDB() ) );
+  connect( ui->actionRemoveDatabase,        SIGNAL( triggered() ), this, SLOT( removeDB() ) );
+  connect( ui->actionSwitchSessionDatabase, SIGNAL( triggered() ), this, SLOT( switchDB() ) );
 
   /* Build XML. */
   connect( ui->buildXMLAddButton,    SIGNAL( clicked() ), this, SLOT( addNewElement() ) );
@@ -80,6 +81,13 @@ void GCMainWindow::existingDB()
 /*-------------------------------------------------------------*/
 
 void GCMainWindow::removeDB()
+{
+
+}
+
+/*-------------------------------------------------------------*/
+
+void GCMainWindow::switchDB()
 {
 
 }

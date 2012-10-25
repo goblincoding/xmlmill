@@ -250,6 +250,7 @@
     <addaction name="actionAddNewDatabase"/>
     <addaction name="actionAddExistingDatabase"/>
     <addaction name="actionRemoveDatabase"/>
+    <addaction name="actionSwitchSessionDatabase"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -348,6 +349,11 @@
   <action name="actionNew">
    <property name="text">
     <string>&amp;New</string>
+   </property>
+  </action>
+  <action name="actionSwitchSessionDatabase">
+   <property name="text">
+    <string>S&amp;witch Session Database</string>
    </property>
   </action>
  </widget>

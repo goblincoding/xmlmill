@@ -12,7 +12,7 @@ class GCMainWindow : public QMainWindow
   Q_OBJECT
   
 public:
-  explicit GCMainWindow(QWidget *parent = 0);
+  explicit GCMainWindow( QWidget *parent = 0 );
   ~GCMainWindow();
   
 private:
@@ -28,6 +28,7 @@ private slots:
   void newDB();
   void existingDB();
   void removeDB();
+  void switchDB();
 
   /* Build XML. */
   void addNewElement();
