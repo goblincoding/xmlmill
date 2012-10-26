@@ -45,14 +45,8 @@ void GCSessionDBForm::open()
 
 void GCSessionDBForm::addNew()
 {
-  QString file = QFileDialog::getSaveFileName( this, "Add Database", QDir::homePath(), "DB Files (*.db)" );
-
-  /* If the user clicked "OK". */
-  if( !file.isEmpty() )
-  {
-    emit newConnection( file );
-    this->close();
-  }
+  emit newConnection();
+  this->close();
 }
 
 /*-------------------------------------------------------------*/

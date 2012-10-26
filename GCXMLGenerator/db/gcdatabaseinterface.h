@@ -30,7 +30,7 @@ private:
 
   QString                  m_sessionDBName;
   QString                  m_lastErrorMsg;
-  QMap< QString, QString > m_dbMap;
+  QMap< QString, QString > m_dbMap;   // connection name, file name
 };
 
 #endif // GCDATABASEINTERFACE_H

@@ -59,7 +59,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 
   if( m_dbInterface->getLastError() != "" )
   {
-    QString errorMsg = QString( "Something terrible happened and we can't fix it: %1" ).arg( m_dbInterface->getLastError() );
+    QString errorMsg = QString( "Something terrible happened and we can't fix it - [%1]" ).arg( m_dbInterface->getLastError() );
     QMessageBox::critical( this, "Error!", errorMsg );
     this->close();
   }
@@ -79,9 +79,9 @@ void GCMainWindow::showSessionForm()
 {
   GCSessionDBForm *sessionForm = new GCSessionDBForm( m_dbInterface->getDBList(), this );
 
-  connect( sessionForm,   SIGNAL( userCancelled() ),          this,          SLOT  ( close() ) );
-  connect( sessionForm,   SIGNAL( dbSelected   ( QString ) ), m_dbInterface, SLOT  ( setSessionDB( QString ) ) );
-  connect( sessionForm,   SIGNAL( newConnection( QString ) ), m_dbInterface, SLOT  ( addDatabase ( QString ) ) );
+  connect( sessionForm,   SIGNAL( userCancelled() ),       this,          SLOT  ( close() ) );
+  connect( sessionForm,   SIGNAL( newConnection() ),       this,          SLOT  ( addNewDB() ) );
+  connect( sessionForm,   SIGNAL( dbSelected( QString ) ), m_dbInterface, SLOT  ( setSessionDB( QString ) ) );
 
   sessionForm->show();
 }
@@ -177,13 +177,13 @@ void GCMainWindow::updateDataBase()
 {
   if( !m_dbInterface->addElements( m_elements ) )
   {
-    QString errMsg = QString( "Failed to update elements database: %1." ).arg( m_dbInterface->getLastError() );
+    QString errMsg = QString( "Failed to update elements database - [%1]." ).arg( m_dbInterface->getLastError() );
     showErrorMessageBox( errMsg );
   }
 
   if( !m_dbInterface->addAttributes( m_attributes ) )
   {
-    QString errMsg = QString( "Failed to update attributes database: %1." ).arg( m_dbInterface->getLastError() );
+    QString errMsg = QString( "Failed to update attributes database - [%1]." ).arg( m_dbInterface->getLastError() );
     showErrorMessageBox( errMsg );
   }
 }
@@ -213,13 +213,13 @@ void GCMainWindow::openFile()
       }
       else
       {
-        QString errorMsg = QString( "XML is broken: %1 (line: %2, column %3)." ).arg( xmlErr ).arg( line ).arg( col );
+        QString errorMsg = QString( "XML is broken: \"%1\" (line: %2, column %3)." ).arg( xmlErr ).arg( line ).arg( col );
         showErrorMessageBox( errorMsg );
       }
     }
     else
     {
-      QString errorMsg = QString( "Failed to open file: %1" ).arg( file.errorString() );
+      QString errorMsg = QString( "Failed to open file - [%1]" ).arg( file.errorString() );
       showErrorMessageBox( errorMsg );
     }
   }
@@ -249,8 +249,23 @@ void GCMainWindow::addNewDB()
   {
     if( !m_dbInterface->addDatabase( file ) )
     {
-      QString error = QString( "Failed to add DB connection: %1" ).arg( m_dbInterface->getLastError() );
+      QString error = QString( "Failed to add connection - [%1]" ).arg( m_dbInterface->getLastError() );
       showErrorMessageBox( error );
+    }
+
+    QMessageBox::StandardButton button = QMessageBox::question( this,
+                                                                "Set session",
+                                                                "Would you like to set the new connection as active?",
+                                                                QMessageBox::Yes | QMessageBox::No,
+                                                                QMessageBox::Yes );
+
+    if( button == QMessageBox::Yes )
+    {
+      if( !m_dbInterface->setSessionDB( file ) )
+      {
+        QString error = QString( "Failed to set connection as active - [%1]" ).arg( m_dbInterface->getLastError() );
+        showErrorMessageBox( error );
+      }
     }
   }
 }

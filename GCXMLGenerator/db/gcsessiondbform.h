@@ -17,7 +17,7 @@ public:
 
 signals:
   void dbSelected   ( QString );
-  void newConnection( QString );
+  void newConnection();
   void userCancelled();
   
 private:

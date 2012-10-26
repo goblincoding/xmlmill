@@ -11,19 +11,19 @@
 
 /* SQL Command Strings. */
 static const QLatin1String CREATE_TABLE_ELEMENTS   ( "CREATE TABLE xmlelements( element QString primary key, attributes QString )" );
-static const QLatin1String CREATE_TABLE_ATTRIBUTES ( "CREATE TABLE xmlattributes( attribute QString primary key, values QString )" );
+static const QLatin1String CREATE_TABLE_ATTRIBUTES ( "CREATE TABLE xmlattributes( attribute QString primary key, attrvalues QString )" );
 
 static const QLatin1String PREPARE_INSERT_ELEMENT  ( "INSERT INTO xmlelements( attributes ) VALUES( ? )" );
-static const QLatin1String PREPARE_INSERT_ATTRIBUTE( "INSERT INTO xmlattributes( values ) VALUES( ? )" );
+static const QLatin1String PREPARE_INSERT_ATTRIBUTE( "INSERT INTO xmlattributes( attrvalues ) VALUES( ? )" );
 
 static const QLatin1String PREPARE_DELETE_ELEMENT  ( "DELETE FROM xmlelements WHERE element = ?" );
 static const QLatin1String PREPARE_DELETE_ATTRIBUTE( "DELETE FROM xmlattributes WHERE attribute = ?" );
 
 static const QLatin1String PREPARE_UPDATE_ELEMENT  ( "UPDATE xmlelements SET attributes = ? WHERE element = ?" );
-static const QLatin1String PREPARE_UPDATE_ATTRIBUTE( "UPDATE xmlattributes SET values = ? WHERE attribute = ?" );
+static const QLatin1String PREPARE_UPDATE_ATTRIBUTE( "UPDATE xmlattributes SET attrvalues = ? WHERE attribute = ?" );
 
 static const QLatin1String PREPARE_SELECT_ELEMENT  ( "SELECT attributes FROM xmlelements WHERE element = ?" );
-static const QLatin1String PREPARE_SELECT_ATTRIBUTE( "SELECT values FROM xmlattributes WHERE attribute = ?" );
+static const QLatin1String PREPARE_SELECT_ATTRIBUTE( "SELECT attrvalues FROM xmlattributes WHERE attribute = ?" );
 
 /*-------------------------------------------------------------*/
 
@@ -74,7 +74,7 @@ bool GCDataBaseInterface::initialise()
     return true;
   }
 
-  m_lastErrorMsg = QString( "Failed to access list of databases, file open error: [%1]." ).arg( flatFile.errorString() );
+  m_lastErrorMsg = QString( "Failed to access list of databases, file open error - [%1]." ).arg( flatFile.errorString() );
   return false;
 }
 
@@ -85,19 +85,19 @@ bool GCDataBaseInterface::addDatabase( QString dbName )
   if( !dbName.isEmpty() )
   {
     /* The DB name passed in will most probably consist of a path/to/file string. */
-    QSqlDatabase db = QSqlDatabase::addDatabase( "QSQLITE", dbName );
-    QString dbFileName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
+    QString dbConName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
+    QSqlDatabase db = QSqlDatabase::addDatabase( "QSQLITE", dbConName );
 
     if( db.isValid() )
     {
       m_lastErrorMsg = "";
-      db.setDatabaseName( dbFileName );
-      m_dbMap.insert( dbFileName, dbName );
+      db.setDatabaseName( dbName );
+      m_dbMap.insert( dbConName, dbName );
       saveFile();
       return true;
     }
 
-    m_lastErrorMsg = QString( "Failed to add database \"%1\": [%2]." ).arg( dbFileName ).arg( db.lastError().text() );
+    m_lastErrorMsg = QString( "Failed to add database \"%1\": [%2]." ).arg( dbConName ).arg( db.lastError().text() );
     return false;
   }
 
@@ -109,12 +109,12 @@ bool GCDataBaseInterface::addDatabase( QString dbName )
 
 bool GCDataBaseInterface::setSessionDB( QString dbName )
 {
-  /* We get the database name as parameter, but wish to work with
-    the connection name from here on. */
-  if( openDBConnection( m_dbMap.value( dbName ), m_lastErrorMsg ) )
+  /* The DB name passed in will most probably consist of a path/to/file string. */
+  QString dbConName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
+  if( openDBConnection( dbConName, m_lastErrorMsg ) )
   {
     m_lastErrorMsg = "";
-    m_sessionDBName = m_dbMap.value( dbName );
+    m_sessionDBName = dbConName;
     return true;
   }
   else if( m_lastErrorMsg == "ADD_NEW_DB" )
@@ -123,10 +123,10 @@ bool GCDataBaseInterface::setSessionDB( QString dbName )
       then we'll automatically try to add it and set it as active. */
     if( addDatabase( dbName ) )
     {
-      if( openDBConnection( m_dbMap.value( dbName ), m_lastErrorMsg ) )
+      if( openDBConnection( dbConName, m_lastErrorMsg ) )
       {
         m_lastErrorMsg = "";
-        m_sessionDBName = m_dbMap.value( dbName );
+        m_sessionDBName = dbConName;
         return true;
       }
     }
@@ -147,13 +147,11 @@ bool GCDataBaseInterface::openDBConnection( QString dbConName, QString &errMsg )
     return false;
   }
 
-  /* If we have a previous connection open, and there are any
-      outstanding active queries, commit and close it. */
+  /* If we have a previous connection open, close it. */
   QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
 
   if( db.isValid() )
   {
-    db.commit();
     db.close();
   }
 
@@ -162,7 +160,7 @@ bool GCDataBaseInterface::openDBConnection( QString dbConName, QString &errMsg )
 
   if ( !db.open() )
   {
-    errMsg = QString( "Failed to open database \"%1\": [%2]." ).arg( m_dbMap.key( dbConName ) )
+    errMsg = QString( "Failed to open database \"%1\": [%2]." ).arg( m_dbMap.value( dbConName ) )
                                                                .arg( db.lastError().text() );
     return false;
   }
@@ -187,7 +185,7 @@ bool GCDataBaseInterface::initialiseDB( QString dbConName, QString &errMsg )
 
   if( !db.isValid() )
   {
-    errMsg = QString( "Couldn't establish a valid connection to \"%1\".").arg( m_dbMap.key( dbConName ) );
+    errMsg = QString( "Couldn't establish a valid connection to \"%1\".").arg( dbConName );
     return false;
   }
 
@@ -196,19 +194,18 @@ bool GCDataBaseInterface::initialiseDB( QString dbConName, QString &errMsg )
 
   if( !query.exec( CREATE_TABLE_ELEMENTS ) )
   {
-    errMsg = QString( "Failed to create elements table for \"%1\": [%2]." ).arg( m_dbMap.key( dbConName ) )
+    errMsg = QString( "Failed to create elements table for \"%1\": [%2]." ).arg( dbConName )
                                                                            .arg( query.lastError().text() );
     return false;
   }
 
   if( !query.exec( CREATE_TABLE_ATTRIBUTES ) )
   {
-    errMsg = QString( "Failed to create attributes table for \"%1\": [%2]" ).arg( m_dbMap.key( dbConName ) )
+    errMsg = QString( "Failed to create attributes table for \"%1\": [%2]" ).arg( dbConName )
                                                                             .arg( query.lastError().text() );
     return false;
   }
 
-  db.commit();
   errMsg = "";
   return true;
 }
@@ -222,7 +219,7 @@ bool GCDataBaseInterface::addElements( const GCElementsMap &elements )
 
   if( !db.isValid() )
   {
-    m_lastErrorMsg = QString( "Failed to open session connection: %1, error: %2" ).arg( m_sessionDBName ).arg( db.lastError().text() );
+    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName ).arg( db.lastError().text() );
     return false;
   }
 
@@ -237,7 +234,7 @@ bool GCDataBaseInterface::addElements( const GCElementsMap &elements )
 
     if( !query.prepare( PREPARE_SELECT_ELEMENT ) )
     {
-      m_lastErrorMsg = QString( "Prepare SELECT element failed: %1" ).arg( query.lastError().text() );
+      m_lastErrorMsg = QString( "Prepare SELECT element failed - [%1]" ).arg( query.lastError().text() );
       return false;
     }
 
@@ -245,7 +242,7 @@ bool GCDataBaseInterface::addElements( const GCElementsMap &elements )
 
     if( !query.exec() )
     {
-      m_lastErrorMsg = QString( "SELECT element failed: %1" ).arg( query.lastError().text() );
+      m_lastErrorMsg = QString( "SELECT element failed - [%1]" ).arg( query.lastError().text() );
       return false;
     }
 
@@ -254,7 +251,7 @@ bool GCDataBaseInterface::addElements( const GCElementsMap &elements )
     {
       if( !query.prepare( PREPARE_INSERT_ELEMENT ) )
       {
-        m_lastErrorMsg = QString( "Prepare INSERT element failed: %1" ).arg( query.lastError().text() );
+        m_lastErrorMsg = QString( "Prepare INSERT element failed - [%1]" ).arg( query.lastError().text() );
         return false;
       }
 
@@ -263,7 +260,7 @@ bool GCDataBaseInterface::addElements( const GCElementsMap &elements )
 
       if( !query.exec() )
       {
-        m_lastErrorMsg = QString( "INSERT element failed: %1" ).arg( query.lastError().text() );
+        m_lastErrorMsg = QString( "INSERT element failed - [%1]" ).arg( query.lastError().text() );
         return false;
       }
     }
@@ -277,7 +274,7 @@ bool GCDataBaseInterface::addElements( const GCElementsMap &elements )
 
       if( !query.prepare( PREPARE_UPDATE_ELEMENT ) )
       {
-        m_lastErrorMsg = QString( "Prepare UPDATE element failed: %1" ).arg( query.lastError().text() );
+        m_lastErrorMsg = QString( "Prepare UPDATE element failed - [%1]" ).arg( query.lastError().text() );
         return false;
       }
 
@@ -286,16 +283,10 @@ bool GCDataBaseInterface::addElements( const GCElementsMap &elements )
 
       if( !query.exec() )
       {
-        m_lastErrorMsg = QString( "UPDATE element failed: %1" ).arg( query.lastError().text() );
+        m_lastErrorMsg = QString( "UPDATE element failed - [%1]" ).arg( query.lastError().text() );
         return false;
       }
     }
-  }
-
-  if( !db.commit() )
-  {
-    m_lastErrorMsg = QString( "Failed to commit after elements were added: %1" ).arg( db.lastError().text() );
-    return false;
   }
 
   m_lastErrorMsg = "";
