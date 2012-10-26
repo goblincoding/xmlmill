@@ -1,6 +1,7 @@
 #ifndef GCDATABASEINTERFACE_H
 #define GCDATABASEINTERFACE_H
 
+#include "utils/gctypes.h"
 #include <QObject>
 #include <QMap>
 
@@ -9,9 +10,10 @@ class GCDataBaseInterface : public QObject
   Q_OBJECT
 public:
   explicit GCDataBaseInterface( QObject *parent = 0 );
-  ~GCDataBaseInterface();
 
   bool initialise();
+  bool addElements  ( const GCElementsMap   &elements );
+  bool addAttributes( const GCAttributesMap &attributes );
 
   /* Getters. */
   QStringList getDBList() const;
@@ -22,6 +24,7 @@ public slots:
   bool setSessionDB( QString dbName );
 
 private:
+  void saveFile();
   bool openDBConnection( QString dbConName, QString &errMsg );
   bool initialiseDB    ( QString dbConName, QString &errMsg );
 

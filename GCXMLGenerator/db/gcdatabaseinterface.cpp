@@ -5,24 +5,25 @@
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlError>
 #include <QtSql/QSqlQuery>
+#include <QtSql/QSqlRecord>
 
 /*-------------------------------------------------------------*/
 
 /* SQL Command Strings. */
-static const QLatin1String CREATE_TABLE_ELEMENTS    ( "CREATE TABLE xmlelements( element QString primary key,"
-                                                      "compulsory_attributes QString, optional_attributes )" );
+static const QLatin1String CREATE_TABLE_ELEMENTS   ( "CREATE TABLE xmlelements( element QString primary key, attributes QString )" );
+static const QLatin1String CREATE_TABLE_ATTRIBUTES ( "CREATE TABLE xmlattributes( attribute QString primary key, values QString )" );
 
-static const QLatin1String CREATE_TABLE_ATTRIBUTES  ( "CREATE TABLE xmlattributes( attribute QString primary key,"
-                                                      "possible_values QString )" );
+static const QLatin1String PREPARE_INSERT_ELEMENT  ( "INSERT INTO xmlelements( attributes ) VALUES( ? )" );
+static const QLatin1String PREPARE_INSERT_ATTRIBUTE( "INSERT INTO xmlattributes( values ) VALUES( ? )" );
 
-static const QLatin1String PREPARE_INSERT_ELEMENTS  ( "INSERT INTO xmlelements( compulsory_attributes, optional_attributes) VALUES( ?,? )" );
-static const QLatin1String PREPARE_INSERT_ATTRIBUTES( "INSERT INTO xmlattributes( possible_values ) VALUES( ? )" );
+static const QLatin1String PREPARE_DELETE_ELEMENT  ( "DELETE FROM xmlelements WHERE element = ?" );
+static const QLatin1String PREPARE_DELETE_ATTRIBUTE( "DELETE FROM xmlattributes WHERE attribute = ?" );
 
-static const QLatin1String PREPARE_DELETE_ELEMENTS  ( "DELETE FROM xmlelements WHERE element = ?" );
-static const QLatin1String PREPARE_DELETE_ATTRIBUTES( "DELETE FROM xmlattributes WHERE attribute = ?" );
+static const QLatin1String PREPARE_UPDATE_ELEMENT  ( "UPDATE xmlelements SET attributes = ? WHERE element = ?" );
+static const QLatin1String PREPARE_UPDATE_ATTRIBUTE( "UPDATE xmlattributes SET values = ? WHERE attribute = ?" );
 
-static const QLatin1String PREPARE_UPDATE_ELEMENTS  ( "UPDATE xmlelements SET compulsory_attributes = ?, optional_attributes = ? WHERE element = ?" );
-static const QLatin1String PREPARE_UPDATE_ATTRIBUTES( "UPDATE xmlattributes SET possible_values = ? WHERE attribute = ?" );
+static const QLatin1String PREPARE_SELECT_ELEMENT  ( "SELECT attributes FROM xmlelements WHERE element = ?" );
+static const QLatin1String PREPARE_SELECT_ATTRIBUTE( "SELECT values FROM xmlattributes WHERE attribute = ?" );
 
 /*-------------------------------------------------------------*/
 
@@ -41,29 +42,6 @@ GCDataBaseInterface::GCDataBaseInterface( QObject *parent ) :
   m_dbMap         ()
 {
 }
-
-/*-------------------------------------------------------------*/
-
-GCDataBaseInterface::~GCDataBaseInterface()
-{
-  /* Upon exit, replace the database list on record with what we
-    currently have in the map (to cater for updates, additions,
-    removals and so forth). */
-  QFile flatFile( DB_FILE );
-
-  if( flatFile.open( QIODevice::ReadWrite | QIODevice::Text | QIODevice::Truncate ) )
-  {
-    QTextStream outStream( &flatFile );
-
-    foreach( QString str, m_dbMap.values() )
-    {
-      outStream << str << "\n";
-    }
-
-    flatFile.close();
-  }
-}
-
 
 /*-------------------------------------------------------------*/
 
@@ -105,16 +83,16 @@ bool GCDataBaseInterface::addDatabase( QString dbName )
 {
   if( !dbName.isEmpty() )
   {
-    m_lastErrorMsg = QString( "" );
-
     /* The DB name passed in will most probably consist of a path/to/file string. */
     QSqlDatabase db = QSqlDatabase::addDatabase( "QSQLITE", dbName );
     QString dbFileName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
 
     if( db.isValid() )
     {
+      m_lastErrorMsg = "";
       db.setDatabaseName( dbFileName );
       m_dbMap.insert( dbFileName, dbName );
+      saveFile();
       return true;
     }
 
@@ -130,12 +108,11 @@ bool GCDataBaseInterface::addDatabase( QString dbName )
 
 bool GCDataBaseInterface::setSessionDB( QString dbName )
 {
-  m_lastErrorMsg = QString( "" );
-
   /* We get the database name as parameter, but wish to work with
     the connection name from here on. */
   if( openDBConnection( m_dbMap.value( dbName ), m_lastErrorMsg ) )
   {
+    m_lastErrorMsg = "";
     m_sessionDBName = dbName;
     return true;
   }
@@ -147,6 +124,7 @@ bool GCDataBaseInterface::setSessionDB( QString dbName )
     {
       if( openDBConnection( m_dbMap.value( dbName ), m_lastErrorMsg ) )
       {
+        m_lastErrorMsg = "";
         m_sessionDBName = dbName;
         return true;
       }
@@ -211,6 +189,7 @@ bool GCDataBaseInterface::initialiseDB( QString dbConName, QString &errMsg )
     return false;
   }
 
+  /* DB connection should be open from openDBConnection() above. */
   QSqlQuery query( db );
 
   if( !query.exec( CREATE_TABLE_ELEMENTS ) )
@@ -229,6 +208,121 @@ bool GCDataBaseInterface::initialiseDB( QString dbConName, QString &errMsg )
 
   db.commit();
   return true;
+}
+
+/*-------------------------------------------------------------*/
+
+bool GCDataBaseInterface::addElements( const GCElementsMap &elements )
+{
+  /* Get the current session connection and ensure that it's open. */
+  QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
+
+  if( !db.isValid() )
+  {
+    m_lastErrorMsg = QString( "Failed to open session connection: %1, error: %2" ).arg( m_sessionDBName ).arg( db.lastError().text() );
+    return false;
+  }
+
+  /* Retrieve the records corresponding to the elements we just received (if
+    they already exist) and update the DB with the associated attributes contained
+    in the map.  If no record for this element exists, we'll obviously add a new one. */
+  QList< QString > keys = elements.keys();
+
+  for( int i = 0; i < keys.size(); ++i )
+  {
+    QSqlQuery query( db );
+
+    if( !query.prepare( PREPARE_SELECT_ELEMENT ) )
+    {
+      m_lastErrorMsg = QString( "Prepare SELECT element failed: %1" ).arg( query.lastError().text() );
+      return false;
+    }
+
+    query.addBindValue( keys.at( i ) );
+
+    if( !query.exec() )
+    {
+      m_lastErrorMsg = QString( "SELECT element failed: %1" ).arg( query.lastError().text() );
+      return false;
+    }
+
+    /* If we don't have an existing record, add it. */
+    if( query.size() < 1 )
+    {
+      if( !query.prepare( PREPARE_INSERT_ELEMENT ) )
+      {
+        m_lastErrorMsg = QString( "Prepare INSERT element failed: %1" ).arg( query.lastError().text() );
+        return false;
+      }
+
+      /* Create a comma-separated list of all the associated attributes. */
+      query.addBindValue( elements.value( keys.at( i ) ).join( "," ) );
+
+      if( !query.exec() )
+      {
+        m_lastErrorMsg = QString( "INSERT element failed: %1" ).arg( query.lastError().text() );
+        return false;
+      }
+    }
+    else
+    {
+      /* The value saved in the "attributes" column of the "xmlelements" table is a comma
+        separated list of associated attributes. */
+      QStringList attributes = query.value( query.record().indexOf( "attributes" ) ).toString().split( "," );
+      attributes.append( elements.value( keys.at( i ) ) );
+      attributes.removeDuplicates();
+
+      if( !query.prepare( PREPARE_UPDATE_ELEMENT ) )
+      {
+        m_lastErrorMsg = QString( "Prepare UPDATE element failed: %1" ).arg( query.lastError().text() );
+        return false;
+      }
+
+      /* Revert the QStringList back to a single comma-separated QString for storing. */
+      query.addBindValue( attributes.join( "," ) );
+
+      if( !query.exec() )
+      {
+        m_lastErrorMsg = QString( "UPDATE element failed: %1" ).arg( query.lastError().text() );
+        return false;
+      }
+    }
+  }
+
+  if( !db.commit() )
+  {
+    m_lastErrorMsg = QString( "Failed to commit after elements were added: %1" ).arg( db.lastError().text() );
+    return false;
+  }
+
+  m_lastErrorMsg = "";
+  return true;
+}
+
+/*-------------------------------------------------------------*/
+
+bool GCDataBaseInterface::addAttributes( const GCAttributesMap &attributes )
+{
+  return true;
+}
+
+/*-------------------------------------------------------------*/
+
+void GCDataBaseInterface::saveFile()
+{
+  QFile flatFile( DB_FILE );
+
+  if( flatFile.open( QIODevice::ReadWrite | QIODevice::Text | QIODevice::Truncate ) )
+  {
+    QTextStream outStream( &flatFile );
+
+    foreach( QString str, m_dbMap.values() )
+    {
+      outStream << str << "\n";
+    }
+
+    flatFile.close();
+  }
 }
 
 /*-------------------------------------------------------------*/

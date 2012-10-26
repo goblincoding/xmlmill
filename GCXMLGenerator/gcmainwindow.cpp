@@ -12,10 +12,10 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   QMainWindow        ( parent ),
   ui                 ( new Ui::GCMainWindow ),
   m_dbInterface      ( new GCDataBaseInterface ),
+  m_elements         (),
+  m_attributes       (),
   m_domDoc           (),
-  m_fileName         ( "" ),
-  m_elementAttributes(),
-  m_attributeValues  ()
+  m_fileName         ( "" )
 {
   ui->setupUi( this );
 
@@ -88,7 +88,7 @@ void GCMainWindow::showSessionForm()
 
 /*-------------------------------------------------------------*/
 
-void GCMainWindow::showErrorMessageBox( QString errorMsg )
+void GCMainWindow::showErrorMessageBox( const QString &errorMsg )
 {
   QMessageBox::information( this, "Error!", errorMsg );
 }
@@ -100,13 +100,15 @@ void GCMainWindow::processInputXML()
   ui->treeWidget->clear();
   QDomElement root = m_domDoc.documentElement();
   populateTreeWidget( root, ui->treeWidget->invisibleRootItem() );
+  updateDataBase();
 }
 
 /*-------------------------------------------------------------*/
 
 void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWidgetItem *parentItem )
 {
-  QDomElement element = parentElement.firstChild();
+  QDomElement element = parentElement.firstChildElement();
+
   while ( !element.isNull() )
   {
     /* Stick this item into the tree. */
@@ -114,11 +116,75 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
     item->setText( 0, element.tagName() );
     parentItem->addChild( item );
 
-    /* Collect the element's attributes and update the maps. */
-    QDomNamedNodeMap attributes = element.attributes();
+    populateMaps( element );
 
     populateTreeWidget( element, item );
-    element = element.nextSibling();
+    element = element.nextSiblingElement();
+  }
+}
+
+/*-------------------------------------------------------------*/
+
+void GCMainWindow::populateMaps( const QDomElement &element )
+{
+  /* Collect the element's attributes and update the maps. */
+  QDomNamedNodeMap attributes = element.attributes();
+  QStringList attrList;
+
+  for( int i = 0; i < attributes.size(); ++i )
+  {
+    QDomAttr attr = attributes.item( i ).toAttr();
+
+    if( !attr.isNull() )
+    {
+      attrList.append( attr.name() );
+
+      /* Check if we already know about this attribute, if we do,
+        then we add its value to the list of possible values associated
+        with this particular attribute, if we don't, then it's a new addition. */
+      if( m_attributes.contains( attr.name() ) )
+      {
+        QStringList tmp( m_attributes.value( attr.name() ) );
+        tmp.append( attr.value() );
+        tmp.removeDuplicates();
+        m_attributes.insert( attr.name(), tmp );
+      }
+      else
+      {
+        m_attributes.insert( attr.name(), QStringList( attr.value() ) );
+      }
+    }
+  }
+
+  /* Now that we have all the current element's attributes mapped, let's see
+    if we already know about all these attributes or if we have uncovered new ones. */
+  if( m_elements.contains( element.tagName() ) )
+  {
+    QStringList tmp( m_attributes.value( element.tagName() ) );
+    tmp.append( attrList );
+    tmp.removeDuplicates();
+    m_attributes.insert( element.tagName(), tmp );
+  }
+  else
+  {
+    m_elements.insert( element.tagName(), attrList );
+  }
+}
+
+/*-------------------------------------------------------------*/
+
+void GCMainWindow::updateDataBase()
+{
+  if( !m_dbInterface->addElements( m_elements ) )
+  {
+    QString errMsg = QString( "Failed to update elements database: %1." ).arg( m_dbInterface->getLastError() );
+    showErrorMessageBox( errMsg );
+  }
+
+  if( !m_dbInterface->addAttributes( m_attributes ) )
+  {
+    QString errMsg = QString( "Failed to update attributes database: %1." ).arg( m_dbInterface->getLastError() );
+    showErrorMessageBox( errMsg );
   }
 }
 
@@ -141,7 +207,7 @@ void GCMainWindow::openFile()
       int     line  ( -1 );
       int     col   ( -1 );
 
-      if( !m_domDoc.setContent( inStream.readAll(), &xmlErr, &line, &col ) )
+      if( m_domDoc.setContent( inStream.readAll(), &xmlErr, &line, &col ) )
       {
         processInputXML();
       }

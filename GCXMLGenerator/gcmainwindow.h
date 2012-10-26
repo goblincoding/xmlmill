@@ -1,6 +1,7 @@
 #ifndef GCMAINWINDOW_H
 #define GCMAINWINDOW_H
 
+#include "utils/gctypes.h"
 #include <QMainWindow>
 #include <QDomDocument>
 
@@ -21,17 +22,19 @@ public:
   
 private:
   void showSessionForm();
-  void showErrorMessageBox( QString errorMsg );
+  void showErrorMessageBox( const QString &errorMsg );
   void processInputXML();
   void populateTreeWidget( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
+  void populateMaps( const QDomElement &element );
+  void updateDataBase();
 
   Ui::GCMainWindow    *ui;
   GCDataBaseInterface *m_dbInterface;
+  GCElementsMap        m_elements;
+  GCAttributesMap      m_attributes;
   QDomDocument         m_domDoc;
   QString              m_fileName;
 
-  QMap< QString, QStringList > m_elementAttributes;
-  QMap< QString, QStringList > m_attributeValues;
 
 private slots:
   /* XML file related. */
