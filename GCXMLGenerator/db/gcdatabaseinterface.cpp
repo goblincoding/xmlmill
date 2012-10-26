@@ -70,6 +70,7 @@ bool GCDataBaseInterface::initialise()
       }
     }
 
+    m_lastErrorMsg = "";
     return true;
   }
 
@@ -113,7 +114,7 @@ bool GCDataBaseInterface::setSessionDB( QString dbName )
   if( openDBConnection( m_dbMap.value( dbName ), m_lastErrorMsg ) )
   {
     m_lastErrorMsg = "";
-    m_sessionDBName = dbName;
+    m_sessionDBName = m_dbMap.value( dbName );
     return true;
   }
   else if( m_lastErrorMsg == "ADD_NEW_DB" )
@@ -125,7 +126,7 @@ bool GCDataBaseInterface::setSessionDB( QString dbName )
       if( openDBConnection( m_dbMap.value( dbName ), m_lastErrorMsg ) )
       {
         m_lastErrorMsg = "";
-        m_sessionDBName = dbName;
+        m_sessionDBName = m_dbMap.value( dbName );
         return true;
       }
     }
@@ -142,7 +143,7 @@ bool GCDataBaseInterface::openDBConnection( QString dbConName, QString &errMsg )
 {
   if( !QSqlDatabase::contains( dbConName ) )
   {
-    m_lastErrorMsg = "ADD_NEW_DB";
+    errMsg = "ADD_NEW_DB";
     return false;
   }
 
@@ -174,6 +175,7 @@ bool GCDataBaseInterface::openDBConnection( QString dbConName, QString &errMsg )
     return initialiseDB( dbConName, errMsg );
   }
 
+  errMsg = "";
   return true;
 }
 
@@ -207,6 +209,7 @@ bool GCDataBaseInterface::initialiseDB( QString dbConName, QString &errMsg )
   }
 
   db.commit();
+  errMsg = "";
   return true;
 }
 
