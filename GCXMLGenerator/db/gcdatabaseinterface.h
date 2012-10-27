@@ -20,8 +20,9 @@ public:
   QString  getLastError() const;
   
 public slots:
-  bool addDatabase ( QString dbName );
-  bool setSessionDB( QString dbName );
+  bool addDatabase   ( QString dbName );
+  bool removeDatabase( QString dbName );
+  bool setSessionDB  ( QString dbName );
 
 private:
   void saveFile();

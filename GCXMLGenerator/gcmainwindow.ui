@@ -258,6 +258,7 @@
     </property>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
+    <addaction name="actionSaveAs"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuDatabase"/>
@@ -353,6 +354,11 @@
   <action name="actionSwitchSessionDatabase">
    <property name="text">
     <string>S&amp;witch Session Database</string>
+   </property>
+  </action>
+  <action name="actionSaveAs">
+   <property name="text">
+    <string>Save &amp;As</string>
    </property>
   </action>
  </widget>

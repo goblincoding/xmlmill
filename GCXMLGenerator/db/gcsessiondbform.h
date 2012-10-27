@@ -12,19 +12,21 @@ class GCSessionDBForm : public QDialog
   Q_OBJECT
   
 public:
-  explicit GCSessionDBForm( QStringList dbList, QWidget *parent = 0 );
+  explicit GCSessionDBForm( QStringList dbList, bool remove, QWidget *parent = 0 );
   ~GCSessionDBForm();
 
 signals:
   void dbSelected   ( QString );
+  void dbRemoved    ( QString );
   void newConnection();
   void userCancelled();
   
 private:
   Ui::GCSessionDBForm *ui;
+  bool                m_remove;
 
 private slots:
-  void open();
+  void select();
   void addNew();
 };
 

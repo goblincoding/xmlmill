@@ -4,9 +4,10 @@
 
 /*-------------------------------------------------------------*/
 
-GCSessionDBForm::GCSessionDBForm( QStringList dbList, QWidget *parent ) :
-  QDialog( parent),
-  ui     ( new Ui::GCSessionDBForm )
+GCSessionDBForm::GCSessionDBForm( QStringList dbList, bool remove, QWidget *parent ) :
+  QDialog ( parent),
+  ui      ( new Ui::GCSessionDBForm ),
+  m_remove( remove )
 {
   ui->setupUi( this );
 
@@ -20,8 +21,13 @@ GCSessionDBForm::GCSessionDBForm( QStringList dbList, QWidget *parent ) :
     ui->comboBox->addItems( dbList );
   }
 
+  if( m_remove )
+  {
+    ui->addNewButton->setVisible( false );
+  }
+
   connect( ui->addNewButton, SIGNAL( clicked() ), this, SLOT  ( addNew() ) );
-  connect( ui->okButton,     SIGNAL( clicked() ), this, SLOT  ( open() ) );
+  connect( ui->okButton,     SIGNAL( clicked() ), this, SLOT  ( select() ) );
   connect( ui->cancelButton, SIGNAL( clicked() ), this, SIGNAL( userCancelled() ) );
   connect( ui->cancelButton, SIGNAL( clicked() ), this, SLOT  ( close() ) );
 }
@@ -35,9 +41,17 @@ GCSessionDBForm::~GCSessionDBForm()
 
 /*-------------------------------------------------------------*/
 
-void GCSessionDBForm::open()
+void GCSessionDBForm::select()
 {
-  emit dbSelected( ui->comboBox->currentText() );
+  if( m_remove )
+  {
+    emit dbRemoved( ui->comboBox->currentText() );
+  }
+  else
+  {
+    emit dbSelected( ui->comboBox->currentText() );
+  }
+
   this->close();
 }
 

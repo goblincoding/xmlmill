@@ -21,12 +21,13 @@ public:
   ~GCMainWindow();
   
 private:
-  void showSessionForm();
+  void showSessionForm( bool remove = false );
   void showErrorMessageBox( const QString &errorMsg );
   void processInputXML();
   void populateTreeWidget( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
   void populateMaps( const QDomElement &element );
   void updateDataBase();
+  void addDBConnection( const QString &dbName );
 
   Ui::GCMainWindow    *ui;
   GCDataBaseInterface *m_dbInterface;
@@ -40,12 +41,15 @@ private slots:
   /* XML file related. */
   void openFile();
   void saveFile();
+  void saveFileAs();
 
   /* Database related. */
   void addNewDB();
   void addExistingDB();
-  void removeDB();
   void switchDBSession();
+  void removeDB();
+  void setSessionDB( QString dbName );
+  void removeDBConnection( QString dbName );
 
   /* Build XML. */
   void addNewElement();

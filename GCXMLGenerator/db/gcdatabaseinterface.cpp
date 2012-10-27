@@ -107,6 +107,14 @@ bool GCDataBaseInterface::addDatabase( QString dbName )
 
 /*-------------------------------------------------------------*/
 
+bool GCDataBaseInterface::removeDatabase( QString dbName )
+{
+  // STILL TO DO
+  return true;
+}
+
+/*-------------------------------------------------------------*/
+
 bool GCDataBaseInterface::setSessionDB( QString dbName )
 {
   /* The DB name passed in will most probably consist of a path/to/file string. */
