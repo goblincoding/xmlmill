@@ -24,6 +24,7 @@ GCSessionDBForm::GCSessionDBForm( QStringList dbList, bool remove, QWidget *pare
   if( m_remove )
   {
     ui->addNewButton->setVisible( false );
+    ui->addExistingButton->setVisible( false );
   }
 
   connect( ui->addNewButton,      SIGNAL( clicked() ), this, SIGNAL( newConnection() ) );
