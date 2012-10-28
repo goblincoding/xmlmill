@@ -149,14 +149,18 @@ bool GCDataBaseInterface::setSessionDB( QString dbName )
 {
   /* The DB name passed in will most probably consist of a path/to/file string. */
   QString dbConName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
-  if( openDBConnection( dbConName, m_lastErrorMsg ) )
+
+  if( QSqlDatabase::contains( dbConName ) )
   {
-    m_lastErrorMsg = "";
-    m_sessionDBName = dbConName;
-    m_hasActiveSession = true;
-    return true;
+    if( openDBConnection( dbConName, m_lastErrorMsg ) )
+    {
+      m_lastErrorMsg = "";
+      m_sessionDBName = dbConName;
+      m_hasActiveSession = true;
+      return true;
+    }
   }
-  else if( m_lastErrorMsg == "ADD_NEW_DB" )
+  else
   {
     /* If we somehow tried to set a DB for the session that doesn't exist,
       then we'll automatically try to add it and set it as active. */
@@ -183,12 +187,6 @@ bool GCDataBaseInterface::setSessionDB( QString dbName )
 
 bool GCDataBaseInterface::openDBConnection( QString dbConName, QString &errMsg )
 {
-  if( !QSqlDatabase::contains( dbConName ) )
-  {
-    errMsg = "ADD_NEW_DB";
-    return false;
-  }
-
   /* If we have a previous connection open, close it. */
   QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
 
