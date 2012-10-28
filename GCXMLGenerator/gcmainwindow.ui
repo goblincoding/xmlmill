@@ -78,6 +78,9 @@
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
            <widget class="QTreeWidget" name="treeWidget">
+            <property name="editTriggers">
+             <set>QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+            </property>
             <property name="alternatingRowColors">
              <bool>true</bool>
             </property>

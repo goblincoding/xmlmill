@@ -76,6 +76,7 @@ void GCMainWindow::processInputXML()
   /* We want to show the document's root element in the tree view as well. */
   QTreeWidgetItem *item = new QTreeWidgetItem;
   item->setText( 0, root.tagName() );
+  item->setFlags( item->flags() | Qt::ItemIsEditable );
   ui->treeWidget->invisibleRootItem()->addChild( item );
 
   /* Now we can recursively stick the rest of the elements into our widget. */
@@ -94,6 +95,7 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
     /* Stick this item into the tree. */
     QTreeWidgetItem *item = new QTreeWidgetItem();
     item->setText( 0, element.tagName() );
+    item->setFlags( item->flags() | Qt::ItemIsEditable );
     parentItem->addChild( item );
 
     populateMaps( element );
