@@ -106,8 +106,10 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
 /*-------------------------------------------------------------*/
 
 void GCMainWindow::populateMaps( const QDomElement &element )
-{
-  /* Collect the element's attributes and update the maps. */
+{  
+  /* Check if we already know about this attribute, if we do,
+    then we add its current value to the list of possible values associated
+    with this particular attribute, if we don't, then it's a new addition. */
   QDomNamedNodeMap attributes = element.attributes();
   QStringList attrList;
 
@@ -119,9 +121,6 @@ void GCMainWindow::populateMaps( const QDomElement &element )
     {
       attrList.append( attr.name() );
 
-      /* Check if we already know about this attribute, if we do,
-        then we add its value to the list of possible values associated
-        with this particular attribute, if we don't, then it's a new addition. */
       if( m_attributes.contains( attr.name() ) )
       {
         QStringList tmp( m_attributes.value( attr.name() ) );
@@ -134,20 +133,35 @@ void GCMainWindow::populateMaps( const QDomElement &element )
         m_attributes.insert( attr.name(), QStringList( attr.value() ) );
       }
     }
+  }  
+
+  /* We also check if there are any comments associated with this element and,
+    if we have encountered this particular comment in the past.  If we have, we
+    update the list, if not, we add it for future reference. We'll operate on
+    the assumption that an XML comment will appear directly before the element
+    in question and also that such comments are siblings. */
+  QStringList comments( m_elements.value( element.tagName() ).second );
+
+  if( element.previousSibling().nodeType() == QDomNode::CommentNode )
+  {
+    comments.append( element.previousSibling().toComment().nodeValue() );
+    comments.removeDuplicates();
   }
 
   /* Now that we have all the current element's attributes mapped, let's see
     if we already know about all these attributes or if we have uncovered new ones. */
   if( m_elements.contains( element.tagName() ) )
   {
-    QStringList tmp( m_attributes.value( element.tagName() ) );
-    tmp.append( attrList );
-    tmp.removeDuplicates();
-    m_attributes.insert( element.tagName(), tmp );
+    QStringList attributeValues( m_elements.value( element.tagName() ).first );
+    attributeValues.append( attrList );
+    attributeValues.removeDuplicates();
+
+    m_elements.insert( element.tagName(), GCElementPair( attributeValues, comments ) );
+
   }
   else
   {
-    m_elements.insert( element.tagName(), attrList );
+    m_elements.insert( element.tagName(), GCElementPair( attrList, comments ) );
   }
 }
 

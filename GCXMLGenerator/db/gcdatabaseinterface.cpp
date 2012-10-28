@@ -10,19 +10,19 @@
 /*-------------------------------------------------------------*/
 
 /* SQL Command Strings. */
-static const QLatin1String CREATE_TABLE_ELEMENTS   ( "CREATE TABLE xmlelements( element QString primary key, attributes QString )" );
+static const QLatin1String CREATE_TABLE_ELEMENTS   ( "CREATE TABLE xmlelements( element QString primary key, attributes QString, comments QString )" );
 static const QLatin1String CREATE_TABLE_ATTRIBUTES ( "CREATE TABLE xmlattributes( attribute QString primary key, attrvalues QString )" );
 
-static const QLatin1String PREPARE_INSERT_ELEMENT  ( "INSERT INTO xmlelements( attributes ) VALUES( ? )" );
+static const QLatin1String PREPARE_INSERT_ELEMENT  ( "INSERT INTO xmlelements( attributes, comments ) VALUES( ?, ? )" );
 static const QLatin1String PREPARE_INSERT_ATTRIBUTE( "INSERT INTO xmlattributes( attrvalues ) VALUES( ? )" );
 
 static const QLatin1String PREPARE_DELETE_ELEMENT  ( "DELETE FROM xmlelements WHERE element = ?" );
 static const QLatin1String PREPARE_DELETE_ATTRIBUTE( "DELETE FROM xmlattributes WHERE attribute = ?" );
 
-static const QLatin1String PREPARE_UPDATE_ELEMENT  ( "UPDATE xmlelements SET attributes = ? WHERE element = ?" );
+static const QLatin1String PREPARE_UPDATE_ELEMENT  ( "UPDATE xmlelements SET attributes = ?, comments = ? WHERE element = ?" );
 static const QLatin1String PREPARE_UPDATE_ATTRIBUTE( "UPDATE xmlattributes SET attrvalues = ? WHERE attribute = ?" );
 
-static const QLatin1String PREPARE_SELECT_ELEMENT  ( "SELECT attributes FROM xmlelements WHERE element = ?" );
+static const QLatin1String PREPARE_SELECT_ELEMENT  ( "SELECT attributes, comments FROM xmlelements WHERE element = ?" );
 static const QLatin1String PREPARE_SELECT_ATTRIBUTE( "SELECT attrvalues FROM xmlattributes WHERE attribute = ?" );
 
 /*-------------------------------------------------------------*/
@@ -297,8 +297,9 @@ bool GCDataBaseInterface::addElements( const GCElementsMap &elements )
         return false;
       }
 
-      /* Create a comma-separated list of all the associated attributes. */
-      query.addBindValue( elements.value( keys.at( i ) ).join( "," ) );
+      /* Create a comma-separated list of all the associated attributes and comments. */
+      query.addBindValue( elements.value( keys.at( i ) ).first.join( "," ) );
+      query.addBindValue( elements.value( keys.at( i ) ).second.join( "," ) );
 
       if( !query.exec() )
       {
@@ -311,8 +312,12 @@ bool GCDataBaseInterface::addElements( const GCElementsMap &elements )
       /* The value saved in the "attributes" column of the "xmlelements" table is a comma
         separated list of associated attributes. */
       QStringList attributes = query.value( query.record().indexOf( "attributes" ) ).toString().split( "," );
-      attributes.append( elements.value( keys.at( i ) ) );
+      attributes.append( elements.value( keys.at( i ) ).first );
       attributes.removeDuplicates();
+
+      QStringList comments = query.value( query.record().indexOf( "comments" ) ).toString().split( "," );
+      comments.append( elements.value( keys.at( i ) ).second );
+      comments.removeDuplicates();
 
       if( !query.prepare( PREPARE_UPDATE_ELEMENT ) )
       {
@@ -322,6 +327,7 @@ bool GCDataBaseInterface::addElements( const GCElementsMap &elements )
 
       /* Revert the QStringList back to a single comma-separated QString for storing. */
       query.addBindValue( attributes.join( "," ) );
+      query.addBindValue( comments.join( "," ) );
 
       if( !query.exec() )
       {
