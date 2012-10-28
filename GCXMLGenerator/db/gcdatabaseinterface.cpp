@@ -94,10 +94,11 @@ bool GCDataBaseInterface::addDatabase( QString dbName )
 
       if( db.isValid() )
       {
-        m_lastErrorMsg = "";
         db.setDatabaseName( dbName );
         m_dbMap.insert( dbConName, dbName );
         saveFile();
+
+        m_lastErrorMsg = "";
         return true;
       }
 
@@ -123,20 +124,19 @@ bool GCDataBaseInterface::removeDatabase( QString dbName )
   {
     /* The DB name passed in will most probably consist of a path/to/file string. */
     QString dbConName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
-    QSqlDatabase db = QSqlDatabase::database( dbConName );
 
-    if( db.isValid() )
+    QSqlDatabase::removeDatabase( dbConName );
+    m_dbMap.remove( dbConName );
+    saveFile();
+
+    if( m_sessionDBName == dbConName )
     {
-      m_lastErrorMsg = "";
-      db.close();
-      QSqlDatabase::removeDatabase( dbConName );
-      m_dbMap.remove( dbConName );
-      saveFile();
-      return true;
+      m_sessionDBName = "";
+      m_hasActiveSession = false;
     }
 
-    m_lastErrorMsg = QString( "Failed to remove database \"%1\": [%2]." ).arg( dbConName ).arg( db.lastError().text() );
-    return false;
+    m_lastErrorMsg = "";
+    return true;
   }
 
   m_lastErrorMsg = QString( "Database name is empty." );

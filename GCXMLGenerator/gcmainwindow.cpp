@@ -327,6 +327,13 @@ void GCMainWindow::removeDBConnection(QString dbName)
                                                                         .arg( m_dbInterface->getLastError() );
     showErrorMessageBox( error );
   }
+
+  /* If the user removed the active DB for this session, we need to know
+    what he/she intends to replace it with. */
+  if( !m_dbInterface->hasActiveSession() )
+  {
+    showSessionForm();
+  }
 }
 
 /*-------------------------------------------------------------*/
