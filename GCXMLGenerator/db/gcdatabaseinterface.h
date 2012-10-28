@@ -18,6 +18,7 @@ public:
   /* Getters. */
   QStringList getDBList() const;
   QString  getLastError() const;
+  bool hasActiveSession() const;
   
 public slots:
   bool addDatabase   ( QString dbName );
@@ -31,6 +32,7 @@ private:
 
   QString                  m_sessionDBName;
   QString                  m_lastErrorMsg;
+  bool                     m_hasActiveSession;
   QMap< QString, QString > m_dbMap;   // connection name, file name
 };
 

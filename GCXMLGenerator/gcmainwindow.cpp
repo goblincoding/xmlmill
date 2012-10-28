@@ -55,7 +55,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 
   /* If the interface was successfully initialised, prompt the user to choose a database
     connection for this session. */
-  showSessionForm();
+  showSessionForm();  
 }
 
 /*-------------------------------------------------------------*/
@@ -220,16 +220,25 @@ void GCMainWindow::saveFileAs()
 
 void GCMainWindow::updateDataBase()
 {
-  if( !m_dbInterface->addElements( m_elements ) )
+  if( m_dbInterface->hasActiveSession() )
   {
-    QString errMsg = QString( "Failed to update elements database - [%1]." ).arg( m_dbInterface->getLastError() );
-    showErrorMessageBox( errMsg );
-  }
+    if( !m_dbInterface->addElements( m_elements ) )
+    {
+      QString errMsg = QString( "Failed to update elements database - [%1]." ).arg( m_dbInterface->getLastError() );
+      showErrorMessageBox( errMsg );
+    }
 
-  if( !m_dbInterface->addAttributes( m_attributes ) )
+    if( !m_dbInterface->addAttributes( m_attributes ) )
+    {
+      QString errMsg = QString( "Failed to update attributes database - [%1]." ).arg( m_dbInterface->getLastError() );
+      showErrorMessageBox( errMsg );
+    }
+  }
+  else
   {
-    QString errMsg = QString( "Failed to update attributes database - [%1]." ).arg( m_dbInterface->getLastError() );
+    QString errMsg( "No current DB active, please set one for this session." );
     showErrorMessageBox( errMsg );
+    showSessionForm();
   }
 }
 
@@ -281,7 +290,10 @@ void GCMainWindow::addDBConnection( const QString &dbName )
   }
   else
   {
-    showSessionForm();
+    if( !m_dbInterface->hasActiveSession() )
+    {
+      showSessionForm();
+    }
   }
 }
 
@@ -393,10 +405,17 @@ void GCMainWindow::showSessionForm( bool remove )
 {
   GCSessionDBForm *sessionForm = new GCSessionDBForm( m_dbInterface->getDBList(), remove, this );
 
-  connect( sessionForm,   SIGNAL( userCancelled() ),       this, SLOT  ( close() ) );
-  connect( sessionForm,   SIGNAL( newConnection() ),       this, SLOT  ( addNewDB() ) );
-  connect( sessionForm,   SIGNAL( dbSelected( QString ) ), this, SLOT  ( setSessionDB( QString ) ) );
-  connect( sessionForm,   SIGNAL( dbRemoved ( QString ) ), this, SLOT  ( removeDBConnection( QString ) ) );
+  /* If we don't have an active DB session, it's probably at program
+    start-up and the user wishes to exit the application by clicking "Cancel". */
+  if( !m_dbInterface->hasActiveSession() )
+  {
+    connect( sessionForm, SIGNAL( userCancelled() ),       this, SLOT( close() ) );
+  }
+
+  connect( sessionForm,   SIGNAL( newConnection() ),       this, SLOT( addNewDB() ) );
+  connect( sessionForm,   SIGNAL( existingConnection() ),  this, SLOT( addExistingDB() ) );
+  connect( sessionForm,   SIGNAL( dbSelected( QString ) ), this, SLOT( setSessionDB( QString ) ) );
+  connect( sessionForm,   SIGNAL( dbRemoved ( QString ) ), this, SLOT( removeDBConnection( QString ) ) );
 
   sessionForm->show();
 }

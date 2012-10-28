@@ -36,10 +36,11 @@ static const QString REGEXP_SLASHES( "(\\\\|\\/)" );
 /*-------------------------------------------------------------*/
 
 GCDataBaseInterface::GCDataBaseInterface( QObject *parent ) :
-  QObject         ( parent ),
-  m_sessionDBName ( "" ),
-  m_lastErrorMsg  ( "" ),
-  m_dbMap         ()
+  QObject           ( parent ),
+  m_sessionDBName   ( "" ),
+  m_lastErrorMsg    ( "" ),
+  m_hasActiveSession( false ),
+  m_dbMap           ()
 {
 }
 
@@ -86,19 +87,28 @@ bool GCDataBaseInterface::addDatabase( QString dbName )
   {
     /* The DB name passed in will most probably consist of a path/to/file string. */
     QString dbConName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
-    QSqlDatabase db = QSqlDatabase::addDatabase( "QSQLITE", dbConName );
 
-    if( db.isValid() )
+    if( !m_dbMap.contains( dbConName ) )
     {
-      m_lastErrorMsg = "";
-      db.setDatabaseName( dbName );
-      m_dbMap.insert( dbConName, dbName );
-      saveFile();
-      return true;
-    }
+      QSqlDatabase db = QSqlDatabase::addDatabase( "QSQLITE", dbConName );
 
-    m_lastErrorMsg = QString( "Failed to add database \"%1\": [%2]." ).arg( dbConName ).arg( db.lastError().text() );
-    return false;
+      if( db.isValid() )
+      {
+        m_lastErrorMsg = "";
+        db.setDatabaseName( dbName );
+        m_dbMap.insert( dbConName, dbName );
+        saveFile();
+        return true;
+      }
+
+      m_lastErrorMsg = QString( "Failed to add database \"%1\": [%2]." ).arg( dbConName ).arg( db.lastError().text() );
+      return false;
+    }
+    else
+    {
+      m_lastErrorMsg = QString( "Connection: \"%1\" already exists." ).arg( dbConName );
+      return false;
+    }
   }
 
   m_lastErrorMsg = QString( "Database name is empty." );
@@ -109,8 +119,28 @@ bool GCDataBaseInterface::addDatabase( QString dbName )
 
 bool GCDataBaseInterface::removeDatabase( QString dbName )
 {
-  // STILL TO DO
-  return true;
+  if( !dbName.isEmpty() )
+  {
+    /* The DB name passed in will most probably consist of a path/to/file string. */
+    QString dbConName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
+    QSqlDatabase db = QSqlDatabase::database( dbConName );
+
+    if( db.isValid() )
+    {
+      m_lastErrorMsg = "";
+      db.close();
+      QSqlDatabase::removeDatabase( dbConName );
+      m_dbMap.remove( dbConName );
+      saveFile();
+      return true;
+    }
+
+    m_lastErrorMsg = QString( "Failed to remove database \"%1\": [%2]." ).arg( dbConName ).arg( db.lastError().text() );
+    return false;
+  }
+
+  m_lastErrorMsg = QString( "Database name is empty." );
+  return false;
 }
 
 /*-------------------------------------------------------------*/
@@ -123,6 +153,7 @@ bool GCDataBaseInterface::setSessionDB( QString dbName )
   {
     m_lastErrorMsg = "";
     m_sessionDBName = dbConName;
+    m_hasActiveSession = true;
     return true;
   }
   else if( m_lastErrorMsg == "ADD_NEW_DB" )
@@ -135,13 +166,16 @@ bool GCDataBaseInterface::setSessionDB( QString dbName )
       {
         m_lastErrorMsg = "";
         m_sessionDBName = dbConName;
+        m_hasActiveSession = true;
         return true;
       }
     }
 
+    m_hasActiveSession = false;
     return false;
   }
 
+  m_hasActiveSession = false;
   return false;
 }
 
@@ -339,6 +373,13 @@ QStringList GCDataBaseInterface::getDBList() const
 QString GCDataBaseInterface::getLastError() const
 {
   return m_lastErrorMsg;
+}
+
+/*-------------------------------------------------------------*/
+
+bool GCDataBaseInterface::hasActiveSession() const
+{
+  return m_hasActiveSession;
 }
 
 /*-------------------------------------------------------------*/

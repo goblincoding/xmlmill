@@ -16,10 +16,11 @@ public:
   ~GCSessionDBForm();
 
 signals:
-  void dbSelected   ( QString );
-  void dbRemoved    ( QString );
-  void newConnection();
-  void userCancelled();
+  void dbSelected( QString );
+  void dbRemoved ( QString );
+  void newConnection     ();
+  void existingConnection();
+  void userCancelled     ();
   
 private:
   Ui::GCSessionDBForm *ui;
@@ -27,7 +28,6 @@ private:
 
 private slots:
   void select();
-  void addNew();
 };
 
 #endif // GCSESSIONDBFORM_H

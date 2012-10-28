@@ -13,8 +13,8 @@ GCSessionDBForm::GCSessionDBForm( QStringList dbList, bool remove, QWidget *pare
 
   if( dbList.empty() )
   {
-    ui->okButton->setEnabled( false );
-    ui->comboBox->addItem( "No DB Connections yet, hit \"Add New\" below!" );
+    ui->okButton->setVisible( false );
+    ui->comboBox->addItem( "Let there be databases! (i.e. you'll have to add some)" );
   }
   else
   {
@@ -26,10 +26,16 @@ GCSessionDBForm::GCSessionDBForm( QStringList dbList, bool remove, QWidget *pare
     ui->addNewButton->setVisible( false );
   }
 
-  connect( ui->addNewButton, SIGNAL( clicked() ), this, SLOT  ( addNew() ) );
-  connect( ui->okButton,     SIGNAL( clicked() ), this, SLOT  ( select() ) );
-  connect( ui->cancelButton, SIGNAL( clicked() ), this, SIGNAL( userCancelled() ) );
-  connect( ui->cancelButton, SIGNAL( clicked() ), this, SLOT  ( close() ) );
+  connect( ui->addNewButton,      SIGNAL( clicked() ), this, SIGNAL( newConnection() ) );
+  connect( ui->addNewButton,      SIGNAL( clicked() ), this, SLOT  ( close() ) );
+
+  connect( ui->addExistingButton, SIGNAL( clicked() ), this, SIGNAL( existingConnection() ) );
+  connect( ui->addExistingButton, SIGNAL( clicked() ), this, SLOT  ( close() ) );
+
+  connect( ui->cancelButton,      SIGNAL( clicked() ), this, SIGNAL( userCancelled() ) );
+  connect( ui->cancelButton,      SIGNAL( clicked() ), this, SLOT  ( close() ) );
+
+  connect( ui->okButton,          SIGNAL( clicked() ), this, SLOT  ( select() ) );
 }
 
 /*-------------------------------------------------------------*/
@@ -52,14 +58,6 @@ void GCSessionDBForm::select()
     emit dbSelected( ui->comboBox->currentText() );
   }
 
-  this->close();
-}
-
-/*-------------------------------------------------------------*/
-
-void GCSessionDBForm::addNew()
-{
-  emit newConnection();
   this->close();
 }
 
