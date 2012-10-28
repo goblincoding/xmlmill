@@ -72,7 +72,13 @@ void GCMainWindow::processInputXML()
 {
   ui->treeWidget->clear();
   QDomElement root = m_domDoc.documentElement();
-  populateTreeWidget( root, ui->treeWidget->invisibleRootItem() );
+
+  /* We want to show the document's root element in the tree view as well. */
+  QTreeWidgetItem *item = new QTreeWidgetItem;
+  item->setText( 0, root.tagName() );
+  ui->treeWidget->invisibleRootItem()->addChild( item );
+
+  populateTreeWidget( root, item );
   updateDataBase();
 }
 

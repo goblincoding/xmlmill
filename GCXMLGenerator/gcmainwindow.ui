@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>713</width>
-    <height>505</height>
+    <width>885</width>
+    <height>531</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -100,8 +100,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>165</width>
-                 <height>296</height>
+                 <width>276</width>
+                 <height>322</height>
                 </rect>
                </property>
               </widget>
@@ -239,7 +239,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>713</width>
+     <width>885</width>
      <height>21</height>
     </rect>
    </property>
@@ -254,7 +254,7 @@
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>&amp;File</string>
+     <string>X&amp;ML</string>
     </property>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
@@ -333,12 +333,12 @@
   </action>
   <action name="actionOpen">
    <property name="text">
-    <string>&amp;Open</string>
+    <string>&amp;Open XML</string>
    </property>
   </action>
   <action name="actionSave">
    <property name="text">
-    <string>&amp;Save</string>
+    <string>&amp;Save XML</string>
    </property>
   </action>
   <action name="actionRemoveDatabase">
@@ -358,7 +358,7 @@
   </action>
   <action name="actionSaveAs">
    <property name="text">
-    <string>Save &amp;As</string>
+    <string>Save XML &amp;As</string>
    </property>
   </action>
  </widget>
