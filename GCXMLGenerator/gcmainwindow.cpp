@@ -78,6 +78,7 @@ void GCMainWindow::processInputXML()
   item->setText( 0, root.tagName() );
   ui->treeWidget->invisibleRootItem()->addChild( item );
 
+  /* Now we can recursively stick the rest of the elements into our widget. */
   populateTreeWidget( root, item );
   updateDataBase();
 }
