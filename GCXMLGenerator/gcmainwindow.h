@@ -21,13 +21,12 @@ public:
   ~GCMainWindow();
   
 private:
-  void showSessionForm( bool remove = false );
-  void showErrorMessageBox( const QString &errorMsg );
-  void processInputXML();
+  void processDOMDoc();
   void populateTreeWidget( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
   void populateMaps( const QDomElement &element );
-  void updateDataBase();
   void addDBConnection( const QString &dbName );
+  void showSessionForm( bool remove = false );
+  void showErrorMessageBox( const QString &errorMsg );
 
   Ui::GCMainWindow    *ui;
   GCDataBaseInterface *m_dbInterface;
@@ -36,12 +35,17 @@ private:
   QDomDocument         m_domDoc;
   QString              m_fileName;
 
+  QMap< QTreeWidgetItem*, QString > m_treeItemNames;
+
 
 private slots:
+  void treeWidgetItemChanged( QTreeWidgetItem *item, int column );
+  void treeWidgetItemClicked( QTreeWidgetItem *item, int column );
+
   /* XML file related. */
-  void openFile();
-  void saveFile();
-  void saveFileAs();
+  void openXMLFile();
+  void saveXMLFile();
+  void saveXMLFileAs();
 
   /* Database related. */
   void addNewDB();
@@ -50,21 +54,23 @@ private slots:
   void removeDB();
   void setSessionDB( QString dbName );
   void removeDBConnection( QString dbName );
+  void updateDataBase();
 
   /* Build XML. */
-  void addNewElement();
   void deleteElement();
   void addAsChild();
   void addAsSibling();
 
   /* Edit XML store. */
-  void update();
   void deleteElementFromDB();
   void deleteAttributeValuesFromDB();
 
   /* Direct DOM edit. */
   void revertDirectEdit();
   void saveDirectEdit();
+
+  /* DOM related. */
+  void updateDOM();
 };
 
 #endif // GCMAINWINDOW_H

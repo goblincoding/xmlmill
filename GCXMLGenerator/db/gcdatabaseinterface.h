@@ -26,7 +26,7 @@ public slots:
   bool setSessionDB  ( QString dbName );
 
 private:
-  void saveFile();
+  void saveXMLFile();
   bool openDBConnection( QString dbConName, QString &errMsg );
   bool initialiseDB    ( QString dbConName, QString &errMsg );
 

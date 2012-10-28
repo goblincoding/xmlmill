@@ -96,7 +96,7 @@ bool GCDataBaseInterface::addDatabase( QString dbName )
       {
         db.setDatabaseName( dbName );
         m_dbMap.insert( dbConName, dbName );
-        saveFile();
+        saveXMLFile();
 
         m_lastErrorMsg = "";
         return true;
@@ -127,7 +127,7 @@ bool GCDataBaseInterface::removeDatabase( QString dbName )
 
     QSqlDatabase::removeDatabase( dbConName );
     m_dbMap.remove( dbConName );
-    saveFile();
+    saveXMLFile();
 
     if( m_sessionDBName == dbConName )
     {
@@ -424,7 +424,7 @@ bool GCDataBaseInterface::addAttributes( const GCAttributesMap &attributes )
 
 /*-------------------------------------------------------------*/
 
-void GCDataBaseInterface::saveFile()
+void GCDataBaseInterface::saveXMLFile()
 {
   QFile flatFile( DB_FILE );
 

@@ -9,20 +9,27 @@
 /*-------------------------------------------------------------*/
 
 GCMainWindow::GCMainWindow( QWidget *parent ) :
-  QMainWindow        ( parent ),
-  ui                 ( new Ui::GCMainWindow ),
-  m_dbInterface      ( new GCDataBaseInterface ),
-  m_elements         (),
-  m_attributes       (),
-  m_domDoc           (),
-  m_fileName         ( "" )
+  QMainWindow    ( parent ),
+  ui             ( new Ui::GCMainWindow ),
+  m_dbInterface  ( new GCDataBaseInterface ),
+  m_elements     (),
+  m_attributes   (),
+  m_domDoc       (),
+  m_fileName     ( "" ),
+  m_treeItemNames()
 {
   ui->setupUi( this );
 
+  connect( ui->treeWidget, SIGNAL( itemChanged( QTreeWidgetItem*,int ) ),
+           this,           SLOT  ( treeWidgetItemChanged( QTreeWidgetItem*,int ) ) );
+
+  connect( ui->treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ),
+           this,           SLOT  ( treeWidgetItemChanged( QTreeWidgetItem*,int ) ) );
+
   /* XML File related. */
-  connect( ui->actionOpen,   SIGNAL( triggered() ), this, SLOT( openFile() ) );
-  connect( ui->actionSave,   SIGNAL( triggered() ), this, SLOT( saveFile() ) );
-  connect( ui->actionSaveAs, SIGNAL( triggered() ), this, SLOT( saveFileAs() ) );
+  connect( ui->actionOpen,   SIGNAL( triggered() ), this, SLOT( openXMLFile() ) );
+  connect( ui->actionSave,   SIGNAL( triggered() ), this, SLOT( saveXMLFile() ) );
+  connect( ui->actionSaveAs, SIGNAL( triggered() ), this, SLOT( saveXMLFileAs() ) );
 
   /* Database related. */
   connect( ui->actionAddNewDatabase,        SIGNAL( triggered() ), this, SLOT( addNewDB() ) );
@@ -31,13 +38,13 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionSwitchSessionDatabase, SIGNAL( triggered() ), this, SLOT( switchDBSession() ) );
 
   /* Build XML. */
-  connect( ui->buildXMLAddButton,    SIGNAL( clicked() ), this, SLOT( addNewElement() ) );
+  connect( ui->buildXMLUpdateButton, SIGNAL( clicked() ), this, SLOT( updateDataBase() ) );
   connect( ui->buildXMLDeleteButton, SIGNAL( clicked() ), this, SLOT( deleteElement() ) );
   connect( ui->addAsChildButton,     SIGNAL( clicked() ), this, SLOT( addAsChild() ) );
   connect( ui->addAsSiblingButton,   SIGNAL( clicked() ), this, SLOT( addAsSibling() ) );
 
   /* Edit XML store. */
-  connect( ui->editXMLAddButton,              SIGNAL( clicked() ), this, SLOT( update() ) );
+  connect( ui->editXMLAddButton,              SIGNAL( clicked() ), this, SLOT( updateDataBase() ) );
   connect( ui->editXMLDeleteAttributesButton, SIGNAL( clicked() ), this, SLOT( deleteAttributeValuesFromDB() ) );
   connect( ui->editXMLDeleteElementsButton,   SIGNAL( clicked() ), this, SLOT( deleteElementFromDB() ) );
 
@@ -68,9 +75,83 @@ GCMainWindow::~GCMainWindow()
 
 /*-------------------------------------------------------------*/
 
-void GCMainWindow::processInputXML()
+void GCMainWindow::openXMLFile()
+{
+  QString fileName = QFileDialog::getOpenFileName( this, "Open File", QDir::homePath(), "XML Files (*.xml)" );
+
+  /* If the user clicked "OK". */
+  if( !fileName.isEmpty() )
+  {
+    m_fileName = fileName;
+    QFile file( m_fileName );
+
+    if( file.open( QIODevice::ReadOnly | QIODevice::Text ) )
+    {
+      QTextStream inStream( &file );
+      QString xmlErr( "" );
+      int     line  ( -1 );
+      int     col   ( -1 );
+
+      if( m_domDoc.setContent( inStream.readAll(), &xmlErr, &line, &col ) )
+      {
+        processDOMDoc();
+      }
+      else
+      {
+        QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3])." ).arg( xmlErr ).arg( line ).arg( col );
+        showErrorMessageBox( errorMsg );
+      }
+
+      file.close();
+    }
+    else
+    {
+      QString errorMsg = QString( "Failed to open file \"%1\" - [%2]" ).arg( fileName ).arg( file.errorString() );
+      showErrorMessageBox( errorMsg );
+    }
+  }
+}
+
+/*-------------------------------------------------------------*/
+
+void GCMainWindow::saveXMLFile()
+{
+  QFile file( m_fileName );
+
+  if( !file.open( QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text ) )
+  {
+    QString errMsg = QString( "Failed to save file \"%1\" - [%2]." ).arg( m_fileName ).arg( file.errorString() );
+    showErrorMessageBox( errMsg );
+  }
+  else
+  {
+    QTextStream outStream( &file );
+    outStream << m_domDoc.toString( 2 );
+    file.close();
+  }
+}
+
+/*-------------------------------------------------------------*/
+
+void GCMainWindow::saveXMLFileAs()
+{
+  QString file = QFileDialog::getSaveFileName( this, "Save As", QDir::homePath(), "XML Files (*.xml)" );
+
+  /* If the user clicked "OK". */
+  if( !file.isEmpty() )
+  {
+    m_fileName = file;
+    saveXMLFile();
+  }
+}
+
+/*-------------------------------------------------------------*/
+
+void GCMainWindow::processDOMDoc()
 {
   ui->treeWidget->clear();
+  m_treeItemNames.clear();
+
   QDomElement root = m_domDoc.documentElement();
 
   /* We want to show the document's root element in the tree view as well. */
@@ -79,9 +160,21 @@ void GCMainWindow::processInputXML()
   item->setFlags( item->flags() | Qt::ItemIsEditable );
   ui->treeWidget->invisibleRootItem()->addChild( item );
 
+  m_treeItemNames.insert( item, item->text( 0 ) );
+
   /* Now we can recursively stick the rest of the elements into our widget. */
   populateTreeWidget( root, item );
-  updateDataBase();
+
+  QMessageBox::Button button = QMessageBox::question( this,
+                                                      "Update database?",
+                                                      "Would you like to commit the loaded XML\n"
+                                                      "to the current active database session?",
+                                                      QMessageBox::Yes | QMessageBox::No,
+                                                      QMessageBox::Yes );
+  if( button == QMessageBox::Ok )
+  {
+    updateDataBase();
+  }
 }
 
 /*-------------------------------------------------------------*/
@@ -98,6 +191,7 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
     item->setFlags( item->flags() | Qt::ItemIsEditable );
     parentItem->addChild( item );
 
+    m_treeItemNames.insert( item, item->text( 0 ) );
     populateMaps( element );
 
     populateTreeWidget( element, item );
@@ -125,10 +219,10 @@ void GCMainWindow::populateMaps( const QDomElement &element )
 
       if( m_attributes.contains( attr.name() ) )
       {
-        QStringList tmp( m_attributes.value( attr.name() ) );
-        tmp.append( attr.value() );
-        tmp.removeDuplicates();
-        m_attributes.insert( attr.name(), tmp );
+        QStringList possibleValues( m_attributes.value( attr.name() ) );
+        possibleValues.append( attr.value() );
+        possibleValues.removeDuplicates();
+        m_attributes.insert( attr.name(), possibleValues );
       }
       else
       {
@@ -169,78 +263,6 @@ void GCMainWindow::populateMaps( const QDomElement &element )
 
 /*-------------------------------------------------------------*/
 
-void GCMainWindow::openFile()
-{
-  QString fileName = QFileDialog::getOpenFileName( this, "Open File", QDir::homePath(), "XML Files (*.xml)" );
-
-  /* If the user clicked "OK". */
-  if( !fileName.isEmpty() )
-  {
-    m_fileName = fileName;
-    QFile file( m_fileName );
-
-    if( file.open( QIODevice::ReadOnly | QIODevice::Text ) )
-    {
-      QTextStream inStream( &file );
-      QString xmlErr( "" );
-      int     line  ( -1 );
-      int     col   ( -1 );
-
-      if( m_domDoc.setContent( inStream.readAll(), &xmlErr, &line, &col ) )
-      {
-        processInputXML();
-      }
-      else
-      {
-        QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3])." ).arg( xmlErr ).arg( line ).arg( col );
-        showErrorMessageBox( errorMsg );
-      }
-
-      file.close();
-    }
-    else
-    {
-      QString errorMsg = QString( "Failed to open file \"%1\" - [%2]" ).arg( fileName ).arg( file.errorString() );
-      showErrorMessageBox( errorMsg );
-    }
-  }
-}
-
-/*-------------------------------------------------------------*/
-
-void GCMainWindow::saveFile()
-{
-  QFile file( m_fileName );
-
-  if( !file.open( QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text ) )
-  {
-    QString errMsg = QString( "Failed to save file \"%1\" - [%2]." ).arg( m_fileName ).arg( file.errorString() );
-    showErrorMessageBox( errMsg );
-  }
-  else
-  {
-    QTextStream outStream( &file );
-    outStream << m_domDoc.toString( 2 );
-    file.close();
-  }
-}
-
-/*-------------------------------------------------------------*/
-
-void GCMainWindow::saveFileAs()
-{
-  QString file = QFileDialog::getSaveFileName( this, "Save As", QDir::homePath(), "XML Files (*.xml)" );
-
-  /* If the user clicked "OK". */
-  if( !file.isEmpty() )
-  {
-    m_fileName = file;
-    saveFile();
-  }
-}
-
-/*-------------------------------------------------------------*/
-
 void GCMainWindow::updateDataBase()
 {
   if( m_dbInterface->hasActiveSession() )
@@ -263,6 +285,52 @@ void GCMainWindow::updateDataBase()
     showErrorMessageBox( errMsg );
     showSessionForm();
   }
+}
+
+/*-------------------------------------------------------------*/
+
+void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
+{
+  if( m_treeItemNames.contains( item ) )
+  {
+    QString itemName = item->text( column );
+
+    /* This function doesn't necessarily get called when the item has
+      finished changing.  We only want to update the maps once the change
+      has actually been completed. */
+    if( itemName != m_treeItemNames.value( item ) )
+    {
+      /* Temporary backups. */
+      QStringList attributes( m_elements.value( itemName ).first );
+      QStringList comments  ( m_elements.value( itemName ).second );
+
+      /* Update our element map with the new name, but old values. */
+      m_elements.remove( itemName );
+      m_elements.insert( itemName, GCElementPair( attributes, comments ) );
+
+      /* Also update our active DOM doc. */
+      updateDOM();
+    }
+  }
+}
+
+/*-------------------------------------------------------------*/
+
+void GCMainWindow::treeWidgetItemClicked( QTreeWidgetItem *item, int column )
+{
+  QString itemName = item->text( column );
+
+  /* Get only the attributes currently assigned to the element
+    corresponding to this item (and the lists of associated
+    values for these attributes) and populate our table widget. */
+
+}
+
+/*-------------------------------------------------------------*/
+
+void GCMainWindow::updateDOM()
+{
+  processDOMDoc();
 }
 
 /*-------------------------------------------------------------*/
@@ -342,7 +410,7 @@ void GCMainWindow::removeDB()
 /*-------------------------------------------------------------*/
 
 
-void GCMainWindow::removeDBConnection(QString dbName)
+void GCMainWindow::removeDBConnection( QString dbName )
 {
   if( !m_dbInterface->removeDatabase( dbName ) )
   {
@@ -368,13 +436,6 @@ void GCMainWindow::switchDBSession()
 
 /*-------------------------------------------------------------*/
 
-void GCMainWindow::addNewElement()
-{
-
-}
-
-/*-------------------------------------------------------------*/
-
 void GCMainWindow::deleteElement()
 {
 
@@ -390,13 +451,6 @@ void GCMainWindow::addAsChild()
 /*-------------------------------------------------------------*/
 
 void GCMainWindow::addAsSibling()
-{
-
-}
-
-/*-------------------------------------------------------------*/
-
-void GCMainWindow::update()
 {
 
 }
