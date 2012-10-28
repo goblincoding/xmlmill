@@ -339,6 +339,82 @@ bool GCDataBaseInterface::addElements( const GCElementsMap &elements )
 
 bool GCDataBaseInterface::addAttributes( const GCAttributesMap &attributes )
 {
+  /* Get the current session connection and ensure that it's open. */
+  QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
+
+  if( !db.isValid() )
+  {
+    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName ).arg( db.lastError().text() );
+    return false;
+  }
+
+  /* Retrieve the records corresponding to the attributes we just received (if
+    they already exist) and update the DB with the associated possible values contained
+    in the map.  If no record for this attribute exists, we'll obviously add a new one. */
+  QList< QString > keys = attributes.keys();
+
+  for( int i = 0; i < keys.size(); ++i )
+  {
+    QSqlQuery query( db );
+
+    if( !query.prepare( PREPARE_SELECT_ATTRIBUTE ) )
+    {
+      m_lastErrorMsg = QString( "Prepare SELECT attribute failed - [%1]" ).arg( query.lastError().text() );
+      return false;
+    }
+
+    query.addBindValue( keys.at( i ) );
+
+    if( !query.exec() )
+    {
+      m_lastErrorMsg = QString( "SELECT attribute failed - [%1]" ).arg( query.lastError().text() );
+      return false;
+    }
+
+    /* If we don't have an existing record, add it. */
+    if( query.size() < 1 )
+    {
+      if( !query.prepare( PREPARE_INSERT_ATTRIBUTE ) )
+      {
+        m_lastErrorMsg = QString( "Prepare INSERT element failed - [%1]" ).arg( query.lastError().text() );
+        return false;
+      }
+
+      /* Create a comma-separated list of all the associated attributes. */
+      query.addBindValue( attributes.value( keys.at( i ) ).join( "," ) );
+
+      if( !query.exec() )
+      {
+        m_lastErrorMsg = QString( "INSERT attribute failed - [%1]" ).arg( query.lastError().text() );
+        return false;
+      }
+    }
+    else
+    {
+      /* The value saved in the "attrvalues" column of the "xmlattributes" table is a comma
+        separated list of possible attribute values. */
+      QStringList values = query.value( query.record().indexOf( "attrvalues" ) ).toString().split( "," );
+      values.append( attributes.value( keys.at( i ) ) );
+      values.removeDuplicates();
+
+      if( !query.prepare( PREPARE_UPDATE_ATTRIBUTE ) )
+      {
+        m_lastErrorMsg = QString( "Prepare UPDATE attribute failed - [%1]" ).arg( query.lastError().text() );
+        return false;
+      }
+
+      /* Revert the QStringList back to a single comma-separated QString for storing. */
+      query.addBindValue( values.join( "," ) );
+
+      if( !query.exec() )
+      {
+        m_lastErrorMsg = QString( "UPDATE attribute failed - [%1]" ).arg( query.lastError().text() );
+        return false;
+      }
+    }
+  }
+
+  m_lastErrorMsg = "";
   return true;
 }
 
