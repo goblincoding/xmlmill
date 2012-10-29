@@ -316,11 +316,6 @@ bool GCDataBaseInterface::addElement( const QString &element, const QStringList 
       return false;
     }
   }
-  else
-  {
-    m_lastErrorMsg = QString( "An element with this name already exists: %1" ).arg( element );
-    return false;
-  }
 
   m_lastErrorMsg = "";
   return true;
@@ -356,24 +351,24 @@ bool GCDataBaseInterface::updateElementComments( const QString &element, const Q
   }
 
   /* If we don't have an existing record, fail, otherwise update the existing one. */
-  if( query.size() < 1 )
+  if( query.record().isEmpty() )
   {
     m_lastErrorMsg = QString( "No element \"%1\" exists." ).arg( element );
     return false;
   }
   else
   {
+    QStringList existingComments( query.record().field( "comments" ).value().toString().split( SEPARATOR ) );
+    existingComments.append( comments.join( SEPARATOR ) );
+
     if( !query.prepare( PREPARE_UPDATE_COMMENTS ) )
     {
       m_lastErrorMsg = QString( "Prepare UPDATE element failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
       return false;
     }
 
-    query.addBindValue( element );
-
-    QStringList existingComments( query.record().field( "comments" ).value().toString().split( SEPARATOR ) );
-    existingComments.append( comments.join( SEPARATOR ) );
     query.addBindValue( existingComments.join( SEPARATOR ) );
+    query.addBindValue( element );
 
     if( !query.exec() )
     {
@@ -416,24 +411,45 @@ bool GCDataBaseInterface::updateElementAttributes( const QString &element, const
   }
 
   /* If we don't have an existing record, fail, otherwise update the existing one. */
-  if( query.size() < 1 )
+  if( query.record().isEmpty() )
   {
     m_lastErrorMsg = QString( "No element \"%1\" exists." ).arg( element );
     return false;
   }
   else
   {
+    if( query.record().isEmpty() )
+    {
+      int bob  = 0;
+    }
+
+    QSqlField field = query.record().field( "attributes" );
+
+    if( !query.record().field( "attributes" ).isNull() )
+    {
+      int bob  = 0;
+    }
+
+    QVariant var = query.record().field( "attributes" ).value();
+
+    if( !var.isNull() )
+    {
+      int bob  = 0;
+    }
+
+
+    QString currentValue = query.record().field( "attributes" ).value().toString();
+    QStringList existingAttributes( query.record().field( "attributes" ).value().toString().split( SEPARATOR ) );
+    existingAttributes.append( attributes.join( SEPARATOR ) );
+
     if( !query.prepare( PREPARE_UPDATE_ATTRIBUTES ) )
     {
       m_lastErrorMsg = QString( "Prepare UPDATE element failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
       return false;
     }
 
-    query.addBindValue( element );
-
-    QStringList existingAttributes( query.record().field( "attributes" ).value().toString().split( SEPARATOR ) );
-    existingAttributes.append( attributes.join( SEPARATOR ) );
     query.addBindValue( existingAttributes.join( SEPARATOR ) );
+    query.addBindValue( element );
 
     if( !query.exec() )
     {
@@ -477,7 +493,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
   }
 
   /* If we don't have an existing record, add it, otherwise update the existing one. */
-  if( query.size() < 1 )
+  if( query.record().isEmpty() )
   {
     if( !query.prepare( PREPARE_INSERT_ATTRVAL ) )
     {
@@ -497,17 +513,17 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
   }
   else
   {
+    QStringList existingValues( query.record().field( "attributeValues" ).value().toString().split( SEPARATOR ) );
+    existingValues.append( attributeValues.join( SEPARATOR ) );
+
     if( !query.prepare( PREPARE_UPDATE_ATTRVALUES ) )
     {
       m_lastErrorMsg = QString( "Prepare UPDATE attribute failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
       return false;
     }
 
-    query.addBindValue( element + attribute );
-
-    QStringList existingValues( query.record().field( "attributeValues" ).value().toString().split( SEPARATOR ) );
-    existingValues.append( attributeValues.join( SEPARATOR ) );
     query.addBindValue( existingValues.join( SEPARATOR ) );
+    query.addBindValue( element + attribute );
 
     if( !query.exec() )
     {
@@ -570,13 +586,10 @@ QStringList GCDataBaseInterface::knownElements() const
   }
 
   QStringList elementNames;
-  QSqlRecord record = query.record();
-  elementNames.append( record.field( "element" ).value().toString() );
 
   while( query.next() )
   {
-    record = query.record();
-    elementNames.append( record.field( "element" ).value().toString() );
+    elementNames.append( query.record().field( "element" ).value().toString() );
   }
 
   return elementNames;

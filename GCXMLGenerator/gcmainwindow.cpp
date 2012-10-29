@@ -245,22 +245,38 @@ void GCMainWindow::populateDBTables( const QDomElement &element )
 
   if( elements.contains( element.tagName() ) )
   {
-    m_dbInterface->updateElementAttributes( element.tagName(), attributes.keys() );
+    if( !m_dbInterface->updateElementAttributes( element.tagName(), attributes.keys() ) )
+    {
+      QString errMsg = QString( "Failed to update element attributes for element \"%1\" - [%2].").arg( element.tagName() ).arg( m_dbInterface->getLastError() );
+      showErrorMessageBox( errMsg );
+    }
 
     if( !comment.isEmpty() )
     {
-      m_dbInterface->updateElementComments( element.tagName(), QStringList( comment ) );
+      if( !m_dbInterface->updateElementComments( element.tagName(), QStringList( comment ) ) )
+      {
+        QString errMsg = QString( "Failed to update element comments for element \"%1\" - [%2].").arg( element.tagName() ).arg( m_dbInterface->getLastError() );
+        showErrorMessageBox( errMsg );
+      }
     }
   }
   else
   {
-    m_dbInterface->addElement( element.tagName(), QStringList( comment ), attributes.keys() );
+    if( !m_dbInterface->addElement( element.tagName(), QStringList( comment ), attributes.keys() ) )
+    {
+      QString errMsg = QString( "Failed to add element \"%1\" - [%2].").arg( element.tagName() ).arg( m_dbInterface->getLastError() );
+      showErrorMessageBox( errMsg );
+    }
   }
 
   /* Update the corresponding attribute values. */
   for( int i = 0; i < attributes.size(); ++ i )
   {
-    m_dbInterface->updateAttributeValues( element.tagName(), attributes.keys().at( i ), QStringList( attributes.values().at( i ) ) );
+    if( !m_dbInterface->updateAttributeValues( element.tagName(), attributes.keys().at( i ), QStringList( attributes.values().at( i ) ) ) )
+    {
+      QString errMsg = QString( "Failed to update element attribute values for element \"%1\" - [%2].").arg( element.tagName() ).arg( m_dbInterface->getLastError() );
+      showErrorMessageBox( errMsg );
+    }
   }
 }
 
