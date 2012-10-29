@@ -12,13 +12,26 @@ public:
   explicit GCDataBaseInterface( QObject *parent = 0 );
 
   bool initialise();
-  bool addElements  ( const GCElementsMap   &elements );
-  bool addAttributes( const GCAttributesMap &attributes );
+  bool addElement( const QString &element, const QStringList &comments, const QStringList &attributes );
+
+  bool updateElementComments( const QString &element, const QStringList &comments );
+  bool updateElementAttributes( const QString &element, const QStringList &attributes );
+  bool updateAttributeValue( const QString &element, const QString &attribute, const QStringList &attributeValues );
+
+  bool removeElement( const QString &element );
+  bool removeElementComment( const QString &element, const QString &comment );
+  bool removeElementAttribute( const QString &element, const QString &attribute );
+  bool removeAttributeValue( const QString &element, const QString &attribute, const QString &attributeValue );
 
   /* Getters. */
   QStringList getDBList() const;
   QString  getLastError() const;
   bool hasActiveSession() const;
+
+  QStringList knownElements() const;
+  QStringList attributes( const QString &element ) const;
+  QStringList attributeValues( const QString &element, const QString &attribute ) const;
+
   
 public slots:
   bool addDatabase   ( QString dbName );
@@ -26,7 +39,7 @@ public slots:
   bool setSessionDB  ( QString dbName );
 
 private:
-  void saveXMLFile();
+  void saveDBFile();
   bool openDBConnection( QString dbConName, QString &errMsg );
   bool initialiseDB    ( QString dbConName, QString &errMsg );
 

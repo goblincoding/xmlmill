@@ -9,21 +9,28 @@
 
 /*-------------------------------------------------------------*/
 
-/* SQL Command Strings. */
-static const QLatin1String CREATE_TABLE_ELEMENTS   ( "CREATE TABLE xmlelements( element QString primary key, attributes QString, comments QString )" );
-static const QLatin1String CREATE_TABLE_ATTRIBUTES ( "CREATE TABLE xmlattributes( attribute QString primary key, attrvalues QString )" );
+/* DB tables are set up as follows:
+  Table - XMLELEMENTS
+  ELEMENT (Key) | COMMENTS | ATTRIBUTES
 
-static const QLatin1String PREPARE_INSERT_ELEMENT  ( "INSERT INTO xmlelements( attributes, comments ) VALUES( ?, ? )" );
-static const QLatin1String PREPARE_INSERT_ATTRIBUTE( "INSERT INTO xmlattributes( attrvalues ) VALUES( ? )" );
+  Table - XMLATTRIBUTES
+  ELEMENTATTRIBUTE (concatenate element and attribute name) (Key) | ATTRIBUTEVALUES
+*/
 
-static const QLatin1String PREPARE_DELETE_ELEMENT  ( "DELETE FROM xmlelements WHERE element = ?" );
-static const QLatin1String PREPARE_DELETE_ATTRIBUTE( "DELETE FROM xmlattributes WHERE attribute = ?" );
+static const QLatin1String CREATE_TABLE_ELEMENTS     ( "CREATE TABLE xmlelements( element QString primary key, comments, QString, attributes QString" );
+static const QLatin1String PREPARE_INSERT_ELEMENT    ( "INSERT INTO xmlelements( element, comments, attributes ) VALUES( ?, ?, ? )" );
+static const QLatin1String PREPARE_DELETE_ELEMENT    ( "DELETE FROM xmlelements WHERE element = ?" );
+static const QLatin1String PREPARE_SELECT_ELEMENT    ( "SELECT * FROM xmlelements WHERE element = ?" );
 
-static const QLatin1String PREPARE_UPDATE_ELEMENT  ( "UPDATE xmlelements SET attributes = ?, comments = ? WHERE element = ?" );
-static const QLatin1String PREPARE_UPDATE_ATTRIBUTE( "UPDATE xmlattributes SET attrvalues = ? WHERE attribute = ?" );
+static const QLatin1String PREPARE_UPDATE_COMMENTS   ( "UPDATE xmlelements SET comments = ? WHERE element = ?" );
+static const QLatin1String PREPARE_UPDATE_ATTRIBUTES ( "UPDATE xmlelements SET attributes = ? WHERE element = ?" );
 
-static const QLatin1String PREPARE_SELECT_ELEMENT  ( "SELECT attributes, comments FROM xmlelements WHERE element = ?" );
-static const QLatin1String PREPARE_SELECT_ATTRIBUTE( "SELECT attrvalues FROM xmlattributes WHERE attribute = ?" );
+static const QLatin1String CREATE_TABLE_ATTRIBUTES   ( "CREATE TABLE xmlattributes( elementAttr QString primary key, attributeValues QString )" );
+static const QLatin1String PREPARE_INSERT_ATTRVAL    ( "INSERT INTO xmlattributes( elementAttr, attributeValues ) VALUES( ?, ? )" );
+static const QLatin1String PREPARE_DELETE_ATTRVAL    ( "DELETE FROM xmlattributes WHERE elementAttr = ?" );
+static const QLatin1String PREPARE_SELECT_ATTRVAL    ( "SELECT * FROM xmlattributes WHERE elementAttr = ?" );
+
+static const QLatin1String PREPARE_UPDATE_ATTRVALUES ( "UPDATE xmlattributes SET attributeValues = ? WHERE elementAttr = ?" );
 
 /*-------------------------------------------------------------*/
 
@@ -32,6 +39,9 @@ static const QString DB_FILE( "dblist.txt" );
 
 /* Regular expression string to split "\" (Windows) or "/" (Unix) from file path. */
 static const QString REGEXP_SLASHES( "(\\\\|\\/)" );
+
+/* Separator for individual QStringList items. */
+static const QString SEPARATOR( "~!@" );
 
 /*-------------------------------------------------------------*/
 
@@ -252,9 +262,9 @@ bool GCDataBaseInterface::initialiseDB( QString dbConName, QString &errMsg )
 
 /*-------------------------------------------------------------*/
 
-bool GCDataBaseInterface::addElements( const GCElementsMap &elements )
+bool GCDataBaseInterface::addElement( const QString &element, const QStringList &comments, const QStringList &attributes )
 {
-  /* Get the current session connection and ensure that it's open. */
+  /* Get the current session connection and ensure that it's valid. */
   QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
 
   if( !db.isValid() )
@@ -263,87 +273,75 @@ bool GCDataBaseInterface::addElements( const GCElementsMap &elements )
     return false;
   }
 
-  /* Retrieve the records corresponding to the elements we just received (if
-    they already exist) and update the DB with the associated attributes contained
-    in the map.  If no record for this element exists, we'll obviously add a new one. */
-  QList< QString > keys = elements.keys();
+  /* See if we already have this element in the DB. */
+  QSqlQuery query( db );
 
-  for( int i = 0; i < keys.size(); ++i )
+  if( !query.prepare( PREPARE_SELECT_ELEMENT ) )
   {
-    QSqlQuery query( db );
+    m_lastErrorMsg = QString( "Prepare SELECT element failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
+    return false;
+  }
 
-    if( !query.prepare( PREPARE_SELECT_ELEMENT ) )
+  query.addBindValue( element );
+
+  if( !query.exec() )
+  {
+    m_lastErrorMsg = QString( "SELECT element failed for element \"%1\" - [%1]" ).arg( element ).arg( query.lastError().text() );
+    return false;
+  }
+
+  /* If we don't have an existing record, add it. */
+  if( query.size() < 1 )
+  {
+    if( !query.prepare( PREPARE_INSERT_ELEMENT ) )
     {
-      m_lastErrorMsg = QString( "Prepare SELECT element failed - [%1]" ).arg( query.lastError().text() );
+      m_lastErrorMsg = QString( "Prepare INSERT element failed for element \"%1\" - [%1]" ).arg( element ).arg( query.lastError().text() );
       return false;
     }
 
-    query.addBindValue( keys.at( i ) );
+    /* Create a comma-separated list of all the associated attributes and comments. */
+    query.addBindValue( element );
+    query.addBindValue( comments.join( SEPARATOR ) );
+    query.addBindValue( attributes.join( SEPARATOR ) );
 
     if( !query.exec() )
     {
-      m_lastErrorMsg = QString( "SELECT element failed - [%1]" ).arg( query.lastError().text() );
+      m_lastErrorMsg = QString( "INSERT element failed for element \"%1\" - [%1]" ).arg( element ).arg( query.lastError().text() );
       return false;
     }
-
-    /* If we don't have an existing record, add it. */
-    if( query.size() < 1 )
-    {
-      if( !query.prepare( PREPARE_INSERT_ELEMENT ) )
-      {
-        m_lastErrorMsg = QString( "Prepare INSERT element failed - [%1]" ).arg( query.lastError().text() );
-        return false;
-      }
-
-      /* Create a comma-separated list of all the associated attributes and comments. */
-      query.addBindValue( elements.value( keys.at( i ) ).first.join( "," ) );
-      query.addBindValue( elements.value( keys.at( i ) ).second.join( "," ) );
-
-      if( !query.exec() )
-      {
-        m_lastErrorMsg = QString( "INSERT element failed - [%1]" ).arg( query.lastError().text() );
-        return false;
-      }
-    }
-    else
-    {
-      /* The value saved in the "attributes" column of the "xmlelements" table is a comma
-        separated list of associated attributes. */
-      QStringList attributes = query.value( query.record().indexOf( "attributes" ) ).toString().split( "," );
-      attributes.append( elements.value( keys.at( i ) ).first );
-      attributes.removeDuplicates();
-
-      QStringList comments = query.value( query.record().indexOf( "comments" ) ).toString().split( "," );
-      comments.append( elements.value( keys.at( i ) ).second );
-      comments.removeDuplicates();
-
-      if( !query.prepare( PREPARE_UPDATE_ELEMENT ) )
-      {
-        m_lastErrorMsg = QString( "Prepare UPDATE element failed - [%1]" ).arg( query.lastError().text() );
-        return false;
-      }
-
-      /* Revert the QStringList back to a single comma-separated QString for storing. */
-      query.addBindValue( attributes.join( "," ) );
-      query.addBindValue( comments.join( "," ) );
-
-      if( !query.exec() )
-      {
-        m_lastErrorMsg = QString( "UPDATE element failed - [%1]" ).arg( query.lastError().text() );
-        return false;
-      }
-    }
+  }
+  else
+  {
+    m_lastErrorMsg = QString( "An element with this name already exists: %1" ).arg( element );
+    return false;
   }
 
-  m_lastErrorMsg = "";
-  return true;
+  /* We also want to populate the attribute values table with the new keys. */
+  for( int i = 0; i < attributes.size(); ++i )
+  {
+    addAttributeValues( element, attributes.at( i ), QStringList() );
+  }
 }
 
 /*-------------------------------------------------------------*/
 
-bool GCDataBaseInterface::addAttributes( const GCAttributesMap &attributes )
+bool GCDataBaseInterface::updateElementComments( const QString &element, const QStringList &comments )
 {
-  /* Get the current session connection and ensure that it's open. */
+
+}
+
+/*-------------------------------------------------------------*/
+
+bool GCDataBaseInterface::updateElementAttributes( const QString &element, const QStringList &attributes )
+{
+
+}
+
+/*-------------------------------------------------------------*/
+
+bool GCDataBaseInterface::updateAttributeValue( const QString &element, const QString &attribute, const QStringList &attributeValues )
+{
+  /* Get the current session connection and ensure that it's valid. */
   QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
 
   if( !db.isValid() )
@@ -352,79 +350,265 @@ bool GCDataBaseInterface::addAttributes( const GCAttributesMap &attributes )
     return false;
   }
 
-  /* Retrieve the records corresponding to the attributes we just received (if
-    they already exist) and update the DB with the associated possible values contained
-    in the map.  If no record for this attribute exists, we'll obviously add a new one. */
-  QList< QString > keys = attributes.keys();
+  /* See if we already have this element in the DB. */
+  QSqlQuery query( db );
 
-  for( int i = 0; i < keys.size(); ++i )
+  if( !query.prepare( PREPARE_SELECT_ATTRVAL ) )
   {
-    QSqlQuery query( db );
+    m_lastErrorMsg = QString( "Prepare SELECT attribute failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
+    return false;
+  }
 
-    if( !query.prepare( PREPARE_SELECT_ATTRIBUTE ) )
+  /* The DB Key for this table is elementAttr (concatenated). */
+  query.addBindValue( element + attribute );
+  query.addBindValue( attributeValues.join( SEPARATOR ) );
+
+  if( !query.exec() )
+  {
+    m_lastErrorMsg = QString( "SELECT attribute failed for element \"%1\" - [%1]" ).arg( element ).arg( query.lastError().text() );
+    return false;
+  }
+
+  /* If we don't have an existing record, add it, otherwise update the existing one. */
+  if( query.size() < 1 )
+  {
+    if( !query.prepare( PREPARE_INSERT_ATTRVAL ) )
     {
-      m_lastErrorMsg = QString( "Prepare SELECT attribute failed - [%1]" ).arg( query.lastError().text() );
+      m_lastErrorMsg = QString( "Prepare INSERT attribute failed for element \"%1\" - [%1]" ).arg( element ).arg( query.lastError().text() );
       return false;
     }
 
-    query.addBindValue( keys.at( i ) );
+    /* Create a comma-separated list of all the associated attributes and comments. */
+    query.addBindValue( comments.join( SEPARATOR ) );
+    query.addBindValue( attributes.join( SEPARATOR ) );
 
     if( !query.exec() )
     {
-      m_lastErrorMsg = QString( "SELECT attribute failed - [%1]" ).arg( query.lastError().text() );
+      m_lastErrorMsg = QString( "INSERT attribute failed for element \"%1\" - [%1]" ).arg( element ).arg( query.lastError().text() );
+      return false;
+    }
+  }
+  else
+  {
+    if( !query.prepare( PREPARE_UPDATE_ATTRVALUES ) )
+    {
+      m_lastErrorMsg = QString( "Prepare UPDATE attribute failed for element \"%1\" - [%1]" ).arg( element ).arg( query.lastError().text() );
       return false;
     }
 
-    /* If we don't have an existing record, add it. */
-    if( query.size() < 1 )
+    /* Create a comma-separated list of all the associated attributes and comments. */
+    query.addBindValue( comments.join( SEPARATOR ) );
+    query.addBindValue( attributes.join( SEPARATOR ) );
+
+    if( !query.exec() )
     {
-      if( !query.prepare( PREPARE_INSERT_ATTRIBUTE ) )
-      {
-        m_lastErrorMsg = QString( "Prepare INSERT element failed - [%1]" ).arg( query.lastError().text() );
-        return false;
-      }
-
-      /* Create a comma-separated list of all the associated attributes. */
-      query.addBindValue( attributes.value( keys.at( i ) ).join( "," ) );
-
-      if( !query.exec() )
-      {
-        m_lastErrorMsg = QString( "INSERT attribute failed - [%1]" ).arg( query.lastError().text() );
-        return false;
-      }
-    }
-    else
-    {
-      /* The value saved in the "attrvalues" column of the "xmlattributes" table is a comma
-        separated list of possible attribute values. */
-      QStringList values = query.value( query.record().indexOf( "attrvalues" ) ).toString().split( "," );
-      values.append( attributes.value( keys.at( i ) ) );
-      values.removeDuplicates();
-
-      if( !query.prepare( PREPARE_UPDATE_ATTRIBUTE ) )
-      {
-        m_lastErrorMsg = QString( "Prepare UPDATE attribute failed - [%1]" ).arg( query.lastError().text() );
-        return false;
-      }
-
-      /* Revert the QStringList back to a single comma-separated QString for storing. */
-      query.addBindValue( values.join( "," ) );
-
-      if( !query.exec() )
-      {
-        m_lastErrorMsg = QString( "UPDATE attribute failed - [%1]" ).arg( query.lastError().text() );
-        return false;
-      }
+      m_lastErrorMsg = QString( "UPDATE attribute failed for element \"%1\" - [%1]" ).arg( element ).arg( query.lastError().text() );
+      return false;
     }
   }
-
-  m_lastErrorMsg = "";
-  return true;
 }
 
 /*-------------------------------------------------------------*/
 
-void GCDataBaseInterface::saveXMLFile()
+bool GCDataBaseInterface::removeElement( const QString &element )
+{
+
+}
+
+/*-------------------------------------------------------------*/
+
+bool GCDataBaseInterface::removeElementComment( const QString &element, const QString &comment )
+{
+
+}
+
+/*-------------------------------------------------------------*/
+
+bool GCDataBaseInterface::removeElementAttribute( const QString &element, const QString &attribute )
+{
+
+}
+
+/*-------------------------------------------------------------*/
+
+bool GCDataBaseInterface::removeAttributeValue( const QString &element, const QString &attribute, const QString &attributeValue )
+{
+
+}
+
+/*-------------------------------------------------------------*/
+
+
+
+
+
+
+
+//bool GCDataBaseInterface::addElements( const GCElementsMap &elements )
+//{
+
+//  /* Retrieve the records corresponding to the elements we just received (if
+//    they already exist) and update the DB with the associated attributes contained
+//    in the map.  If no record for this element exists, we'll obviously add a new one. */
+//  QList< QString > keys = elements.keys();
+
+//  for( int i = 0; i < keys.size(); ++i )
+//  {
+//    QSqlQuery query( db );
+
+//    if( !query.prepare( PREPARE_SELECT_ELEMENT ) )
+//    {
+//      m_lastErrorMsg = QString( "Prepare SELECT element failed - [%1]" ).arg( query.lastError().text() );
+//      return false;
+//    }
+
+//    query.addBindValue( keys.at( i ) );
+
+//    if( !query.exec() )
+//    {
+//      m_lastErrorMsg = QString( "SELECT element failed - [%1]" ).arg( query.lastError().text() );
+//      return false;
+//    }
+
+//    /* If we don't have an existing record, add it. */
+//    if( query.size() < 1 )
+//    {
+//      if( !query.prepare( PREPARE_INSERT_ELEMENT ) )
+//      {
+//        m_lastErrorMsg = QString( "Prepare INSERT element failed - [%1]" ).arg( query.lastError().text() );
+//        return false;
+//      }
+
+//      /* Create a comma-separated list of all the associated attributes and comments. */
+//      query.addBindValue( elements.value( keys.at( i ) ).first.join( "," ) );
+//      query.addBindValue( elements.value( keys.at( i ) ).second.join( "," ) );
+
+//      if( !query.exec() )
+//      {
+//        m_lastErrorMsg = QString( "INSERT element failed - [%1]" ).arg( query.lastError().text() );
+//        return false;
+//      }
+//    }
+//    else
+//    {
+//      /* The value saved in the "attributes" column of the "xmlelements" table is a comma
+//        separated list of associated attributes. */
+//      QStringList attributes = query.value( query.record().indexOf( "attributes" ) ).toString().split( "," );
+//      attributes.append( elements.value( keys.at( i ) ).first );
+//      attributes.removeDuplicates();
+
+//      QStringList comments = query.value( query.record().indexOf( "comments" ) ).toString().split( "," );
+//      comments.append( elements.value( keys.at( i ) ).second );
+//      comments.removeDuplicates();
+
+//      if( !query.prepare( PREPARE_UPDATE_ELEMENT ) )
+//      {
+//        m_lastErrorMsg = QString( "Prepare UPDATE element failed - [%1]" ).arg( query.lastError().text() );
+//        return false;
+//      }
+
+//      /* Revert the QStringList back to a single comma-separated QString for storing. */
+//      query.addBindValue( attributes.join( "," ) );
+//      query.addBindValue( comments.join( "," ) );
+
+//      if( !query.exec() )
+//      {
+//        m_lastErrorMsg = QString( "UPDATE element failed - [%1]" ).arg( query.lastError().text() );
+//        return false;
+//      }
+//    }
+//  }
+
+//  m_lastErrorMsg = "";
+//  return true;
+//}
+
+///*-------------------------------------------------------------*/
+
+//bool GCDataBaseInterface::addAttributes( const GCAttributesMap &attributes )
+//{
+//  /* Get the current session connection and ensure that it's open. */
+//  QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
+
+//  if( !db.isValid() )
+//  {
+//    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName ).arg( db.lastError().text() );
+//    return false;
+//  }
+
+//  /* Retrieve the records corresponding to the attributes we just received (if
+//    they already exist) and update the DB with the associated possible values contained
+//    in the map.  If no record for this attribute exists, we'll obviously add a new one. */
+//  QList< QString > keys = attributes.keys();
+
+//  for( int i = 0; i < keys.size(); ++i )
+//  {
+//    QSqlQuery query( db );
+
+//    if( !query.prepare( PREPARE_SELECT_ATTRIBUTE ) )
+//    {
+//      m_lastErrorMsg = QString( "Prepare SELECT attribute failed - [%1]" ).arg( query.lastError().text() );
+//      return false;
+//    }
+
+//    query.addBindValue( keys.at( i ) );
+
+//    if( !query.exec() )
+//    {
+//      m_lastErrorMsg = QString( "SELECT attribute failed - [%1]" ).arg( query.lastError().text() );
+//      return false;
+//    }
+
+//    /* If we don't have an existing record, add it. */
+//    if( query.size() < 1 )
+//    {
+//      if( !query.prepare( PREPARE_INSERT_ATTRIBUTE ) )
+//      {
+//        m_lastErrorMsg = QString( "Prepare INSERT element failed - [%1]" ).arg( query.lastError().text() );
+//        return false;
+//      }
+
+//      /* Create a comma-separated list of all the associated attributes. */
+//      query.addBindValue( attributes.value( keys.at( i ) ).join( "," ) );
+
+//      if( !query.exec() )
+//      {
+//        m_lastErrorMsg = QString( "INSERT attribute failed - [%1]" ).arg( query.lastError().text() );
+//        return false;
+//      }
+//    }
+//    else
+//    {
+//      /* The value saved in the "attrvalues" column of the "xmlattributes" table is a comma
+//        separated list of possible attribute values. */
+//      QStringList values = query.value( query.record().indexOf( "attrvalues" ) ).toString().split( "," );
+//      values.append( attributes.value( keys.at( i ) ) );
+//      values.removeDuplicates();
+
+//      if( !query.prepare( PREPARE_UPDATE_ATTRIBUTE ) )
+//      {
+//        m_lastErrorMsg = QString( "Prepare UPDATE attribute failed - [%1]" ).arg( query.lastError().text() );
+//        return false;
+//      }
+
+//      /* Revert the QStringList back to a single comma-separated QString for storing. */
+//      query.addBindValue( values.join( "," ) );
+
+//      if( !query.exec() )
+//      {
+//        m_lastErrorMsg = QString( "UPDATE attribute failed - [%1]" ).arg( query.lastError().text() );
+//        return false;
+//      }
+//    }
+//  }
+
+//  m_lastErrorMsg = "";
+//  return true;
+//}
+
+/*-------------------------------------------------------------*/
+
+void GCDataBaseInterface::saveDBFile()
 {
   QFile flatFile( DB_FILE );
 

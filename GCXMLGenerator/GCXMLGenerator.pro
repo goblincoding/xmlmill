@@ -18,8 +18,7 @@ SOURCES += main.cpp\
 HEADERS  += \
     db/gcdatabaseinterface.h \
     gcmainwindow.h \
-    db/gcsessiondbform.h \
-    utils/gctypes.h
+    db/gcsessiondbform.h
 
 FORMS    += \
     gcmainwindow.ui \
