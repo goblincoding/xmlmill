@@ -76,38 +76,62 @@ GCMainWindow::~GCMainWindow()
 
 void GCMainWindow::openXMLFile()
 {
-  QString fileName = QFileDialog::getOpenFileName( this, "Open File", QDir::homePath(), "XML Files (*.xml)" );
-
-  /* If the user clicked "OK". */
-  if( !fileName.isEmpty() )
+  if( m_dbInterface->hasActiveSession() )
   {
-    m_currentXMLFileName = fileName;
-    QFile file( m_currentXMLFileName );
-
-    if( file.open( QIODevice::ReadOnly | QIODevice::Text ) )
+    /* Loading an entire XML file is a big operation (with regards to potential changes
+    introduced) so let's query the user if he/she would like to add the XML content
+    to the current active database.  For other operations (such as element and attribute
+    name changes) the user needs to explicitly update the database. */
+    QMessageBox::Button button = QMessageBox::question( this,
+                                                        "Update database?",
+                                                        "All the elements, attributes and attribute\n"
+                                                        "values in this XML document will be saved to"
+                                                        "the current active database session.\n \n"
+                                                        "Is that OK?",
+                                                        QMessageBox::Yes | QMessageBox::No,
+                                                        QMessageBox::Yes );
+    if( button == QMessageBox::Ok )
     {
-      QTextStream inStream( &file );
-      QString xmlErr( "" );
-      int     line  ( -1 );
-      int     col   ( -1 );
+      QString fileName = QFileDialog::getOpenFileName( this, "Open File", QDir::homePath(), "XML Files (*.xml)" );
 
-      if( m_domDoc.setContent( inStream.readAll(), &xmlErr, &line, &col ) )
+      /* If the user clicked "OK". */
+      if( !fileName.isEmpty() )
       {
-        processDOMDoc( true );
-      }
-      else
-      {
-        QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3])." ).arg( xmlErr ).arg( line ).arg( col );
-        showErrorMessageBox( errorMsg );
-      }
+        m_currentXMLFileName = fileName;
+        QFile file( m_currentXMLFileName );
 
-      file.close();
+        if( file.open( QIODevice::ReadOnly | QIODevice::Text ) )
+        {
+          QTextStream inStream( &file );
+          QString xmlErr( "" );
+          int     line  ( -1 );
+          int     col   ( -1 );
+
+          if( m_domDoc.setContent( inStream.readAll(), &xmlErr, &line, &col ) )
+          {
+            processDOMDoc();
+          }
+          else
+          {
+            QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3])." ).arg( xmlErr ).arg( line ).arg( col );
+            showErrorMessageBox( errorMsg );
+          }
+
+          file.close();
+        }
+        else
+        {
+          QString errorMsg = QString( "Failed to open file \"%1\" - [%2]" ).arg( fileName ).arg( file.errorString() );
+          showErrorMessageBox( errorMsg );
+        }
+      }
     }
-    else
-    {
-      QString errorMsg = QString( "Failed to open file \"%1\" - [%2]" ).arg( fileName ).arg( file.errorString() );
-      showErrorMessageBox( errorMsg );
-    }
+  }
+  else
+  {
+    QString errMsg( "No current DB active, please set one for this session." );
+    showErrorMessageBox( errMsg );
+    showSessionForm();
   }
 }
 
@@ -146,7 +170,7 @@ void GCMainWindow::saveXMLFileAs()
 
 /*-------------------------------------------------------------*/
 
-void GCMainWindow::processDOMDoc( bool onFileLoad )
+void GCMainWindow::processDOMDoc()
 {
   ui->treeWidget->clear();    // also deletes current items
   m_treeItemNodes.clear();
@@ -163,24 +187,6 @@ void GCMainWindow::processDOMDoc( bool onFileLoad )
 
   /* Now we can recursively stick the rest of the elements into our widget. */
   populateTreeWidget( root, item );
-
-  /* Loading an entire XML file is a big operation (with regards to potential changes
-    introduced) so let's query the user if he/she would like to add the XML content
-    to the current active database.  For other operations (such as element and attribute
-    name changes) the user needs to explicitly update the database. */
-  if( onFileLoad )
-  {
-    QMessageBox::Button button = QMessageBox::question( this,
-                                                        "Update database?",
-                                                        "Would you like to commit the loaded XML\n"
-                                                        "to the current active database session?",
-                                                        QMessageBox::Yes | QMessageBox::No,
-                                                        QMessageBox::Yes );
-    if( button == QMessageBox::Ok )
-    {
-      updateDataBase();
-    }
-  }
 }
 
 /*-------------------------------------------------------------*/
@@ -197,7 +203,7 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
     parentItem->addChild( item );   // takes ownership
 
     m_treeItemNodes.insert( item, element );
-    populateMaps( element );
+    populateDBTables( element );
 
     populateTreeWidget( element, item );
     element = element.nextSiblingElement();
@@ -206,82 +212,64 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
 
 /*-------------------------------------------------------------*/
 
-void GCMainWindow::populateMaps( const QDomElement &element )
+void GCMainWindow::populateDBTables( const QDomElement &element )
 {  
-  /* Check if we already know about this attribute, if we do,
-    then we add its current value to the list of possible values associated
-    with this particular attribute, if we don't, then it's a new addition. */
-  QDomNamedNodeMap attributes = element.attributes();
-  QStringList attrList;
+  QMap< QString, QString > attributes;    // attribute name/attribute value
 
-  for( int i = 0; i < attributes.size(); ++i )
+  /* Let's convert the nodemap to an attributes/value map for ease of use. */
+  QDomNamedNodeMap attributeNodes = element.attributes();
+
+  for( int i = 0; i < attributeNodes.size(); ++i )
   {
-    QDomAttr attr = attributes.item( i ).toAttr();
+    QDomAttr attribute = attributeNodes.item( i ).toAttr();
 
-    if( !attr.isNull() )
+    if( !attribute.isNull() )
     {
-      attrList.append( attr.name() );
-
-      if( m_attributes.contains( attr.name() ) )
-      {
-        QStringList possibleValues( m_attributes.value( attr.name() ) );
-        possibleValues.append( attr.value() );
-        possibleValues.removeDuplicates();
-        m_attributes.insert( attr.name(), possibleValues );
-      }
-      else
-      {
-        m_attributes.insert( attr.name(), QStringList( attr.value() ) );
-      }
+      attributes.insert( attribute.name(), attribute.value() );
     }
-  }  
+  }
 
-  /* We also check if there are any comments associated with this element and
-    if we have encountered this particular comment in the past.  If we have, we
-    update the list, if not, we add it for future reference. We'll operate on
-    the assumption that an XML comment will appear directly before the element
+  /* We also check if there are any comments associated with this element.  We'll
+    operate on the assumption that an XML comment will appear directly before the element
     in question and also that such comments are siblings of the element in question. */
-  QStringList comments( m_elements.value( element.tagName() ).second );
+  QString comment( "" );
 
   if( element.previousSibling().nodeType() == QDomNode::CommentNode )
   {
-    comments.append( element.previousSibling().toComment().nodeValue() );
-    comments.removeDuplicates();
+    comment = element.previousSibling().toComment().nodeValue();
   }
 
-  /* Now that we have all the current element's attributes and comments mapped, let's see
-    if we already know about this element or if we have discovered a new one. */
-  if( m_elements.contains( element.tagName() ) )
-  {
-    QStringList attributeValues( m_elements.value( element.tagName() ).first );
-    attributeValues.append( attrList );
-    attributeValues.removeDuplicates();
+  /* Update existing or add new element. */
+  QStringList elements( m_dbInterface->knownElements() );
 
-    m_elements.insert( element.tagName(), GCElementPair( attributeValues, comments ) );
+  if( elements.contains( element.tagName() ) )
+  {
+    m_dbInterface->updateElementAttributes( element.tagName(), attributes.keys() );
+
+    if( !comment.isEmpty() )
+    {
+      m_dbInterface->updateElementComments( element.tagName(), QStringList( comment ) );
+    }
   }
   else
   {
-    m_elements.insert( element.tagName(), GCElementPair( attrList, comments ) );
+    m_dbInterface->addElement( element.tagName(), QStringList( comment ), attributes.keys() );
+  }
+
+  /* Update the corresponding attribute values. */
+  for( int i = 0; i < attributes.size(); ++ i )
+  {
+    m_dbInterface->updateAttributeValues( element.tagName(), attributes.keys().at( i ), QStringList( attributes.values().at( i ) ) );
   }
 }
 
 /*-------------------------------------------------------------*/
 
 void GCMainWindow::updateDataBase()
-{
+{  
   if( m_dbInterface->hasActiveSession() )
   {
-    if( !m_dbInterface->addElements( m_elements ) )
-    {
-      QString errMsg = QString( "Failed to update elements database - [%1]." ).arg( m_dbInterface->getLastError() );
-      showErrorMessageBox( errMsg );
-    }
-
-    if( !m_dbInterface->addAttributes( m_attributes ) )
-    {
-      QString errMsg = QString( "Failed to update attributes database - [%1]." ).arg( m_dbInterface->getLastError() );
-      showErrorMessageBox( errMsg );
-    }
+      // Get hold of XML node values here...
   }
   else
   {
@@ -298,22 +286,11 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
   if( m_treeItemNodes.contains( item ) )
   {
     QString itemName      = item->text( column );
-    QString previousName  = m_treeItemNodes.value( item );
+    QString previousName  = m_treeItemNodes.value( item ).toElement().tagName();
 
-    /* This function doesn't necessarily get called when the item has
-      finished changing.  We only want to update the maps once the change
-      has actually been completed. */
     if( itemName != previousName )
     {
-      /* Temporary backups. */
-      QStringList attributes( m_elements.value( itemName ).first );
-      QStringList comments  ( m_elements.value( itemName ).second );
-
-      /* Update our element map with the new name, but old values. */
-      m_elements.remove( itemName );
-      m_elements.insert( itemName, GCElementPair( attributes, comments ) );
-
-      /* Also update the element names in our active DOM doc. */
+      /* Update the element names in our active DOM doc. */
       QDomNodeList list = m_domDoc.elementsByTagName( previousName );
 
       for( int i = 0; i < list.count(); ++i )
@@ -321,7 +298,9 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
         list.at( i ).toElement().setTagName( itemName );
       }
 
-      /* Re-populate the tree widget to reflect the changes. */
+      /* Re-populate the tree widget (and update the DB) to reflect the changes
+        (note that the "old" elements won't be removed from the DB, the new ones
+         will simply be added.  All removals must be executed explicitly). */
       processDOMDoc();
     }
   }
@@ -337,7 +316,7 @@ void GCMainWindow::treeWidgetItemClicked( QTreeWidgetItem *item, int column )
     corresponding to this item (and the lists of associated
     values for these attributes) and populate our table widget. */
   QString itemName = item->text( column );
-  QStringList attributes = m_elements.value( itemName ).first;
+  QStringList attributes = m_dbInterface->attributes( itemName );
 
   for( int i = 0; i < attributes.count(); ++i )
   {
@@ -347,7 +326,7 @@ void GCMainWindow::treeWidgetItemClicked( QTreeWidgetItem *item, int column )
     ui->tableWidget->setItem( i, 0, label );
 
     QComboBox *attributeCombo = new QComboBox;
-    attributeCombo->addItems( m_attributes.value( attributes.at( i ) ) );
+    attributeCombo->addItems( m_dbInterface->attributeValues( itemName, attributes.at( i ) ) );
     attributeCombo->setEditable( true );
     ui->tableWidget->setCellWidget( i, 1, attributeCombo );
   }

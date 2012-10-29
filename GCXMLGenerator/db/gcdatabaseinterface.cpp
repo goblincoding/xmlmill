@@ -6,6 +6,7 @@
 #include <QtSql/QSqlError>
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlRecord>
+#include <QtSql/QSqlField>
 
 /*-------------------------------------------------------------*/
 
@@ -291,7 +292,7 @@ bool GCDataBaseInterface::addElement( const QString &element, const QStringList 
 
   if( !query.exec() )
   {
-    m_lastErrorMsg = QString( "SELECT element failed for element \"%1\" - [%1]" ).arg( element ).arg( query.lastError().text() );
+    m_lastErrorMsg = QString( "SELECT element failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
     return false;
   }
 
@@ -300,7 +301,7 @@ bool GCDataBaseInterface::addElement( const QString &element, const QStringList 
   {
     if( !query.prepare( PREPARE_INSERT_ELEMENT ) )
     {
-      m_lastErrorMsg = QString( "Prepare INSERT element failed for element \"%1\" - [%1]" ).arg( element ).arg( query.lastError().text() );
+      m_lastErrorMsg = QString( "Prepare INSERT element failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
       return false;
     }
 
@@ -311,7 +312,7 @@ bool GCDataBaseInterface::addElement( const QString &element, const QStringList 
 
     if( !query.exec() )
     {
-      m_lastErrorMsg = QString( "INSERT element failed for element \"%1\" - [%1]" ).arg( element ).arg( query.lastError().text() );
+      m_lastErrorMsg = QString( "INSERT element failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
       return false;
     }
   }
@@ -367,7 +368,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
 
   if( !query.exec() )
   {
-    m_lastErrorMsg = QString( "SELECT attribute failed for element \"%1\" - [%1]" ).arg( element ).arg( query.lastError().text() );
+    m_lastErrorMsg = QString( "SELECT attribute failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
     return false;
   }
 
@@ -376,7 +377,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
   {
     if( !query.prepare( PREPARE_INSERT_ATTRVAL ) )
     {
-      m_lastErrorMsg = QString( "Prepare INSERT attribute failed for element \"%1\" - [%1]" ).arg( element ).arg( query.lastError().text() );
+      m_lastErrorMsg = QString( "Prepare INSERT attribute failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
       return false;
     }
 
@@ -386,7 +387,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
 
     if( !query.exec() )
     {
-      m_lastErrorMsg = QString( "INSERT attribute failed for element \"%1\" - [%1]" ).arg( element ).arg( query.lastError().text() );
+      m_lastErrorMsg = QString( "INSERT attribute failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
       return false;
     }
   }
@@ -394,7 +395,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
   {
     if( !query.prepare( PREPARE_UPDATE_ATTRVALUES ) )
     {
-      m_lastErrorMsg = QString( "Prepare UPDATE attribute failed for element \"%1\" - [%1]" ).arg( element ).arg( query.lastError().text() );
+      m_lastErrorMsg = QString( "Prepare UPDATE attribute failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
       return false;
     }
 
@@ -404,7 +405,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
 
     if( !query.exec() )
     {
-      m_lastErrorMsg = QString( "UPDATE attribute failed for element \"%1\" - [%1]" ).arg( element ).arg( query.lastError().text() );
+      m_lastErrorMsg = QString( "UPDATE attribute failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
       return false;
     }
   }
@@ -451,7 +452,7 @@ QStringList GCDataBaseInterface::knownElements() const
   if( !db.isValid() )
   {
     m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName ).arg( db.lastError().text() );
-    return false;
+    return QStringList();
   }
 
   /* See if we already have this element in the DB. */
@@ -459,25 +460,35 @@ QStringList GCDataBaseInterface::knownElements() const
 
   if( !query.exec( SELECT_ALL_ELEMENTS ) )
   {
-    m_lastErrorMsg = QString( "Prepare SELECT all elements failed - [%2]" ).arg( query.lastError().text() );
-    return false;
+    m_lastErrorMsg = QString( "SELECT all elements failed - [%1]" ).arg( query.lastError().text() );
+    return QStringList();
   }
 
-  return QStringList;
+  QStringList elementNames;
+  QSqlRecord record = query.record();
+  elementNames.append( record.field( "element" ).value().toString() );
+
+  while( query.next() )
+  {
+    record = query.record();
+    elementNames.append( record.field( "element" ).value().toString() );
+  }
+
+  return elementNames;
 }
 
 /*-------------------------------------------------------------*/
 
 QStringList GCDataBaseInterface::attributes( const QString &element ) const
 {
-  return QStringList;
+  return QStringList();
 }
 
 /*-------------------------------------------------------------*/
 
 QStringList GCDataBaseInterface::attributeValues( const QString &element, const QString &attribute ) const
 {
-  return QStringList;
+  return QStringList();
 }
 
 /*-------------------------------------------------------------*/

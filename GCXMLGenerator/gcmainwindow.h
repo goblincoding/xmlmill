@@ -21,9 +21,9 @@ public:
   ~GCMainWindow();
   
 private:
-  void processDOMDoc( bool onFileLoad = false );
+  void processDOMDoc();
   void populateTreeWidget( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
-  void populateMaps( const QDomElement &element );
+  void populateDBTables( const QDomElement &element );
   void addDBConnection( const QString &dbName );
   void showSessionForm( bool remove = false );
   void showErrorMessageBox( const QString &errorMsg );

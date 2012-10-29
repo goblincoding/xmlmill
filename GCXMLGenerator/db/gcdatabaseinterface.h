@@ -43,7 +43,7 @@ private:
   bool initialiseDB    ( QString dbConName, QString &errMsg );
 
   QString                  m_sessionDBName;
-  QString                  m_lastErrorMsg;
+  mutable QString          m_lastErrorMsg;
   bool                     m_hasActiveSession;
   QMap< QString, QString > m_dbMap;   // connection name, file name
 };
