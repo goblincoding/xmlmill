@@ -69,8 +69,6 @@ private slots:
   void revertDirectEdit();
   void saveDirectEdit();
 
-  /* DOM related. */
-  void updateDOM();
 };
 
 #endif // GCMAINWINDOW_H

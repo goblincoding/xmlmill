@@ -5,18 +5,19 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QTextStream>
+#include <QComboBox>
 
 /*-------------------------------------------------------------*/
 
 GCMainWindow::GCMainWindow( QWidget *parent ) :
-  QMainWindow    ( parent ),
-  ui             ( new Ui::GCMainWindow ),
-  m_dbInterface  ( new GCDataBaseInterface ),
-  m_elements     (),
-  m_attributes   (),
-  m_domDoc       (),
-  m_currentXMLFileName     ( "" ),
-  m_treeItemNames()
+  QMainWindow         ( parent ),
+  ui                  ( new Ui::GCMainWindow ),
+  m_dbInterface       ( new GCDataBaseInterface ),
+  m_elements          (),
+  m_attributes        (),
+  m_domDoc            (),
+  m_currentXMLFileName( "" ),
+  m_treeItemNames     ()
 {
   ui->setupUi( this );
 
@@ -24,7 +25,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
            this,           SLOT  ( treeWidgetItemChanged( QTreeWidgetItem*,int ) ) );
 
   connect( ui->treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ),
-           this,           SLOT  ( treeWidgetItemChanged( QTreeWidgetItem*,int ) ) );
+           this,           SLOT  ( treeWidgetItemClicked( QTreeWidgetItem*,int ) ) );
 
   /* XML File related. */
   connect( ui->actionOpen,   SIGNAL( triggered() ), this, SLOT( openXMLFile() ) );
@@ -149,7 +150,7 @@ void GCMainWindow::saveXMLFileAs()
 
 void GCMainWindow::processDOMDoc( bool onFileLoad )
 {
-  ui->treeWidget->clear();
+  ui->treeWidget->clear();    // also deletes current items
   m_treeItemNames.clear();
 
   QDomElement root = m_domDoc.documentElement();
@@ -158,7 +159,7 @@ void GCMainWindow::processDOMDoc( bool onFileLoad )
   QTreeWidgetItem *item = new QTreeWidgetItem;
   item->setText( 0, root.tagName() );
   item->setFlags( item->flags() | Qt::ItemIsEditable );
-  ui->treeWidget->invisibleRootItem()->addChild( item );
+  ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
 
   m_treeItemNames.insert( item, item->text( 0 ) );
 
@@ -195,7 +196,7 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
     QTreeWidgetItem *item = new QTreeWidgetItem();
     item->setText( 0, element.tagName() );
     item->setFlags( item->flags() | Qt::ItemIsEditable );
-    parentItem->addChild( item );
+    parentItem->addChild( item );   // takes ownership
 
     m_treeItemNames.insert( item, item->text( 0 ) );
     populateMaps( element );
@@ -259,7 +260,6 @@ void GCMainWindow::populateMaps( const QDomElement &element )
     attributeValues.removeDuplicates();
 
     m_elements.insert( element.tagName(), GCElementPair( attributeValues, comments ) );
-
   }
   else
   {
@@ -333,19 +333,26 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
 
 void GCMainWindow::treeWidgetItemClicked( QTreeWidgetItem *item, int column )
 {
-  QString itemName = item->text( column );
+  ui->tableWidget->clear();    // also deletes current items
 
   /* Get only the attributes currently assigned to the element
     corresponding to this item (and the lists of associated
     values for these attributes) and populate our table widget. */
+  QString itemName = item->text( column );
+  QStringList attributes = m_elements.value( itemName ).first;
 
-}
+  for( int i = 0; i < attributes.count(); ++i )
+  {
+    QTableWidgetItem *label = new QTableWidgetItem( attributes.at( i ) );
+    label->setFlags( label->flags() | Qt::ItemIsEditable );
+    ui->tableWidget->setRowCount( i + 1 );
+    ui->tableWidget->setItem( i, 0, label );
 
-/*-------------------------------------------------------------*/
-
-void GCMainWindow::updateDOM()
-{
-  processDOMDoc();
+    QComboBox *attributeCombo = new QComboBox;
+    attributeCombo->addItems( m_attributes.value( attributes.at( i ) ) );
+    attributeCombo->setEditable( true );
+    ui->tableWidget->setCellWidget( i, 1, attributeCombo );
+  }
 }
 
 /*-------------------------------------------------------------*/
