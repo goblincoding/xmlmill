@@ -84,6 +84,9 @@
             <property name="alternatingRowColors">
              <bool>true</bool>
             </property>
+            <property name="autoExpandDelay">
+             <number>2</number>
+            </property>
             <property name="indentation">
              <number>10</number>
             </property>
@@ -95,7 +98,7 @@
             </attribute>
             <column>
              <property name="text">
-              <string notr="true">1</string>
+              <string notr="true">Current Document Elements:</string>
              </property>
             </column>
            </widget>

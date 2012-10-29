@@ -293,12 +293,13 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
 {
   if( m_treeItemNames.contains( item ) )
   {
-    QString itemName = item->text( column );
+    QString itemName      = item->text( column );
+    QString previousName  = m_treeItemNames.value( item );
 
     /* This function doesn't necessarily get called when the item has
       finished changing.  We only want to update the maps once the change
       has actually been completed. */
-    if( itemName != m_treeItemNames.value( item ) )
+    if( itemName != previousName )
     {
       /* Temporary backups. */
       QStringList attributes( m_elements.value( itemName ).first );
@@ -309,7 +310,15 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
       m_elements.insert( itemName, GCElementPair( attributes, comments ) );
 
       /* Also update our active DOM doc. */
-      updateDOM();
+      QDomNodeList list = m_domDoc.elementsByTagName( previousName );
+
+      for( int i = 0; i < list.count(); ++i )
+      {
+        list.at( i ).toElement().setTagName( itemName );
+      }
+
+      /* Re-populate the tree widget to reflect the changes. */
+      processDOMDoc();
     }
   }
 }
