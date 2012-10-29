@@ -17,7 +17,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_attributes        (),
   m_domDoc            (),
   m_currentXMLFileName( "" ),
-  m_treeItemNames     ()
+  m_treeItemNodes     ()
 {
   ui->setupUi( this );
 
@@ -151,7 +151,7 @@ void GCMainWindow::saveXMLFileAs()
 void GCMainWindow::processDOMDoc( bool onFileLoad )
 {
   ui->treeWidget->clear();    // also deletes current items
-  m_treeItemNames.clear();
+  m_treeItemNodes.clear();
 
   QDomElement root = m_domDoc.documentElement();
 
@@ -161,7 +161,7 @@ void GCMainWindow::processDOMDoc( bool onFileLoad )
   item->setFlags( item->flags() | Qt::ItemIsEditable );
   ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
 
-  m_treeItemNames.insert( item, item->text( 0 ) );
+  m_treeItemNodes.insert( item, root );
 
   /* Now we can recursively stick the rest of the elements into our widget. */
   populateTreeWidget( root, item );
@@ -198,7 +198,7 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
     item->setFlags( item->flags() | Qt::ItemIsEditable );
     parentItem->addChild( item );   // takes ownership
 
-    m_treeItemNames.insert( item, item->text( 0 ) );
+    m_treeItemNodes.insert( item, element );
     populateMaps( element );
 
     populateTreeWidget( element, item );
@@ -297,10 +297,10 @@ void GCMainWindow::updateDataBase()
 
 void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
 {
-  if( m_treeItemNames.contains( item ) )
+  if( m_treeItemNodes.contains( item ) )
   {
     QString itemName      = item->text( column );
-    QString previousName  = m_treeItemNames.value( item );
+    QString previousName  = m_treeItemNodes.value( item );
 
     /* This function doesn't necessarily get called when the item has
       finished changing.  We only want to update the maps once the change

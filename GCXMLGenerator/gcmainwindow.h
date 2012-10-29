@@ -35,7 +35,7 @@ private:
   QDomDocument         m_domDoc;
   QString              m_currentXMLFileName;
 
-  QMap< QTreeWidgetItem*, QString > m_treeItemNames;
+  QMap< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
 
 
 private slots:
