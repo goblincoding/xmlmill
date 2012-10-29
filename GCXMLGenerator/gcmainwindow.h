@@ -21,7 +21,7 @@ public:
   ~GCMainWindow();
   
 private:
-  void processDOMDoc();
+  void processDOMDoc( bool onFileLoad = false );
   void populateTreeWidget( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
   void populateMaps( const QDomElement &element );
   void addDBConnection( const QString &dbName );
@@ -33,7 +33,7 @@ private:
   GCElementsMap        m_elements;
   GCAttributesMap      m_attributes;
   QDomDocument         m_domDoc;
-  QString              m_fileName;
+  QString              m_currentXMLFileName;
 
   QMap< QTreeWidgetItem*, QString > m_treeItemNames;
 

@@ -15,7 +15,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_elements     (),
   m_attributes   (),
   m_domDoc       (),
-  m_fileName     ( "" ),
+  m_currentXMLFileName     ( "" ),
   m_treeItemNames()
 {
   ui->setupUi( this );
@@ -82,8 +82,8 @@ void GCMainWindow::openXMLFile()
   /* If the user clicked "OK". */
   if( !fileName.isEmpty() )
   {
-    m_fileName = fileName;
-    QFile file( m_fileName );
+    m_currentXMLFileName = fileName;
+    QFile file( m_currentXMLFileName );
 
     if( file.open( QIODevice::ReadOnly | QIODevice::Text ) )
     {
@@ -94,7 +94,7 @@ void GCMainWindow::openXMLFile()
 
       if( m_domDoc.setContent( inStream.readAll(), &xmlErr, &line, &col ) )
       {
-        processDOMDoc();
+        processDOMDoc( true );
       }
       else
       {
@@ -116,11 +116,11 @@ void GCMainWindow::openXMLFile()
 
 void GCMainWindow::saveXMLFile()
 {
-  QFile file( m_fileName );
+  QFile file( m_currentXMLFileName );
 
   if( !file.open( QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text ) )
   {
-    QString errMsg = QString( "Failed to save file \"%1\" - [%2]." ).arg( m_fileName ).arg( file.errorString() );
+    QString errMsg = QString( "Failed to save file \"%1\" - [%2]." ).arg( m_currentXMLFileName ).arg( file.errorString() );
     showErrorMessageBox( errMsg );
   }
   else
@@ -140,21 +140,21 @@ void GCMainWindow::saveXMLFileAs()
   /* If the user clicked "OK". */
   if( !file.isEmpty() )
   {
-    m_fileName = file;
+    m_currentXMLFileName = file;
     saveXMLFile();
   }
 }
 
 /*-------------------------------------------------------------*/
 
-void GCMainWindow::processDOMDoc()
+void GCMainWindow::processDOMDoc( bool onFileLoad )
 {
   ui->treeWidget->clear();
   m_treeItemNames.clear();
 
   QDomElement root = m_domDoc.documentElement();
 
-  /* We want to show the document's root element in the tree view as well. */
+  /* We want to show the document's root element in the tree widget as well. */
   QTreeWidgetItem *item = new QTreeWidgetItem;
   item->setText( 0, root.tagName() );
   item->setFlags( item->flags() | Qt::ItemIsEditable );
@@ -165,15 +165,22 @@ void GCMainWindow::processDOMDoc()
   /* Now we can recursively stick the rest of the elements into our widget. */
   populateTreeWidget( root, item );
 
-  QMessageBox::Button button = QMessageBox::question( this,
-                                                      "Update database?",
-                                                      "Would you like to commit the loaded XML\n"
-                                                      "to the current active database session?",
-                                                      QMessageBox::Yes | QMessageBox::No,
-                                                      QMessageBox::Yes );
-  if( button == QMessageBox::Ok )
+  /* Loading an entire XML file is a big operation (with regards to potential changes
+    introduced) so let's query the user if he/she would like to add the XML content
+    to the current active database.  For other operations (such as element and attribute
+    name changes) the user needs to explicitly update the database. */
+  if( onFileLoad )
   {
-    updateDataBase();
+    QMessageBox::Button button = QMessageBox::question( this,
+                                                        "Update database?",
+                                                        "Would you like to commit the loaded XML\n"
+                                                        "to the current active database session?",
+                                                        QMessageBox::Yes | QMessageBox::No,
+                                                        QMessageBox::Yes );
+    if( button == QMessageBox::Ok )
+    {
+      updateDataBase();
+    }
   }
 }
 
@@ -185,7 +192,6 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
 
   while ( !element.isNull() )
   {
-    /* Stick this item into the tree. */
     QTreeWidgetItem *item = new QTreeWidgetItem();
     item->setText( 0, element.tagName() );
     item->setFlags( item->flags() | Qt::ItemIsEditable );
@@ -231,11 +237,11 @@ void GCMainWindow::populateMaps( const QDomElement &element )
     }
   }  
 
-  /* We also check if there are any comments associated with this element and,
+  /* We also check if there are any comments associated with this element and
     if we have encountered this particular comment in the past.  If we have, we
     update the list, if not, we add it for future reference. We'll operate on
     the assumption that an XML comment will appear directly before the element
-    in question and also that such comments are siblings. */
+    in question and also that such comments are siblings of the element in question. */
   QStringList comments( m_elements.value( element.tagName() ).second );
 
   if( element.previousSibling().nodeType() == QDomNode::CommentNode )
@@ -244,8 +250,8 @@ void GCMainWindow::populateMaps( const QDomElement &element )
     comments.removeDuplicates();
   }
 
-  /* Now that we have all the current element's attributes mapped, let's see
-    if we already know about all these attributes or if we have uncovered new ones. */
+  /* Now that we have all the current element's attributes and comments mapped, let's see
+    if we already know about this element or if we have discovered a new one. */
   if( m_elements.contains( element.tagName() ) )
   {
     QStringList attributeValues( m_elements.value( element.tagName() ).first );
@@ -309,7 +315,7 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
       m_elements.remove( itemName );
       m_elements.insert( itemName, GCElementPair( attributes, comments ) );
 
-      /* Also update our active DOM doc. */
+      /* Also update the element names in our active DOM doc. */
       QDomNodeList list = m_domDoc.elementsByTagName( previousName );
 
       for( int i = 0; i < list.count(); ++i )
