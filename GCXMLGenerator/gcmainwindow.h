@@ -1,9 +1,9 @@
 #ifndef GCMAINWINDOW_H
 #define GCMAINWINDOW_H
 
-#include "utils/gctypes.h"
 #include <QMainWindow>
 #include <QDomDocument>
+#include <QMap>
 
 namespace Ui {
   class GCMainWindow;
@@ -30,8 +30,6 @@ private:
 
   Ui::GCMainWindow    *ui;
   GCDataBaseInterface *m_dbInterface;
-  GCElementsMap        m_elements;
-  GCAttributesMap      m_attributes;
   QDomDocument         m_domDoc;
   QString              m_currentXMLFileName;
 

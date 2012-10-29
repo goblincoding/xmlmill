@@ -13,8 +13,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   QMainWindow         ( parent ),
   ui                  ( new Ui::GCMainWindow ),
   m_dbInterface       ( new GCDataBaseInterface ),
-  m_elements          (),
-  m_attributes        (),
   m_domDoc            (),
   m_currentXMLFileName( "" ),
   m_treeItemNodes     ()

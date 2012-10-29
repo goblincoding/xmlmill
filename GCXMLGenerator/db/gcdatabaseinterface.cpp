@@ -21,6 +21,7 @@ static const QLatin1String CREATE_TABLE_ELEMENTS     ( "CREATE TABLE xmlelements
 static const QLatin1String PREPARE_INSERT_ELEMENT    ( "INSERT INTO xmlelements( element, comments, attributes ) VALUES( ?, ?, ? )" );
 static const QLatin1String PREPARE_DELETE_ELEMENT    ( "DELETE FROM xmlelements WHERE element = ?" );
 static const QLatin1String PREPARE_SELECT_ELEMENT    ( "SELECT * FROM xmlelements WHERE element = ?" );
+static const QLatin1String SELECT_ALL_ELEMENTS       ( "SELECT * FROM xmlelements" );
 
 static const QLatin1String PREPARE_UPDATE_COMMENTS   ( "UPDATE xmlelements SET comments = ? WHERE element = ?" );
 static const QLatin1String PREPARE_UPDATE_ATTRIBUTES ( "UPDATE xmlelements SET attributes = ? WHERE element = ?" );
@@ -31,6 +32,10 @@ static const QLatin1String PREPARE_DELETE_ATTRVAL    ( "DELETE FROM xmlattribute
 static const QLatin1String PREPARE_SELECT_ATTRVAL    ( "SELECT * FROM xmlattributes WHERE elementAttr = ?" );
 
 static const QLatin1String PREPARE_UPDATE_ATTRVALUES ( "UPDATE xmlattributes SET attributeValues = ? WHERE elementAttr = ?" );
+
+
+//select * from sqlite_master where type = 'table' and name ='myTable';
+
 
 /*-------------------------------------------------------------*/
 
@@ -106,7 +111,7 @@ bool GCDataBaseInterface::addDatabase( QString dbName )
       {
         db.setDatabaseName( dbName );
         m_dbMap.insert( dbConName, dbName );
-        saveXMLFile();
+        saveDBFile();
 
         m_lastErrorMsg = "";
         return true;
@@ -137,7 +142,7 @@ bool GCDataBaseInterface::removeDatabase( QString dbName )
 
     QSqlDatabase::removeDatabase( dbConName );
     m_dbMap.remove( dbConName );
-    saveXMLFile();
+    saveDBFile();
 
     if( m_sessionDBName == dbConName )
     {
@@ -316,30 +321,27 @@ bool GCDataBaseInterface::addElement( const QString &element, const QStringList 
     return false;
   }
 
-  /* We also want to populate the attribute values table with the new keys. */
-  for( int i = 0; i < attributes.size(); ++i )
-  {
-    addAttributeValues( element, attributes.at( i ), QStringList() );
-  }
+  m_lastErrorMsg = "";
+  return true;
 }
 
 /*-------------------------------------------------------------*/
 
 bool GCDataBaseInterface::updateElementComments( const QString &element, const QStringList &comments )
 {
-
+  return true;
 }
 
 /*-------------------------------------------------------------*/
 
 bool GCDataBaseInterface::updateElementAttributes( const QString &element, const QStringList &attributes )
 {
-
+  return true;
 }
 
 /*-------------------------------------------------------------*/
 
-bool GCDataBaseInterface::updateAttributeValue( const QString &element, const QString &attribute, const QStringList &attributeValues )
+bool GCDataBaseInterface::updateAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues )
 {
   /* Get the current session connection and ensure that it's valid. */
   QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
@@ -379,8 +381,8 @@ bool GCDataBaseInterface::updateAttributeValue( const QString &element, const QS
     }
 
     /* Create a comma-separated list of all the associated attributes and comments. */
-    query.addBindValue( comments.join( SEPARATOR ) );
-    query.addBindValue( attributes.join( SEPARATOR ) );
+    query.addBindValue( element + attribute );
+    query.addBindValue( attributeValues.join( SEPARATOR ) );
 
     if( !query.exec() )
     {
@@ -397,8 +399,8 @@ bool GCDataBaseInterface::updateAttributeValue( const QString &element, const QS
     }
 
     /* Create a comma-separated list of all the associated attributes and comments. */
-    query.addBindValue( comments.join( SEPARATOR ) );
-    query.addBindValue( attributes.join( SEPARATOR ) );
+    query.addBindValue( element + attribute );
+    query.addBindValue( attributeValues.join( SEPARATOR ) );
 
     if( !query.exec() )
     {
@@ -406,39 +408,79 @@ bool GCDataBaseInterface::updateAttributeValue( const QString &element, const QS
       return false;
     }
   }
+
+  m_lastErrorMsg = "";
+  return true;
 }
 
 /*-------------------------------------------------------------*/
 
 bool GCDataBaseInterface::removeElement( const QString &element )
 {
-
+  return true;
 }
 
 /*-------------------------------------------------------------*/
 
 bool GCDataBaseInterface::removeElementComment( const QString &element, const QString &comment )
 {
-
+  return true;
 }
 
 /*-------------------------------------------------------------*/
 
 bool GCDataBaseInterface::removeElementAttribute( const QString &element, const QString &attribute )
 {
-
+  return true;
 }
 
 /*-------------------------------------------------------------*/
 
 bool GCDataBaseInterface::removeAttributeValue( const QString &element, const QString &attribute, const QString &attributeValue )
 {
-
+  return true;
 }
 
 /*-------------------------------------------------------------*/
 
+QStringList GCDataBaseInterface::knownElements() const
+{
+  /* Get the current session connection and ensure that it's valid. */
+  QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
 
+  if( !db.isValid() )
+  {
+    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName ).arg( db.lastError().text() );
+    return false;
+  }
+
+  /* See if we already have this element in the DB. */
+  QSqlQuery query( db );
+
+  if( !query.exec( SELECT_ALL_ELEMENTS ) )
+  {
+    m_lastErrorMsg = QString( "Prepare SELECT all elements failed - [%2]" ).arg( query.lastError().text() );
+    return false;
+  }
+
+  return QStringList;
+}
+
+/*-------------------------------------------------------------*/
+
+QStringList GCDataBaseInterface::attributes( const QString &element ) const
+{
+  return QStringList;
+}
+
+/*-------------------------------------------------------------*/
+
+QStringList GCDataBaseInterface::attributeValues( const QString &element, const QString &attribute ) const
+{
+  return QStringList;
+}
+
+/*-------------------------------------------------------------*/
 
 
 

@@ -1,7 +1,6 @@
 #ifndef GCDATABASEINTERFACE_H
 #define GCDATABASEINTERFACE_H
 
-#include "utils/gctypes.h"
 #include <QObject>
 #include <QMap>
 
@@ -16,7 +15,7 @@ public:
 
   bool updateElementComments( const QString &element, const QStringList &comments );
   bool updateElementAttributes( const QString &element, const QStringList &attributes );
-  bool updateAttributeValue( const QString &element, const QString &attribute, const QStringList &attributeValues );
+  bool updateAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues );
 
   bool removeElement( const QString &element );
   bool removeElementComment( const QString &element, const QString &comment );
