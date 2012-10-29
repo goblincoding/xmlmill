@@ -85,12 +85,12 @@ void GCMainWindow::openXMLFile()
     QMessageBox::Button button = QMessageBox::question( this,
                                                         "Update database?",
                                                         "All the elements, attributes and attribute\n"
-                                                        "values in this XML document will be saved to"
+                                                        "values in this XML document will be saved to\n"
                                                         "the current active database session.\n \n"
                                                         "Is that OK?",
                                                         QMessageBox::Yes | QMessageBox::No,
                                                         QMessageBox::Yes );
-    if( button == QMessageBox::Ok )
+    if( button == QMessageBox::Yes )
     {
       QString fileName = QFileDialog::getOpenFileName( this, "Open File", QDir::homePath(), "XML Files (*.xml)" );
 
@@ -184,6 +184,7 @@ void GCMainWindow::processDOMDoc()
   ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
 
   m_treeItemNodes.insert( item, root );
+  populateDBTables( root );
 
   /* Now we can recursively stick the rest of the elements into our widget. */
   populateTreeWidget( root, item );
