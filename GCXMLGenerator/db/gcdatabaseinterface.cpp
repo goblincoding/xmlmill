@@ -297,7 +297,7 @@ bool GCDataBaseInterface::addElement( const QString &element, const QStringList 
   }
 
   /* If we don't have an existing record, add it. */
-  if( query.size() < 1 )
+  if( !query.first() )
   {
     if( !query.prepare( PREPARE_INSERT_ELEMENT ) )
     {
@@ -351,14 +351,13 @@ bool GCDataBaseInterface::updateElementComments( const QString &element, const Q
   }
 
   /* If we don't have an existing record, fail, otherwise update the existing one. */
-  if( query.record().isEmpty() )
+  if( !query.first() )
   {
     m_lastErrorMsg = QString( "No element \"%1\" exists." ).arg( element );
     return false;
   }
   else
   {
-    query.first();
     QStringList existingComments( query.record().field( "comments" ).value().toString().split( SEPARATOR ) );
     existingComments.append( comments.join( SEPARATOR ) );
     existingComments.removeDuplicates();
@@ -414,14 +413,13 @@ bool GCDataBaseInterface::updateElementAttributes( const QString &element, const
   }
 
   /* If we don't have an existing record, fail, otherwise update the existing one. */
-  if( query.record().isEmpty() )
+  if( !query.first() )
   {
     m_lastErrorMsg = QString( "No element \"%1\" exists." ).arg( element );
     return false;
   }
   else
   {
-    query.first();
     QStringList existingAttributes( query.record().field( "attributes" ).value().toString().split( SEPARATOR ) );
     existingAttributes.append( attributes.join( SEPARATOR ) );
     existingAttributes.removeDuplicates();
@@ -478,7 +476,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
   }
 
   /* If we don't have an existing record, add it, otherwise update the existing one. */
-  if( query.record().isEmpty() )
+  if( !query.first() )
   {
     if( !query.prepare( PREPARE_INSERT_ATTRVAL ) )
     {
@@ -498,7 +496,6 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
   }
   else
   {
-    query.first();
     QStringList existingValues( query.record().field( "attributeValues" ).value().toString().split( SEPARATOR ) );
     existingValues.append( attributeValues.join( SEPARATOR ) );
     existingValues.removeDuplicates();
@@ -614,7 +611,12 @@ QStringList GCDataBaseInterface::attributes( const QString &element ) const
 
   /* There should be only one record corresponding to this element. */
   query.first();
-  return QStringList( query.record().value( "attributes" ).toString().split( SEPARATOR ) );
+
+  QStringList attributes( query.record().value( "attributes" ).toString().split( SEPARATOR ) );
+  attributes.removeDuplicates();
+  attributes.removeAll( "" );
+
+  return attributes;
 }
 
 /*-------------------------------------------------------------*/
@@ -648,7 +650,12 @@ QStringList GCDataBaseInterface::attributeValues( const QString &element, const 
 
   /* There should be only one record corresponding to this element. */
   query.first();
-  return QStringList( query.record().value( "attributeValues" ).toString().split( SEPARATOR ) );
+
+  QStringList attributeValues( query.record().value( "attributeValues" ).toString().split( SEPARATOR ) );
+  attributeValues.removeDuplicates();
+  attributeValues.removeAll( "" );
+
+  return attributeValues;
 }
 
 /*-------------------------------------------------------------*/
