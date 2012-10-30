@@ -37,7 +37,6 @@ static const QLatin1String PREPARE_UPDATE_ATTRVALUES ( "UPDATE xmlattributes SET
 
 //select * from sqlite_master where type = 'table' and name ='myTable';
 
-
 /*-------------------------------------------------------------*/
 
 /* Flat file containing list of databases. */
@@ -48,6 +47,16 @@ static const QString REGEXP_SLASHES( "(\\\\|\\/)" );
 
 /* Separator for individual QStringList items. */
 static const QString SEPARATOR( "~!@" );
+
+
+/*--------------- NON-MEMBER UTILITY FUNCTIONS ----------------*/
+
+QString joinListElements( QStringList list )
+{
+  list.removeDuplicates();
+  list.removeAll( "" );
+  return list.join( SEPARATOR );
+}
 
 /*-------------------------------------------------------------*/
 
@@ -307,8 +316,8 @@ bool GCDataBaseInterface::addElement( const QString &element, const QStringList 
 
     /* Create a comma-separated list of all the associated attributes and comments. */
     query.addBindValue( element );
-    query.addBindValue( comments.join( SEPARATOR ) );
-    query.addBindValue( attributes.join( SEPARATOR ) );
+    query.addBindValue( joinListElements( comments ) );
+    query.addBindValue( joinListElements( attributes ) );
 
     if( !query.exec() )
     {
@@ -359,9 +368,7 @@ bool GCDataBaseInterface::updateElementComments( const QString &element, const Q
   else
   {
     QStringList existingComments( query.record().field( "comments" ).value().toString().split( SEPARATOR ) );
-    existingComments.append( comments.join( SEPARATOR ) );
-    existingComments.removeDuplicates();
-    existingComments.removeAll( "" );
+    existingComments.append( comments );
 
     if( !query.prepare( PREPARE_UPDATE_COMMENTS ) )
     {
@@ -369,7 +376,7 @@ bool GCDataBaseInterface::updateElementComments( const QString &element, const Q
       return false;
     }
 
-    query.addBindValue( existingComments.join( SEPARATOR ) );
+    query.addBindValue( joinListElements( existingComments ) );
     query.addBindValue( element );
 
     if( !query.exec() )
@@ -421,9 +428,7 @@ bool GCDataBaseInterface::updateElementAttributes( const QString &element, const
   else
   {
     QStringList existingAttributes( query.record().field( "attributes" ).value().toString().split( SEPARATOR ) );
-    existingAttributes.append( attributes.join( SEPARATOR ) );
-    existingAttributes.removeDuplicates();
-    existingAttributes.removeAll( "" );
+    existingAttributes.append( attributes );
 
     if( !query.prepare( PREPARE_UPDATE_ATTRIBUTES ) )
     {
@@ -431,7 +436,7 @@ bool GCDataBaseInterface::updateElementAttributes( const QString &element, const
       return false;
     }
 
-    query.addBindValue( existingAttributes.join( SEPARATOR ) );
+    query.addBindValue( joinListElements( existingAttributes ) );
     query.addBindValue( element );
 
     if( !query.exec() )
@@ -486,7 +491,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
 
     /* Create a comma-separated list of all the associated attributes and comments. */
     query.addBindValue( element + attribute );
-    query.addBindValue( attributeValues.join( SEPARATOR ) );
+    query.addBindValue( joinListElements( attributeValues ) );
 
     if( !query.exec() )
     {
@@ -497,9 +502,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
   else
   {
     QStringList existingValues( query.record().field( "attributeValues" ).value().toString().split( SEPARATOR ) );
-    existingValues.append( attributeValues.join( SEPARATOR ) );
-    existingValues.removeDuplicates();
-    existingValues.removeAll( "" );
+    existingValues.append( attributeValues );
 
     if( !query.prepare( PREPARE_UPDATE_ATTRVALUES ) )
     {
@@ -507,7 +510,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
       return false;
     }
 
-    query.addBindValue( existingValues.join( SEPARATOR ) );
+    query.addBindValue( joinListElements( existingValues ) );
     query.addBindValue( element + attribute );
 
     if( !query.exec() )
@@ -611,12 +614,7 @@ QStringList GCDataBaseInterface::attributes( const QString &element ) const
 
   /* There should be only one record corresponding to this element. */
   query.first();
-
-  QStringList attributes( query.record().value( "attributes" ).toString().split( SEPARATOR ) );
-  attributes.removeDuplicates();
-  attributes.removeAll( "" );
-
-  return attributes;
+  return QStringList( query.record().value( "attributes" ).toString().split( SEPARATOR ) );
 }
 
 /*-------------------------------------------------------------*/
@@ -650,12 +648,7 @@ QStringList GCDataBaseInterface::attributeValues( const QString &element, const 
 
   /* There should be only one record corresponding to this element. */
   query.first();
-
-  QStringList attributeValues( query.record().value( "attributeValues" ).toString().split( SEPARATOR ) );
-  attributeValues.removeDuplicates();
-  attributeValues.removeAll( "" );
-
-  return attributeValues;
+  return QStringList( query.record().value( "attributeValues" ).toString().split( SEPARATOR ) );
 }
 
 /*-------------------------------------------------------------*/
