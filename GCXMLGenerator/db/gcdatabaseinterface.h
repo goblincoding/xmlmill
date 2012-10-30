@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QMap>
+#include <QtSql/QSqlQuery>
 
 class GCDataBaseInterface : public QObject
 {
@@ -11,16 +12,16 @@ public:
   explicit GCDataBaseInterface( QObject *parent = 0 );
 
   bool initialise();
-  bool addElement( const QString &element, const QStringList &comments, const QStringList &attributes );
+  bool addElement( const QString &element, const QStringList &comments, const QStringList &attributes ) const;
 
-  bool updateElementComments( const QString &element, const QStringList &comments );
-  bool updateElementAttributes( const QString &element, const QStringList &attributes );
-  bool updateAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues );
+  bool updateElementComments( const QString &element, const QStringList &comments ) const;
+  bool updateElementAttributes( const QString &element, const QStringList &attributes ) const;
+  bool updateAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const;
 
-  bool removeElement( const QString &element );
-  bool removeElementComment( const QString &element, const QString &comment );
-  bool removeElementAttribute( const QString &element, const QString &attribute );
-  bool removeAttributeValue( const QString &element, const QString &attribute, const QString &attributeValue );
+  bool removeElement( const QString &element ) const;
+  bool removeElementComment( const QString &element, const QString &comment ) const;
+  bool removeElementAttribute( const QString &element, const QString &attribute ) const;
+  bool removeAttributeValue( const QString &element, const QString &attribute, const QString &attributeValue ) const;
 
   /* Getters. */
   QStringList getDBList() const;
@@ -28,8 +29,8 @@ public:
   bool hasActiveSession() const;
 
   QStringList knownElements() const;
-  QStringList attributes( const QString &element ) const;
-  QStringList attributeValues( const QString &element, const QString &attribute ) const;
+  QStringList attributes( const QString &element, bool &success ) const;
+  QStringList attributeValues( const QString &element, const QString &attribute, bool &success ) const;
 
   
 public slots:
@@ -38,9 +39,11 @@ public slots:
   bool setSessionDB  ( QString dbName );
 
 private:
-  void saveDBFile();
-  bool openDBConnection( QString dbConName, QString &errMsg );
-  bool initialiseDB    ( QString dbConName, QString &errMsg );
+  QSqlQuery selectElement  ( const QString &element, bool &success ) const;
+  QSqlQuery selectAttribute( const QString &element, const QString &attribute, bool &success ) const;
+  void saveDBFile() const;
+  bool openDBConnection( QString dbConName, QString &errMsg ) const;
+  bool initialiseDB    ( QString dbConName, QString &errMsg ) const;
 
   QString                  m_sessionDBName;
   mutable QString          m_lastErrorMsg;

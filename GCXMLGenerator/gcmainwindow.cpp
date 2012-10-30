@@ -247,16 +247,14 @@ void GCMainWindow::populateDBTables( const QDomElement &element )
   {
     if( !m_dbInterface->updateElementAttributes( element.tagName(), attributes.keys() ) )
     {
-      QString errMsg = QString( "Failed to update element attributes for element \"%1\" - [%2].").arg( element.tagName() ).arg( m_dbInterface->getLastError() );
-      showErrorMessageBox( errMsg );
+      showErrorMessageBox( m_dbInterface->getLastError() );
     }
 
     if( !comment.isEmpty() )
     {
       if( !m_dbInterface->updateElementComments( element.tagName(), QStringList( comment ) ) )
       {
-        QString errMsg = QString( "Failed to update element comments for element \"%1\" - [%2].").arg( element.tagName() ).arg( m_dbInterface->getLastError() );
-        showErrorMessageBox( errMsg );
+        showErrorMessageBox( m_dbInterface->getLastError() );
       }
     }
   }
@@ -332,8 +330,15 @@ void GCMainWindow::treeWidgetItemClicked( QTreeWidgetItem *item, int column )
   /* Get only the attributes currently assigned to the element
     corresponding to this item (and the lists of associated
     values for these attributes) and populate our table widget. */
+  bool success( false );
   QString itemName = item->text( column );
-  QStringList attributes = m_dbInterface->attributes( itemName );
+  QStringList attributes = m_dbInterface->attributes( itemName, success );
+
+  /* This is more for debugging than for end-user functionality. */
+  if( !success )
+  {
+    showErrorMessageBox( m_dbInterface->getLastError() );
+  }
 
   for( int i = 0; i < attributes.count(); ++i )
   {
@@ -343,7 +348,14 @@ void GCMainWindow::treeWidgetItemClicked( QTreeWidgetItem *item, int column )
     ui->tableWidget->setItem( i, 0, label );
 
     QComboBox *attributeCombo = new QComboBox;
-    attributeCombo->addItems( m_dbInterface->attributeValues( itemName, attributes.at( i ) ) );
+    attributeCombo->addItems( m_dbInterface->attributeValues( itemName, attributes.at( i ), success ) );
+
+    /* This is more for debugging than for end-user functionality. */
+    if( !success )
+    {
+      showErrorMessageBox( m_dbInterface->getLastError() );
+    }
+
     attributeCombo->setEditable( true );
     ui->tableWidget->setCellWidget( i, 1, attributeCombo );
   }

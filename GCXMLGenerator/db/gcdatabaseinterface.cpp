@@ -4,7 +4,6 @@
 #include <QTextStream>
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlError>
-#include <QtSql/QSqlQuery>
 #include <QtSql/QSqlRecord>
 #include <QtSql/QSqlField>
 
@@ -58,7 +57,7 @@ QString joinListElements( QStringList list )
   return list.join( SEPARATOR );
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------- MEMBER FUNCTIONS ----------------------*/
 
 GCDataBaseInterface::GCDataBaseInterface( QObject *parent ) :
   QObject           ( parent ),
@@ -75,8 +74,7 @@ bool GCDataBaseInterface::initialise()
 {
   QFile flatFile( DB_FILE );
 
-  /* ReadWrite mode is really only required for the first time
-    the file is opened so that QFile may create it in the process. */
+  /* ReadWrite mode is required to create the file if it doesn't exist. */
   if( flatFile.open( QIODevice::ReadWrite | QIODevice::Text ) )
   {
     QTextStream inStream( &flatFile );
@@ -210,7 +208,7 @@ bool GCDataBaseInterface::setSessionDB( QString dbName )
 
 /*-------------------------------------------------------------*/
 
-bool GCDataBaseInterface::openDBConnection( QString dbConName, QString &errMsg )
+bool GCDataBaseInterface::openDBConnection( QString dbConName, QString &errMsg ) const
 {
   /* If we have a previous connection open, close it. */
   QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
@@ -244,7 +242,7 @@ bool GCDataBaseInterface::openDBConnection( QString dbConName, QString &errMsg )
 
 /*-------------------------------------------------------------*/
 
-bool GCDataBaseInterface::initialiseDB( QString dbConName, QString &errMsg )
+bool GCDataBaseInterface::initialiseDB( QString dbConName, QString &errMsg ) const
 {
   QSqlDatabase db = QSqlDatabase::database( dbConName );
 
@@ -277,15 +275,16 @@ bool GCDataBaseInterface::initialiseDB( QString dbConName, QString &errMsg )
 
 /*-------------------------------------------------------------*/
 
-bool GCDataBaseInterface::addElement( const QString &element, const QStringList &comments, const QStringList &attributes )
+QSqlQuery GCDataBaseInterface::selectElement( const QString &element, bool &success ) const
 {
   /* Get the current session connection and ensure that it's valid. */
   QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
 
   if( !db.isValid() )
   {
-    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName ).arg( db.lastError().text() );
-    return false;
+    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName )
+                                                                                     .arg( db.lastError().text() );
+    success = false;
   }
 
   /* See if we already have this element in the DB. */
@@ -293,15 +292,35 @@ bool GCDataBaseInterface::addElement( const QString &element, const QStringList 
 
   if( !query.prepare( PREPARE_SELECT_ELEMENT ) )
   {
-    m_lastErrorMsg = QString( "Prepare SELECT element failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
-    return false;
+    m_lastErrorMsg = QString( "\"%1\" FAILED for element [%2], error: [%3]" ).arg( PREPARE_SELECT_ELEMENT )
+                                                                             .arg( element )
+                                                                             .arg( query.lastError().text() );
+    success = false;
   }
 
   query.addBindValue( element );
 
   if( !query.exec() )
   {
-    m_lastErrorMsg = QString( "SELECT element failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
+    m_lastErrorMsg = QString( "SELECT element failed for element \"%1\" - [%2]" ).arg( element )
+                                                                                 .arg( query.lastError().text() );
+    success = false;
+  }
+
+  success = true;
+  return query;
+}
+
+/*-------------------------------------------------------------*/
+
+bool GCDataBaseInterface::addElement( const QString &element, const QStringList &comments, const QStringList &attributes ) const
+{
+  bool success( false );
+  QSqlQuery query = selectElement( element, success );
+
+  if( !success )
+  {
+    /* The last error message has been set in selectElement. */
     return false;
   }
 
@@ -310,7 +329,8 @@ bool GCDataBaseInterface::addElement( const QString &element, const QStringList 
   {
     if( !query.prepare( PREPARE_INSERT_ELEMENT ) )
     {
-      m_lastErrorMsg = QString( "Prepare INSERT element failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
+      m_lastErrorMsg = QString( "Prepare INSERT element failed for element \"%1\" - [%2]" ).arg( element )
+                                                                                           .arg( query.lastError().text() );
       return false;
     }
 
@@ -321,7 +341,8 @@ bool GCDataBaseInterface::addElement( const QString &element, const QStringList 
 
     if( !query.exec() )
     {
-      m_lastErrorMsg = QString( "INSERT element failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
+      m_lastErrorMsg = QString( "INSERT element failed for element \"%1\" - [%2]" ).arg( element )
+                                                                                   .arg( query.lastError().text() );
       return false;
     }
   }
@@ -332,58 +353,44 @@ bool GCDataBaseInterface::addElement( const QString &element, const QStringList 
 
 /*-------------------------------------------------------------*/
 
-bool GCDataBaseInterface::updateElementComments( const QString &element, const QStringList &comments )
+bool GCDataBaseInterface::updateElementComments( const QString &element, const QStringList &comments ) const
 {
-  /* Get the current session connection and ensure that it's valid. */
-  QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
+  bool success( false );
+  QSqlQuery query = selectElement( element, success );
 
-  if( !db.isValid() )
+  if( !success )
   {
-    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName ).arg( db.lastError().text() );
+    /* The last error message has been set in selectElement. */
     return false;
   }
 
-  QSqlQuery query( db );
-
-  if( !query.prepare( PREPARE_SELECT_ELEMENT ) )
+  /* Update the existing record (if we have one). */
+  if( query.first() )
   {
-    m_lastErrorMsg = QString( "Prepare SELECT element failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
-    return false;
-  }
-
-  query.addBindValue( element );
-
-  if( !query.exec() )
-  {
-    m_lastErrorMsg = QString( "SELECT element failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
-    return false;
-  }
-
-  /* If we don't have an existing record, fail, otherwise update the existing one. */
-  if( !query.first() )
-  {
-    m_lastErrorMsg = QString( "No element \"%1\" exists." ).arg( element );
-    return false;
-  }
-  else
-  {
-    QStringList existingComments( query.record().field( "comments" ).value().toString().split( SEPARATOR ) );
-    existingComments.append( comments );
+    QStringList allComments( query.record().field( "comments" ).value().toString().split( SEPARATOR ) );
+    allComments.append( comments );
 
     if( !query.prepare( PREPARE_UPDATE_COMMENTS ) )
     {
-      m_lastErrorMsg = QString( "Prepare UPDATE element failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
+      m_lastErrorMsg = QString( "Prepare UPDATE element comment failed for element \"%1\" - [%2]" ).arg( element )
+                                                                                                   .arg( query.lastError().text() );
       return false;
     }
 
-    query.addBindValue( joinListElements( existingComments ) );
+    query.addBindValue( joinListElements( allComments ) );
     query.addBindValue( element );
 
     if( !query.exec() )
     {
-      m_lastErrorMsg = QString( "UPDATE comment failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
+      m_lastErrorMsg = QString( "UPDATE comment failed for element \"%1\" - [%2]" ).arg( element )
+                                                                                   .arg( query.lastError().text() );
       return false;
     }
+  }
+  else
+  {
+    m_lastErrorMsg = QString( "No knowledge of element \"%1\", add it first." ).arg( element );
+    return false;
   }
 
   m_lastErrorMsg = "";
@@ -392,59 +399,45 @@ bool GCDataBaseInterface::updateElementComments( const QString &element, const Q
 
 /*-------------------------------------------------------------*/
 
-bool GCDataBaseInterface::updateElementAttributes( const QString &element, const QStringList &attributes )
+bool GCDataBaseInterface::updateElementAttributes( const QString &element, const QStringList &attributes ) const
 {
-  /* Get the current session connection and ensure that it's valid. */
-  QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
+  bool success( false );
+  QSqlQuery query = selectElement( element, success );
 
-  if( !db.isValid() )
+  if( !success )
   {
-    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName ).arg( db.lastError().text() );
+    /* The last error message has been set in selectElement. */
     return false;
   }
 
-  QSqlQuery query( db );
-
-  if( !query.prepare( PREPARE_SELECT_ELEMENT ) )
+  /* Update the existing record (if we have one). */
+  if( query.first() )
   {
-    m_lastErrorMsg = QString( "Prepare SELECT element failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
-    return false;
+    QStringList allAttributes( query.record().field( "attributes" ).value().toString().split( SEPARATOR ) );
+    allAttributes.append( attributes );
+
+    if( !query.prepare( PREPARE_UPDATE_ATTRIBUTES ) )
+    {
+      m_lastErrorMsg = QString( "Prepare UPDATE element attribute failed for element \"%1\" - [%2]" ).arg( element )
+                                                                                                     .arg( query.lastError().text() );
+      return false;
+    }
+
+    query.addBindValue( joinListElements( allAttributes ) );
+    query.addBindValue( element );
+
+    if( !query.exec() )
+    {
+      m_lastErrorMsg = QString( "UPDATE attribute failed for element \"%1\" - [%2]" ).arg( element )
+                                                                                     .arg( query.lastError().text() );
+      return false;
+    }
   }
-
-  query.addBindValue( element );
-
-  if( !query.exec() )
-  {
-    m_lastErrorMsg = QString( "SELECT element failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
-    return false;
-  }
-
-  /* If we don't have an existing record, fail, otherwise update the existing one. */
-  if( !query.first() )
+  else
   {
     m_lastErrorMsg = QString( "No element \"%1\" exists." ).arg( element );
     return false;
   }
-  else
-  {
-    QStringList existingAttributes( query.record().field( "attributes" ).value().toString().split( SEPARATOR ) );
-    existingAttributes.append( attributes );
-
-    if( !query.prepare( PREPARE_UPDATE_ATTRIBUTES ) )
-    {
-      m_lastErrorMsg = QString( "Prepare UPDATE element failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
-      return false;
-    }
-
-    query.addBindValue( joinListElements( existingAttributes ) );
-    query.addBindValue( element );
-
-    if( !query.exec() )
-    {
-      m_lastErrorMsg = QString( "UPDATE attribute failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
-      return false;
-    }
-  }
 
   m_lastErrorMsg = "";
   return true;
@@ -452,23 +445,26 @@ bool GCDataBaseInterface::updateElementAttributes( const QString &element, const
 
 /*-------------------------------------------------------------*/
 
-bool GCDataBaseInterface::updateAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues )
+QSqlQuery GCDataBaseInterface::selectAttribute( const QString &element, const QString &attribute, bool &success ) const
 {
   /* Get the current session connection and ensure that it's valid. */
   QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
 
   if( !db.isValid() )
   {
-    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName ).arg( db.lastError().text() );
-    return false;
+    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName )
+                                                                                     .arg( db.lastError().text() );
+    success = false;
   }
 
   QSqlQuery query( db );
 
   if( !query.prepare( PREPARE_SELECT_ATTRVAL ) )
   {
-    m_lastErrorMsg = QString( "Prepare SELECT attribute failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
-    return false;
+    m_lastErrorMsg = QString( "\"%1\" FAILED for element [%2], error: [%3]" ).arg( PREPARE_SELECT_ATTRVAL )
+                                                                             .arg( element )
+                                                                             .arg( query.lastError().text() );
+    success = false;
   }
 
   /* The DB Key for this table is elementAttr (concatenated). */
@@ -476,7 +472,25 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
 
   if( !query.exec() )
   {
-    m_lastErrorMsg = QString( "SELECT attribute failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
+    m_lastErrorMsg = QString( "SELECT attribute failed for element \"%1\" - [%2]" ).arg( element )
+                                                                                   .arg( query.lastError().text() );
+    success = false;
+  }
+
+  success = true;
+  return query;
+}
+
+/*-------------------------------------------------------------*/
+
+bool GCDataBaseInterface::updateAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const
+{
+  bool success( false );
+  QSqlQuery query = selectAttribute( element, attribute, success );
+
+  if( !success )
+  {
+    /* The last error message has been set in selectElement. */
     return false;
   }
 
@@ -485,7 +499,8 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
   {
     if( !query.prepare( PREPARE_INSERT_ATTRVAL ) )
     {
-      m_lastErrorMsg = QString( "Prepare INSERT attribute failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
+      m_lastErrorMsg = QString( "Prepare INSERT attribute failed for element \"%1\" - [%2]" ).arg( element )
+                                                                                             .arg( query.lastError().text() );
       return false;
     }
 
@@ -495,7 +510,8 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
 
     if( !query.exec() )
     {
-      m_lastErrorMsg = QString( "INSERT attribute failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
+      m_lastErrorMsg = QString( "INSERT attribute failed for element \"%1\" - [%2]" ).arg( element )
+                                                                                     .arg( query.lastError().text() );
       return false;
     }
   }
@@ -506,7 +522,8 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
 
     if( !query.prepare( PREPARE_UPDATE_ATTRVALUES ) )
     {
-      m_lastErrorMsg = QString( "Prepare UPDATE attribute failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
+      m_lastErrorMsg = QString( "Prepare UPDATE attribute failed for element \"%1\" - [%2]" ).arg( element )
+                                                                                             .arg( query.lastError().text() );
       return false;
     }
 
@@ -515,7 +532,8 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
 
     if( !query.exec() )
     {
-      m_lastErrorMsg = QString( "UPDATE attribute failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
+      m_lastErrorMsg = QString( "UPDATE attribute failed for element \"%1\" - [%2]" ).arg( element )
+                                                                                     .arg( query.lastError().text() );
       return false;
     }
   }
@@ -526,28 +544,28 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
 
 /*-------------------------------------------------------------*/
 
-bool GCDataBaseInterface::removeElement( const QString &element )
+bool GCDataBaseInterface::removeElement( const QString &element ) const
 {
   return true;
 }
 
 /*-------------------------------------------------------------*/
 
-bool GCDataBaseInterface::removeElementComment( const QString &element, const QString &comment )
+bool GCDataBaseInterface::removeElementComment( const QString &element, const QString &comment ) const
 {
   return true;
 }
 
 /*-------------------------------------------------------------*/
 
-bool GCDataBaseInterface::removeElementAttribute( const QString &element, const QString &attribute )
+bool GCDataBaseInterface::removeElementAttribute( const QString &element, const QString &attribute ) const
 {
   return true;
 }
 
 /*-------------------------------------------------------------*/
 
-bool GCDataBaseInterface::removeAttributeValue( const QString &element, const QString &attribute, const QString &attributeValue )
+bool GCDataBaseInterface::removeAttributeValue( const QString &element, const QString &attribute, const QString &attributeValue ) const
 {
   return true;
 }
@@ -561,7 +579,8 @@ QStringList GCDataBaseInterface::knownElements() const
 
   if( !db.isValid() )
   {
-    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName ).arg( db.lastError().text() );
+    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName )
+                                                                                     .arg( db.lastError().text() );
     return QStringList();
   }
 
@@ -585,75 +604,37 @@ QStringList GCDataBaseInterface::knownElements() const
 
 /*-------------------------------------------------------------*/
 
-QStringList GCDataBaseInterface::attributes( const QString &element ) const
+QStringList GCDataBaseInterface::attributes( const QString &element, bool &success ) const
 {
-  /* Get the current session connection and ensure that it's valid. */
-  QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
-
-  if( !db.isValid() )
-  {
-    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName ).arg( db.lastError().text() );
-    return QStringList();
-  }
-
-  QSqlQuery query( db );
-
-  if( !query.prepare( PREPARE_SELECT_ELEMENT ) )
-  {
-    m_lastErrorMsg = QString( "Prepare SELECT element failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
-    return QStringList();
-  }
-
-  query.addBindValue( element );
-
-  if( !query.exec() )
-  {
-    m_lastErrorMsg = QString( "SELECT element failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
-    return QStringList();
-  }
+  QSqlQuery query = selectElement( element, success );
 
   /* There should be only one record corresponding to this element. */
-  query.first();
+  if( !success || !query.first() )
+  {
+    return QStringList();
+  }
+
   return QStringList( query.record().value( "attributes" ).toString().split( SEPARATOR ) );
 }
 
 /*-------------------------------------------------------------*/
 
-QStringList GCDataBaseInterface::attributeValues( const QString &element, const QString &attribute ) const
+QStringList GCDataBaseInterface::attributeValues( const QString &element, const QString &attribute, bool &success ) const
 {
-  /* Get the current session connection and ensure that it's valid. */
-  QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
-
-  if( !db.isValid() )
-  {
-    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName ).arg( db.lastError().text() );
-    return QStringList();
-  }
-
-  QSqlQuery query( db );
-
-  if( !query.prepare( PREPARE_SELECT_ATTRVAL ) )
-  {
-    m_lastErrorMsg = QString( "Prepare SELECT element failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
-    return QStringList();
-  }
-
-  query.addBindValue( element + attribute );
-
-  if( !query.exec() )
-  {
-    m_lastErrorMsg = QString( "SELECT element failed for element \"%1\" - [%2]" ).arg( element ).arg( query.lastError().text() );
-    return QStringList();
-  }
+  QSqlQuery query = selectAttribute( element, attribute, success );
 
   /* There should be only one record corresponding to this element. */
-  query.first();
+  if( !success || !query.first() )
+  {
+    return QStringList();
+  }
+
   return QStringList( query.record().value( "attributeValues" ).toString().split( SEPARATOR ) );
 }
 
 /*-------------------------------------------------------------*/
 
-void GCDataBaseInterface::saveDBFile()
+void GCDataBaseInterface::saveDBFile() const
 {
   QFile flatFile( DB_FILE );
 
