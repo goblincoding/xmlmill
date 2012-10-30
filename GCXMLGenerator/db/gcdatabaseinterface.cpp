@@ -358,8 +358,11 @@ bool GCDataBaseInterface::updateElementComments( const QString &element, const Q
   }
   else
   {
+    query.first();
     QStringList existingComments( query.record().field( "comments" ).value().toString().split( SEPARATOR ) );
     existingComments.append( comments.join( SEPARATOR ) );
+    existingComments.removeDuplicates();
+    existingComments.removeAll( "" );
 
     if( !query.prepare( PREPARE_UPDATE_COMMENTS ) )
     {
@@ -418,29 +421,11 @@ bool GCDataBaseInterface::updateElementAttributes( const QString &element, const
   }
   else
   {
-    if( query.record().isEmpty() )
-    {
-      int bob  = 0;
-    }
-
-    QSqlField field = query.record().field( "attributes" );
-
-    if( !query.record().field( "attributes" ).isNull() )
-    {
-      int bob  = 0;
-    }
-
-    QVariant var = query.record().field( "attributes" ).value();
-
-    if( !var.isNull() )
-    {
-      int bob  = 0;
-    }
-
-
-    QString currentValue = query.record().field( "attributes" ).value().toString();
+    query.first();
     QStringList existingAttributes( query.record().field( "attributes" ).value().toString().split( SEPARATOR ) );
     existingAttributes.append( attributes.join( SEPARATOR ) );
+    existingAttributes.removeDuplicates();
+    existingAttributes.removeAll( "" );
 
     if( !query.prepare( PREPARE_UPDATE_ATTRIBUTES ) )
     {
@@ -513,8 +498,11 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
   }
   else
   {
+    query.first();
     QStringList existingValues( query.record().field( "attributeValues" ).value().toString().split( SEPARATOR ) );
     existingValues.append( attributeValues.join( SEPARATOR ) );
+    existingValues.removeDuplicates();
+    existingValues.removeAll( "" );
 
     if( !query.prepare( PREPARE_UPDATE_ATTRVALUES ) )
     {
@@ -625,8 +613,8 @@ QStringList GCDataBaseInterface::attributes( const QString &element ) const
   }
 
   /* There should be only one record corresponding to this element. */
-  QSqlRecord record = query.record();
-  return QStringList( record.field( "attributes" ).value().toString().split( SEPARATOR ) );
+  query.first();
+  return QStringList( query.record().value( "attributes" ).toString().split( SEPARATOR ) );
 }
 
 /*-------------------------------------------------------------*/
@@ -659,8 +647,8 @@ QStringList GCDataBaseInterface::attributeValues( const QString &element, const 
   }
 
   /* There should be only one record corresponding to this element. */
-  QSqlRecord record = query.record();
-  return QStringList( record.field( "attributeValues" ).value().toString().split( SEPARATOR ) );
+  query.first();
+  return QStringList( query.record().value( "attributeValues" ).toString().split( SEPARATOR ) );
 }
 
 /*-------------------------------------------------------------*/
