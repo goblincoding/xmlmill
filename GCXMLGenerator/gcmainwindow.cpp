@@ -7,7 +7,7 @@
 #include <QTextStream>
 #include <QComboBox>
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 GCMainWindow::GCMainWindow( QWidget *parent ) :
   QMainWindow         ( parent ),
@@ -64,7 +64,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   showSessionForm();  
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 GCMainWindow::~GCMainWindow()
 {
@@ -72,7 +72,7 @@ GCMainWindow::~GCMainWindow()
   delete ui;
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::openXMLFile()
 {
@@ -135,7 +135,7 @@ void GCMainWindow::openXMLFile()
   }
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::saveXMLFile()
 {
@@ -154,7 +154,7 @@ void GCMainWindow::saveXMLFile()
   }
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::saveXMLFileAs()
 {
@@ -168,7 +168,7 @@ void GCMainWindow::saveXMLFileAs()
   }
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::processDOMDoc()
 {
@@ -184,13 +184,15 @@ void GCMainWindow::processDOMDoc()
   ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
 
   m_treeItemNodes.insert( item, root );
-  populateDBTables( root );
 
   /* Now we can recursively stick the rest of the elements into our widget. */
   populateTreeWidget( root, item );
+
+  /* Update the DB in one go. */
+  m_dbInterface->batchProcessDOMDocument( m_domDoc );
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWidgetItem *parentItem )
 {
@@ -204,81 +206,20 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
     parentItem->addChild( item );   // takes ownership
 
     m_treeItemNodes.insert( item, element );
-    populateDBTables( element );
 
     populateTreeWidget( element, item );
     element = element.nextSiblingElement();
   }
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::populateDBTables( const QDomElement &element )
 {  
-  QMap< QString, QString > attributes;    // attribute name/attribute value
 
-  /* Let's convert the nodemap to an attributes/value map for ease of use. */
-  QDomNamedNodeMap attributeNodes = element.attributes();
-
-  for( int i = 0; i < attributeNodes.size(); ++i )
-  {
-    QDomAttr attribute = attributeNodes.item( i ).toAttr();
-
-    if( !attribute.isNull() )
-    {
-      attributes.insert( attribute.name(), attribute.value() );
-    }
-  }
-
-  /* We also check if there are any comments associated with this element.  We'll
-    operate on the assumption that an XML comment will appear directly before the element
-    in question and also that such comments are siblings of the element in question. */
-  QString comment( "" );
-
-  if( element.previousSibling().nodeType() == QDomNode::CommentNode )
-  {
-    comment = element.previousSibling().toComment().nodeValue();
-  }
-
-  /* Update existing or add new element. */
-  QStringList elements( m_dbInterface->knownElements() );
-
-  if( elements.contains( element.tagName() ) )
-  {
-    if( !m_dbInterface->updateElementAttributes( element.tagName(), attributes.keys() ) )
-    {
-      showErrorMessageBox( m_dbInterface->getLastError() );
-    }
-
-    if( !comment.isEmpty() )
-    {
-      if( !m_dbInterface->updateElementComments( element.tagName(), QStringList( comment ) ) )
-      {
-        showErrorMessageBox( m_dbInterface->getLastError() );
-      }
-    }
-  }
-  else
-  {
-    if( !m_dbInterface->addElement( element.tagName(), QStringList( comment ), attributes.keys() ) )
-    {
-      QString errMsg = QString( "Failed to add element \"%1\" - [%2].").arg( element.tagName() ).arg( m_dbInterface->getLastError() );
-      showErrorMessageBox( errMsg );
-    }
-  }
-
-  /* Update the corresponding attribute values. */
-  for( int i = 0; i < attributes.size(); ++ i )
-  {
-    if( !m_dbInterface->updateAttributeValues( element.tagName(), attributes.keys().at( i ), QStringList( attributes.values().at( i ) ) ) )
-    {
-      QString errMsg = QString( "Failed to update element attribute values for element \"%1\" - [%2].").arg( element.tagName() ).arg( m_dbInterface->getLastError() );
-      showErrorMessageBox( errMsg );
-    }
-  }
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::updateDataBase()
 {  
@@ -294,7 +235,7 @@ void GCMainWindow::updateDataBase()
   }
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
 {
@@ -323,7 +264,7 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
   }
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::treeWidgetItemClicked( QTreeWidgetItem *item, int column )
 {
@@ -368,7 +309,7 @@ void GCMainWindow::treeWidgetItemClicked( QTreeWidgetItem *item, int column )
   }
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::addNewDB()
 {
@@ -381,7 +322,7 @@ void GCMainWindow::addNewDB()
   }
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::addExistingDB()
 {
@@ -394,7 +335,7 @@ void GCMainWindow::addExistingDB()
   }
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::addDBConnection( const QString &dbName )
 {
@@ -423,7 +364,7 @@ void GCMainWindow::addDBConnection( const QString &dbName )
   }
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::setSessionDB( QString dbName )
 {
@@ -435,14 +376,14 @@ void GCMainWindow::setSessionDB( QString dbName )
   }
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::removeDB()
 {
   showSessionForm( true );
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 
 void GCMainWindow::removeDBConnection( QString dbName )
@@ -462,63 +403,63 @@ void GCMainWindow::removeDBConnection( QString dbName )
   }
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::switchDBSession()
 {
   showSessionForm();
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::deleteElement()
 {
 
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::addAsChild()
 {
 
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::addAsSibling()
 {
 
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::deleteElementFromDB()
 {
 
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::deleteAttributeValuesFromDB()
 {
 
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::revertDirectEdit()
 {
 
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::saveDirectEdit()
 {
 
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::showSessionForm( bool remove )
 {
@@ -539,11 +480,11 @@ void GCMainWindow::showSessionForm( bool remove )
   sessionForm->show();
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::showErrorMessageBox( const QString &errorMsg )
 {
   QMessageBox::information( this, "Error!", errorMsg );
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/

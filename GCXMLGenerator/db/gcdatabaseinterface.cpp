@@ -1,4 +1,5 @@
 #include "gcdatabaseinterface.h"
+#include "gcbatchprocessorhelper.h"
 #include <QStringList>
 #include <QFile>
 #include <QTextStream>
@@ -7,7 +8,7 @@
 #include <QtSql/QSqlRecord>
 #include <QtSql/QSqlField>
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 /* DB tables are set up as follows:
   Table - XMLELEMENTS
@@ -27,16 +28,14 @@ static const QLatin1String PREPARE_UPDATE_COMMENTS   ( "UPDATE xmlelements SET c
 static const QLatin1String PREPARE_UPDATE_ATTRIBUTES ( "UPDATE xmlelements SET attributes = ? WHERE element = ?" );
 
 static const QLatin1String CREATE_TABLE_ATTRIBUTES   ( "CREATE TABLE xmlattributes( elementAttr QString primary key, attributeValues QString )" );
-static const QLatin1String PREPARE_INSERT_ATTRVAL    ( "INSERT INTO xmlattributes( elementAttr, attributeValues ) VALUES( ?, ? )" );
-static const QLatin1String PREPARE_DELETE_ATTRVAL    ( "DELETE FROM xmlattributes WHERE elementAttr = ?" );
-static const QLatin1String PREPARE_SELECT_ATTRVAL    ( "SELECT * FROM xmlattributes WHERE elementAttr = ?" );
+static const QLatin1String PREPARE_INSERT_ATTRIBUTES ( "INSERT INTO xmlattributes( elementAttr, attributeValues ) VALUES( ?, ? )" );
+static const QLatin1String PREPARE_DELETE_ATTRIBUTES ( "DELETE FROM xmlattributes WHERE elementAttr = ?" );
+static const QLatin1String PREPARE_SELECT_ATTRIBUTES ( "SELECT * FROM xmlattributes WHERE elementAttr = ?" );
+static const QLatin1String SELECT_ALL_ATTRIBUTES     ( "SELECT * FROM xmlattributes" );
 
 static const QLatin1String PREPARE_UPDATE_ATTRVALUES ( "UPDATE xmlattributes SET attributeValues = ? WHERE elementAttr = ?" );
 
-
-//select * from sqlite_master where type = 'table' and name ='myTable';
-
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 /* Flat file containing list of databases. */
 static const QString DB_FILE( "dblist.txt" );
@@ -48,7 +47,7 @@ static const QString REGEXP_SLASHES( "(\\\\|\\/)" );
 static const QString SEPARATOR( "~!@" );
 
 
-/*--------------- NON-MEMBER UTILITY FUNCTIONS ----------------*/
+/*--------------------------- NON-MEMBER UTILITY FUNCTIONS ----------------------------*/
 
 QString joinListElements( QStringList list )
 {
@@ -57,7 +56,7 @@ QString joinListElements( QStringList list )
   return list.join( SEPARATOR );
 }
 
-/*--------------------- MEMBER FUNCTIONS ----------------------*/
+/*--------------------------------- MEMBER FUNCTIONS ----------------------------------*/
 
 GCDataBaseInterface::GCDataBaseInterface( QObject *parent ) :
   QObject           ( parent ),
@@ -68,7 +67,7 @@ GCDataBaseInterface::GCDataBaseInterface( QObject *parent ) :
 {
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 bool GCDataBaseInterface::initialise()
 {
@@ -102,7 +101,7 @@ bool GCDataBaseInterface::initialise()
   return false;
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 bool GCDataBaseInterface::addDatabase( QString dbName )
 {
@@ -139,7 +138,7 @@ bool GCDataBaseInterface::addDatabase( QString dbName )
   return false;
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 bool GCDataBaseInterface::removeDatabase( QString dbName )
 {
@@ -166,7 +165,7 @@ bool GCDataBaseInterface::removeDatabase( QString dbName )
   return false;
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 bool GCDataBaseInterface::setSessionDB( QString dbName )
 {
@@ -206,7 +205,7 @@ bool GCDataBaseInterface::setSessionDB( QString dbName )
   return false;
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 bool GCDataBaseInterface::openDBConnection( QString dbConName, QString &errMsg ) const
 {
@@ -240,7 +239,7 @@ bool GCDataBaseInterface::openDBConnection( QString dbConName, QString &errMsg )
   return true;
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 bool GCDataBaseInterface::initialiseDB( QString dbConName, QString &errMsg ) const
 {
@@ -273,7 +272,22 @@ bool GCDataBaseInterface::initialiseDB( QString dbConName, QString &errMsg ) con
   return true;
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
+
+bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) const
+{
+  GCBatchProcessorHelper helper( domDoc );
+
+  QVariantList elementsToUpdate;
+  QVariantList elementsToAdd;
+
+  QVariantList attributesToUpdate;
+  QVariantList attributesToAdd;
+
+  // COMPLETE execBatch...
+}
+
+/*--------------------------------------------------------------------------------------*/
 
 QSqlQuery GCDataBaseInterface::selectElement( const QString &element, bool &success ) const
 {
@@ -311,7 +325,7 @@ QSqlQuery GCDataBaseInterface::selectElement( const QString &element, bool &succ
   return query;
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 bool GCDataBaseInterface::addElement( const QString &element, const QStringList &comments, const QStringList &attributes ) const
 {
@@ -351,7 +365,7 @@ bool GCDataBaseInterface::addElement( const QString &element, const QStringList 
   return true;
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 bool GCDataBaseInterface::updateElementComments( const QString &element, const QStringList &comments ) const
 {
@@ -397,7 +411,7 @@ bool GCDataBaseInterface::updateElementComments( const QString &element, const Q
   return true;
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 bool GCDataBaseInterface::updateElementAttributes( const QString &element, const QStringList &attributes ) const
 {
@@ -443,7 +457,7 @@ bool GCDataBaseInterface::updateElementAttributes( const QString &element, const
   return true;
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 QSqlQuery GCDataBaseInterface::selectAttribute( const QString &element, const QString &attribute, bool &success ) const
 {
@@ -481,7 +495,7 @@ QSqlQuery GCDataBaseInterface::selectAttribute( const QString &element, const QS
   return query;
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 bool GCDataBaseInterface::updateAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const
 {
@@ -542,35 +556,35 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
   return true;
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 bool GCDataBaseInterface::removeElement( const QString &element ) const
 {
   return true;
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 bool GCDataBaseInterface::removeElementComment( const QString &element, const QString &comment ) const
 {
   return true;
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 bool GCDataBaseInterface::removeElementAttribute( const QString &element, const QString &attribute ) const
 {
   return true;
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 bool GCDataBaseInterface::removeAttributeValue( const QString &element, const QString &attribute, const QString &attributeValue ) const
 {
   return true;
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 QStringList GCDataBaseInterface::knownElements() const
 {
@@ -602,7 +616,39 @@ QStringList GCDataBaseInterface::knownElements() const
   return elementNames;
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
+
+QStringList GCDataBaseInterface::knownAttributes() const
+{
+  /* Get the current session connection and ensure that it's valid. */
+  QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
+
+  if( !db.isValid() )
+  {
+    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName )
+                                                                                     .arg( db.lastError().text() );
+    return QStringList();
+  }
+
+  QSqlQuery query( db );
+
+  if( !query.exec( SELECT_ALL_ATTRIBUTES ) )
+  {
+    m_lastErrorMsg = QString( "SELECT all attributes failed - [%1]" ).arg( query.lastError().text() );
+    return QStringList();
+  }
+
+  QStringList attributeNames;
+
+  while( query.next() )
+  {
+    attributeNames.append( query.record().field( "elementAttr" ).value().toString() );
+  }
+
+  return attributeNames;
+}
+
+/*--------------------------------------------------------------------------------------*/
 
 QStringList GCDataBaseInterface::attributes( const QString &element, bool &success ) const
 {
@@ -617,7 +663,7 @@ QStringList GCDataBaseInterface::attributes( const QString &element, bool &succe
   return QStringList( query.record().value( "attributes" ).toString().split( SEPARATOR ) );
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 QStringList GCDataBaseInterface::attributeValues( const QString &element, const QString &attribute, bool &success ) const
 {
@@ -632,7 +678,7 @@ QStringList GCDataBaseInterface::attributeValues( const QString &element, const 
   return QStringList( query.record().value( "attributeValues" ).toString().split( SEPARATOR ) );
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCDataBaseInterface::saveDBFile() const
 {
@@ -651,25 +697,25 @@ void GCDataBaseInterface::saveDBFile() const
   }
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 QStringList GCDataBaseInterface::getDBList() const
 {
   return m_dbMap.keys();
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 QString GCDataBaseInterface::getLastError() const
 {
   return m_lastErrorMsg;
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 bool GCDataBaseInterface::hasActiveSession() const
 {
   return m_hasActiveSession;
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/

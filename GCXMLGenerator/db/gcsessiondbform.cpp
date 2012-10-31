@@ -2,7 +2,7 @@
 #include "ui_gcsessiondbform.h"
 #include <QFileDialog>
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 GCSessionDBForm::GCSessionDBForm( QStringList dbList, bool remove, QWidget *parent ) :
   QDialog ( parent),
@@ -39,14 +39,14 @@ GCSessionDBForm::GCSessionDBForm( QStringList dbList, bool remove, QWidget *pare
   connect( ui->okButton,          SIGNAL( clicked() ), this, SLOT  ( select() ) );
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 GCSessionDBForm::~GCSessionDBForm()
 {
   delete ui;
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 void GCSessionDBForm::select()
 {
@@ -62,4 +62,4 @@ void GCSessionDBForm::select()
   this->close();
 }
 
-/*-------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/

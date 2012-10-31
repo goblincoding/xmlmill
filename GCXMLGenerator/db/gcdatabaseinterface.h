@@ -5,6 +5,8 @@
 #include <QMap>
 #include <QtSql/QSqlQuery>
 
+class QDomDocument;
+
 class GCDataBaseInterface : public QObject
 {
   Q_OBJECT
@@ -12,11 +14,13 @@ public:
   explicit GCDataBaseInterface( QObject *parent = 0 );
 
   bool initialise();
+
+  bool batchProcessDOMDocument( const QDomDocument &domDoc ) const;
   bool addElement( const QString &element, const QStringList &comments, const QStringList &attributes ) const;
 
-  bool updateElementComments( const QString &element, const QStringList &comments ) const;
+  bool updateElementComments  ( const QString &element, const QStringList &comments ) const;
   bool updateElementAttributes( const QString &element, const QStringList &attributes ) const;
-  bool updateAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const;
+  bool updateAttributeValues  ( const QString &element, const QString &attribute, const QStringList &attributeValues ) const;
 
   bool removeElement( const QString &element ) const;
   bool removeElementComment( const QString &element, const QString &comment ) const;
@@ -41,6 +45,7 @@ public slots:
 private:
   QSqlQuery selectElement  ( const QString &element, bool &success ) const;
   QSqlQuery selectAttribute( const QString &element, const QString &attribute, bool &success ) const;
+  QStringList knownAttributes() const;
   void saveDBFile() const;
   bool openDBConnection( QString dbConName, QString &errMsg ) const;
   bool initialiseDB    ( QString dbConName, QString &errMsg ) const;
