@@ -22,10 +22,10 @@ public:
   
 private:
   void processDOMDoc();
-  void populateTreeWidget( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
-  void populateDBTables( const QDomElement &element );
-  void addDBConnection( const QString &dbName );
-  void showSessionForm( bool remove = false );
+  void populateTreeWidget ( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
+  void populateDBTables   ( const QDomElement &element );
+  void addDBConnection    ( const QString &dbName );
+  void showSessionForm    ( bool remove = false );
   void showErrorMessageBox( const QString &errorMsg );
 
   Ui::GCMainWindow    *ui;

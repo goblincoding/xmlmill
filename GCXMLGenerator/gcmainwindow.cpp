@@ -92,7 +92,7 @@ void GCMainWindow::openXMLFile()
                                                         QMessageBox::Yes );
     if( button == QMessageBox::Yes )
     {
-      QString fileName = QFileDialog::getOpenFileName( this, "Open File", QDir::homePath(), "XML Files (*.xml)" );
+      QString fileName = QFileDialog::getOpenFileName( this, "Open File", QDir::homePath(), "XML Files (*.*)" );
 
       /* If the user clicked "OK". */
       if( !fileName.isEmpty() )
@@ -158,7 +158,7 @@ void GCMainWindow::saveXMLFile()
 
 void GCMainWindow::saveXMLFileAs()
 {
-  QString file = QFileDialog::getSaveFileName( this, "Save As", QDir::homePath(), "XML Files (*.xml)" );
+  QString file = QFileDialog::getSaveFileName( this, "Save As", QDir::homePath(), "XML Files (*.*)" );
 
   /* If the user clicked "OK". */
   if( !file.isEmpty() )
@@ -305,7 +305,9 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
 
     if( itemName != previousName )
     {
-      /* Update the element names in our active DOM doc. */
+      /* Update the element names in our active DOM doc (since m_treeItemNodes
+        contains shallow copied QDomElements, the change will automatically
+        be available to the map as well). */
       QDomNodeList list = m_domDoc.elementsByTagName( previousName );
 
       for( int i = 0; i < list.count(); ++i )
@@ -349,6 +351,11 @@ void GCMainWindow::treeWidgetItemClicked( QTreeWidgetItem *item, int column )
 
     QComboBox *attributeCombo = new QComboBox;
     attributeCombo->addItems( m_dbInterface->attributeValues( itemName, attributes.at( i ), success ) );
+
+    /* Get the current value assigned to the element associated with this tree widget item. */
+    QDomElement element = m_treeItemNodes.value( item );
+    QString attributeValue = element.attribute( attributes.at( i ) );
+    attributeCombo->setCurrentIndex( attributeCombo->findText( attributeValue ) );
 
     /* This is more for debugging than for end-user functionality. */
     if( !success )
