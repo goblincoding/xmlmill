@@ -189,7 +189,10 @@ void GCMainWindow::processDOMDoc()
   populateTreeWidget( root, item );
 
   /* Update the DB in one go. */
-  m_dbInterface->batchProcessDOMDocument( m_domDoc );
+  if( !m_dbInterface->batchProcessDOMDocument( m_domDoc ) )
+  {
+    showErrorMessageBox( m_dbInterface->getLastError() );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/

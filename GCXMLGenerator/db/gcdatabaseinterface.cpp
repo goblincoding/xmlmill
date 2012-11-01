@@ -296,7 +296,7 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) 
     }
   }
 
-  /* I haven't figured out a way to batch process UPDATES...the problem is that we will have to
+  /* TODO: I haven't figured out a way to batch process UPDATES...the problem is that we will have to
     extract what is already there in order to add what is new and not overwrite what exists.
     The only way forward may be to go the GCElementRecord route... */
   QVariantList commentsToAdd;               // goes into xmlelements table
@@ -369,7 +369,7 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) 
   query.addBindValue( commentsToAdd );
   query.addBindValue( attributesToAdd );
 
-  if( !query.exec() )
+  if( !query.execBatch() )
   {
     m_lastErrorMsg = QString( "INSERT batch elements failed - [%2]" ).arg( query.lastError().text() );
     return false;
@@ -384,7 +384,7 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) 
   query.addBindValue( elementAttributesToAdd );
   query.addBindValue( elementAttributeValuesToAdd );
 
-  if( !query.exec() )
+  if( !query.execBatch() )
   {
     m_lastErrorMsg = QString( "INSERT batch attributes failed - [%2]" ).arg( query.lastError().text() );
     return false;
