@@ -20,7 +20,8 @@ HEADERS  += \
     db/gcdatabaseinterface.h \
     gcmainwindow.h \
     db/gcsessiondbform.h \
-    db/gcbatchprocessorhelper.h
+    db/gcbatchprocessorhelper.h \
+    utils/gcglobals.h
 
 FORMS    += \
     gcmainwindow.ui \
