@@ -77,7 +77,7 @@ void GCBatchProcessorHelper::sortRecords()
       for( int i = 0; i < duplicateRecords.size(); ++i )
       {
         record.comments.append( duplicateRecords.at( i ).comments );
-        recordAttributes += QMultiMap( duplicateRecords.at( i ).attributes );
+        recordAttributes += duplicateRecords.at( i ).attributes;
       }
 
       /* Now we can sort out the chaos. */
@@ -109,9 +109,44 @@ void GCBatchProcessorHelper::sortRecords()
 
 /*--------------------------------------------------------------------------------------*/
 
-const QMap< QString, GCElementRecord > &GCBatchProcessorHelper::getRecords() const
+QStringList GCBatchProcessorHelper::getElementNames() const
 {
-  return m_records;
+  QStringList elements;
+
+  foreach( QString elementName, m_records.keys() )
+  {
+    elements << elementName;
+  }
+
+  return elements;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+QStringList GCBatchProcessorHelper::getElementComments( const QString &element ) const
+{
+  return m_records.value( element ).comments;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+QStringList GCBatchProcessorHelper::getAttributeNames( const QString &element ) const
+{
+  QStringList attributes;
+
+  foreach( QString attributeName, m_records.value( element ).attributes.keys() )
+  {
+    attributes << attributeName;
+  }
+
+  return attributes;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+QStringList GCBatchProcessorHelper::getAttributeValues( const QString &element, const QString &attribute ) const
+{
+  return m_records.value( element ).attributes.value( attribute );
 }
 
 /*--------------------------------------------------------------------------------------*/

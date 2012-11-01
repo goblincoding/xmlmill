@@ -277,14 +277,121 @@ bool GCDataBaseInterface::initialiseDB( QString dbConName, QString &errMsg ) con
 bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) const
 {
   GCBatchProcessorHelper helper( domDoc );
+  QStringList  helperElementNames = helper.getElementNames();
 
+  QStringList  existingElements = knownElements();
   QVariantList elementsToUpdate;
   QVariantList elementsToAdd;
 
-  QVariantList attributesToUpdate;
-  QVariantList attributesToAdd;
+  /* Separate new from existing elements. */
+  for( int i = 0; i < helperElementNames.size(); ++i )
+  {
+    if( existingElements.contains( helperElementNames.at( i ) ) )
+    {
+      elementsToUpdate << helperElementNames.at( i );
+    }
+    else
+    {
+      elementsToAdd << helperElementNames.at( i );
+    }
+  }
 
-  // COMPLETE execBatch...
+  /* I haven't figured out a way to batch process UPDATES...the problem is that we will have to
+    extract what is already there in order to add what is new and not overwrite what exists.
+    The only way forward may be to go the GCElementRecord route... */
+  QVariantList commentsToAdd;               // goes into xmlelements table
+  QVariantList attributesToAdd;             // goes into xmlelements table
+  QVariantList elementAttributesToAdd;      // goes into xmlattributes table
+  QVariantList elementAttributeValuesToAdd; // goes into xmlattributes table
+
+  foreach( QVariant elementVariant, elementsToAdd )
+  {
+    QString element = elementVariant.toString();
+    QString comments = helper.getElementComments( element ).join( SEPARATOR );
+
+    if( !comments.isEmpty() )
+    {
+      commentsToAdd << comments;
+    }
+    else
+    {
+      commentsToAdd << QVariant( QVariant::String );
+    }
+
+    QString attributes = helper.getAttributeNames( element ).join( SEPARATOR );
+
+    if( !attributes.isEmpty() )
+    {
+      attributesToAdd << attributes;
+
+      foreach( QString attribute, attributes )
+      {
+        elementAttributesToAdd << element + attribute;
+
+        QString elementAttributeValues = helper.getAttributeValues( element, attribute ).join( SEPARATOR );
+
+        if( !elementAttributeValues.isEmpty() )
+        {
+          elementAttributeValuesToAdd << elementAttributeValues;
+        }
+        else
+        {
+          elementAttributeValuesToAdd << QVariant( QVariant::String );
+        }
+      }
+    }
+    else
+    {
+      attributesToAdd << QVariant( QVariant::String );
+    }
+  }
+
+  /* Get the current session connection and ensure that it's valid. */
+  QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
+
+  if( !db.isValid() )
+  {
+    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName )
+                                                                                     .arg( db.lastError().text() );
+    return false;
+  }
+
+  /* See if we already have this element in the DB. */
+  QSqlQuery query( db );
+
+  if( !query.prepare( PREPARE_INSERT_ELEMENT ) )
+  {
+    m_lastErrorMsg = QString( "Prepare INSERT batch elements failed - [%2]" ).arg( query.lastError().text() );
+    return false;
+  }
+
+  query.addBindValue( elementsToAdd );
+  query.addBindValue( commentsToAdd );
+  query.addBindValue( attributesToAdd );
+
+  if( !query.exec() )
+  {
+    m_lastErrorMsg = QString( "INSERT batch elements failed - [%2]" ).arg( query.lastError().text() );
+    return false;
+  }
+
+  if( !query.prepare( PREPARE_INSERT_ATTRIBUTES ) )
+  {
+    m_lastErrorMsg = QString( "Prepare INSERT batch attributes failed - [%2]" ).arg( query.lastError().text() );
+    return false;
+  }
+
+  query.addBindValue( elementAttributesToAdd );
+  query.addBindValue( elementAttributeValuesToAdd );
+
+  if( !query.exec() )
+  {
+    m_lastErrorMsg = QString( "INSERT batch attributes failed - [%2]" ).arg( query.lastError().text() );
+    return false;
+  }
+
+  m_lastErrorMsg = "";
+  return true;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -473,9 +580,9 @@ QSqlQuery GCDataBaseInterface::selectAttribute( const QString &element, const QS
 
   QSqlQuery query( db );
 
-  if( !query.prepare( PREPARE_SELECT_ATTRVAL ) )
+  if( !query.prepare( PREPARE_SELECT_ATTRIBUTES ) )
   {
-    m_lastErrorMsg = QString( "\"%1\" FAILED for element [%2], error: [%3]" ).arg( PREPARE_SELECT_ATTRVAL )
+    m_lastErrorMsg = QString( "\"%1\" FAILED for element [%2], error: [%3]" ).arg( PREPARE_SELECT_ATTRIBUTES )
                                                                              .arg( element )
                                                                              .arg( query.lastError().text() );
     success = false;
@@ -511,7 +618,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
   /* If we don't have an existing record, add it, otherwise update the existing one. */
   if( !query.first() )
   {
-    if( !query.prepare( PREPARE_INSERT_ATTRVAL ) )
+    if( !query.prepare( PREPARE_INSERT_ATTRIBUTES ) )
     {
       m_lastErrorMsg = QString( "Prepare INSERT attribute failed for element \"%1\" - [%2]" ).arg( element )
                                                                                              .arg( query.lastError().text() );

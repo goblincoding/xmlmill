@@ -259,7 +259,10 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
       /* Re-populate the tree widget (and update the DB) to reflect the changes
         (note that the "old" elements won't be removed from the DB, the new ones
          will simply be added.  All removals must be executed explicitly). */
-      processDOMDoc();
+      //processDOMDoc();
+
+      //TODO - Update single records only!  Not entire DOM!
+
     }
   }
 }

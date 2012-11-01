@@ -26,7 +26,10 @@ class GCBatchProcessorHelper
 {
 public:
   GCBatchProcessorHelper( const QDomDocument &domDoc );
-  const QMap< QString, GCElementRecord > &getRecords() const;
+  QStringList getElementNames() const;
+  QStringList getElementComments( const QString &element ) const;
+  QStringList getAttributeNames ( const QString &element ) const;
+  QStringList getAttributeValues( const QString &element, const QString &attribute ) const;
 
 private:
   void processElement( const QDomElement &parentElement );
