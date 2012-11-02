@@ -1,8 +1,6 @@
 #include "gcbatchprocessorhelper.h"
 #include "utils/gcglobals.h"
 
-// #include <QDebug>
-
 /*--------------------------------- MEMBER FUNCTIONS ----------------------------------*/
 
 GCBatchProcessorHelper::GCBatchProcessorHelper(const QDomDocument &domDoc) :
@@ -236,20 +234,6 @@ void GCBatchProcessorHelper::createVariantLists()
       }
     }
   }
-
-//  qDebug() << m_newElementsToAdd.size();
-//  qDebug() << m_newElementCommentsToAdd.size();
-//  qDebug() << m_newElementAttributesToAdd.size();
-
-//  qDebug() << m_elementsToUpdate.size();
-//  qDebug() << m_elementCommentsToUpdate.size();
-//  qDebug() << m_elementAttributesToUpdate.size();
-
-//  qDebug() << m_newAttributeKeysToAdd.size();
-//  qDebug() << m_newAttributeValuesToAdd.size();
-
-//  qDebug() << m_attributeKeysToUpdate.size();
-//  qDebug() << m_attributeValuesToUpdate.size();
 }
 
 /*--------------------------------------------------------------------------------------*/
