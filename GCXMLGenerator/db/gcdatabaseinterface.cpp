@@ -347,8 +347,8 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) 
     return false;
   }
 
-  query.addBindValue( helper.attributeKeysToAdd() );
-  query.addBindValue( helper.attributeValuesToAdd() );
+  query.addBindValue( helper.newAttributeKeysToAdd() );
+  query.addBindValue( helper.newAttributeValuesToAdd() );
 
   if( !query.execBatch() )
   {

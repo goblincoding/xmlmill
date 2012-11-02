@@ -23,7 +23,7 @@ QVariantList stringsToVariants( QStringList list )
     }
   }
 
-  return ;
+  return variants;
 }
 
 /*--------------------------------- MEMBER FUNCTIONS ----------------------------------*/
@@ -175,7 +175,7 @@ void GCBatchProcessorHelper::createVariantLists()
 
     if( !m_records.value( element ).comments.isEmpty() )
     {
-      newElementCommentsToAdd << m_records.value( element ).comments;
+      newElementCommentsToAdd << m_records.value( element ).comments.join( SEPARATOR );
     }
     else
     {
@@ -184,7 +184,8 @@ void GCBatchProcessorHelper::createVariantLists()
 
     if( !m_records.value( element ).attributes.keys().isEmpty() )
     {
-      newElementAttributesToAdd << m_records.value( element ).attributes.keys();
+      QStringList attributeNames = m_records.value( element ).attributes.keys();
+      newElementAttributesToAdd << attributeNames.join( SEPARATOR );
     }
     else
     {
@@ -202,7 +203,7 @@ void GCBatchProcessorHelper::createVariantLists()
 
     if( !m_records.value( element ).comments.isEmpty() )
     {
-      elementCommentsToUpdate << m_records.value( element ).comments;
+      elementCommentsToUpdate << m_records.value( element ).comments.join( SEPARATOR );
     }
     else
     {
@@ -211,7 +212,8 @@ void GCBatchProcessorHelper::createVariantLists()
 
     if( !m_records.value( element ).attributes.keys().isEmpty() )
     {
-      elementAttributesToUpdate << m_records.value( element ).attributes.keys();
+      QStringList attributeNames = m_records.value( element ).attributes.keys();
+      elementAttributesToUpdate << attributeNames.join( SEPARATOR );
     }
     else
     {
