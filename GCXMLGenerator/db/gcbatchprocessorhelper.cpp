@@ -1,30 +1,7 @@
 #include "gcbatchprocessorhelper.h"
 #include "utils/gcglobals.h"
 
-/*--------------------------- NON-MEMBER UTILITY FUNCTIONS ----------------------------*/
-
-QVariantList stringsToVariants( QStringList list )
-{
-  list.removeDuplicates();
-
-  QVariantList variants;
-
-  foreach( QString string, list )
-  {
-    /* If the string is empty, we wish to construct a NULL variant for
-      entry into the database table. */
-    if( string == "" )
-    {
-      variants << QVariant( QVariant::String );
-    }
-    else
-    {
-      variants << string;
-    }
-  }
-
-  return variants;
-}
+// #include <QDebug>
 
 /*--------------------------------- MEMBER FUNCTIONS ----------------------------------*/
 
@@ -154,97 +131,10 @@ void GCBatchProcessorHelper::sortRecords()
 
 void GCBatchProcessorHelper::createVariantLists()
 {
-  /* QStringLists are used to simplify the process of removing duplicates from the lists.
-    To ensure that we insert the correct values against the correct values against the
-    correct keys in the record, we also populate the QStringLists with "" wherever a comment or
-    attribute doesn't have any values (we wish to ensure that the indices are in sync
-    at all times).  The "" values will be replaced with proper NULL values when inserting
-    the new records (or updating the old ones) in the DB. */
-
   /* First see which of the records we created from the DOM doc are completely new
     and which ones we have prior knowledge of. */
-  separateNewRecordsFromExisting();
-
-  /* Deal with all the new elements first. */
-  QStringList newElementCommentsToAdd;
-  QStringList newElementAttributesToAdd;
-
-  foreach( QVariant var, m_newElementsToAdd )
-  {
-    QString element = var.toString();
-
-    if( !m_records.value( element ).comments.isEmpty() )
-    {
-      newElementCommentsToAdd << m_records.value( element ).comments.join( SEPARATOR );
-    }
-    else
-    {
-      newElementCommentsToAdd << "";
-    }
-
-    if( !m_records.value( element ).attributes.keys().isEmpty() )
-    {
-      QStringList attributeNames = m_records.value( element ).attributes.keys();
-      newElementAttributesToAdd << attributeNames.join( SEPARATOR );
-    }
-    else
-    {
-      newElementAttributesToAdd << "";
-    }
-  }
-
-  /* Now we deal with all the elements that will have to be updated. */
-  QStringList elementCommentsToUpdate;
-  QStringList elementAttributesToUpdate;
-
-  foreach( QVariant var, m_elementsToUpdate )
-  {
-    QString element = var.toString();
-
-    if( !m_records.value( element ).comments.isEmpty() )
-    {
-      elementCommentsToUpdate << m_records.value( element ).comments.join( SEPARATOR );
-    }
-    else
-    {
-      elementCommentsToUpdate << "";
-    }
-
-    if( !m_records.value( element ).attributes.keys().isEmpty() )
-    {
-      QStringList attributeNames = m_records.value( element ).attributes.keys();
-      elementAttributesToUpdate << attributeNames.join( SEPARATOR );
-    }
-    else
-    {
-      elementAttributesToUpdate << "";
-    }
-  }
-
-  /* Finally, we separate the new attribute keys and associated values
-    from the existing ones. */
-  QStringList newAttributeValuesToAdd;
-
-  foreach( QVariant var, m_newAttributeKeysToAdd )
-  {
-    QString attributeKey = var.toString();
-  }
-
-  QStringList attributeValuesToUpdate;
-
-  foreach( QVariant var, m_attributeKeysToUpdate )
-  {
-    QString attributeKey = var.toString();
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCBatchProcessorHelper::separateNewRecordsFromExisting()
-{
   QList< QString > elementNames = m_records.keys();
 
-  /* Separate new from existing elements. */
   for( int i = 0; i < elementNames.size(); ++i )
   {
     if( !m_knownElements.contains( elementNames.at( i ) ) )
@@ -257,23 +147,109 @@ void GCBatchProcessorHelper::separateNewRecordsFromExisting()
     }
   }
 
-  /* Separate new from existing attribute keys. */
+  /* Deal with all the new elements first. */
+  foreach( QVariant var, m_newElementsToAdd )
+  {
+    QString element = var.toString();
+
+    if( !m_records.value( element ).comments.isEmpty() )
+    {
+      m_newElementCommentsToAdd << m_records.value( element ).comments.join( SEPARATOR );
+    }
+    else
+    {
+      m_newElementCommentsToAdd << QVariant( QVariant::String );
+    }
+
+    if( !m_records.value( element ).attributes.keys().isEmpty() )
+    {
+      QStringList attributeNames = m_records.value( element ).attributes.keys();
+      m_newElementAttributesToAdd << attributeNames.join( SEPARATOR );
+    }
+    else
+    {
+      m_newElementAttributesToAdd << QVariant( QVariant::String );
+    }
+  }
+
+  /* Now we deal with all the elements that will have to be updated. */
+  foreach( QVariant var, m_elementsToUpdate )
+  {
+    QString element = var.toString();
+
+    if( !m_records.value( element ).comments.isEmpty() )
+    {
+      m_elementCommentsToUpdate << m_records.value( element ).comments.join( SEPARATOR );
+    }
+    else
+    {
+      m_elementCommentsToUpdate << QVariant( QVariant::String );
+    }
+
+    if( !m_records.value( element ).attributes.keys().isEmpty() )
+    {
+      QStringList attributeNames = m_records.value( element ).attributes.keys();
+      m_elementAttributesToUpdate << attributeNames.join( SEPARATOR );
+    }
+    else
+    {
+      m_elementAttributesToUpdate << QVariant( QVariant::String );
+    }
+  }
+
+  /* Separate the new attribute keys and associated values
+    from the existing ones. */
   foreach( QString element, elementNames )
   {
     QList< QString > attributeNames = m_records.value( element ).attributes.keys();
 
     foreach( QString attribute, attributeNames )
     {
+      QStringList attributeValues = m_records.value( element ).attributes.value( attribute );
+      attributeValues.removeDuplicates();
+
       if( !m_knownAttributeKeys.contains( element + attribute ) )
       {
         m_newAttributeKeysToAdd << element + attribute;
+
+        if( !attributeValues.isEmpty() )
+        {
+          m_newAttributeValuesToAdd << attributeValues.join( SEPARATOR );
+        }
+        else
+        {
+          m_newAttributeValuesToAdd << QVariant( QVariant::String );
+        }
       }
       else
       {
         m_attributeKeysToUpdate << element + attribute;
+
+        if( !attributeValues.isEmpty() )
+        {
+          m_attributeValuesToUpdate << attributeValues.join( SEPARATOR );
+        }
+        else
+        {
+          m_attributeValuesToUpdate << QVariant( QVariant::String );
+        }
       }
     }
   }
+
+//  qDebug() << m_newElementsToAdd.size();
+//  qDebug() << m_newElementCommentsToAdd.size();
+//  qDebug() << m_newElementAttributesToAdd.size();
+
+//  qDebug() << m_elementsToUpdate.size();
+//  qDebug() << m_elementCommentsToUpdate.size();
+//  qDebug() << m_elementAttributesToUpdate.size();
+
+//  qDebug() << m_newAttributeKeysToAdd.size();
+//  qDebug() << m_newAttributeValuesToAdd.size();
+
+//  qDebug() << m_attributeKeysToUpdate.size();
+//  qDebug() << m_attributeValuesToUpdate.size();
 }
 
 /*--------------------------------------------------------------------------------------*/

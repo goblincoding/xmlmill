@@ -275,8 +275,9 @@ bool GCDataBaseInterface::initialiseDB( QString dbConName, QString &errMsg ) con
 bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) const
 {
   GCBatchProcessorHelper helper( domDoc );
-  helper.setKnownElements( knownElements() );
+  helper.setKnownElements  ( knownElements() );
   helper.setKnownAttributes( knownAttributes() );
+  helper.createVariantLists();
 
   /* Get the current session connection and ensure that it's valid. */
   QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );

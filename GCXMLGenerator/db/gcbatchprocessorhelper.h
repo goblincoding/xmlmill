@@ -29,6 +29,7 @@ public:
   GCBatchProcessorHelper ( const QDomDocument &domDoc );
   void setKnownElements  ( const QStringList &elementts );
   void setKnownAttributes( const QStringList &attributeKeys );
+  void createVariantLists();
 
   QVariantList newElementsToAdd() const;
   QVariantList newElementCommentsToAdd() const;
@@ -47,8 +48,6 @@ public:
 private:
   void processElement( const QDomElement &parentElement );
   void createRecord  ( const QDomElement &element );
-  void separateNewRecordsFromExisting();
-  void createVariantLists();
   void sortRecords();
 
   QMultiHash< QString /*element*/, GCElementRecord > m_unsorted;
