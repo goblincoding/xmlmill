@@ -38,8 +38,8 @@ public:
   QVariantList elementCommentsToUpdate() const;
   QVariantList elementAttributesToUpdate() const;
 
-  QVariantList attributeKeysToAdd() const;
-  QVariantList attributeValuesToAdd() const;
+  QVariantList newAttributeKeysToAdd() const;
+  QVariantList newAttributeValuesToAdd() const;
 
   QVariantList attributeKeysToUpdate() const;
   QVariantList attributeValuesToUpdate() const;
@@ -47,6 +47,7 @@ public:
 private:
   void processElement( const QDomElement &parentElement );
   void createRecord  ( const QDomElement &element );
+  void separateNewRecordsFromExisting();
   void createVariantLists();
   void sortRecords();
 
@@ -64,8 +65,8 @@ private:
   QVariantList m_elementCommentsToUpdate;
   QVariantList m_elementAttributesToUpdate;
 
-  QVariantList m_attributeKeysToAdd;
-  QVariantList m_attributeValuesToAdd;
+  QVariantList m_newAttributeKeysToAdd;
+  QVariantList m_newAttributeValuesToAdd;
 
   QVariantList m_attributeKeysToUpdate;
   QVariantList m_attributeValuesToUpdate;

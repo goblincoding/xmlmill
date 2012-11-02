@@ -1,7 +1,32 @@
 #include "gcbatchprocessorhelper.h"
 #include "utils/gcglobals.h"
 
-/*--------------------------------------------------------------------------------------*/
+/*--------------------------- NON-MEMBER UTILITY FUNCTIONS ----------------------------*/
+
+QVariantList stringsToVariants( QStringList list )
+{
+  list.removeDuplicates();
+
+  QVariantList variants;
+
+  foreach( QString string, list )
+  {
+    /* If the string is empty, we wish to construct a NULL variant for
+      entry into the database table. */
+    if( string == "" )
+    {
+      variants << QVariant( QVariant::String );
+    }
+    else
+    {
+      variants << string;
+    }
+  }
+
+  return ;
+}
+
+/*--------------------------------- MEMBER FUNCTIONS ----------------------------------*/
 
 GCBatchProcessorHelper::GCBatchProcessorHelper(const QDomDocument &domDoc) :
   m_unsorted(),
@@ -14,8 +39,8 @@ GCBatchProcessorHelper::GCBatchProcessorHelper(const QDomDocument &domDoc) :
   m_elementsToUpdate         (),
   m_elementCommentsToUpdate  (),
   m_elementAttributesToUpdate(),
-  m_attributeKeysToAdd       (),
-  m_attributeValuesToAdd     (),
+  m_newAttributeKeysToAdd    (),
+  m_newAttributeValuesToAdd  (),
   m_attributeKeysToUpdate    (),
   m_attributeValuesToUpdate  ()
 {
@@ -129,74 +154,124 @@ void GCBatchProcessorHelper::sortRecords()
 
 void GCBatchProcessorHelper::createVariantLists()
 {
-//  QStringList  helperElementNames = helper.getElementNames();
+  /* QStringLists are used to simplify the process of removing duplicates from the lists.
+    To ensure that we insert the correct values against the correct values against the
+    correct keys in the record, we also populate the QStringLists with "" wherever a comment or
+    attribute doesn't have any values (we wish to ensure that the indices are in sync
+    at all times).  The "" values will be replaced with proper NULL values when inserting
+    the new records (or updating the old ones) in the DB. */
 
-//  QStringList  existingElements = knownElements();
-//  QVariantList elementsToUpdate;
-//  QVariantList elementsToAdd;
+  /* First see which of the records we created from the DOM doc are completely new
+    and which ones we have prior knowledge of. */
+  separateNewRecordsFromExisting();
 
-//  /* Separate new from existing elements. */
-//  for( int i = 0; i < helperElementNames.size(); ++i )
-//  {
-//    if( existingElements.contains( helperElementNames.at( i ) ) )
-//    {
-//      elementsToUpdate << helperElementNames.at( i );
-//    }
-//    else
-//    {
-//      elementsToAdd << helperElementNames.at( i );
-//    }
-//  }
+  /* Deal with all the new elements first. */
+  QStringList newElementCommentsToAdd;
+  QStringList newElementAttributesToAdd;
 
-//  /* TODO: I haven't figured out a way to batch process UPDATES...the problem is that we will have to
-//    extract what is already there in order to add what is new and not overwrite what exists.
-//    The only way forward may be to go the GCElementRecord route... */
-//  QVariantList commentsToAdd;               // goes into xmlelements table
-//  QVariantList attributesToAdd;             // goes into xmlelements table
-//  QVariantList elementAttributesToAdd;      // goes into xmlattributevalues table
-//  QVariantList elementAttributeValuesToAdd; // goes into xmlattributevalues table
+  foreach( QVariant var, m_newElementsToAdd )
+  {
+    QString element = var.toString();
 
-//  foreach( QVariant elementVariant, elementsToAdd )
-//  {
-//    QString element = elementVariant.toString();
-//    QString comments = helper.getElementComments( element ).join( SEPARATOR );
+    if( !m_records.value( element ).comments.isEmpty() )
+    {
+      newElementCommentsToAdd << m_records.value( element ).comments;
+    }
+    else
+    {
+      newElementCommentsToAdd << "";
+    }
 
-//    if( !comments.isEmpty() )
-//    {
-//      commentsToAdd << comments;
-//    }
-//    else
-//    {
-//      commentsToAdd << QVariant( QVariant::String );
-//    }
+    if( !m_records.value( element ).attributes.keys().isEmpty() )
+    {
+      newElementAttributesToAdd << m_records.value( element ).attributes.keys();
+    }
+    else
+    {
+      newElementAttributesToAdd << "";
+    }
+  }
 
-//    QString attributes = helper.getAttributeNames( element ).join( SEPARATOR );
+  /* Now we deal with all the elements that will have to be updated. */
+  QStringList elementCommentsToUpdate;
+  QStringList elementAttributesToUpdate;
 
-//    if( !attributes.isEmpty() )
-//    {
-//      attributesToAdd << attributes;
+  foreach( QVariant var, m_elementsToUpdate )
+  {
+    QString element = var.toString();
 
-//      foreach( QString attribute, attributes )
-//      {
-//        elementAttributesToAdd << element + attribute;
+    if( !m_records.value( element ).comments.isEmpty() )
+    {
+      elementCommentsToUpdate << m_records.value( element ).comments;
+    }
+    else
+    {
+      elementCommentsToUpdate << "";
+    }
 
-//        QString elementAttributeValues = helper.getAttributeValues( element, attribute ).join( SEPARATOR );
+    if( !m_records.value( element ).attributes.keys().isEmpty() )
+    {
+      elementAttributesToUpdate << m_records.value( element ).attributes.keys();
+    }
+    else
+    {
+      elementAttributesToUpdate << "";
+    }
+  }
 
-//        if( !elementAttributeValues.isEmpty() )
-//        {
-//          elementAttributeValuesToAdd << elementAttributeValues;
-//        }
-//        else
-//        {
-//          elementAttributeValuesToAdd << QVariant( QVariant::String );
-//        }
-//      }
-//    }
-//    else
-//    {
-//      attributesToAdd << QVariant( QVariant::String );
-//    }
-//  }
+  /* Finally, we separate the new attribute keys and associated values
+    from the existing ones. */
+  QStringList newAttributeValuesToAdd;
+
+  foreach( QVariant var, m_newAttributeKeysToAdd )
+  {
+    QString attributeKey = var.toString();
+  }
+
+  QStringList attributeValuesToUpdate;
+
+  foreach( QVariant var, m_attributeKeysToUpdate )
+  {
+    QString attributeKey = var.toString();
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCBatchProcessorHelper::separateNewRecordsFromExisting()
+{
+  QList< QString > elementNames = m_records.keys();
+
+  /* Separate new from existing elements. */
+  for( int i = 0; i < elementNames.size(); ++i )
+  {
+    if( !m_knownElements.contains( elementNames.at( i ) ) )
+    {
+      m_newElementsToAdd << elementNames.at( i );
+    }
+    else
+    {
+      m_elementsToUpdate << elementNames.at( i );
+    }
+  }
+
+  /* Separate new from existing attribute keys. */
+  foreach( QString element, elementNames )
+  {
+    QList< QString > attributeNames = m_records.value( element ).attributes.keys();
+
+    foreach( QString attribute, attributeNames )
+    {
+      if( !m_knownAttributeKeys.contains( element + attribute ) )
+      {
+        m_newAttributeKeysToAdd << element + attribute;
+      }
+      else
+      {
+        m_attributeKeysToUpdate << element + attribute;
+      }
+    }
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -257,16 +332,16 @@ QVariantList GCBatchProcessorHelper::elementAttributesToUpdate() const
 
 /*--------------------------------------------------------------------------------------*/
 
-QVariantList GCBatchProcessorHelper::attributeKeysToAdd() const
+QVariantList GCBatchProcessorHelper::newAttributeKeysToAdd() const
 {
-  return m_attributeKeysToAdd;
+  return m_newAttributeKeysToAdd;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-QVariantList GCBatchProcessorHelper::attributeValuesToAdd() const
+QVariantList GCBatchProcessorHelper::newAttributeValuesToAdd() const
 {
-  return m_attributeValuesToAdd;
+  return m_newAttributeValuesToAdd;
 }
 
 /*--------------------------------------------------------------------------------------*/

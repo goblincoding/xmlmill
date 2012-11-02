@@ -307,6 +307,8 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) 
     return false;
   }
 
+  /* TODO:  Extract existing values and concatenate the lot. !!!!!!!!!! */
+
   /* Batch update all the existing elements. */
   if( !query.prepare( PREPARE_UPDATE_COMMENTS ) )
   {
@@ -353,6 +355,10 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) 
     m_lastErrorMsg = QString( "Batch INSERT attribute values failed - [%1]" ).arg( query.lastError().text() );
     return false;
   }
+
+
+  /* TODO:  Extract existing values and concatenate the lot. !!!!!!!!!! */
+
 
   /* Batch update all the existing attribute values. */
   if( !query.prepare( PREPARE_UPDATE_ATTRIBUTEVALUES ) )
