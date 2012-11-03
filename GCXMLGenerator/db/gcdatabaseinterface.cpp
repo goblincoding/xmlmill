@@ -36,6 +36,35 @@ static const QLatin1String SELECT_ALL_ATTRIBUTEVALUES     ( "SELECT * FROM xmlat
 
 static const QLatin1String PREPARE_UPDATE_ATTRIBUTEVALUES ( "UPDATE xmlattributevalues SET attributeValues = ? WHERE attributeKey = ?" );
 
+//UPDATE tbl SET fld = CONCAT(fld,'more text');
+
+//IF EXISTS (SELECT * FROM Table1 WHERE Column1='SomeValue')
+  //  UPDATE Table1 SET (...) WHERE Column1='SomeValue'
+//ELSE
+  //  INSERT INTO Table1 VALUES (...)
+
+//UPDATE Table1 SET (...) WHERE Column1='SomeValue'
+//IF @@ROWCOUNT=0
+//    INSERT INTO Table1 VALUES (...)
+
+
+//INSERT INTO table SET x=1, y=2 ON DUPLICATE KEY UPDATE x=x+1, y=y+2
+
+//INSERT OR REPLACE INTO Employee (id,role,name)
+//  VALUES (  1,
+//            'code monkey',
+//            (select name from Employee where id = 1)
+//          );
+
+static const QLatin1String UPSERT_ELEMENT ( " CASE EXISTS (SELECT * FROM xmlelements WHERE element = ? ) "
+                                            " THEN "
+                                            "   UPDATE xmlelements SET comments = CONCAT( comments, ? ), attributes = CONCAT( attributes, ? ) WHERE element = ? "
+                                            " ELSE"
+                                            "   INSERT INTO xmlelements( element, comments, attributes ) VALUES( ?, ?, ? ) "
+                                            " END" );
+
+
+
 /*--------------------------------------------------------------------------------------*/
 
 /* Flat file containing list of databases. */
