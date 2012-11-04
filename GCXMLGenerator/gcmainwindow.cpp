@@ -23,7 +23,11 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
            this,           SLOT  ( treeWidgetItemChanged( QTreeWidgetItem*,int ) ) );
 
   connect( ui->treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ),
-           this,           SLOT  ( treeWidgetItemClicked( QTreeWidgetItem*,int ) ) );
+           this,           SLOT  ( treeWidgetItemActivated( QTreeWidgetItem*,int ) ) );
+
+  /* Emitted when the user presses "Enter" on a highlighted item. */
+  connect( ui->treeWidget, SIGNAL( itemActivated( QTreeWidgetItem*,int ) ),
+           this,           SLOT  ( treeWidgetItemActivated( QTreeWidgetItem*,int ) ) );
 
   /* XML File related. */
   connect( ui->actionOpen,   SIGNAL( triggered() ), this, SLOT( openXMLFile() ) );
@@ -265,7 +269,7 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::treeWidgetItemClicked( QTreeWidgetItem *item, int column )
+void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
 {
   ui->tableWidget->clear();    // also deletes current items
 

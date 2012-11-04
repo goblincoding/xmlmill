@@ -37,8 +37,8 @@ private:
 
 
 private slots:
-  void treeWidgetItemChanged( QTreeWidgetItem *item, int column );
-  void treeWidgetItemClicked( QTreeWidgetItem *item, int column );
+  void treeWidgetItemChanged  ( QTreeWidgetItem *item, int column );
+  void treeWidgetItemActivated( QTreeWidgetItem *item, int column );
 
   /* XML file related. */
   void openXMLFile();
