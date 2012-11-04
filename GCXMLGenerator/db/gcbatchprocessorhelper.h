@@ -9,20 +9,6 @@
 
 /*--------------------------------------------------------------------------------------*/
 
-struct GCElementRecord
-{
-  QStringList comments;
-  QMap< QString /*name*/, QStringList /*values*/ > attributes;
-
-  GCElementRecord()
-    :
-      comments  (),
-      attributes()
-  {}
-};
-
-/*--------------------------------------------------------------------------------------*/
-
 class GCBatchProcessorHelper
 {
 public:
@@ -50,9 +36,6 @@ private:
   void createRecord  ( const QDomElement &element );
   void sortRecords();
 
-  QMultiHash< QString /*element*/, GCElementRecord > m_unsorted;
-  QMap      < QString /*element*/, GCElementRecord > m_records;
-
   QStringList  m_knownElements;
   QStringList  m_knownAttributeKeys;
 
@@ -69,6 +52,22 @@ private:
 
   QVariantList m_attributeKeysToUpdate;
   QVariantList m_attributeValuesToUpdate;
+
+  /* Represents a single element and its associated comments and attributes. */
+  struct GCElementRecord
+  {
+    QStringList comments;
+    QMap< QString /*name*/, QStringList /*values*/ > attributes;
+
+    GCElementRecord()
+      :
+        comments  (),
+        attributes()
+    {}
+  };
+
+  QMultiHash< QString /*element*/, GCElementRecord > m_unsorted;
+  QMap      < QString /*element*/, GCElementRecord > m_records;
 };
 
 #endif // GCBATCHPROCESSORHELPER_H

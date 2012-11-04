@@ -55,7 +55,7 @@ public:
 
   /* Returns a sorted (case sensitive, ascending) list of all the attributes associated with
     "element" in the active database. */
-  QStringList attributes     ( const QString &element, bool &success ) const;
+  QStringList attributes( const QString &element, bool &success ) const;
 
   /* Returns a sorted (case sensitive, ascending) list of all the attribute values associated with
     "element" and its corresponding "attribute" in the active database. */

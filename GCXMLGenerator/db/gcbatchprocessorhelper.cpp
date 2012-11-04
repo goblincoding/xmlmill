@@ -4,10 +4,8 @@
 /*--------------------------------- MEMBER FUNCTIONS ----------------------------------*/
 
 GCBatchProcessorHelper::GCBatchProcessorHelper(const QDomDocument &domDoc) :
-  m_unsorted(),
-  m_records (),
-  m_knownElements     (),
-  m_knownAttributeKeys(),
+  m_knownElements            (),
+  m_knownAttributeKeys       (),
   m_newElementsToAdd         (),
   m_newElementCommentsToAdd  (),
   m_newElementAttributesToAdd(),
@@ -17,7 +15,9 @@ GCBatchProcessorHelper::GCBatchProcessorHelper(const QDomDocument &domDoc) :
   m_newAttributeKeysToAdd    (),
   m_newAttributeValuesToAdd  (),
   m_attributeKeysToUpdate    (),
-  m_attributeValuesToUpdate  ()
+  m_attributeValuesToUpdate  (),
+  m_unsorted                 (),
+  m_records                  ()
 {
   QDomElement root = domDoc.documentElement();
   createRecord( root );
