@@ -729,6 +729,7 @@ QStringList GCDataBaseInterface::knownElements() const
     elementNames.append( query.record().field( "element" ).value().toString() );
   }
 
+  elementNames.sort();
   return elementNames;
 }
 
@@ -776,7 +777,9 @@ QStringList GCDataBaseInterface::attributes( const QString &element, bool &succe
     return QStringList();
   }
 
-  return QStringList( query.record().value( "attributes" ).toString().split( SEPARATOR ) );
+  QStringList attributes = query.record().value( "attributes" ).toString().split( SEPARATOR );
+  attributes.sort();
+  return attributes;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -791,7 +794,9 @@ QStringList GCDataBaseInterface::attributeValues( const QString &element, const 
     return QStringList();
   }
 
-  return QStringList( query.record().value( "attributeValues" ).toString().split( SEPARATOR ) );
+  QStringList attributeValues = query.record().value( "attributeValues" ).toString().split( SEPARATOR );
+  attributeValues.sort();
+  return attributeValues;
 }
 
 /*--------------------------------------------------------------------------------------*/
