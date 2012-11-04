@@ -29,6 +29,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->treeWidget, SIGNAL( itemActivated( QTreeWidgetItem*,int ) ),
            this,           SLOT  ( treeWidgetItemActivated( QTreeWidgetItem*,int ) ) );
 
+  connect( ui->expandAllCheckBox, SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
+
   /* XML File related. */
   connect( ui->actionOpen,   SIGNAL( triggered() ), this, SLOT( openXMLFile() ) );
   connect( ui->actionSave,   SIGNAL( triggered() ), this, SLOT( saveXMLFile() ) );
@@ -250,18 +252,27 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
     QString itemName      = item->text( column );
     QString previousName  = m_treeItemNodes.value( item ).toElement().tagName();
 
-    if( itemName != previousName )
+    /* Watch out for empty strings. */
+    if( itemName.isEmpty() )
     {
-      /* Update the element names in our active DOM doc (since m_treeItemNodes
+      showErrorMessageBox( "Sorry, but we don't know what to do with empty names...qtreewi" );
+      item->setText( column, previousName );
+    }
+    else
+    {
+      if( itemName != previousName )
+      {
+        /* Update the element names in our active DOM doc (since m_treeItemNodes
         contains shallow copied QDomElements, the change will automatically
         be available to the map as well) and the tree widget. */
-      QDomNodeList list = m_domDoc.elementsByTagName( previousName );
+        QDomNodeList list = m_domDoc.elementsByTagName( previousName );
 
-      for( int i = 0; i < list.count(); ++i )
-      {
-        QDomElement element( list.at( i ).toElement() );
-        element.setTagName( itemName );
-        const_cast< QTreeWidgetItem* >( m_treeItemNodes.key( element ) )->setText( column, itemName );
+        for( int i = 0; i < list.count(); ++i )
+        {
+          QDomElement element( list.at( i ).toElement() );
+          element.setTagName( itemName );
+          const_cast< QTreeWidgetItem* >( m_treeItemNodes.key( element ) )->setText( column, itemName );
+        }
       }
     }
   }
@@ -309,6 +320,20 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
 
     attributeCombo->setEditable( true );
     ui->tableWidget->setCellWidget( i, 1, attributeCombo );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::collapseOrExpandTreeWidget( bool checked )
+{
+  if( checked )
+  {
+    ui->treeWidget->expandAll();
+  }
+  else
+  {
+    ui->treeWidget->collapseAll();
   }
 }
 

@@ -38,7 +38,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
+          <item row="0" column="3">
            <widget class="QComboBox" name="newElementComboBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -48,14 +48,14 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="3">
+          <item row="0" column="4">
            <widget class="QPushButton" name="addAsSiblingButton">
             <property name="text">
              <string>Add As Sibling</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="4">
+          <item row="0" column="5">
            <widget class="QPushButton" name="addAsChildButton">
             <property name="text">
              <string>Add As Child</string>
@@ -69,7 +69,14 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="2" colspan="3">
+          <item row="1" column="4" colspan="2">
+           <widget class="QPushButton" name="buildDeleteButton">
+            <property name="text">
+             <string>Delete Highlighted Element</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
            <widget class="QComboBox" name="commentComboBox"/>
           </item>
          </layout>
@@ -132,6 +139,13 @@
          </layout>
         </item>
         <item>
+         <widget class="QCheckBox" name="expandAllCheckBox">
+          <property name="text">
+           <string>Expand All</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <layout class="QHBoxLayout" name="buildXMLAddDeleteLayout">
           <item>
            <spacer name="buildXMLAddDeleteSpacer">
@@ -150,13 +164,6 @@
            <widget class="QPushButton" name="buildCommitButton">
             <property name="text">
              <string>Commit</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="buildDeleteButton">
-            <property name="text">
-             <string>Delete</string>
             </property>
            </widget>
           </item>
