@@ -25,8 +25,13 @@ static const QLatin1String PREPARE_DELETE_ELEMENT    ( "DELETE FROM xmlelements 
 static const QLatin1String PREPARE_SELECT_ELEMENT    ( "SELECT * FROM xmlelements WHERE element = ?" );
 static const QLatin1String SELECT_ALL_ELEMENTS       ( "SELECT * FROM xmlelements" );
 
-static const QLatin1String PREPARE_UPDATE_COMMENTS   ( "UPDATE xmlelements SET comments = ? WHERE element = ?" );
-static const QLatin1String PREPARE_UPDATE_ATTRIBUTES ( "UPDATE xmlelements SET attributes = ? WHERE element = ?" );
+//static const QLatin1String PREPARE_UPDATE_COMMENTS   ( "UPDATE xmlelements SET comments = ? WHERE element = ?" );
+//static const QLatin1String PREPARE_UPDATE_ATTRIBUTES ( "UPDATE xmlelements SET attributes = ? WHERE element = ?" );
+
+static const QLatin1String PREPARE_UPDATE_COMMENTS   ( "UPDATE xmlelements SET comments = ( comments || ? || ? ) WHERE element = ?" );
+static const QLatin1String PREPARE_UPDATE_ATTRIBUTES ( "UPDATE xmlelements SET attributes = ( attributes || ? || ? ) WHERE element = ?" );
+
+/* In ( attributes || ? || ? ), the first '?' represents our string SEPARATOR */
 
 static const QLatin1String CREATE_TABLE_ATTRIBUTEVALUES   ( "CREATE TABLE xmlattributevalues( attributeKey QString primary key, attributeValues QString )" );
 static const QLatin1String PREPARE_INSERT_ATTRIBUTEVALUES ( "INSERT INTO xmlattributevalues( attributeKey, attributeValues ) VALUES( ?, ? )" );
@@ -36,32 +41,12 @@ static const QLatin1String SELECT_ALL_ATTRIBUTEVALUES     ( "SELECT * FROM xmlat
 
 static const QLatin1String PREPARE_UPDATE_ATTRIBUTEVALUES ( "UPDATE xmlattributevalues SET attributeValues = ? WHERE attributeKey = ?" );
 
-//UPDATE tbl SET fld = CONCAT(fld,'more text');
-
-//IF EXISTS (SELECT * FROM Table1 WHERE Column1='SomeValue')
-  //  UPDATE Table1 SET (...) WHERE Column1='SomeValue'
-//ELSE
-  //  INSERT INTO Table1 VALUES (...)
-
-//UPDATE Table1 SET (...) WHERE Column1='SomeValue'
-//IF @@ROWCOUNT=0
-//    INSERT INTO Table1 VALUES (...)
-
-
-//INSERT INTO table SET x=1, y=2 ON DUPLICATE KEY UPDATE x=x+1, y=y+2
-
-//INSERT OR REPLACE INTO Employee (id,role,name)
-//  VALUES (  1,
-//            'code monkey',
-//            (select name from Employee where id = 1)
-//          );
-
-static const QLatin1String UPSERT_ELEMENT ( " CASE EXISTS (SELECT * FROM xmlelements WHERE element = ? ) "
-                                            " THEN "
-                                            "   UPDATE xmlelements SET comments = CONCAT( comments, ? ), attributes = CONCAT( attributes, ? ) WHERE element = ? "
-                                            " ELSE"
-                                            "   INSERT INTO xmlelements( element, comments, attributes ) VALUES( ?, ?, ? ) "
-                                            " END" );
+//static const QLatin1String UPSERT_ELEMENT ( " CASE EXISTS (SELECT * FROM xmlelements WHERE element = ? ) "
+//                                            " THEN "
+//                                            "   UPDATE xmlelements SET comments = CONCAT( comments, ? ), attributes = CONCAT( attributes, ? ) WHERE element = ? "
+//                                            " ELSE"
+//                                            "   INSERT INTO xmlelements( element, comments, attributes ) VALUES( ?, ?, ? ) "
+//                                            " END" );
 
 
 
@@ -346,6 +331,13 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) 
     return false;
   }
 
+  QVariantList separatorList;
+
+  for( int i = 0; i < helper.elementsToUpdate().size(); ++i )
+  {
+    separatorList << SEPARATOR;
+  }
+  query.addBindValue( separatorList );
   query.addBindValue( helper.elementCommentsToUpdate() );
   query.addBindValue( helper.elementsToUpdate() );
 
@@ -361,6 +353,7 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) 
     return false;
   }
 
+  query.addBindValue( separatorList );
   query.addBindValue( helper.elementAttributesToUpdate() );
   query.addBindValue( helper.elementsToUpdate() );
 
