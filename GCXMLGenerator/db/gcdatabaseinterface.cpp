@@ -19,27 +19,18 @@
   ATTRIBUTEKEY (concatenate element and attribute name) (Key) | ATTRIBUTEVALUES
 */
 
-static const QLatin1String CREATE_TABLE_ELEMENTS     ( "CREATE TABLE xmlelements( element QString primary key, comments QString, attributes QString )" );
+static const QLatin1String SELECT_ALL_ELEMENTS       ( "SELECT * FROM xmlelements" );
 static const QLatin1String PREPARE_INSERT_ELEMENT    ( "INSERT INTO xmlelements( element, comments, attributes ) VALUES( ?, ?, ? )" );
 static const QLatin1String PREPARE_DELETE_ELEMENT    ( "DELETE FROM xmlelements WHERE element = ?" );
-static const QLatin1String PREPARE_SELECT_ELEMENT    ( "SELECT * FROM xmlelements WHERE element = ?" );
-static const QLatin1String SELECT_ALL_ELEMENTS       ( "SELECT * FROM xmlelements" );
 
-//static const QLatin1String PREPARE_UPDATE_COMMENTS   ( "UPDATE xmlelements SET comments = ? WHERE element = ?" );
-//static const QLatin1String PREPARE_UPDATE_ATTRIBUTES ( "UPDATE xmlelements SET attributes = ? WHERE element = ?" );
-
-static const QLatin1String PREPARE_UPDATE_COMMENTS   ( "UPDATE xmlelements SET comments = ( comments || ? || ? ) WHERE element = ?" );
-static const QLatin1String PREPARE_UPDATE_ATTRIBUTES ( "UPDATE xmlelements SET attributes = ( attributes || ? || ? ) WHERE element = ?" );
-
-/* In ( attributes || ? || ? ), the first '?' represents our string SEPARATOR */
-
-static const QLatin1String CREATE_TABLE_ATTRIBUTEVALUES   ( "CREATE TABLE xmlattributevalues( attributeKey QString primary key, attributeValues QString )" );
+static const QLatin1String SELECT_ALL_ATTRIBUTEVALUES     ( "SELECT * FROM xmlattributevalues" );
 static const QLatin1String PREPARE_INSERT_ATTRIBUTEVALUES ( "INSERT INTO xmlattributevalues( attributeKey, attributeValues ) VALUES( ?, ? )" );
 static const QLatin1String PREPARE_DELETE_ATTRIBUTEVALUES ( "DELETE FROM xmlattributevalues WHERE attributeKey = ?" );
-static const QLatin1String PREPARE_SELECT_ATTRIBUTEVALUES ( "SELECT * FROM xmlattributevalues WHERE attributeKey = ?" );
-static const QLatin1String SELECT_ALL_ATTRIBUTEVALUES     ( "SELECT * FROM xmlattributevalues" );
 
-static const QLatin1String PREPARE_UPDATE_ATTRIBUTEVALUES ( "UPDATE xmlattributevalues SET attributeValues = ? WHERE attributeKey = ?" );
+/* Concatenate the new values to the existing values. The first '?' represents our string SEPARATOR. */
+static const QLatin1String PREPARE_UPDATE_COMMENTS   ( "UPDATE xmlelements SET comments   = ( comments || ? || ? )   WHERE element = ?" );
+static const QLatin1String PREPARE_UPDATE_ATTRIBUTES ( "UPDATE xmlelements SET attributes = ( attributes || ? || ? ) WHERE element = ?" );
+static const QLatin1String PREPARE_UPDATE_ATTRIBUTEVALUES ( "UPDATE xmlattributevalues SET attributeValues = ( attributeValues || ? || ? ) WHERE attributeKey = ?" );
 
 //static const QLatin1String UPSERT_ELEMENT ( " CASE EXISTS (SELECT * FROM xmlelements WHERE element = ? ) "
 //                                            " THEN "
@@ -266,14 +257,14 @@ bool GCDataBaseInterface::initialiseDB( QString dbConName, QString &errMsg ) con
   /* DB connection should be open from openDBConnection() above. */
   QSqlQuery query( db );
 
-  if( !query.exec( CREATE_TABLE_ELEMENTS ) )
+  if( !query.exec( "CREATE TABLE xmlelements( element QString primary key, comments QString, attributes QString )" ) )
   {
     errMsg = QString( "Failed to create elements table for \"%1\": [%2]." ).arg( dbConName )
                                                                            .arg( query.lastError().text() );
     return false;
   }
 
-  if( !query.exec( CREATE_TABLE_ATTRIBUTEVALUES ) )
+  if( !query.exec( "CREATE TABLE xmlattributevalues( attributeKey QString primary key, attributeValues QString )" ) )
   {
     errMsg = QString( "Failed to create attributes values table for \"%1\": [%2]" ).arg( dbConName )
                                                                             .arg( query.lastError().text() );
@@ -322,8 +313,6 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) 
     return false;
   }
 
-  /* TODO:  Extract existing values and concatenate the lot. !!!!!!!!!! */
-
   /* Batch update all the existing elements. */
   if( !query.prepare( PREPARE_UPDATE_COMMENTS ) )
   {
@@ -331,12 +320,16 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) 
     return false;
   }
 
+  /* Since we're doing batch updates, we need to ensure that all the variant lists we provide
+    have exactly the same size.  We furthermore require that the concatenation of new to old values
+    be separated by our SEPARATOR string, which is why we have a separator list below. */
   QVariantList separatorList;
 
   for( int i = 0; i < helper.elementsToUpdate().size(); ++i )
   {
     separatorList << SEPARATOR;
   }
+
   query.addBindValue( separatorList );
   query.addBindValue( helper.elementCommentsToUpdate() );
   query.addBindValue( helper.elementsToUpdate() );
@@ -379,10 +372,6 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) 
     return false;
   }
 
-
-  /* TODO:  Extract existing values and concatenate the lot. !!!!!!!!!! */
-
-
   /* Batch update all the existing attribute values. */
   if( !query.prepare( PREPARE_UPDATE_ATTRIBUTEVALUES ) )
   {
@@ -390,6 +379,14 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) 
     return false;
   }
 
+  separatorList.clear();
+
+  for( int i = 0; i < helper.attributeKeysToUpdate().size(); ++i )
+  {
+    separatorList << SEPARATOR;
+  }
+
+  query.addBindValue( separatorList );
   query.addBindValue( helper.attributeValuesToUpdate() );
   query.addBindValue( helper.attributeKeysToUpdate() );
 
@@ -420,11 +417,10 @@ QSqlQuery GCDataBaseInterface::selectElement( const QString &element, bool &succ
   /* See if we already have this element in the DB. */
   QSqlQuery query( db );
 
-  if( !query.prepare( PREPARE_SELECT_ELEMENT ) )
+  if( !query.prepare( "SELECT * FROM xmlelements WHERE element = ?" ) )
   {
-    m_lastErrorMsg = QString( "\"%1\" FAILED for element [%2], error: [%3]" ).arg( PREPARE_SELECT_ELEMENT )
-                                                                             .arg( element )
-                                                                             .arg( query.lastError().text() );
+    m_lastErrorMsg = QString( "Prepare SELECT failed for element [%2], error: [%3]" ).arg( element )
+                                                                                     .arg( query.lastError().text() );
     success = false;
   }
 
@@ -507,6 +503,7 @@ bool GCDataBaseInterface::updateElementComments( const QString &element, const Q
       return false;
     }
 
+    query.addBindValue( SEPARATOR );
     query.addBindValue( joinListElements( allComments ) );
     query.addBindValue( element );
 
@@ -553,6 +550,7 @@ bool GCDataBaseInterface::updateElementAttributes( const QString &element, const
       return false;
     }
 
+    query.addBindValue( SEPARATOR );
     query.addBindValue( joinListElements( allAttributes ) );
     query.addBindValue( element );
 
@@ -589,11 +587,10 @@ QSqlQuery GCDataBaseInterface::selectAttribute( const QString &element, const QS
 
   QSqlQuery query( db );
 
-  if( !query.prepare( PREPARE_SELECT_ATTRIBUTEVALUES ) )
+  if( !query.prepare( "SELECT * FROM xmlattributevalues WHERE attributeKey = ?" ) )
   {
-    m_lastErrorMsg = QString( "\"%1\" FAILED for element [%2], error: [%3]" ).arg( PREPARE_SELECT_ATTRIBUTEVALUES )
-                                                                             .arg( element )
-                                                                             .arg( query.lastError().text() );
+    m_lastErrorMsg = QString( "Prepare SELECT attribute failed for element [%2], error: [%3]" ).arg( element )
+                                                                                               .arg( query.lastError().text() );
     success = false;
   }
 
@@ -657,6 +654,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
       return false;
     }
 
+    query.addBindValue( SEPARATOR );
     query.addBindValue( joinListElements( existingValues ) );
     query.addBindValue( element + attribute );
 
