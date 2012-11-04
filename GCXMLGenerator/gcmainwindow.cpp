@@ -110,6 +110,7 @@ void GCMainWindow::openXMLFile()
           if( m_domDoc.setContent( inStream.readAll(), &xmlErr, &line, &col ) )
           {
             processDOMDoc();
+            batchUpsertDB();
           }
           else
           {
@@ -187,12 +188,6 @@ void GCMainWindow::processDOMDoc()
 
   /* Now we can recursively stick the rest of the elements into our widget. */
   populateTreeWidget( root, item );
-
-  /* Update the DB in one go. */
-  if( !m_dbInterface->batchProcessDOMDocument( m_domDoc ) )
-  {
-    showErrorMessageBox( m_dbInterface->getLastError() );
-  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -217,9 +212,13 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::populateDBTables( const QDomElement &element )
-{  
-
+void GCMainWindow::batchUpsertDB()
+{
+  /* Update the DB in one go. */
+  if( !m_dbInterface->batchProcessDOMDocument( m_domDoc ) )
+  {
+    showErrorMessageBox( m_dbInterface->getLastError() );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -251,21 +250,15 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
     {
       /* Update the element names in our active DOM doc (since m_treeItemNodes
         contains shallow copied QDomElements, the change will automatically
-        be available to the map as well). */
+        be available to the map as well) and the tree widget. */
       QDomNodeList list = m_domDoc.elementsByTagName( previousName );
 
       for( int i = 0; i < list.count(); ++i )
       {
-        list.at( i ).toElement().setTagName( itemName );
+        QDomElement element( list.at( i ).toElement() );
+        element.setTagName( itemName );
+        const_cast< QTreeWidgetItem* >( m_treeItemNodes.key( element ) )->setText( column, itemName );
       }
-
-      /* Re-populate the tree widget (and update the DB) to reflect the changes
-        (note that the "old" elements won't be removed from the DB, the new ones
-         will simply be added.  All removals must be executed explicitly). */
-      //processDOMDoc();
-
-      //TODO - Update single records only!  Not entire DOM!
-
     }
   }
 }

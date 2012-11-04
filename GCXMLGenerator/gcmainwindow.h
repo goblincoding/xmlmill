@@ -22,8 +22,8 @@ public:
   
 private:
   void processDOMDoc();
+  void batchUpsertDB();   // upsert - "update and insert"
   void populateTreeWidget ( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
-  void populateDBTables   ( const QDomElement &element );
   void addDBConnection    ( const QString &dbName );
   void showSessionForm    ( bool remove = false );
   void showErrorMessageBox( const QString &errorMsg );
