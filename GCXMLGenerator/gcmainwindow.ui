@@ -147,14 +147,14 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="buildXMLUpdateButton">
+           <widget class="QPushButton" name="buildCommitButton">
             <property name="text">
-             <string>Update</string>
+             <string>Commit</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="buildXMLDeleteButton">
+           <widget class="QPushButton" name="buildDeleteButton">
             <property name="text">
              <string>Delete</string>
             </property>

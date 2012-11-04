@@ -25,7 +25,7 @@ private:
   void batchUpsertDB();   // upsert - "update and insert"
   void populateTreeWidget ( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
   void addDBConnection    ( const QString &dbName );
-  void showSessionForm    ( bool remove = false );
+  void showKnownDBForm    ( bool remove = false );
   void showErrorMessageBox( const QString &errorMsg );
 
   Ui::GCMainWindow    *ui;

@@ -41,10 +41,10 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionSwitchSessionDatabase, SIGNAL( triggered() ), this, SLOT( switchDBSession() ) );
 
   /* Build XML. */
-  connect( ui->buildXMLUpdateButton, SIGNAL( clicked() ), this, SLOT( updateDataBase() ) );
-  connect( ui->buildXMLDeleteButton, SIGNAL( clicked() ), this, SLOT( deleteElement() ) );
-  connect( ui->addAsChildButton,     SIGNAL( clicked() ), this, SLOT( addAsChild() ) );
-  connect( ui->addAsSiblingButton,   SIGNAL( clicked() ), this, SLOT( addAsSibling() ) );
+  connect( ui->buildCommitButton,  SIGNAL( clicked() ), this, SLOT( updateDataBase() ) );
+  connect( ui->buildDeleteButton,  SIGNAL( clicked() ), this, SLOT( deleteElement() ) );
+  connect( ui->addAsChildButton,   SIGNAL( clicked() ), this, SLOT( addAsChild() ) );
+  connect( ui->addAsSiblingButton, SIGNAL( clicked() ), this, SLOT( addAsSibling() ) );
 
   /* Edit XML store. */
   connect( ui->editXMLAddButton,              SIGNAL( clicked() ), this, SLOT( updateDataBase() ) );
@@ -65,7 +65,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 
   /* If the interface was successfully initialised, prompt the user to choose a database
     connection for this session. */
-  showSessionForm();  
+  showKnownDBForm();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -136,7 +136,7 @@ void GCMainWindow::openXMLFile()
   {
     QString errMsg( "No current DB active, please set one for this session." );
     showErrorMessageBox( errMsg );
-    showSessionForm();
+    showKnownDBForm();
   }
 }
 
@@ -237,7 +237,7 @@ void GCMainWindow::updateDataBase()
   {
     QString errMsg( "No current DB active, please set one for this session." );
     showErrorMessageBox( errMsg );
-    showSessionForm();
+    showKnownDBForm();
   }
 }
 
@@ -349,7 +349,7 @@ void GCMainWindow::addDBConnection( const QString &dbName )
   }
 
   QMessageBox::StandardButton button = QMessageBox::question( this,
-                                                              "Set session",
+                                                              "Set Session",
                                                               "Would you like to set the new connection as active?",
                                                               QMessageBox::Yes | QMessageBox::No,
                                                               QMessageBox::Yes );
@@ -362,7 +362,7 @@ void GCMainWindow::addDBConnection( const QString &dbName )
   {
     if( !m_dbInterface->hasActiveSession() )
     {
-      showSessionForm();
+      showKnownDBForm();
     }
   }
 }
@@ -383,7 +383,7 @@ void GCMainWindow::setSessionDB( QString dbName )
 
 void GCMainWindow::removeDB()
 {
-  showSessionForm( true );
+  showKnownDBForm( true );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -402,7 +402,7 @@ void GCMainWindow::removeDBConnection( QString dbName )
     what he/she intends to replace it with. */
   if( !m_dbInterface->hasActiveSession() )
   {
-    showSessionForm();
+    showKnownDBForm();
   }
 }
 
@@ -410,7 +410,7 @@ void GCMainWindow::removeDBConnection( QString dbName )
 
 void GCMainWindow::switchDBSession()
 {
-  showSessionForm();
+  showKnownDBForm();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -464,23 +464,23 @@ void GCMainWindow::saveDirectEdit()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::showSessionForm( bool remove )
+void GCMainWindow::showKnownDBForm( bool remove )
 {
-  GCSessionDBForm *sessionForm = new GCSessionDBForm( m_dbInterface->getDBList(), remove, this );
+  GCSessionDBForm *knownDBForm = new GCSessionDBForm( m_dbInterface->getDBList(), remove, this );
 
   /* If we don't have an active DB session, it's probably at program
     start-up and the user wishes to exit the application by clicking "Cancel". */
   if( !m_dbInterface->hasActiveSession() )
   {
-    connect( sessionForm, SIGNAL( userCancelled() ),       this, SLOT( close() ) );
+    connect( knownDBForm, SIGNAL( userCancelled() ),       this, SLOT( close() ) );
   }
 
-  connect( sessionForm,   SIGNAL( newConnection() ),       this, SLOT( addNewDB() ) );
-  connect( sessionForm,   SIGNAL( existingConnection() ),  this, SLOT( addExistingDB() ) );
-  connect( sessionForm,   SIGNAL( dbSelected( QString ) ), this, SLOT( setSessionDB( QString ) ) );
-  connect( sessionForm,   SIGNAL( dbRemoved ( QString ) ), this, SLOT( removeDBConnection( QString ) ) );
+  connect( knownDBForm,   SIGNAL( newConnection() ),       this, SLOT( addNewDB() ) );
+  connect( knownDBForm,   SIGNAL( existingConnection() ),  this, SLOT( addExistingDB() ) );
+  connect( knownDBForm,   SIGNAL( dbSelected( QString ) ), this, SLOT( setSessionDB( QString ) ) );
+  connect( knownDBForm,   SIGNAL( dbRemoved ( QString ) ), this, SLOT( removeDBConnection( QString ) ) );
 
-  sessionForm->show();
+  knownDBForm->show();
 }
 
 /*--------------------------------------------------------------------------------------*/
