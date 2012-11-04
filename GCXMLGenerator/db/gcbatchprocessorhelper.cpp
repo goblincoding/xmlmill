@@ -21,7 +21,7 @@ GCBatchProcessorHelper::GCBatchProcessorHelper(const QDomDocument &domDoc) :
 {
   QDomElement root = domDoc.documentElement();
   createRecord( root );
-  processElement( root );
+  processElement( root );   // kicks off a chain of recursive DOM element traversals
   sortRecords();
 }
 
@@ -195,8 +195,7 @@ void GCBatchProcessorHelper::createVariantLists()
     }
   }
 
-  /* Separate the new attribute keys and associated values
-    from the existing ones. */
+  /* Separate the new attribute keys and associated values from the existing ones. */
   foreach( QString element, elementNames )
   {
     QList< QString > attributeNames = m_records.value( element ).attributes.keys();

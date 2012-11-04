@@ -1,12 +1,12 @@
-#include "gcsessiondbform.h"
+#include "gcknowndbform.h"
 #include "ui_gcsessiondbform.h"
 #include <QFileDialog>
 
 /*--------------------------------------------------------------------------------------*/
 
-GCSessionDBForm::GCSessionDBForm( QStringList dbList, bool remove, QWidget *parent ) :
+GCKnownDBForm::GCKnownDBForm( QStringList dbList, bool remove, QWidget *parent ) :
   QDialog ( parent),
-  ui      ( new Ui::GCSessionDBForm ),
+  ui      ( new Ui::GCKnownDBForm ),
   m_remove( remove )
 {
   ui->setupUi( this );
@@ -41,14 +41,14 @@ GCSessionDBForm::GCSessionDBForm( QStringList dbList, bool remove, QWidget *pare
 
 /*--------------------------------------------------------------------------------------*/
 
-GCSessionDBForm::~GCSessionDBForm()
+GCKnownDBForm::~GCKnownDBForm()
 {
   delete ui;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCSessionDBForm::select()
+void GCKnownDBForm::select()
 {
   if( m_remove )
   {

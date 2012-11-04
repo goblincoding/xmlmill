@@ -1,7 +1,7 @@
 #include "gcmainwindow.h"
 #include "ui_gcmainwindow.h"
 #include "db/gcdatabaseinterface.h"
-#include "db/gcsessiondbform.h"
+#include "db/gcknowndbform.h"
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QTextStream>
@@ -491,7 +491,7 @@ void GCMainWindow::saveDirectEdit()
 
 void GCMainWindow::showKnownDBForm( bool remove )
 {
-  GCSessionDBForm *knownDBForm = new GCSessionDBForm( m_dbInterface->getDBList(), remove, this );
+  GCKnownDBForm *knownDBForm = new GCKnownDBForm( m_dbInterface->getDBList(), remove, this );
 
   /* If we don't have an active DB session, it's probably at program
     start-up and the user wishes to exit the application by clicking "Cancel". */

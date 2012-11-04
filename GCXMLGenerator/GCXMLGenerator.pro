@@ -13,15 +13,15 @@ TEMPLATE = app
 SOURCES += main.cpp\
     db/gcdatabaseinterface.cpp \
     gcmainwindow.cpp \
-    db/gcsessiondbform.cpp \
-    db/gcbatchprocessorhelper.cpp
+    db/gcbatchprocessorhelper.cpp \
+    db/gcknowndbform.cpp
 
 HEADERS  += \
     db/gcdatabaseinterface.h \
     gcmainwindow.h \
-    db/gcsessiondbform.h \
     db/gcbatchprocessorhelper.h \
-    utils/gcglobals.h
+    utils/gcglobals.h \
+    db/gcknowndbform.h
 
 FORMS    += \
     gcmainwindow.ui \
