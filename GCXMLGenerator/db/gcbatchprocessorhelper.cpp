@@ -7,10 +7,10 @@ GCBatchProcessorHelper::GCBatchProcessorHelper(const QDomDocument &domDoc) :
   m_knownElements            (),
   m_knownAttributeKeys       (),
   m_newElementsToAdd         (),
-  m_newElementCommentsToAdd  (),
+  m_newElementChildrenToAdd  (),
   m_newElementAttributesToAdd(),
   m_elementsToUpdate         (),
-  m_elementCommentsToUpdate  (),
+  m_elementChildrenToUpdate  (),
   m_elementAttributesToUpdate(),
   m_newAttributeKeysToAdd    (),
   m_newAttributeValuesToAdd  (),
@@ -58,12 +58,17 @@ void GCBatchProcessorHelper::createRecord( const QDomElement &element )
     }
   }
 
-  /* We also check if there are any comments associated with this element.  We'll
-    operate on the assumption that an XML comment will appear directly before the element
-    in question and also that such comments are siblings of the element in question. */
-  if( element.previousSibling().nodeType() == QDomNode::CommentNode )
+  /* Collect all the first level (element) children associated with this element. */
+  QDomNodeList children = element.childNodes();
+
+  for( int i = 0; i < children.size(); ++i )
   {
-    record.comments.append( element.previousSibling().toComment().nodeValue() );
+    QDomNode child = children.at( i );
+
+    if( child.isElement() )
+    {
+      record.children.append( child.toElement().tagName() );
+    }
   }
 
   /* We'll sort it all later, for now get the recursive calls out of the way. */
@@ -93,9 +98,9 @@ void GCBatchProcessorHelper::sortRecords()
       for( int i = 0; i < duplicateRecords.size(); ++i )
       {
         /* Since we're already iterating through the list, we may as well consolidate the
-          comments while we're at it (they are relatively simple to handle compared
+          children while we're at it (they are relatively simple to handle compared
           to the attribute value maps). */
-        record.comments.append( duplicateRecords.at( i ).comments );
+        record.children.append( duplicateRecords.at( i ).children );
         recordAttributes += duplicateRecords.at( i ).attributes;
       }
 
@@ -115,7 +120,7 @@ void GCBatchProcessorHelper::sortRecords()
         record.attributes.insert( attribute, finalListOfAttributeValues );
       }
 
-      record.comments.removeDuplicates();
+      record.children.removeDuplicates();
       m_records.insert( element, record );
     }
     else
@@ -150,13 +155,13 @@ void GCBatchProcessorHelper::createVariantLists()
   {
     QString element = var.toString();
 
-    if( !m_records.value( element ).comments.isEmpty() )
+    if( !m_records.value( element ).children.isEmpty() )
     {
-      m_newElementCommentsToAdd << m_records.value( element ).comments.join( SEPARATOR );
+      m_newElementChildrenToAdd << m_records.value( element ).children.join( SEPARATOR );
     }
     else
     {
-      m_newElementCommentsToAdd << QVariant( QVariant::String );
+      m_newElementChildrenToAdd << QVariant( QVariant::String );
     }
 
     if( !m_records.value( element ).attributes.keys().isEmpty() )
@@ -175,13 +180,13 @@ void GCBatchProcessorHelper::createVariantLists()
   {
     QString element = var.toString();
 
-    if( !m_records.value( element ).comments.isEmpty() )
+    if( !m_records.value( element ).children.isEmpty() )
     {
-      m_elementCommentsToUpdate << m_records.value( element ).comments.join( SEPARATOR );
+      m_elementChildrenToUpdate << m_records.value( element ).children.join( SEPARATOR );
     }
     else
     {
-      m_elementCommentsToUpdate << QVariant( QVariant::String );
+      m_elementChildrenToUpdate << QVariant( QVariant::String );
     }
 
     if( !m_records.value( element ).attributes.keys().isEmpty() )
@@ -258,9 +263,9 @@ QVariantList GCBatchProcessorHelper::newElementsToAdd() const
 
 /*--------------------------------------------------------------------------------------*/
 
-QVariantList GCBatchProcessorHelper::newElementCommentsToAdd() const
+QVariantList GCBatchProcessorHelper::newElementChildrenToAdd() const
 {
-  return m_newElementCommentsToAdd;
+  return m_newElementChildrenToAdd;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -279,9 +284,9 @@ QVariantList GCBatchProcessorHelper::elementsToUpdate() const
 
 /*--------------------------------------------------------------------------------------*/
 
-QVariantList GCBatchProcessorHelper::elementCommentsToUpdate() const
+QVariantList GCBatchProcessorHelper::elementChildrenToUpdate() const
 {
-  return m_elementCommentsToUpdate;
+  return m_elementChildrenToUpdate;
 }
 
 /*--------------------------------------------------------------------------------------*/

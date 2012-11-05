@@ -18,16 +18,16 @@ public:
   bool initialise();
 
   /* Processes an entire DOM document, adding new or updating existing elements (with their
-    corresponding comments and associated attributes) and known attribute values. */
+    corresponding first level children and associated attributes) and known attribute values. */
   bool batchProcessDOMDocument( const QDomDocument &domDoc ) const;
 
   /* Adds a single new element (this function does nothing if an element with the same name
     already exists). */
-  bool addElement( const QString &element, const QStringList &comments, const QStringList &attributes ) const;
+  bool addElement( const QString &element, const QStringList &children, const QStringList &attributes ) const;
 
-  /* Updates the list of known comments associated with "element" by appending
-    the new comments to the existing list (nothing is deleted). */
-  bool updateElementComments  ( const QString &element, const QStringList &comments ) const;
+  /* Updates the list of known children associated with "element" by appending
+    the new children to the existing list (nothing is deleted). */
+  bool updateElementChildren  ( const QString &element, const QStringList &children ) const;
 
   /* Updates the list of known attributes associated with "element" by appending
     the new attributes to the existing list (nothing is deleted). */
@@ -40,7 +40,7 @@ public:
 
   /* Remove single entries/values from the database. */
   bool removeElement          ( const QString &element ) const;
-  bool removeElementComment   ( const QString &element, const QString &comment ) const;
+  bool removeElementChild     ( const QString &element, const QString &children ) const;
   bool removeElementAttribute ( const QString &element, const QString &attribute ) const;
   bool removeAttributeValue   ( const QString &element, const QString &attribute, const QString &attributeValue ) const;
 
@@ -53,9 +53,9 @@ public:
     the current database connection (the active session). */
   QStringList knownElements() const;
 
-  /* Returns a sorted (case sensitive, ascending) list of all the comments associated with
+  /* Returns a sorted (case sensitive, ascending) list of all the children associated with
     "element" in the active database. */
-  QStringList comments( const QString &element, bool &success ) const;
+  QStringList children( const QString &element, bool &success ) const;
 
   /* Returns a sorted (case sensitive, ascending) list of all the attributes associated with
     "element" in the active database. */

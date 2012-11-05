@@ -279,7 +279,7 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
         QStringList attributes = m_dbInterface->attributes( previousName, success );
 
         m_dbInterface->addElement( itemName,
-                                   m_dbInterface->comments  ( previousName, success ),
+                                   m_dbInterface->children  ( previousName, success ),
                                    attributes );
 
         foreach( QString attribute, attributes )

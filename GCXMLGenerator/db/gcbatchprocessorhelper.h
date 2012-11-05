@@ -18,11 +18,11 @@ public:
   void createVariantLists();
 
   QVariantList newElementsToAdd() const;
-  QVariantList newElementCommentsToAdd() const;
+  QVariantList newElementChildrenToAdd() const;
   QVariantList newElementAttributesToAdd() const;
 
   QVariantList elementsToUpdate() const;
-  QVariantList elementCommentsToUpdate() const;
+  QVariantList elementChildrenToUpdate() const;
   QVariantList elementAttributesToUpdate() const;
 
   QVariantList newAttributeKeysToAdd() const;
@@ -40,11 +40,11 @@ private:
   QStringList  m_knownAttributeKeys;
 
   QVariantList m_newElementsToAdd;
-  QVariantList m_newElementCommentsToAdd;
+  QVariantList m_newElementChildrenToAdd;
   QVariantList m_newElementAttributesToAdd;
 
   QVariantList m_elementsToUpdate;
-  QVariantList m_elementCommentsToUpdate;
+  QVariantList m_elementChildrenToUpdate;
   QVariantList m_elementAttributesToUpdate;
 
   QVariantList m_newAttributeKeysToAdd;
@@ -53,15 +53,15 @@ private:
   QVariantList m_attributeKeysToUpdate;
   QVariantList m_attributeValuesToUpdate;
 
-  /* Represents a single element and its associated comments and attributes. */
+  /* Represents a single element and its associated children and attributes. */
   struct GCElementRecord
   {
-    QStringList comments;
+    QStringList children;
     QMap< QString /*name*/, QStringList /*values*/ > attributes;
 
     GCElementRecord()
       :
-        comments  (),
+        children  (),
         attributes()
     {}
   };

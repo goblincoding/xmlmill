@@ -13,14 +13,14 @@
 
 /* DB tables are set up as follows:
   Table - XMLELEMENTS
-  ELEMENT (Key) | COMMENTS | ATTRIBUTES
+  ELEMENT (Key) | CHILDREN (First Level Only) | ATTRIBUTES
 
   Table - XMLATTRIBUTES
   ATTRIBUTEKEY (concatenate element and attribute name) (Key) | ATTRIBUTEVALUES
 */
 
 static const QLatin1String SELECT_ALL_ELEMENTS( "SELECT * FROM xmlelements" );
-static const QLatin1String INSERT_ELEMENT     ( "INSERT INTO xmlelements( element, comments, attributes ) VALUES( ?, ?, ? )" );
+static const QLatin1String INSERT_ELEMENT     ( "INSERT INTO xmlelements( element, children, attributes ) VALUES( ?, ?, ? )" );
 static const QLatin1String DELETE_ELEMENT     ( "DELETE FROM xmlelements WHERE element = ?" );
 
 static const QLatin1String SELECT_ALL_ATTRIBUTEVALUES( "SELECT * FROM xmlattributevalues" );
@@ -28,20 +28,20 @@ static const QLatin1String INSERT_ATTRIBUTEVALUES    ( "INSERT INTO xmlattribute
 static const QLatin1String DELETE_ATTRIBUTEVALUES    ( "DELETE FROM xmlattributevalues WHERE attributeKey = ?" );
 
 /* Concatenate the new values to the existing values. The first '?' represents our string SEPARATOR. */
-static const QLatin1String UPDATE_COMMENTS_CONCAT        ( "UPDATE xmlelements SET comments   = ( comments || ? || ? )   WHERE element = ?" );
+static const QLatin1String UPDATE_CHILDREN_CONCAT        ( "UPDATE xmlelements SET children   = ( children || ? || ? )   WHERE element = ?" );
 static const QLatin1String UPDATE_ATTRIBUTES_CONCAT      ( "UPDATE xmlelements SET attributes = ( attributes || ? || ? ) WHERE element = ?" );
 static const QLatin1String UPDATE_ATTRIBUTEVALUES_CONCAT ( "UPDATE xmlattributevalues SET attributeValues = ( attributeValues || ? || ? ) WHERE attributeKey = ?" );
 
-static const QLatin1String UPDATE_COMMENTS        ( "UPDATE xmlelements SET comments   = ? WHERE element = ?" );
+static const QLatin1String UPDATE_CHILDREN        ( "UPDATE xmlelements SET children   = ? WHERE element = ?" );
 static const QLatin1String UPDATE_ATTRIBUTES      ( "UPDATE xmlelements SET attributes = ? WHERE element = ?" );
 static const QLatin1String UPDATE_ATTRIBUTEVALUES ( "UPDATE xmlattributevalues SET attributeValues = ? WHERE attributeKey = ?" );
 
 
 //static const QLatin1String UPSERT_ELEMENT ( " CASE EXISTS (SELECT * FROM xmlelements WHERE element = ? ) "
 //                                            " THEN "
-//                                            "   UPDATE xmlelements SET comments = CONCAT( comments, ? ), attributes = CONCAT( attributes, ? ) WHERE element = ? "
+//                                            "   UPDATE xmlelements SET children = CONCAT( children, ? ), attributes = CONCAT( attributes, ? ) WHERE element = ? "
 //                                            " ELSE"
-//                                            "   INSERT INTO xmlelements( element, comments, attributes ) VALUES( ?, ?, ? ) "
+//                                            "   INSERT INTO xmlelements( element, children, attributes ) VALUES( ?, ?, ? ) "
 //                                            " END" );
 
 
@@ -262,7 +262,7 @@ bool GCDataBaseInterface::initialiseDB( QString dbConName, QString &errMsg ) con
   /* DB connection should be open from openDBConnection() above. */
   QSqlQuery query( db );
 
-  if( !query.exec( "CREATE TABLE xmlelements( element QString primary key, comments QString, attributes QString )" ) )
+  if( !query.exec( "CREATE TABLE xmlelements( element QString primary key, children QString, attributes QString )" ) )
   {
     errMsg = QString( "Failed to create elements table for \"%1\": [%2]." ).arg( dbConName )
                                                                            .arg( query.lastError().text() );
@@ -309,7 +309,7 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) 
   }
 
   query.addBindValue( helper.newElementsToAdd() );
-  query.addBindValue( helper.newElementCommentsToAdd() );
+  query.addBindValue( helper.newElementChildrenToAdd() );
   query.addBindValue( helper.newElementAttributesToAdd() );
 
   if( !query.execBatch() )
@@ -319,9 +319,9 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) 
   }
 
   /* Batch update all the existing elements. */
-  if( !query.prepare( UPDATE_COMMENTS_CONCAT ) )
+  if( !query.prepare( UPDATE_CHILDREN_CONCAT ) )
   {
-    m_lastErrorMsg = QString( "Prepare batch UPDATE element comments failed - [%1]" ).arg( query.lastError().text() );
+    m_lastErrorMsg = QString( "Prepare batch UPDATE element children failed - [%1]" ).arg( query.lastError().text() );
     return false;
   }
 
@@ -336,12 +336,12 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) 
   }
 
   query.addBindValue( separatorList );
-  query.addBindValue( helper.elementCommentsToUpdate() );
+  query.addBindValue( helper.elementChildrenToUpdate() );
   query.addBindValue( helper.elementsToUpdate() );
 
   if( !query.execBatch() )
   {
-    m_lastErrorMsg = QString( "Batch UPDATE element comments failed - [%1]" ).arg( query.lastError().text() );
+    m_lastErrorMsg = QString( "Batch UPDATE element children failed - [%1]" ).arg( query.lastError().text() );
     return false;
   }
 
@@ -423,22 +423,22 @@ bool GCDataBaseInterface::removeDuplicatesFromFields() const
     {
       if( query.first() )
       {
-        QStringList allComments  ( query.record().field( "comments" ).value().toString().split( SEPARATOR ) );
+        QStringList allChildren  ( query.record().field( "children" ).value().toString().split( SEPARATOR ) );
         QStringList allAttributes( query.record().field( "attributes" ).value().toString().split( SEPARATOR ) );
 
-        if( !query.prepare( UPDATE_COMMENTS ) )
+        if( !query.prepare( UPDATE_CHILDREN ) )
         {
-          m_lastErrorMsg = QString( "Prepare UPDATE element comments failed for element \"%1\" - [%2]" ).arg( element )
+          m_lastErrorMsg = QString( "Prepare UPDATE element children failed for element \"%1\" - [%2]" ).arg( element )
                                                                                                         .arg( query.lastError().text() );
           return false;
         }
 
-        query.addBindValue( joinListElements( allComments ) );
+        query.addBindValue( joinListElements( allChildren ) );
         query.addBindValue( element );
 
         if( !query.exec() )
         {
-          m_lastErrorMsg = QString( "UPDATE comments failed for element \"%1\" - [%2]" ).arg( element )
+          m_lastErrorMsg = QString( "UPDATE children failed for element \"%1\" - [%2]" ).arg( element )
                                                                                         .arg( query.lastError().text() );
           return false;
         }
@@ -548,7 +548,7 @@ QSqlQuery GCDataBaseInterface::selectElement( const QString &element, bool &succ
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::addElement( const QString &element, const QStringList &comments, const QStringList &attributes ) const
+bool GCDataBaseInterface::addElement( const QString &element, const QStringList &children, const QStringList &attributes ) const
 {
   bool success( false );
   QSqlQuery query = selectElement( element, success );
@@ -569,9 +569,9 @@ bool GCDataBaseInterface::addElement( const QString &element, const QStringList 
       return false;
     }
 
-    /* Create a comma-separated list of all the associated attributes and comments. */
+    /* Create a comma-separated list of all the associated attributes and children. */
     query.addBindValue( element );
-    query.addBindValue( joinListElements( comments ) );
+    query.addBindValue( joinListElements( children ) );
     query.addBindValue( joinListElements( attributes ) );
 
     if( !query.exec() )
@@ -588,7 +588,7 @@ bool GCDataBaseInterface::addElement( const QString &element, const QStringList 
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::updateElementComments( const QString &element, const QStringList &comments ) const
+bool GCDataBaseInterface::updateElementChildren( const QString &element, const QStringList &children ) const
 {
   bool success( false );
   QSqlQuery query = selectElement( element, success );
@@ -602,17 +602,17 @@ bool GCDataBaseInterface::updateElementComments( const QString &element, const Q
   /* Update the existing record (if we have one). */
   if( query.first() )
   {
-    QStringList allComments( query.record().field( "comments" ).value().toString().split( SEPARATOR ) );
-    allComments.append( comments );
+    QStringList allChildren( query.record().field( "children" ).value().toString().split( SEPARATOR ) );
+    allChildren.append( children );
 
-    if( !query.prepare( UPDATE_COMMENTS ) )
+    if( !query.prepare( UPDATE_CHILDREN ) )
     {
       m_lastErrorMsg = QString( "Prepare UPDATE element comment failed for element \"%1\" - [%2]" ).arg( element )
                                                                                                    .arg( query.lastError().text() );
       return false;
     }
 
-    query.addBindValue( joinListElements( allComments ) );
+    query.addBindValue( joinListElements( allChildren ) );
     query.addBindValue( element );
 
     if( !query.exec() )
@@ -745,7 +745,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
       return false;
     }
 
-    /* Create a comma-separated list of all the associated attributes and comments. */
+    /* Create a comma-separated list of all the associated attributes and children. */
     query.addBindValue( element + attribute );
     query.addBindValue( joinListElements( attributeValues ) );
 
@@ -792,7 +792,7 @@ bool GCDataBaseInterface::removeElement( const QString &element ) const
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::removeElementComment( const QString &element, const QString &comment ) const
+bool GCDataBaseInterface::removeElementChild( const QString &element, const QString &children ) const
 {
   return true;
 }
@@ -878,7 +878,7 @@ QStringList GCDataBaseInterface::knownAttributeKeys() const
 
 /*--------------------------------------------------------------------------------------*/
 
-QStringList GCDataBaseInterface::comments( const QString &element, bool &success ) const
+QStringList GCDataBaseInterface::children( const QString &element, bool &success ) const
 {
   QSqlQuery query = selectElement( element, success );
 
@@ -888,9 +888,9 @@ QStringList GCDataBaseInterface::comments( const QString &element, bool &success
     return QStringList();
   }
 
-  QStringList comments = query.record().value( "comments" ).toString().split( SEPARATOR );
-  comments.sort();
-  return comments;
+  QStringList children = query.record().value( "children" ).toString().split( SEPARATOR );
+  children.sort();
+  return children;
 }
 
 /*--------------------------------------------------------------------------------------*/
