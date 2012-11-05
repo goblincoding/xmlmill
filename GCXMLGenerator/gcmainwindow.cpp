@@ -477,7 +477,23 @@ void GCMainWindow::deleteElementFromDOM()
 
 void GCMainWindow::addChildElementToDOM()
 {
+  QString newElementName = ui->addElementToDOMComboBox->currentText();
 
+  /* Update the tree widget. */
+  QTreeWidgetItem *newItem = new QTreeWidgetItem;
+  newItem->setText( 0, newElementName );
+  newItem->setFlags( newItem->flags() | Qt::ItemIsEditable );
+
+  QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
+  currentItem->addChild( newItem );   // takes ownership
+
+  /* Update the current DOM document. */
+  QDomElement newElement = m_domDoc.createElement( newElementName );
+  QDomElement parent = m_treeItemNodes.value( currentItem );
+  parent.appendChild( newElement );
+
+  /* Keep everything in sync in the map. */
+  m_treeItemNodes.insert( newItem, newElement );
 }
 
 /*--------------------------------------------------------------------------------------*/
