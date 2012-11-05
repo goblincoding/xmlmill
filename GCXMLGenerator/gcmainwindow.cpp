@@ -248,18 +248,18 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
 {
   if( m_treeItemNodes.contains( item ) )
   {
-    QString itemName      = item->text( column );
+    QString elementName      = item->text( column );
     QString previousName  = m_treeItemNodes.value( item ).toElement().tagName();
 
     /* Watch out for empty strings. */
-    if( itemName.isEmpty() )
+    if( elementName.isEmpty() )
     {
       showErrorMessageBox( "Sorry, but we don't know what to do with empty names..." );
       item->setText( column, previousName );
     }
     else
     {
-      if( itemName != previousName )
+      if( elementName != previousName )
       {
         /* Update the element names in our active DOM doc (since m_treeItemNodes
         contains shallow copied QDomElements, the change will automatically
@@ -269,8 +269,8 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
         for( int i = 0; i < list.count(); ++i )
         {
           QDomElement element( list.at( i ).toElement() );
-          element.setTagName( itemName );
-          const_cast< QTreeWidgetItem* >( m_treeItemNodes.key( element ) )->setText( column, itemName );      
+          element.setTagName( elementName );
+          const_cast< QTreeWidgetItem* >( m_treeItemNodes.key( element ) )->setText( column, elementName );
         }
 
         /* The name change may introduce a new element name to the DB, we can safely call
@@ -278,13 +278,13 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
         bool success( false );
         QStringList attributes = m_dbInterface->attributes( previousName, success );
 
-        m_dbInterface->addElement( itemName,
+        m_dbInterface->addElement( elementName,
                                    m_dbInterface->children  ( previousName, success ),
                                    attributes );
 
         foreach( QString attribute, attributes )
         {
-          m_dbInterface->updateAttributeValues( itemName, attribute, m_dbInterface->attributeValues( previousName, attribute, success ) );
+          m_dbInterface->updateAttributeValues( elementName, attribute, m_dbInterface->attributeValues( previousName, attribute, success ) );
         }
 
         if( !success )
@@ -306,8 +306,8 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     corresponding to this item (and the lists of associated
     values for these attributes) and populate our table widget. */
   bool success( false );
-  QString itemName = item->text( column );
-  QStringList attributes = m_dbInterface->attributes( itemName, success );
+  QString elementName = item->text( column );
+  QStringList attributes = m_dbInterface->attributes( elementName, success );
 
   /* This is more for debugging than for end-user functionality. */
   if( !success )
@@ -323,7 +323,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     ui->tableWidget->setItem( i, 0, label );
 
     QComboBox *attributeCombo = new QComboBox;
-    attributeCombo->addItems( m_dbInterface->attributeValues( itemName, attributes.at( i ), success ) );
+    attributeCombo->addItems( m_dbInterface->attributeValues( elementName, attributes.at( i ), success ) );
 
     /* Get the current value assigned to the element associated with this tree widget item. */
     QDomElement element = m_treeItemNodes.value( item );
@@ -338,6 +338,17 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
 
     attributeCombo->setEditable( true );
     ui->tableWidget->setCellWidget( i, 1, attributeCombo );
+  }
+
+  /* Populate the "add element" combo box with the known first level children of the
+    highlighted element. */
+  ui->addElementToDOMComboBox->clear();
+  ui->addElementToDOMComboBox->addItems( m_dbInterface->children( elementName, success ) );
+
+  /* This is more for debugging than for end-user functionality. */
+  if( !success )
+  {
+    showErrorMessageBox( m_dbInterface->getLastError() );
   }
 }
 
