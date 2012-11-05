@@ -470,7 +470,18 @@ void GCMainWindow::switchDBSession()
 
 void GCMainWindow::deleteElementFromDOM()
 {
+  QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
+  QDomElement currentElement = m_treeItemNodes.value( currentItem );
 
+  /* Remove the element from the DOM first. */
+  QDomNode parentNode = currentElement.parentNode();
+  parentNode.removeChild( currentElement );
+
+  /* Now we can whack it from the tree widget and map. */
+  m_treeItemNodes.remove( currentItem );
+
+  QTreeWidgetItem *parentItem = currentItem->parent();
+  parentItem->removeChild( currentItem );
 }
 
 /*--------------------------------------------------------------------------------------*/
