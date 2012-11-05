@@ -43,10 +43,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionSwitchSessionDatabase, SIGNAL( triggered() ), this, SLOT( switchDBSession() ) );
 
   /* Build XML. */
-  connect( ui->buildCommitButton,  SIGNAL( clicked() ), this, SLOT( updateDataBase() ) );
-  connect( ui->buildDeleteButton,  SIGNAL( clicked() ), this, SLOT( deleteElement() ) );
-  connect( ui->addAsChildButton,   SIGNAL( clicked() ), this, SLOT( addAsChild() ) );
-  connect( ui->addAsSiblingButton, SIGNAL( clicked() ), this, SLOT( addAsSibling() ) );
+  connect( ui->deleteElementFromDOMButton, SIGNAL( clicked() ), this, SLOT( deleteElementFromDOM() ) );
+  connect( ui->addElementToDOMButton,      SIGNAL( clicked() ), this, SLOT( addChildElementToDOM() ) );
 
   /* Edit XML store. */
   connect( ui->editXMLAddButton,              SIGNAL( clicked() ), this, SLOT( updateDataBase() ) );
@@ -459,21 +457,14 @@ void GCMainWindow::switchDBSession()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::deleteElement()
+void GCMainWindow::deleteElementFromDOM()
 {
 
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::addAsChild()
-{
-
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::addAsSibling()
+void GCMainWindow::addChildElementToDOM()
 {
 
 }

@@ -58,9 +58,8 @@ private slots:
   void updateDataBase();
 
   /* Build XML. */
-  void deleteElement();
-  void addAsChild();
-  void addAsSibling();
+  void deleteElementFromDOM();
+  void addChildElementToDOM();
 
   /* Edit XML store. */
   void deleteElementFromDB();
