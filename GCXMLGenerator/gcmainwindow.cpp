@@ -180,6 +180,7 @@ void GCMainWindow::saveXMLFileAs()
 void GCMainWindow::processDOMDoc()
 {
   ui->treeWidget->clear();    // also deletes current items
+  ui->tableWidget->clear();   // also deletes current items
   m_treeItemNodes.clear();
 
   QDomElement root = m_domDoc.documentElement();
@@ -255,7 +256,7 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
     /* Watch out for empty strings. */
     if( itemName.isEmpty() )
     {
-      showErrorMessageBox( "Sorry, but we don't know what to do with empty names...qtreewi" );
+      showErrorMessageBox( "Sorry, but we don't know what to do with empty names..." );
       item->setText( column, previousName );
     }
     else
@@ -369,8 +370,7 @@ void GCMainWindow::addDBConnection( const QString &dbName )
 {
   if( !m_dbInterface->addDatabase( dbName ) )
   {
-    QString error = QString( "Failed to add connection - [%1]" ).arg( m_dbInterface->getLastError() );
-    showErrorMessageBox( error );
+    showErrorMessageBox( m_dbInterface->getLastError() );
   }
 
   QMessageBox::StandardButton button = QMessageBox::question( this,
@@ -512,7 +512,7 @@ void GCMainWindow::showKnownDBForm( bool remove )
 
 void GCMainWindow::showErrorMessageBox( const QString &errorMsg )
 {
-  QMessageBox::information( this, "Error!", errorMsg );
+  QMessageBox::critical( this, "Error!", errorMsg );
 }
 
 /*--------------------------------------------------------------------------------------*/
