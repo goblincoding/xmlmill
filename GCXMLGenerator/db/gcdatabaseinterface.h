@@ -69,15 +69,21 @@ public slots:
 private:
   QSqlQuery   selectElement  ( const QString &element, bool &success ) const;
   QSqlQuery   selectAttribute( const QString &element, const QString &attribute, bool &success ) const;
-  QStringList knownAttributes() const;
+  QSqlQuery   selectAttribute( const QString &attributeKey, bool &success ) const;
+  QStringList knownAttributeKeys() const;
+
+  /* After batch processing a DOM document, we concatenate new values to existing values
+    in the record fields.  This function removes all duplicates that may have been
+    introduced in this way by consolidating the values and updating the records. */
+  bool removeDuplicatesFromFields() const;
 
   bool openDBConnection( QString dbConName, QString &errMsg ) const;
   bool initialiseDB    ( QString dbConName, QString &errMsg ) const;
   void saveDBFile() const;
 
-  QString                  m_sessionDBName;
-  mutable QString          m_lastErrorMsg;
-  bool                     m_hasActiveSession;
+  QString         m_sessionDBName;
+  mutable QString m_lastErrorMsg;
+  bool            m_hasActiveSession;
   QMap< QString /*connection name*/, QString /*file name*/ > m_dbMap;
 };
 

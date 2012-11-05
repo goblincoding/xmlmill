@@ -47,12 +47,14 @@ private slots:
   void saveXMLFileAs();
 
   /* Database related. */
-  void addNewDB();
-  void addExistingDB();
-  void switchDBSession();
-  void removeDB();
-  void setSessionDB( QString dbName );
-  void removeDBConnection( QString dbName );
+  void addNewDB();                            // calls addDBConnection
+  void addExistingDB();                       // calls addDBConnection
+
+  void switchDBSession();                     // shows known DB form
+  void setSessionDB( QString dbName );        // receives signal from DB form
+
+  void removeDB();                            // shows known DB form
+  void removeDBConnection( QString dbName );  // receives signal from DB form
   void updateDataBase();
 
   /* Build XML. */

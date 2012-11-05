@@ -24,7 +24,7 @@ signals:
   
 private:
   Ui::GCKnownDBForm *ui;
-  bool                m_remove;
+  bool               m_remove;
 
 private slots:
   void select();
