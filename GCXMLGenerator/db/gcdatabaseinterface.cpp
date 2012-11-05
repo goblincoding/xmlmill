@@ -878,6 +878,23 @@ QStringList GCDataBaseInterface::knownAttributeKeys() const
 
 /*--------------------------------------------------------------------------------------*/
 
+QStringList GCDataBaseInterface::comments( const QString &element, bool &success ) const
+{
+  QSqlQuery query = selectElement( element, success );
+
+  /* There should be only one record corresponding to this element. */
+  if( !success || !query.first() )
+  {
+    return QStringList();
+  }
+
+  QStringList comments = query.record().value( "comments" ).toString().split( SEPARATOR );
+  comments.sort();
+  return comments;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 QStringList GCDataBaseInterface::attributes( const QString &element, bool &success ) const
 {
   QSqlQuery query = selectElement( element, success );

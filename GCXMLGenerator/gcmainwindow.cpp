@@ -272,7 +272,26 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
         {
           QDomElement element( list.at( i ).toElement() );
           element.setTagName( itemName );
-          const_cast< QTreeWidgetItem* >( m_treeItemNodes.key( element ) )->setText( column, itemName );
+          const_cast< QTreeWidgetItem* >( m_treeItemNodes.key( element ) )->setText( column, itemName );      
+        }
+
+        /* The name change may introduce a new element name to the DB, we can safely call
+          "addElement" below as it doesn't do anything if the element already exists in the database. */
+        bool success( false );
+        QStringList attributes = m_dbInterface->attributes( previousName, success );
+
+        m_dbInterface->addElement( itemName,
+                                   m_dbInterface->comments  ( previousName, success ),
+                                   attributes );
+
+        foreach( QString attribute, attributes )
+        {
+          m_dbInterface->updateAttributeValues( itemName, attribute, m_dbInterface->attributeValues( previousName, attribute, success ) );
+        }
+
+        if( !success )
+        {
+          showErrorMessageBox( m_dbInterface->getLastError() );
         }
       }
     }

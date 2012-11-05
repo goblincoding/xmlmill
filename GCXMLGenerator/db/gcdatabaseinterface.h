@@ -53,6 +53,10 @@ public:
     the current database connection (the active session). */
   QStringList knownElements() const;
 
+  /* Returns a sorted (case sensitive, ascending) list of all the comments associated with
+    "element" in the active database. */
+  QStringList comments( const QString &element, bool &success ) const;
+
   /* Returns a sorted (case sensitive, ascending) list of all the attributes associated with
     "element" in the active database. */
   QStringList attributes( const QString &element, bool &success ) const;
