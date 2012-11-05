@@ -210,9 +210,9 @@ void GCBatchProcessorHelper::createVariantLists()
       QStringList attributeValues = m_records.value( element ).attributes.value( attribute );
       attributeValues.removeDuplicates();
 
-      if( !m_knownAttributeKeys.contains( element + attribute ) )
+      if( !m_knownAttributeKeys.contains( element + "." + attribute ) )
       {
-        m_newAttributeKeysToAdd << element + attribute;
+        m_newAttributeKeysToAdd << element + "." + attribute;
 
         if( !attributeValues.isEmpty() )
         {
@@ -225,7 +225,7 @@ void GCBatchProcessorHelper::createVariantLists()
       }
       else
       {
-        m_attributeKeysToUpdate << element + attribute;
+        m_attributeKeysToUpdate << element + "." + attribute;
 
         if( !attributeValues.isEmpty() )
         {
