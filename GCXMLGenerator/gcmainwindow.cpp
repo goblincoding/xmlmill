@@ -66,6 +66,9 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   /* If the interface was successfully initialised, prompt the user to choose a database
     connection for this session. */
   showKnownDBForm();
+
+  /* Load the list of known document root elements to start the document building process. */
+  ui->addElementToDOMComboBox->addItems( m_dbInterface->knownRootElements() );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -430,6 +433,15 @@ void GCMainWindow::setSessionDB( QString dbName )
                     .arg( m_dbInterface->getLastError() );
     showErrorMessageBox( error );
   }
+  else
+  {
+    /* If we have an empty DOM doc, load the list of known document root elements
+      to start the document building process. */
+    if( m_domDoc.documentElement().isNull() )
+    {
+      ui->addElementToDOMComboBox->addItems( m_dbInterface->knownRootElements() );
+    }
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -495,13 +507,22 @@ void GCMainWindow::addChildElementToDOM()
   newItem->setText( 0, newElementName );
   newItem->setFlags( newItem->flags() | Qt::ItemIsEditable );
 
-  QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
-  currentItem->addChild( newItem );   // takes ownership
-
   /* Update the current DOM document. */
   QDomElement newElement = m_domDoc.createElement( newElementName );
-  QDomElement parent = m_treeItemNodes.value( currentItem );
-  parent.appendChild( newElement );
+
+  if( !m_treeItemNodes.isEmpty() )
+  {
+    QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
+    currentItem->addChild( newItem );
+
+    QDomElement parent = m_treeItemNodes.value( currentItem );
+    parent.appendChild( newElement );
+  }
+  else
+  {
+    ui->treeWidget->invisibleRootItem()->addChild( newItem );  // takes ownership
+    m_domDoc.appendChild( newElement );
+  }
 
   /* Keep everything in sync in the map. */
   m_treeItemNodes.insert( newItem, newElement );
