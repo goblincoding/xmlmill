@@ -90,11 +90,11 @@ private:
     introduced in this way by consolidating the values and updating the records. */
   bool removeDuplicatesFromFields() const;
 
-  bool openDBConnection( QString dbConName ) const;
-  bool createDBTables  ( QString dbConName ) const;
+  bool openDBConnection( QString dbConName );
+  bool createDBTables  () const;
   void saveDBFile() const;
 
-  QString         m_sessionDBName;
+  QSqlDatabase    m_sessionDB;
   mutable QString m_lastErrorMsg;
   bool            m_hasActiveSession;
   QMap< QString /*connection name*/, QString /*file name*/ > m_dbMap;

@@ -79,7 +79,7 @@ QString joinListElements( QStringList list )
 
 GCDataBaseInterface::GCDataBaseInterface( QObject *parent ) :
   QObject           ( parent ),
-  m_sessionDBName   ( "" ),
+  m_sessionDB       (),
   m_lastErrorMsg    ( "" ),
   m_hasActiveSession( false ),
   m_dbMap           ()
@@ -166,15 +166,15 @@ bool GCDataBaseInterface::removeDatabase( QString dbName )
     /* The DB name passed in will most probably consist of a path/to/file string. */
     QString dbConName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
 
+    if( m_sessionDB.connectionName() == dbConName )
+    {
+      m_sessionDB.close();
+      m_hasActiveSession = false;
+    }
+
     QSqlDatabase::removeDatabase( dbConName );
     m_dbMap.remove( dbConName );
     saveDBFile();
-
-    if( m_sessionDBName == dbConName )
-    {
-      m_sessionDBName = "";
-      m_hasActiveSession = false;
-    }
 
     m_lastErrorMsg = "";
     return true;
@@ -195,7 +195,6 @@ bool GCDataBaseInterface::setSessionDB( QString dbName )
   {
     if( openDBConnection( dbConName ) )
     {
-      m_sessionDBName = dbConName;
       m_hasActiveSession = true;
       return true;
     }
@@ -208,7 +207,6 @@ bool GCDataBaseInterface::setSessionDB( QString dbName )
     {
       if( openDBConnection( dbConName ) )
       {
-        m_sessionDBName = dbConName;
         m_hasActiveSession = true;
         return true;
       }
@@ -224,32 +222,38 @@ bool GCDataBaseInterface::setSessionDB( QString dbName )
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::openDBConnection( QString dbConName ) const
+bool GCDataBaseInterface::openDBConnection( QString dbConName )
 {
   /* If we have a previous connection open, close it. */
-  QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
-
-  if( db.isValid() )
+  if( m_sessionDB.isValid() )
   {
-    db.close();
+    m_sessionDB.close();
   }
 
   /* Open the new connection. */
-  db = QSqlDatabase::database( dbConName );
+  m_sessionDB = QSqlDatabase::database( dbConName );
 
-  if ( !db.open() )
+  if( m_sessionDB.isValid() )
   {
-    m_lastErrorMsg = QString( "Failed to open database \"%1\": [%2]." ).arg( m_dbMap.value( dbConName ) )
-             .arg( db.lastError().text() );
-    return false;
+    if ( !m_sessionDB.open() )
+    {
+      m_lastErrorMsg = QString( "Failed to open database \"%1\": [%2]." ).arg( m_dbMap.value( dbConName ) )
+                       .arg( m_sessionDB.lastError().text() );
+      return false;
+    }
+
+    /* If the DB has not yet been initialised. */
+    QStringList tables = m_sessionDB.tables();
+
+    if ( !tables.contains( "xmlelements", Qt::CaseInsensitive ) )
+    {
+      return createDBTables();
+    }
   }
-
-  /* If the DB has not yet been initialised. */
-  QStringList tables = db.tables();
-
-  if ( !tables.contains( "xmlelements", Qt::CaseInsensitive ) )
+  else
   {
-    return createDBTables( dbConName );
+    m_lastErrorMsg = QString( "Failed to open a valid session connection \"%1\", error: %2" ).arg( dbConName );
+    return false;
   }
 
   m_lastErrorMsg = "";
@@ -258,36 +262,28 @@ bool GCDataBaseInterface::openDBConnection( QString dbConName ) const
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::createDBTables( QString dbConName ) const
+bool GCDataBaseInterface::createDBTables() const
 {
-  QSqlDatabase db = QSqlDatabase::database( dbConName );
-
-  if( !db.isValid() )
-  {
-    m_lastErrorMsg = QString( "Couldn't establish a valid connection to \"%1\".").arg( dbConName );
-    return false;
-  }
-
   /* DB connection should be open from openDBConnection() above. */
-  QSqlQuery query( db );
+  QSqlQuery query( m_sessionDB );
 
   if( !query.exec( "CREATE TABLE xmlelements( element QString primary key, children QString, attributes QString )" ) )
   {
-    m_lastErrorMsg = QString( "Failed to create elements table for \"%1\": [%2]." ).arg( dbConName )
+    m_lastErrorMsg = QString( "Failed to create elements table for \"%1\": [%2]." ).arg( m_sessionDB.connectionName() )
              .arg( query.lastError().text() );
     return false;
   }
 
   if( !query.exec( "CREATE TABLE xmlattributevalues( attributeKey QString primary key, attributeValues QString )" ) )
   {
-    m_lastErrorMsg = QString( "Failed to create attributes values table for \"%1\": [%2]" ).arg( dbConName )
+    m_lastErrorMsg = QString( "Failed to create attributes values table for \"%1\": [%2]" ).arg( m_sessionDB.connectionName() )
              .arg( query.lastError().text() );
     return false;
   }
 
   if( !query.exec( "CREATE TABLE rootelements( root QString primary key )" ) )
   {
-    m_lastErrorMsg = QString( "Failed to create root elements table for \"%1\": [%2]" ).arg( dbConName )
+    m_lastErrorMsg = QString( "Failed to create root elements table for \"%1\": [%2]" ).arg( m_sessionDB.connectionName() )
              .arg( query.lastError().text() );
     return false;
   }
@@ -312,17 +308,7 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) 
     return false;
   }
 
-  /* Get the current session connection and ensure that it's valid. */
-  QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
-
-  if( !db.isValid() )
-  {
-    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName )
-                     .arg( db.lastError().text() );
-    return false;
-  }
-
-  QSqlQuery query( db );
+  QSqlQuery query( m_sessionDB );
 
   /* Batch insert all the new elements. */
   if( !query.prepare( INSERT_ELEMENT ) )
@@ -536,18 +522,8 @@ bool GCDataBaseInterface::removeDuplicatesFromFields() const
 
 QSqlQuery GCDataBaseInterface::selectElement( const QString &element, bool &success ) const
 {
-  /* Get the current session connection and ensure that it's valid. */
-  QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
-
-  if( !db.isValid() )
-  {
-    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName )
-                     .arg( db.lastError().text() );
-    success = false;
-  }
-
   /* See if we already have this element in the DB. */
-  QSqlQuery query( db );
+  QSqlQuery query( m_sessionDB );
 
   if( !query.prepare( "SELECT * FROM xmlelements WHERE element = ?" ) )
   {
@@ -613,17 +589,7 @@ bool GCDataBaseInterface::addElement( const QString &element, const QStringList 
 
 bool GCDataBaseInterface::addRootElement( const QString &root ) const
 {
-  /* Get the current session connection and ensure that it's valid. */
-  QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
-
-  if( !db.isValid() )
-  {
-    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName )
-                     .arg( db.lastError().text() );
-    return false;
-  }
-
-  QSqlQuery query( db );
+  QSqlQuery query( m_sessionDB );
 
   /* Make sure we aren't trying to insert an existing element. */
   if( !query.prepare( "SELECT * FROM rootelements WHERE root = ? ") )
@@ -769,17 +735,7 @@ QSqlQuery GCDataBaseInterface::selectAttribute( const QString &element, const QS
 
 QSqlQuery GCDataBaseInterface::selectAttribute( const QString &attributeKey, bool &success ) const
 {
-  /* Get the current session connection and ensure that it's valid. */
-  QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
-
-  if( !db.isValid() )
-  {
-    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName )
-                     .arg( db.lastError().text() );
-    success = false;
-  }
-
-  QSqlQuery query( db );
+  QSqlQuery query( m_sessionDB );
 
   if( !query.prepare( "SELECT * FROM xmlattributevalues WHERE attributeKey = ?" ) )
   {
@@ -902,17 +858,7 @@ bool GCDataBaseInterface::removeRootElement( const QString &element )
 
 QStringList GCDataBaseInterface::knownElements() const
 {
-  /* Get the current session connection and ensure that it's valid. */
-  QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
-
-  if( !db.isValid() )
-  {
-    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName )
-                     .arg( db.lastError().text() );
-    return QStringList();
-  }
-
-  QSqlQuery query( db );
+  QSqlQuery query( m_sessionDB );
 
   if( !query.exec( SELECT_ALL_ELEMENTS ) )
   {
@@ -935,17 +881,7 @@ QStringList GCDataBaseInterface::knownElements() const
 
 QStringList GCDataBaseInterface::knownAttributeKeys() const
 {
-  /* Get the current session connection and ensure that it's valid. */
-  QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
-
-  if( !db.isValid() )
-  {
-    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName )
-                     .arg( db.lastError().text() );
-    return QStringList();
-  }
-
-  QSqlQuery query( db );
+  QSqlQuery query( m_sessionDB );
 
   if( !query.exec( SELECT_ALL_ATTRIBUTEVALUES ) )
   {
@@ -967,17 +903,7 @@ QStringList GCDataBaseInterface::knownAttributeKeys() const
 
 QStringList GCDataBaseInterface::knownRootElements() const
 {
-  /* Get the current session connection and ensure that it's valid. */
-  QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
-
-  if( !db.isValid() )
-  {
-    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName )
-                     .arg( db.lastError().text() );
-    return QStringList();
-  }
-
-  QSqlQuery query( db );
+  QSqlQuery query( m_sessionDB );
 
   if( !query.exec( "SELECT * FROM rootelements" ) )
   {
