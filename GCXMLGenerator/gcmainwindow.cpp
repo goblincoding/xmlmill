@@ -232,7 +232,7 @@ void GCMainWindow::updateDataBase()
 {  
   if( m_dbInterface->hasActiveSession() )
   {
-      // Get hold of XML node values here...
+    // Get hold of XML node values here...
   }
   else
   {
@@ -427,7 +427,7 @@ void GCMainWindow::setSessionDB( QString dbName )
   if( !m_dbInterface->setSessionDB( dbName ) )
   {
     QString error = QString( "Failed to set session \"%1\" as active - [%2]" ).arg( dbName )
-                                                                              .arg( m_dbInterface->getLastError() );
+                    .arg( m_dbInterface->getLastError() );
     showErrorMessageBox( error );
   }
 }
@@ -447,7 +447,7 @@ void GCMainWindow::removeDBConnection( QString dbName )
   if( !m_dbInterface->removeDatabase( dbName ) )
   {
     QString error = QString( "Failed to remove database \"%1\" - [%2]" ).arg( dbName )
-                                                                        .arg( m_dbInterface->getLastError() );
+                    .arg( m_dbInterface->getLastError() );
     showErrorMessageBox( error );
   }
 

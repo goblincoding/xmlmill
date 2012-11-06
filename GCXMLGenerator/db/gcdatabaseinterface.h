@@ -25,6 +25,10 @@ public:
     already exists). */
   bool addElement( const QString &element, const QStringList &children, const QStringList &attributes ) const;
 
+  /* Marks an element as a known document root element. This function does nothing if the root
+    already exists in the relevant table. */
+  bool addRootElement( const QString &root ) const;
+
   /* Updates the list of known children associated with "element" by appending
     the new children to the existing list (nothing is deleted). */
   bool updateElementChildren  ( const QString &element, const QStringList &children ) const;

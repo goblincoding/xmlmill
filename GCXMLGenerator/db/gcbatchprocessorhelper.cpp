@@ -109,7 +109,7 @@ void GCBatchProcessorHelper::sortRecords()
       foreach( QString attribute, recordAttributes.uniqueKeys() )
       {
         QList< QStringList > attributeValues = recordAttributes.values( attribute );
-        QStringList finalListOfAttributeValues;        
+        QStringList finalListOfAttributeValues;
 
         for( int j = 0; j < attributeValues.size(); ++j )
         {

@@ -17,6 +17,9 @@
 
   Table - XMLATTRIBUTES
   ATTRIBUTEKEY (concatenate element and attribute name) (Key) | ATTRIBUTEVALUES
+
+  Table - ROOTELEMENTS
+  ROOTS (Key, no other values associated with it for now)
 */
 
 static const QLatin1String SELECT_ALL_ELEMENTS( "SELECT * FROM xmlelements" );
@@ -231,7 +234,7 @@ bool GCDataBaseInterface::openDBConnection( QString dbConName, QString &errMsg )
   if ( !db.open() )
   {
     errMsg = QString( "Failed to open database \"%1\": [%2]." ).arg( m_dbMap.value( dbConName ) )
-                                                               .arg( db.lastError().text() );
+             .arg( db.lastError().text() );
     return false;
   }
 
@@ -265,14 +268,21 @@ bool GCDataBaseInterface::initialiseDB( QString dbConName, QString &errMsg ) con
   if( !query.exec( "CREATE TABLE xmlelements( element QString primary key, children QString, attributes QString )" ) )
   {
     errMsg = QString( "Failed to create elements table for \"%1\": [%2]." ).arg( dbConName )
-                                                                           .arg( query.lastError().text() );
+             .arg( query.lastError().text() );
     return false;
   }
 
   if( !query.exec( "CREATE TABLE xmlattributevalues( attributeKey QString primary key, attributeValues QString )" ) )
   {
     errMsg = QString( "Failed to create attributes values table for \"%1\": [%2]" ).arg( dbConName )
-                                                                            .arg( query.lastError().text() );
+             .arg( query.lastError().text() );
+    return false;
+  }
+
+  if( !query.exec( "CREATE TABLE rootelements( root QString primary key )" ) )
+  {
+    errMsg = QString( "Failed to create root elements table for \"%1\": [%2]" ).arg( dbConName )
+             .arg( query.lastError().text() );
     return false;
   }
 
@@ -289,13 +299,20 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) 
   helper.setKnownAttributes( knownAttributeKeys() );
   helper.createVariantLists();
 
+  /* Insert the document root element into the rootelements table. */
+  if( !addRootElement( domDoc.documentElement().tagName() ) )
+  {
+    /* Last error message is set in "addRootElement". */
+    return false;
+  }
+
   /* Get the current session connection and ensure that it's valid. */
   QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
 
   if( !db.isValid() )
   {
     m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName )
-                                                                                     .arg( db.lastError().text() );
+                     .arg( db.lastError().text() );
     return false;
   }
 
@@ -429,7 +446,7 @@ bool GCDataBaseInterface::removeDuplicatesFromFields() const
         if( !query.prepare( UPDATE_CHILDREN ) )
         {
           m_lastErrorMsg = QString( "Prepare UPDATE element children failed for element \"%1\" - [%2]" ).arg( element )
-                                                                                                        .arg( query.lastError().text() );
+                           .arg( query.lastError().text() );
           return false;
         }
 
@@ -439,14 +456,14 @@ bool GCDataBaseInterface::removeDuplicatesFromFields() const
         if( !query.exec() )
         {
           m_lastErrorMsg = QString( "UPDATE children failed for element \"%1\" - [%2]" ).arg( element )
-                                                                                        .arg( query.lastError().text() );
+                           .arg( query.lastError().text() );
           return false;
         }
 
         if( !query.prepare( UPDATE_ATTRIBUTES ) )
         {
           m_lastErrorMsg = QString( "Prepare UPDATE element attributes failed for element \"%1\" - [%2]" ).arg( element )
-                                                                                                          .arg( query.lastError().text() );
+                           .arg( query.lastError().text() );
           return false;
         }
 
@@ -456,7 +473,7 @@ bool GCDataBaseInterface::removeDuplicatesFromFields() const
         if( !query.exec() )
         {
           m_lastErrorMsg = QString( "UPDATE attributes failed for element \"%1\" - [%2]" ).arg( element )
-                                                                                          .arg( query.lastError().text() );
+                           .arg( query.lastError().text() );
           return false;
         }
       }
@@ -484,7 +501,7 @@ bool GCDataBaseInterface::removeDuplicatesFromFields() const
         if( !query.prepare( UPDATE_ATTRIBUTEVALUES ) )
         {
           m_lastErrorMsg = QString( "Prepare UPDATE attribute values failed for attribute key \"%1\" - [%2]" ).arg( attributeKey )
-                                                                                                              .arg( query.lastError().text() );
+                           .arg( query.lastError().text() );
           return false;
         }
 
@@ -494,7 +511,7 @@ bool GCDataBaseInterface::removeDuplicatesFromFields() const
         if( !query.exec() )
         {
           m_lastErrorMsg = QString( "UPDATE attribute values failed for attribute key \"%1\" - [%2]" ).arg( attributeKey )
-                                                                                                      .arg( query.lastError().text() );
+                           .arg( query.lastError().text() );
           return false;
         }
       }
@@ -519,7 +536,7 @@ QSqlQuery GCDataBaseInterface::selectElement( const QString &element, bool &succ
   if( !db.isValid() )
   {
     m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName )
-                                                                                     .arg( db.lastError().text() );
+                     .arg( db.lastError().text() );
     success = false;
   }
 
@@ -528,8 +545,8 @@ QSqlQuery GCDataBaseInterface::selectElement( const QString &element, bool &succ
 
   if( !query.prepare( "SELECT * FROM xmlelements WHERE element = ?" ) )
   {
-    m_lastErrorMsg = QString( "Prepare SELECT failed for element [%2], error: [%3]" ).arg( element )
-                                                                                     .arg( query.lastError().text() );
+    m_lastErrorMsg = QString( "Prepare SELECT failed for element [%1], error: [%2]" ).arg( element )
+                     .arg( query.lastError().text() );
     success = false;
   }
 
@@ -538,7 +555,7 @@ QSqlQuery GCDataBaseInterface::selectElement( const QString &element, bool &succ
   if( !query.exec() )
   {
     m_lastErrorMsg = QString( "SELECT element failed for element \"%1\" - [%2]" ).arg( element )
-                                                                                 .arg( query.lastError().text() );
+                     .arg( query.lastError().text() );
     success = false;
   }
 
@@ -565,7 +582,7 @@ bool GCDataBaseInterface::addElement( const QString &element, const QStringList 
     if( !query.prepare( INSERT_ELEMENT ) )
     {
       m_lastErrorMsg = QString( "Prepare INSERT element failed for element \"%1\" - [%2]" ).arg( element )
-                                                                                           .arg( query.lastError().text() );
+                       .arg( query.lastError().text() );
       return false;
     }
 
@@ -577,7 +594,64 @@ bool GCDataBaseInterface::addElement( const QString &element, const QStringList 
     if( !query.exec() )
     {
       m_lastErrorMsg = QString( "INSERT element failed for element \"%1\" - [%2]" ).arg( element )
-                                                                                   .arg( query.lastError().text() );
+                       .arg( query.lastError().text() );
+      return false;
+    }
+  }
+
+  m_lastErrorMsg = "";
+  return true;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCDataBaseInterface::addRootElement( const QString &root ) const
+{
+  /* Get the current session connection and ensure that it's valid. */
+  QSqlDatabase db = QSqlDatabase::database( m_sessionDBName );
+
+  if( !db.isValid() )
+  {
+    m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName )
+                     .arg( db.lastError().text() );
+    success = false;
+  }
+
+  QSqlQuery query( db );
+
+  /* Make sure we aren't trying to insert an existing element. */
+  if( !query.prepare( "SELECT * FROM rootelements WHERE root = ? ") )
+  {
+    m_lastErrorMsg = QString( "Prepare SELECT root element failed for root [%1], error: [%2]" ).arg( root )
+                     .arg( query.lastError().text() );
+    return false;
+  }
+
+  query.addBindValue( element );
+
+  if( !query.exec() )
+  {
+    m_lastErrorMsg = QString( "SELECT root element failed for root \"%1\" - [%2]" ).arg( root )
+                     .arg( query.lastError().text() );
+    return false;
+  }
+
+  if( !query.first() )
+  {
+    if( !query.prepare( "INSERT INTO rootelements ( root ) VALUES( ? )" ) )
+    {
+      m_lastErrorMsg = QString( "Prepare INSERT root element failed for root [%1], error: [%2]" ).arg( root )
+                       .arg( query.lastError().text() );
+      return false;
+    }
+
+    /* Create a comma-separated list of all the associated attributes and children. */
+    query.addBindValue( element );
+
+    if( !query.exec() )
+    {
+      m_lastErrorMsg = QString( "INSERT root element failed for element \"%1\" - [%2]" ).arg( element )
+                       .arg( query.lastError().text() );
       return false;
     }
   }
@@ -608,7 +682,7 @@ bool GCDataBaseInterface::updateElementChildren( const QString &element, const Q
     if( !query.prepare( UPDATE_CHILDREN ) )
     {
       m_lastErrorMsg = QString( "Prepare UPDATE element comment failed for element \"%1\" - [%2]" ).arg( element )
-                                                                                                   .arg( query.lastError().text() );
+                       .arg( query.lastError().text() );
       return false;
     }
 
@@ -618,7 +692,7 @@ bool GCDataBaseInterface::updateElementChildren( const QString &element, const Q
     if( !query.exec() )
     {
       m_lastErrorMsg = QString( "UPDATE comment failed for element \"%1\" - [%2]" ).arg( element )
-                                                                                   .arg( query.lastError().text() );
+                       .arg( query.lastError().text() );
       return false;
     }
   }
@@ -654,7 +728,7 @@ bool GCDataBaseInterface::updateElementAttributes( const QString &element, const
     if( !query.prepare( UPDATE_ATTRIBUTES ) )
     {
       m_lastErrorMsg = QString( "Prepare UPDATE element attribute failed for element \"%1\" - [%2]" ).arg( element )
-                                                                                                     .arg( query.lastError().text() );
+                       .arg( query.lastError().text() );
       return false;
     }
 
@@ -664,7 +738,7 @@ bool GCDataBaseInterface::updateElementAttributes( const QString &element, const
     if( !query.exec() )
     {
       m_lastErrorMsg = QString( "UPDATE attribute failed for element \"%1\" - [%2]" ).arg( element )
-                                                                                     .arg( query.lastError().text() );
+                       .arg( query.lastError().text() );
       return false;
     }
   }
@@ -695,7 +769,7 @@ QSqlQuery GCDataBaseInterface::selectAttribute( const QString &attributeKey, boo
   if( !db.isValid() )
   {
     m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName )
-                                                                                     .arg( db.lastError().text() );
+                     .arg( db.lastError().text() );
     success = false;
   }
 
@@ -703,8 +777,8 @@ QSqlQuery GCDataBaseInterface::selectAttribute( const QString &attributeKey, boo
 
   if( !query.prepare( "SELECT * FROM xmlattributevalues WHERE attributeKey = ?" ) )
   {
-    m_lastErrorMsg = QString( "Prepare SELECT attribute failed for attribute key [%2], error: [%3]" ).arg( attributeKey )
-                                                                                                     .arg( query.lastError().text() );
+    m_lastErrorMsg = QString( "Prepare SELECT attribute failed for attribute key [%1], error: [%2]" ).arg( attributeKey )
+                     .arg( query.lastError().text() );
     success = false;
   }
 
@@ -714,7 +788,7 @@ QSqlQuery GCDataBaseInterface::selectAttribute( const QString &attributeKey, boo
   if( !query.exec() )
   {
     m_lastErrorMsg = QString( "SELECT attribute failed for attribute key \"%1\" - [%2]" ).arg( attributeKey )
-                                                                                         .arg( query.lastError().text() );
+                     .arg( query.lastError().text() );
     success = false;
   }
 
@@ -741,7 +815,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
     if( !query.prepare( INSERT_ATTRIBUTEVALUES ) )
     {
       m_lastErrorMsg = QString( "Prepare INSERT attribute failed for element \"%1\" - [%2]" ).arg( element )
-                                                                                             .arg( query.lastError().text() );
+                       .arg( query.lastError().text() );
       return false;
     }
 
@@ -752,7 +826,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
     if( !query.exec() )
     {
       m_lastErrorMsg = QString( "INSERT attribute failed for element \"%1\" - [%2]" ).arg( element )
-                                                                                     .arg( query.lastError().text() );
+                       .arg( query.lastError().text() );
       return false;
     }
   }
@@ -764,7 +838,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
     if( !query.prepare( UPDATE_ATTRIBUTEVALUES ) )
     {
       m_lastErrorMsg = QString( "Prepare UPDATE attribute failed for element \"%1\" - [%2]" ).arg( element )
-                                                                                             .arg( query.lastError().text() );
+                       .arg( query.lastError().text() );
       return false;
     }
 
@@ -774,7 +848,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
     if( !query.exec() )
     {
       m_lastErrorMsg = QString( "UPDATE attribute failed for element \"%1\" - [%2]" ).arg( element )
-                                                                                     .arg( query.lastError().text() );
+                       .arg( query.lastError().text() );
       return false;
     }
   }
@@ -821,7 +895,7 @@ QStringList GCDataBaseInterface::knownElements() const
   if( !db.isValid() )
   {
     m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName )
-                                                                                     .arg( db.lastError().text() );
+                     .arg( db.lastError().text() );
     return QStringList();
   }
 
@@ -854,7 +928,7 @@ QStringList GCDataBaseInterface::knownAttributeKeys() const
   if( !db.isValid() )
   {
     m_lastErrorMsg = QString( "Failed to open session connection \"%1\", error: %2" ).arg( m_sessionDBName )
-                                                                                     .arg( db.lastError().text() );
+                     .arg( db.lastError().text() );
     return QStringList();
   }
 
