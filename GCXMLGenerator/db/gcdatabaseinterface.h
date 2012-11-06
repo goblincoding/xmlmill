@@ -91,7 +91,7 @@ private:
   bool removeDuplicatesFromFields() const;
 
   bool openDBConnection( QString dbConName ) const;
-  bool initialiseDB    ( QString dbConName ) const;
+  bool createDBTables  ( QString dbConName ) const;
   void saveDBFile() const;
 
   QString         m_sessionDBName;

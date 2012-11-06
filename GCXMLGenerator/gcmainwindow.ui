@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>GoblinCoding's XML Manipulator!</string>
+   <string>The Goblin's XML Machine!</string>
   </property>
   <property name="windowIcon">
    <iconset resource="resources/gcresources.qrc">
@@ -126,14 +126,14 @@
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="expandAllCheckBox">
-          <property name="text">
-           <string>Expand All</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <layout class="QHBoxLayout" name="buildXMLAddDeleteLayout">
+          <item>
+           <widget class="QCheckBox" name="expandAllCheckBox">
+            <property name="text">
+             <string>Expand All</string>
+            </property>
+           </widget>
+          </item>
           <item>
            <spacer name="buildXMLAddDeleteSpacer">
             <property name="orientation">
@@ -150,7 +150,7 @@
           <item>
            <widget class="QPushButton" name="deleteElementFromDOMButton">
             <property name="text">
-             <string>Delete Highlighted Element</string>
+             <string>Remove Highlighted Element</string>
             </property>
            </widget>
           </item>
@@ -367,7 +367,7 @@
   </action>
   <action name="actionSwitchSessionDatabase">
    <property name="text">
-    <string>S&amp;witch Session Database</string>
+    <string>S&amp;witch Database Session</string>
    </property>
   </action>
   <action name="actionSaveAs">

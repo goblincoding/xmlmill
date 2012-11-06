@@ -249,7 +249,7 @@ bool GCDataBaseInterface::openDBConnection( QString dbConName ) const
 
   if ( !tables.contains( "xmlelements", Qt::CaseInsensitive ) )
   {
-    return initialiseDB( dbConName );
+    return createDBTables( dbConName );
   }
 
   m_lastErrorMsg = "";
@@ -258,7 +258,7 @@ bool GCDataBaseInterface::openDBConnection( QString dbConName ) const
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::initialiseDB( QString dbConName ) const
+bool GCDataBaseInterface::createDBTables( QString dbConName ) const
 {
   QSqlDatabase db = QSqlDatabase::database( dbConName );
 
