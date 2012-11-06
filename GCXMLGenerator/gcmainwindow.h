@@ -21,6 +21,7 @@ public:
   ~GCMainWindow();
   
 private:
+  void resetDOM();
   void processDOMDoc();
   void batchUpsertDB();   // upsert - "update and insert"
   void populateTreeWidget ( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
@@ -44,6 +45,7 @@ private slots:
   void collapseOrExpandTreeWidget( bool checked );
 
   /* XML file related. */
+  void newXMLFile();
   void openXMLFile();
   void saveXMLFile();
   void saveXMLFileAs();

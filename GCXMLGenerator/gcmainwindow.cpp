@@ -32,6 +32,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->expandAllCheckBox, SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
 
   /* XML File related. */
+  connect( ui->actionNew,    SIGNAL( triggered() ), this, SLOT( newXMLFile() ) );
   connect( ui->actionOpen,   SIGNAL( triggered() ), this, SLOT( openXMLFile() ) );
   connect( ui->actionSave,   SIGNAL( triggered() ), this, SLOT( saveXMLFile() ) );
   connect( ui->actionSaveAs, SIGNAL( triggered() ), this, SLOT( saveXMLFileAs() ) );
@@ -106,6 +107,8 @@ void GCMainWindow::openXMLFile()
 
         if( file.open( QIODevice::ReadOnly | QIODevice::Text ) )
         {
+          resetDOM();
+
           QTextStream inStream( &file );
           QString xmlErr( "" );
           int     line  ( -1 );
@@ -142,20 +145,39 @@ void GCMainWindow::openXMLFile()
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCMainWindow::newXMLFile()
+{
+  m_currentXMLFileName = "";
+
+  resetDOM();
+
+  ui->actionSave->setEnabled( true );
+  ui->actionSaveAs->setEnabled( true );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCMainWindow::saveXMLFile()
 {
-  QFile file( m_currentXMLFileName );
-
-  if( !file.open( QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text ) )
+  if( m_currentXMLFileName.isEmpty() )
   {
-    QString errMsg = QString( "Failed to save file \"%1\" - [%2]." ).arg( m_currentXMLFileName ).arg( file.errorString() );
-    showErrorMessageBox( errMsg );
+    saveXMLFileAs();
   }
   else
   {
-    QTextStream outStream( &file );
-    outStream << m_domDoc.toString( 2 );
-    file.close();
+    QFile file( m_currentXMLFileName );
+
+    if( !file.open( QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text ) )
+    {
+      QString errMsg = QString( "Failed to save file \"%1\" - [%2]." ).arg( m_currentXMLFileName ).arg( file.errorString() );
+      showErrorMessageBox( errMsg );
+    }
+    else
+    {
+      QTextStream outStream( &file );
+      outStream << m_domDoc.toString( 2 );
+      file.close();
+    }
   }
 }
 
@@ -171,6 +193,16 @@ void GCMainWindow::saveXMLFileAs()
     m_currentXMLFileName = file;
     saveXMLFile();
   }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::resetDOM()
+{
+  m_domDoc.clear();
+  m_treeItemNodes.clear();
+  ui->tableWidget->clear();
+  ui->treeWidget->clear();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -506,10 +538,7 @@ void GCMainWindow::switchDBSession()
 
     if( button == QMessageBox::Ok )
     {
-      m_domDoc.clear();
-      m_treeItemNodes.clear();
-      ui->treeWidget->clear();
-      ui->tableWidget->clear();
+      resetDOM();
     }
     else
     {

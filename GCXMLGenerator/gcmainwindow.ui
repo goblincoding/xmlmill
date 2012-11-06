@@ -270,6 +270,7 @@
     <property name="title">
      <string>X&amp;ML</string>
     </property>
+    <addaction name="actionNew_2"/>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
@@ -347,12 +348,15 @@
   </action>
   <action name="actionOpen">
    <property name="text">
-    <string>&amp;Open XML</string>
+    <string>&amp;Open File</string>
    </property>
   </action>
   <action name="actionSave">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
-    <string>&amp;Save XML</string>
+    <string>&amp;Save File</string>
    </property>
   </action>
   <action name="actionRemoveDatabase">
@@ -371,8 +375,16 @@
    </property>
   </action>
   <action name="actionSaveAs">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
-    <string>Save XML &amp;As</string>
+    <string>Save File &amp;As</string>
+   </property>
+  </action>
+  <action name="actionNew_2">
+   <property name="text">
+    <string>&amp;New File</string>
    </property>
   </action>
  </widget>
