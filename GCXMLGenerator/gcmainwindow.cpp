@@ -151,6 +151,10 @@ void GCMainWindow::newXMLFile()
 
   resetDOM();
 
+  ui->addElementToDOMComboBox->clear();
+  ui->addElementToDOMComboBox->addItems( m_dbInterface->knownRootElements() );
+  toggleAddElementToDOMWidgets();
+
   ui->actionSave->setEnabled( true );
   ui->actionSaveAs->setEnabled( true );
 }

@@ -270,7 +270,7 @@
     <property name="title">
      <string>X&amp;ML</string>
     </property>
-    <addaction name="actionNew_2"/>
+    <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
@@ -364,11 +364,6 @@
     <string>&amp;Remove Database</string>
    </property>
   </action>
-  <action name="actionNew">
-   <property name="text">
-    <string>&amp;New</string>
-   </property>
-  </action>
   <action name="actionSwitchSessionDatabase">
    <property name="text">
     <string>S&amp;witch Database Session</string>
@@ -382,7 +377,7 @@
     <string>Save File &amp;As</string>
    </property>
   </action>
-  <action name="actionNew_2">
+  <action name="actionNew">
    <property name="text">
     <string>&amp;New File</string>
    </property>
