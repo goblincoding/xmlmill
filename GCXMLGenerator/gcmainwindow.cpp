@@ -83,61 +83,70 @@ void GCMainWindow::openXMLFile()
 {
   if( m_dbInterface->hasActiveSession() )
   {
-    /* Loading an entire XML file is a big operation (with regards to potential changes
-    introduced) so let's query the user if he/she would like to add the XML content
-    to the current active database.  For other operations (such as element and attribute
-    name changes) the user needs to explicitly update the database. */
-    QMessageBox::Button button = QMessageBox::question( this,
-                                                        "Update database?",
-                                                        "All the elements, attributes and attribute\n"
-                                                        "values in this XML document will be saved to\n"
-                                                        "the current active database session.\n \n"
-                                                        "Is that OK?",
-                                                        QMessageBox::Yes | QMessageBox::No,
-                                                        QMessageBox::Yes );
-    if( button == QMessageBox::Yes )
+    QString fileName = QFileDialog::getOpenFileName( this, "Open File", QDir::homePath(), "XML Files (*.*)" );
+
+    /* If the user clicked "OK". */
+    if( !fileName.isEmpty() )
     {
-      QString fileName = QFileDialog::getOpenFileName( this, "Open File", QDir::homePath(), "XML Files (*.*)" );
+      m_currentXMLFileName = fileName;
+      QFile file( m_currentXMLFileName );
 
-      /* If the user clicked "OK". */
-      if( !fileName.isEmpty() )
+      if( file.open( QIODevice::ReadOnly | QIODevice::Text ) )
       {
-        m_currentXMLFileName = fileName;
-        QFile file( m_currentXMLFileName );
+        resetDOM();
 
-        if( file.open( QIODevice::ReadOnly | QIODevice::Text ) )
+        QTextStream inStream( &file );
+        QString xmlErr( "" );
+        int     line  ( -1 );
+        int     col   ( -1 );
+
+        if( m_domDoc.setContent( inStream.readAll(), &xmlErr, &line, &col ) )
         {
-          resetDOM();
-
-          QTextStream inStream( &file );
-          QString xmlErr( "" );
-          int     line  ( -1 );
-          int     col   ( -1 );
-
-          if( m_domDoc.setContent( inStream.readAll(), &xmlErr, &line, &col ) )
+          /* If the user is opening an XML file of a kind that isn't supported by the current active session,
+            we need to warn the user of this fact and let them either switch to the DB that they need, or
+            create a new DB connection for the new XML file type. */
+          if( m_dbInterface->knownRootElements().contains( m_domDoc.documentElement().tagName() ) )
           {
             processDOMDoc();
-            batchUpsertDB();
           }
           else
           {
-            QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3])." ).arg( xmlErr ).arg( line ).arg( col );
-            showErrorMessageBox( errorMsg );
+            QMessageBox::StandardButton button = QMessageBox::warning( this,
+                                                                       "Unknown Document Type",
+                                                                       "The current active database has no knowledge of the\n"
+                                                                       "specific XML style of the document type you are trying to open.\n"
+                                                                       "If you know of a database connection that caters for this particular\n"
+                                                                       "style of XML please press \"Cancel\" and select \"Switch Database Session\"\n"
+                                                                       "from the menu.\n\n"
+                                                                       "If you would like to create a database for this specific style of XML, hit \"OK\".",
+                                                                       QMessageBox::Ok | QMessageBox::Cancel );
+            if( button == QMessageBox::Ok )
+            {
+              //TODO
+            }
           }
 
-          file.close();
+
+          batchUpsertDB();
         }
         else
         {
-          QString errorMsg = QString( "Failed to open file \"%1\" - [%2]" ).arg( fileName ).arg( file.errorString() );
+          QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3])." ).arg( xmlErr ).arg( line ).arg( col );
           showErrorMessageBox( errorMsg );
         }
+
+        file.close();
+      }
+      else
+      {
+        QString errorMsg = QString( "Failed to open file \"%1\" - [%2]" ).arg( fileName ).arg( file.errorString() );
+        showErrorMessageBox( errorMsg );
       }
     }
   }
   else
   {
-    QString errMsg( "No current DB active, please set one for this session." );
+    QString errMsg( "No active database set, please set one for this session." );
     showErrorMessageBox( errMsg );
     showKnownDBForm();
   }
@@ -272,7 +281,7 @@ void GCMainWindow::updateDataBase()
   }
   else
   {
-    QString errMsg( "No current DB active, please set one for this session." );
+    QString errMsg( "No active database set, please set one for this session." );
     showErrorMessageBox( errMsg );
     showKnownDBForm();
   }
@@ -424,7 +433,7 @@ void GCMainWindow::collapseOrExpandTreeWidget( bool checked )
 
 void GCMainWindow::addNewDB()
 {
-  QString file = QFileDialog::getSaveFileName( this, "Add New Database", QDir::homePath(), "DB Files (*.db)" );
+  QString file = QFileDialog::getSaveFileName( this, "Add New Database", QDir::homePath(), "Database Files (*.db)" );
 
   /* If the user clicked "OK". */
   if( !file.isEmpty() )
@@ -437,7 +446,7 @@ void GCMainWindow::addNewDB()
 
 void GCMainWindow::addExistingDB()
 {
-  QString file = QFileDialog::getOpenFileName( this, "Add Existing Database", QDir::homePath(), "DB Files (*.db)" );
+  QString file = QFileDialog::getOpenFileName( this, "Add Existing Database", QDir::homePath(), "Database Files (*.db)" );
 
   /* If the user clicked "OK". */
   if( !file.isEmpty() )
