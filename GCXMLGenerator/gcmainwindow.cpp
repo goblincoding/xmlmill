@@ -475,6 +475,31 @@ void GCMainWindow::removeDBConnection( QString dbName )
 
 void GCMainWindow::switchDBSession()
 {
+  /* Switching DB sessions while building an XML document could result in all kinds of trouble
+    since the items known to the current session may not be known to the next. */
+  if( !m_treeItemNodes.isEmpty() )
+  {
+    QMessageBox::StandardButton button = QMessageBox::warning( this,
+                                                               "Warning",
+                                                               "Switching database sessions while building an XML document\n"
+                                                               "will cause the document to be reset. If this is fine, proceed with \"OK\".\n\n"
+                                                               "On the other hand, if you wish to keep your work, please hit \"Cancel\" and \n"
+                                                               "save the document first before coming back here.",
+                                                               QMessageBox::Ok | QMessageBox::Cancel );
+
+    if( button == QMessageBox::Ok )
+    {
+      m_domDoc.clear();
+      m_treeItemNodes.clear();
+      ui->treeWidget->clear();
+      ui->tableWidget->clear();
+    }
+    else
+    {
+      return;
+    }
+  }
+
   showKnownDBForm();
 }
 
