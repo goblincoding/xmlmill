@@ -60,10 +60,18 @@ static const QString REGEXP_SLASHES( "(\\\\|\\/)" );
 
 /*--------------------------- NON-MEMBER UTILITY FUNCTIONS ----------------------------*/
 
-QString joinListElements( QStringList list )
+void cleanList( QStringList &list )
 {
+  list.sort();
   list.removeDuplicates();
   list.removeAll( "" );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+QString joinListElements( QStringList list )
+{
+  cleanList( list );
   return list.join( SEPARATOR );
 }
 
@@ -919,7 +927,7 @@ QStringList GCDataBaseInterface::knownElements() const
     elementNames.append( query.record().field( "element" ).value().toString() );
   }
 
-  elementNames.sort();
+  cleanList( elementNames );
   return elementNames;
 }
 
@@ -984,7 +992,7 @@ QStringList GCDataBaseInterface::knownRootElements() const
     rootElements.append( query.record().field( "root" ).value().toString() );
   }
 
-  rootElements.sort();
+  cleanList( rootElements );
   return rootElements;
 }
 
@@ -1001,7 +1009,7 @@ QStringList GCDataBaseInterface::children( const QString &element, bool &success
   }
 
   QStringList children = query.record().value( "children" ).toString().split( SEPARATOR );
-  children.sort();
+  cleanList( children );
   return children;
 }
 
@@ -1018,7 +1026,7 @@ QStringList GCDataBaseInterface::attributes( const QString &element, bool &succe
   }
 
   QStringList attributes = query.record().value( "attributes" ).toString().split( SEPARATOR );
-  attributes.sort();
+  cleanList( attributes );
   return attributes;
 }
 
@@ -1035,7 +1043,7 @@ QStringList GCDataBaseInterface::attributeValues( const QString &element, const 
   }
 
   QStringList attributeValues = query.record().value( "attributeValues" ).toString().split( SEPARATOR );
-  attributeValues.sort();
+  cleanList( attributeValues );
   return attributeValues;
 }
 

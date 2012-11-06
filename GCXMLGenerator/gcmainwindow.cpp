@@ -66,9 +66,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   /* If the interface was successfully initialised, prompt the user to choose a database
     connection for this session. */
   showKnownDBForm();
-
-  /* Load the list of known document root elements to start the document building process. */
-  ui->addElementToDOMComboBox->addItems( m_dbInterface->knownRootElements() );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -347,6 +344,18 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     highlighted element. */
   ui->addElementToDOMComboBox->clear();
   ui->addElementToDOMComboBox->addItems( m_dbInterface->children( elementName, success ) );
+
+  /* Make sure we don't inadvertently create "empty" elements. */
+  if( ui->addElementToDOMComboBox->count() < 1 )
+  {
+    ui->addElementToDOMComboBox->setEnabled( false );
+    ui->addElementToDOMButton->setEnabled( false );
+  }
+  else
+  {
+    ui->addElementToDOMComboBox->setEnabled( true );
+    ui->addElementToDOMButton->setEnabled( true );
+  }
 
   /* This is more for debugging than for end-user functionality. */
   if( !success )
