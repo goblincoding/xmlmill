@@ -594,6 +594,13 @@ void GCMainWindow::addChildElementToDOM()
   }
   else
   {
+    /* If the user starts creating a DOM document without having explicitly asked for
+      a new file to be created, do it automatically (we can't call newXMLFile here since
+      it resets the DOM document). */
+    m_currentXMLFileName = "";
+    ui->actionSave->setEnabled( true );
+    ui->actionSaveAs->setEnabled( true );
+
     ui->treeWidget->invisibleRootItem()->addChild( newItem );  // takes ownership
     m_domDoc.appendChild( newElement );
   }
