@@ -190,6 +190,7 @@ bool GCDataBaseInterface::setSessionDB( QString dbName )
 {
   /* The DB name passed in will most probably consist of a path/to/file string. */
   QString dbConName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
+  QString previousConnectionName = m_sessionDB.connectionName();
 
   if( QSqlDatabase::contains( dbConName ) )
   {

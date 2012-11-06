@@ -23,11 +23,11 @@ public:
 private:
   void resetDOM();
   void processDOMDoc();
-  void batchUpsertDB();   // upsert - "update and insert"
+  void batchProcessDOMToDB();
   void populateTreeWidget ( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
-  void addDBConnection    ( const QString &dbName );
   void showKnownDBForm    ( bool remove = false );
   void showErrorMessageBox( const QString &errorMsg );
+  bool addDBConnection    ( const QString &dbName );
 
   void toggleAddElementToDOMWidgets();
 
@@ -35,14 +35,17 @@ private:
   GCDataBaseInterface *m_dbInterface;
   QDomDocument         m_domDoc;
   QString              m_currentXMLFileName;
+  bool                 m_userCancelled;
+  bool                 m_newDBCreated;
 
   QMap< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
 
 
 private slots:
-  void treeWidgetItemChanged  ( QTreeWidgetItem *item, int column );
-  void treeWidgetItemActivated( QTreeWidgetItem *item, int column );
+  void treeWidgetItemChanged     ( QTreeWidgetItem *item, int column );
+  void treeWidgetItemActivated   ( QTreeWidgetItem *item, int column );
   void collapseOrExpandTreeWidget( bool checked );
+  void userCancelledKnownDBForm  ();
 
   /* XML file related. */
   void newXMLFile();
@@ -55,7 +58,7 @@ private slots:
   void addExistingDB();                       // calls addDBConnection
 
   void switchDBSession();                     // shows known DB form
-  void setSessionDB( QString dbName );        // receives signal from DB form
+  bool setSessionDB( QString dbName );        // receives signal from DB form
 
   void removeDB();                            // shows known DB form
   void removeDBConnection( QString dbName );  // receives signal from DB form

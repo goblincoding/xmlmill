@@ -15,6 +15,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_dbInterface       ( new GCDataBaseInterface ),
   m_domDoc            (),
   m_currentXMLFileName( "" ),
+  m_userCancelled     ( false ),
+  m_newDBCreated      ( false ),
   m_treeItemNodes     ()
 {
   ui->setupUi( this );
@@ -105,34 +107,67 @@ void GCMainWindow::openXMLFile()
           /* If the user is opening an XML file of a kind that isn't supported by the current active session,
             we need to warn the user of this fact and let them either switch to the DB that they need, or
             create a new DB connection for the new XML file type. */
-          if( m_dbInterface->knownRootElements().contains( m_domDoc.documentElement().tagName() ) )
+          if( !m_dbInterface->knownRootElements().contains( m_domDoc.documentElement().tagName() ) )
           {
-            processDOMDoc();
+            do
+            {
+              QMessageBox::warning( this,
+                                    "Unknown Document Type",
+                                    "The current active database has no knowledge of the\n"
+                                    "specific XML style (the elements, attributes, attribute values and\n"
+                                    "all the associations between them) of the document you are trying to open.\n\n"
+                                    "You will either have to select an existing database connection that describes\n"
+                                    "this type of XML, or create a new database connection at the next prompt." );
+
+              showKnownDBForm();
+
+            } while( !m_dbInterface->knownRootElements().contains( m_domDoc.documentElement().tagName() )
+                     && !m_userCancelled
+                     && !m_newDBCreated );
+
+            /* Make sure the user didn't choose to abort the new DB
+                session at any point during the proceedings above. */
+            if( m_newDBCreated )
+            {
+              processDOMDoc();
+              batchProcessDOMToDB();
+              ui->actionSave->setEnabled( true );
+              ui->actionSaveAs->setEnabled( true );
+            }
+            else if( !m_userCancelled )
+            {
+              processDOMDoc();
+              ui->actionSave->setEnabled( true );
+              ui->actionSaveAs->setEnabled( true );
+            }
+            else
+            {
+              QString errMsg = "Each XML style is defined and managed by a related database.\n"
+                  "Without a database that describes the known elements, attributes, attribute\n"
+                  "values and relationships between all of them, we don't know what to do with this document.\n\n"
+                  "Sorry, but if there is no database connection that defines this specific XML style,\n"
+                  "you will have to create one. There is no other way.";
+              showErrorMessageBox( errMsg );
+              resetDOM();
+              m_currentXMLFileName = "";
+            }
+
+            m_userCancelled = false;
+            m_newDBCreated  = false;
           }
           else
           {
-            QMessageBox::StandardButton button = QMessageBox::warning( this,
-                                                                       "Unknown Document Type",
-                                                                       "The current active database has no knowledge of the\n"
-                                                                       "specific XML style of the document type you are trying to open.\n"
-                                                                       "If you know of a database connection that caters for this particular\n"
-                                                                       "style of XML please press \"Cancel\" and select \"Switch Database Session\"\n"
-                                                                       "from the menu.\n\n"
-                                                                       "If you would like to create a database for this specific style of XML, hit \"OK\".",
-                                                                       QMessageBox::Ok | QMessageBox::Cancel );
-            if( button == QMessageBox::Ok )
-            {
-              //TODO
-            }
-          }
-
-
-          batchUpsertDB();
+            processDOMDoc();
+            ui->actionSave->setEnabled( true );
+            ui->actionSaveAs->setEnabled( true );
+          }          
         }
         else
         {
           QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3])." ).arg( xmlErr ).arg( line ).arg( col );
           showErrorMessageBox( errorMsg );
+          resetDOM();
+          m_currentXMLFileName = "";
         }
 
         file.close();
@@ -141,6 +176,8 @@ void GCMainWindow::openXMLFile()
       {
         QString errorMsg = QString( "Failed to open file \"%1\" - [%2]" ).arg( fileName ).arg( file.errorString() );
         showErrorMessageBox( errorMsg );
+        resetDOM();
+        m_currentXMLFileName = "";
       }
     }
   }
@@ -156,9 +193,8 @@ void GCMainWindow::openXMLFile()
 
 void GCMainWindow::newXMLFile()
 {
-  m_currentXMLFileName = "";
-
   resetDOM();
+  m_currentXMLFileName = "";
 
   ui->addElementToDOMComboBox->clear();
   ui->addElementToDOMComboBox->addItems( m_dbInterface->knownRootElements() );
@@ -262,7 +298,7 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::batchUpsertDB()
+void GCMainWindow::batchProcessDOMToDB()
 {
   /* Update the DB in one go. */
   if( !m_dbInterface->batchProcessDOMDocument( m_domDoc ) )
@@ -438,7 +474,7 @@ void GCMainWindow::addNewDB()
   /* If the user clicked "OK". */
   if( !file.isEmpty() )
   {
-    addDBConnection( file );
+    m_newDBCreated = addDBConnection( file );
   }
 }
 
@@ -457,11 +493,12 @@ void GCMainWindow::addExistingDB()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::addDBConnection( const QString &dbName )
+bool GCMainWindow::addDBConnection( const QString &dbName )
 {
   if( !m_dbInterface->addDatabase( dbName ) )
   {
     showErrorMessageBox( m_dbInterface->getLastError() );
+    return false;
   }
 
   QMessageBox::StandardButton button = QMessageBox::question( this,
@@ -472,7 +509,7 @@ void GCMainWindow::addDBConnection( const QString &dbName )
 
   if( button == QMessageBox::Yes )
   {
-    setSessionDB( dbName );
+    return setSessionDB( dbName );
   }
   else
   {
@@ -481,17 +518,20 @@ void GCMainWindow::addDBConnection( const QString &dbName )
       showKnownDBForm();
     }
   }
+
+  return true;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::setSessionDB( QString dbName )
+bool GCMainWindow::setSessionDB( QString dbName )
 {
   if( !m_dbInterface->setSessionDB( dbName ) )
   {
     QString error = QString( "Failed to set session \"%1\" as active - [%2]" ).arg( dbName )
                     .arg( m_dbInterface->getLastError() );
     showErrorMessageBox( error );
+    return false;
   }
   else
   {
@@ -504,6 +544,8 @@ void GCMainWindow::setSessionDB( QString dbName )
       toggleAddElementToDOMWidgets();
     }
   }
+
+  return true;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -663,12 +705,20 @@ void GCMainWindow::showKnownDBForm( bool remove )
     connect( knownDBForm, SIGNAL( userCancelled() ),       this, SLOT( close() ) );
   }
 
+  connect( knownDBForm,   SIGNAL( userCancelled() ),       this, SLOT( userCancelledKnownDBForm() ) );
   connect( knownDBForm,   SIGNAL( newConnection() ),       this, SLOT( addNewDB() ) );
   connect( knownDBForm,   SIGNAL( existingConnection() ),  this, SLOT( addExistingDB() ) );
   connect( knownDBForm,   SIGNAL( dbSelected( QString ) ), this, SLOT( setSessionDB( QString ) ) );
   connect( knownDBForm,   SIGNAL( dbRemoved ( QString ) ), this, SLOT( removeDBConnection( QString ) ) );
 
-  knownDBForm->show();
+  knownDBForm->exec();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::userCancelledKnownDBForm()
+{
+  m_userCancelled = true;
 }
 
 /*--------------------------------------------------------------------------------------*/
