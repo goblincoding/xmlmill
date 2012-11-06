@@ -728,7 +728,7 @@ bool GCDataBaseInterface::updateElementAttributes( const QString &element, const
 
 QSqlQuery GCDataBaseInterface::selectAttribute( const QString &element, const QString &attribute, bool &success ) const
 {
-  return selectAttribute( element + "." + attribute, success );
+  return selectAttribute( element + "!" + attribute, success );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -781,8 +781,8 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
       return false;
     }
 
-    /* Create a comma-separated list of all the associated attributes and children. */
-    query.addBindValue( element + "." + attribute );
+    /* Create a list of all the associated attributes and children. */
+    query.addBindValue( element + "!" + attribute );
     query.addBindValue( joinListElements( attributeValues ) );
 
     if( !query.exec() )
@@ -805,7 +805,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
     }
 
     query.addBindValue( joinListElements( existingValues ) );
-    query.addBindValue( element + "." + attribute );
+    query.addBindValue( element + "!" + attribute );
 
     if( !query.exec() )
     {

@@ -344,7 +344,19 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     highlighted element. */
   ui->addElementToDOMComboBox->clear();
   ui->addElementToDOMComboBox->addItems( m_dbInterface->children( elementName, success ) );
+  toggleAddElementToDOMWidgets();
 
+  /* This is more for debugging than for end-user functionality. */
+  if( !success )
+  {
+    showErrorMessageBox( m_dbInterface->getLastError() );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::toggleAddElementToDOMWidgets()
+{
   /* Make sure we don't inadvertently create "empty" elements. */
   if( ui->addElementToDOMComboBox->count() < 1 )
   {
@@ -355,12 +367,6 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
   {
     ui->addElementToDOMComboBox->setEnabled( true );
     ui->addElementToDOMButton->setEnabled( true );
-  }
-
-  /* This is more for debugging than for end-user functionality. */
-  if( !success )
-  {
-    showErrorMessageBox( m_dbInterface->getLastError() );
   }
 }
 
@@ -448,7 +454,9 @@ void GCMainWindow::setSessionDB( QString dbName )
       to start the document building process. */
     if( m_domDoc.documentElement().isNull() )
     {
+      ui->addElementToDOMComboBox->clear();
       ui->addElementToDOMComboBox->addItems( m_dbInterface->knownRootElements() );
+      toggleAddElementToDOMWidgets();
     }
   }
 }
@@ -491,7 +499,7 @@ void GCMainWindow::switchDBSession()
     QMessageBox::StandardButton button = QMessageBox::warning( this,
                                                                "Warning",
                                                                "Switching database sessions while building an XML document\n"
-                                                               "will cause the document to be reset. If this is fine, proceed with \"OK\".\n\n"
+                                                               "will cause the document to be reset and your work will be lost.  If this is fine, proceed with \"OK\".\n\n"
                                                                "On the other hand, if you wish to keep your work, please hit \"Cancel\" and \n"
                                                                "save the document first before coming back here.",
                                                                QMessageBox::Ok | QMessageBox::Cancel );

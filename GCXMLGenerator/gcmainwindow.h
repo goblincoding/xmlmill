@@ -28,6 +28,8 @@ private:
   void showKnownDBForm    ( bool remove = false );
   void showErrorMessageBox( const QString &errorMsg );
 
+  void toggleAddElementToDOMWidgets();
+
   Ui::GCMainWindow    *ui;
   GCDataBaseInterface *m_dbInterface;
   QDomDocument         m_domDoc;
