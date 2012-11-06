@@ -549,6 +549,9 @@ void GCMainWindow::addChildElementToDOM()
     QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
     currentItem->addChild( newItem );
 
+    /* Expand the item's parent for convenience. */
+    ui->treeWidget->expandItem( currentItem );
+
     QDomElement parent = m_treeItemNodes.value( currentItem );
     parent.appendChild( newElement );
   }
@@ -559,7 +562,7 @@ void GCMainWindow::addChildElementToDOM()
   }
 
   /* Keep everything in sync in the map. */
-  m_treeItemNodes.insert( newItem, newElement );
+  m_treeItemNodes.insert( newItem, newElement );  
 }
 
 /*--------------------------------------------------------------------------------------*/
