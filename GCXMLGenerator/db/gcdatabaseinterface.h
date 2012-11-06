@@ -47,6 +47,7 @@ public:
   bool removeElementChild     ( const QString &element, const QString &children ) const;
   bool removeElementAttribute ( const QString &element, const QString &attribute ) const;
   bool removeAttributeValue   ( const QString &element, const QString &attribute, const QString &attributeValue ) const;
+  bool removeRootElement      ( const QString &element );
 
   /* Getters. */
   QStringList getDBList() const;    // returns a list of known DB connections
@@ -68,6 +69,10 @@ public:
   /* Returns a sorted (case sensitive, ascending) list of all the attribute values associated with
     "element" and its corresponding "attribute" in the active database. */
   QStringList attributeValues( const QString &element, const QString &attribute, bool &success ) const;
+
+  /* Returns a sorted (case sensitive, ascending) list of all the document root elements
+    known to the the active database. */
+  QStringList knownRootElements() const;
   
 public slots:
   bool addDatabase   ( QString dbName );
@@ -85,8 +90,8 @@ private:
     introduced in this way by consolidating the values and updating the records. */
   bool removeDuplicatesFromFields() const;
 
-  bool openDBConnection( QString dbConName, QString &errMsg ) const;
-  bool initialiseDB    ( QString dbConName, QString &errMsg ) const;
+  bool openDBConnection( QString dbConName ) const;
+  bool initialiseDB    ( QString dbConName ) const;
   void saveDBFile() const;
 
   QString         m_sessionDBName;

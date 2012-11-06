@@ -3,7 +3,7 @@
 
 /*--------------------------------- MEMBER FUNCTIONS ----------------------------------*/
 
-GCBatchProcessorHelper::GCBatchProcessorHelper(const QDomDocument &domDoc) :
+GCBatchProcessorHelper::GCBatchProcessorHelper( const QDomDocument &domDoc ) :
   m_knownElements            (),
   m_knownAttributeKeys       (),
   m_newElementsToAdd         (),
