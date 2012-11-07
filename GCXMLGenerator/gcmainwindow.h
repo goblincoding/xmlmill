@@ -27,7 +27,7 @@ private:
   void populateTreeWidget ( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
   void showKnownDBForm    ( bool remove = false );
   void showErrorMessageBox( const QString &errorMsg );
-  bool addDBConnection    ( const QString &dbName );
+  void addDBConnection    ( const QString &dbName );
 
   void toggleAddElementToDOMWidgets();
 
@@ -36,7 +36,6 @@ private:
   QDomDocument         m_domDoc;
   QString              m_currentXMLFileName;
   bool                 m_userCancelled;
-  bool                 m_newDBCreated;
 
   QMap< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
 
@@ -58,7 +57,7 @@ private slots:
   void addExistingDB();                       // calls addDBConnection
 
   void switchDBSession();                     // shows known DB form
-  bool setSessionDB( QString dbName );        // receives signal from DB form
+  void setSessionDB( QString dbName );        // receives signal from DB form
 
   void removeDB();                            // shows known DB form
   void removeDBConnection( QString dbName );  // receives signal from DB form

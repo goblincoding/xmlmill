@@ -28,7 +28,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="buildXMLTab">
        <attribute name="title">
@@ -160,7 +160,7 @@
       </widget>
       <widget class="QWidget" name="editXMLTab">
        <attribute name="title">
-        <string>Edit Active Database</string>
+        <string>Edit Database</string>
        </attribute>
        <layout class="QVBoxLayout" name="editXMLLayout">
         <item>
