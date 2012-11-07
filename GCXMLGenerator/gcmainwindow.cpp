@@ -698,20 +698,23 @@ void GCMainWindow::showKnownDBForm( bool remove )
 {
   GCKnownDBForm *knownDBForm = new GCKnownDBForm( m_dbInterface->getDBList(), remove, this );
 
-  /* If we don't have an active DB session, it's probably at program
-    start-up and the user wishes to exit the application by clicking "Cancel". */
-  if( !m_dbInterface->hasActiveSession() )
-  {
-    connect( knownDBForm, SIGNAL( userCancelled() ),       this, SLOT( close() ) );
-  }
-
-  connect( knownDBForm,   SIGNAL( userCancelled() ),       this, SLOT( userCancelledKnownDBForm() ) );
   connect( knownDBForm,   SIGNAL( newConnection() ),       this, SLOT( addNewDB() ) );
   connect( knownDBForm,   SIGNAL( existingConnection() ),  this, SLOT( addExistingDB() ) );
   connect( knownDBForm,   SIGNAL( dbSelected( QString ) ), this, SLOT( setSessionDB( QString ) ) );
   connect( knownDBForm,   SIGNAL( dbRemoved ( QString ) ), this, SLOT( removeDBConnection( QString ) ) );
 
-  knownDBForm->exec();
+  /* If we don't have an active DB session, it's probably at program
+    start-up and the user wishes to exit the application by clicking "Cancel". */
+  if( !m_dbInterface->hasActiveSession() )
+  {
+    connect( knownDBForm, SIGNAL( userCancelled() ), this, SLOT( close() ) );
+    knownDBForm->show();
+  }
+  else
+  {
+    connect( knownDBForm, SIGNAL( userCancelled() ), this, SLOT( userCancelledKnownDBForm() ) );
+    knownDBForm->exec();
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/

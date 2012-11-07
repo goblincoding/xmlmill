@@ -172,6 +172,9 @@ bool GCDataBaseInterface::removeDatabase( QString dbName )
       m_hasActiveSession = false;
     }
 
+    /* If the DB connection being removed was also the active one, removeDatabase will output a
+      warning.  This is purely because we have a DB member and isn't cause for concern as there
+      seems to be no way around it with the current QtSQL modules. */
     QSqlDatabase::removeDatabase( dbConName );
     m_dbMap.remove( dbConName );
     saveDBFile();
@@ -190,7 +193,6 @@ bool GCDataBaseInterface::setSessionDB( QString dbName )
 {
   /* The DB name passed in will most probably consist of a path/to/file string. */
   QString dbConName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
-  QString previousConnectionName = m_sessionDB.connectionName();
 
   if( QSqlDatabase::contains( dbConName ) )
   {
@@ -226,7 +228,7 @@ bool GCDataBaseInterface::setSessionDB( QString dbName )
 bool GCDataBaseInterface::openDBConnection( QString dbConName )
 {
   /* If we have a previous connection open, close it. */
-  if( m_sessionDB.isValid() )
+  if( m_sessionDB.isValid() && m_sessionDB.isOpen() )
   {
     m_sessionDB.close();
   }
