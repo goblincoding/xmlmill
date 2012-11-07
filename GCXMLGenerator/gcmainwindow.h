@@ -24,10 +24,11 @@ private:
   void resetDOM();
   void processDOMDoc();
   void batchProcessDOMToDB();
-  void populateTreeWidget ( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
   void showKnownDBForm    ( bool remove = false );
   void showErrorMessageBox( const QString &errorMsg );
   void addDBConnection    ( const QString &dbName );
+  void populateTreeWidget ( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
+  void resetTableWidget();
 
   void toggleAddElementToDOMWidgets();
 

@@ -106,44 +106,47 @@ void GCMainWindow::openXMLFile()
           /* If the user is opening an XML file of a kind that isn't supported by the current active session,
             we need to warn the user of this fact and let them either switch to the DB that they need, or
             create a new DB connection for the new XML file type. */
-          if( !m_dbInterface->knownRootElements().contains( m_domDoc.documentElement().tagName() ) )
-          {
-            do
-            {
-              QMessageBox::warning( this,
-                                    "Unknown XML Style",
-                                    "The current active database has no knowledge of the\n"
-                                    "specific XML style (the elements, attributes, attribute values and\n"
-                                    "all the associations between them) of the document you are trying to open.\n\n"
-                                    "You can either\n\n"
-                                    "1. Select an existing database connection that describes this type of XML, or\n"
-                                    "2. Select \"Cancel\" at the next prompt and explicitly create a new database through the \"Edit Database\" tab." );
+//          if( !m_dbInterface->knownRootElements().contains( m_domDoc.documentElement().tagName() ) )
+//          {
+//            do
+//            {
+//              QMessageBox::warning( this,
+//                                    "Unknown XML Style",
+//                                    "The current active database has no knowledge of the\n"
+//                                    "specific XML style (the elements, attributes, attribute values and\n"
+//                                    "all the associations between them) of the document you are trying to open.\n\n"
+//                                    "You can either:\n\n"
+//                                    "1. Select an existing database connection that describes this type of XML, or\n"
+//                                    "2. Select \"Cancel\" at the next prompt and explicitly create a new database through the \"Edit Database\" tab." );
 
-              showKnownDBForm();
+//              showKnownDBForm();
 
-            } while( !m_dbInterface->knownRootElements().contains( m_domDoc.documentElement().tagName() )
-                     && !m_userCancelled );
+//            } while( !m_dbInterface->knownRootElements().contains( m_domDoc.documentElement().tagName() )
+//                     && !m_userCancelled );
 
-            /* If the user selected a database that fits, continue. */
-            if( !m_userCancelled )
-            {
-              processDOMDoc();
-              ui->actionSave->setEnabled( true );
-              ui->actionSaveAs->setEnabled( true );
-            }
-            else
-            {
-              resetDOM();
-            }
+//            /* If the user selected a database that fits, continue. */
+//            if( !m_userCancelled )
+//            {
+//              processDOMDoc();
+//              ui->actionSave->setEnabled( true );
+//              ui->actionSaveAs->setEnabled( true );
+//            }
+//            else
+//            {
+//              resetDOM();
+//            }
 
-            m_userCancelled = false;
-          }
-          else
-          {
-            processDOMDoc();
-            ui->actionSave->setEnabled( true );
-            ui->actionSaveAs->setEnabled( true );
-          }          
+//            m_userCancelled = false;
+//          }
+//          else
+//          {
+//            processDOMDoc();
+//            ui->actionSave->setEnabled( true );
+//            ui->actionSaveAs->setEnabled( true );
+//          }
+
+          processDOMDoc();
+          batchProcessDOMToDB();
         }
         else
         {
@@ -233,17 +236,17 @@ void GCMainWindow::resetDOM()
 {
   m_domDoc.clear();
   m_treeItemNodes.clear();
-  ui->tableWidget->clear();
   ui->treeWidget->clear();
+  resetTableWidget();
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::processDOMDoc()
 {
-  ui->treeWidget->clear();    // also deletes current items
-  ui->tableWidget->clear();   // also deletes current items
+  ui->treeWidget->clear();            // also deletes current items
   m_treeItemNodes.clear();
+  resetTableWidget();
 
   QDomElement root = m_domDoc.documentElement();
 
@@ -270,13 +273,21 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
     QTreeWidgetItem *item = new QTreeWidgetItem();
     item->setText( 0, element.tagName() );
     item->setFlags( item->flags() | Qt::ItemIsEditable );
-    parentItem->addChild( item );   // takes ownership
+    parentItem->addChild( item );             // takes ownership
 
     m_treeItemNodes.insert( item, element );
 
     populateTreeWidget( element, item );
     element = element.nextSiblingElement();
   }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::resetTableWidget()
+{
+  ui->tableWidget->clearContents();   // also deletes current items
+  ui->tableWidget->setRowCount( 0 );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -364,7 +375,7 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
 
 void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
 {
-  ui->tableWidget->clear();    // also deletes current items
+  resetTableWidget();
 
   /* Get only the attributes currently assigned to the element
     corresponding to this item (and the lists of associated
