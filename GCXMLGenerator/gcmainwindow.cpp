@@ -2,6 +2,7 @@
 #include "ui_gcmainwindow.h"
 #include "db/gcdatabaseinterface.h"
 #include "db/gcknowndbform.h"
+#include "utils/gcmessagebox.h"
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QTextStream>
@@ -57,7 +58,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
     include the path references to the ".db" files). */
   if( !m_dbInterface->initialise() )
   {
-    QMessageBox::critical( this, "Error!", m_dbInterface->getLastError() );
+    showErrorMessageBox( m_dbInterface->getLastError() );
     this->close();
   }
 
@@ -111,17 +112,9 @@ void GCMainWindow::openXMLFile()
           {
             do
             {
-              QMessageBox::warning( this,
-                                    "Unknown XML Style",
-                                    "The current active database has no knowledge of the\n"
-                                    "specific XML style (the elements, attributes, attribute values and\n"
-                                    "all the associations between them) of the document you are trying to open.\n\n"
-                                    "You can either:\n\n"
-                                    "1. Select an existing database connection that describes this type of XML, or\n"
-                                    "2. Switch to \"Super User\" mode and open the file again to import it to the database." );
-
+              GCMessageBox messageBox( GCMessageBox::UnknownXMLStyle );
+              messageBox.exec();
               showKnownDBForm();
-
             } while( !m_dbInterface->knownRootElements().contains( m_domDoc.documentElement().tagName() ) &&
                      !m_userCancelled );
 
