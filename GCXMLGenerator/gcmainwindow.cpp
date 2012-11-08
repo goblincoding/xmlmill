@@ -16,46 +16,42 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_domDoc            (),
   m_currentXMLFileName( "" ),
   m_userCancelled     ( false ),
+  m_superUserMode     ( false ),
   m_treeItemNodes     ()
 {
   ui->setupUi( this );
 
-  connect( ui->treeWidget, SIGNAL( itemChanged( QTreeWidgetItem*,int ) ),
-           this,           SLOT  ( treeWidgetItemChanged( QTreeWidgetItem*,int ) ) );
-
-  connect( ui->treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ),
-           this,           SLOT  ( treeWidgetItemActivated( QTreeWidgetItem*,int ) ) );
-
-  /* Emitted when the user presses "Enter" on a highlighted item. */
-  connect( ui->treeWidget, SIGNAL( itemActivated( QTreeWidgetItem*,int ) ),
-           this,           SLOT  ( treeWidgetItemActivated( QTreeWidgetItem*,int ) ) );
-
-  connect( ui->expandAllCheckBox, SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
-
-  /* XML File related. */
-  connect( ui->actionNew,    SIGNAL( triggered() ), this, SLOT( newXMLFile() ) );
-  connect( ui->actionOpen,   SIGNAL( triggered() ), this, SLOT( openXMLFile() ) );
-  connect( ui->actionSave,   SIGNAL( triggered() ), this, SLOT( saveXMLFile() ) );
-  connect( ui->actionSaveAs, SIGNAL( triggered() ), this, SLOT( saveXMLFileAs() ) );
+  /* Disable super user options. */
+  ui->addAttributeButton->setVisible( false );
+  ui->addAttributeLabel->setVisible( false );
+  ui->addAttributeLineEdit->setVisible( false );
 
   /* Database related. */
-  connect( ui->actionAddNewDatabase,        SIGNAL( triggered() ), this, SLOT( addNewDB() ) );
-  connect( ui->actionAddExistingDatabase,   SIGNAL( triggered() ), this, SLOT( addExistingDB() ) );
-  connect( ui->actionRemoveDatabase,        SIGNAL( triggered() ), this, SLOT( removeDB() ) );
-  connect( ui->actionSwitchSessionDatabase, SIGNAL( triggered() ), this, SLOT( switchDBSession() ) );
+  connect( ui->actionAddNewDatabase,        SIGNAL( triggered() ),     this, SLOT( addNewDB() ) );
+  connect( ui->actionAddExistingDatabase,   SIGNAL( triggered() ),     this, SLOT( addExistingDB() ) );
+  connect( ui->actionRemoveDatabase,        SIGNAL( triggered() ),     this, SLOT( removeDB() ) );
+  connect( ui->actionSwitchSessionDatabase, SIGNAL( triggered() ),     this, SLOT( switchDBSession() ) );
 
-  /* Build XML. */
-  connect( ui->deleteElementFromDOMButton, SIGNAL( clicked() ), this, SLOT( deleteElementFromDOM() ) );
-  connect( ui->addElementToDOMButton,      SIGNAL( clicked() ), this, SLOT( addChildElementToDOM() ) );
+  /* XML File related. */
+  connect( ui->actionNew,                   SIGNAL( triggered() ),     this, SLOT( newXMLFile() ) );
+  connect( ui->actionOpen,                  SIGNAL( triggered() ),     this, SLOT( openXMLFile() ) );
+  connect( ui->actionSave,                  SIGNAL( triggered() ),     this, SLOT( saveXMLFile() ) );
+  connect( ui->actionSaveAs,                SIGNAL( triggered() ),     this, SLOT( saveXMLFileAs() ) );
 
-  /* Edit XML store. */
-  connect( ui->editXMLAddButton,              SIGNAL( clicked() ), this, SLOT( updateDataBase() ) );
-  connect( ui->editXMLDeleteAttributesButton, SIGNAL( clicked() ), this, SLOT( deleteAttributeValuesFromDB() ) );
-  connect( ui->editXMLDeleteElementsButton,   SIGNAL( clicked() ), this, SLOT( deleteElementFromDB() ) );
+  /* Build XML/Edit DOM. */
+  connect( ui->deleteElementButton,         SIGNAL( clicked() ),       this, SLOT( deleteElementFromDOM() ) );
+  connect( ui->addElementButton,            SIGNAL( clicked() ),       this, SLOT( addChildElementToDOM() ) );
+  connect( ui->dockWidgetSaveButton,        SIGNAL( clicked() ),       this, SLOT( saveDirectEdit() ) );
 
-  /* Direct DOM edit. */
-  connect( ui->dockWidgetRevertButton, SIGNAL( clicked() ), this, SLOT( revertDirectEdit() ) );
-  connect( ui->dockWidgetSaveButton,   SIGNAL( clicked() ), this, SLOT( saveDirectEdit() ) );
+  /* Various other actions. */
+  connect( ui->actionSuperUserMode,         SIGNAL( toggled( bool ) ), this, SLOT( toggleSuperUserMode( bool ) ) );
+  connect( ui->expandAllCheckBox,           SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
+  connect( ui->actionExit,                  SIGNAL( triggered() ),     this, SLOT( close() ) );
+
+  /* Everything tree widget related. */
+  connect( ui->treeWidget,                  SIGNAL( itemChanged  ( QTreeWidgetItem*, int ) ), this, SLOT  ( treeWidgetItemChanged  ( QTreeWidgetItem*, int ) ) );
+  connect( ui->treeWidget,                  SIGNAL( itemClicked  ( QTreeWidgetItem*, int ) ), this, SLOT  ( treeWidgetItemActivated( QTreeWidgetItem*, int ) ) );
+  connect( ui->treeWidget,                  SIGNAL( itemActivated( QTreeWidgetItem*, int ) ), this, SLOT  ( treeWidgetItemActivated( QTreeWidgetItem*, int ) ) );
 
   /* Initialise the database interface and retrieve the list of database names (this will
     include the path references to the ".db" files). */
@@ -74,6 +70,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 
 GCMainWindow::~GCMainWindow()
 {
+  // TODO: Give the user the option to save the current XML file.
+
   delete m_dbInterface;
   delete ui;
 }
@@ -97,56 +95,75 @@ void GCMainWindow::openXMLFile()
         resetDOM();
 
         QTextStream inStream( &file );
+        QString fileContent( inStream.readAll() );
+
         QString xmlErr( "" );
         int     line  ( -1 );
         int     col   ( -1 );
 
-        if( m_domDoc.setContent( inStream.readAll(), &xmlErr, &line, &col ) )
+        if( m_domDoc.setContent( fileContent, &xmlErr, &line, &col ) )
         {
           /* If the user is opening an XML file of a kind that isn't supported by the current active session,
             we need to warn the user of this fact and let them either switch to the DB that they need, or
             create a new DB connection for the new XML file type. */
-//          if( !m_dbInterface->knownRootElements().contains( m_domDoc.documentElement().tagName() ) )
-//          {
-//            do
-//            {
-//              QMessageBox::warning( this,
-//                                    "Unknown XML Style",
-//                                    "The current active database has no knowledge of the\n"
-//                                    "specific XML style (the elements, attributes, attribute values and\n"
-//                                    "all the associations between them) of the document you are trying to open.\n\n"
-//                                    "You can either:\n\n"
-//                                    "1. Select an existing database connection that describes this type of XML, or\n"
-//                                    "2. Select \"Cancel\" at the next prompt and explicitly create a new database through the \"Edit Database\" tab." );
+          if( !m_dbInterface->knownRootElements().contains( m_domDoc.documentElement().tagName() ) &&
+              !m_superUserMode )
+          {
+            do
+            {
+              QMessageBox::warning( this,
+                                    "Unknown XML Style",
+                                    "The current active database has no knowledge of the\n"
+                                    "specific XML style (the elements, attributes, attribute values and\n"
+                                    "all the associations between them) of the document you are trying to open.\n\n"
+                                    "You can either:\n\n"
+                                    "1. Select an existing database connection that describes this type of XML, or\n"
+                                    "2. Switch to \"Super User\" mode and open the file again to import it to the database." );
 
-//              showKnownDBForm();
+              showKnownDBForm();
 
-//            } while( !m_dbInterface->knownRootElements().contains( m_domDoc.documentElement().tagName() )
-//                     && !m_userCancelled );
+            } while( !m_dbInterface->knownRootElements().contains( m_domDoc.documentElement().tagName() ) &&
+                     !m_userCancelled );
 
-//            /* If the user selected a database that fits, continue. */
-//            if( !m_userCancelled )
-//            {
-//              processDOMDoc();
-//              ui->actionSave->setEnabled( true );
-//              ui->actionSaveAs->setEnabled( true );
-//            }
-//            else
-//            {
-//              resetDOM();
-//            }
+            /* If the user selected a database that fits, continue. */
+            if( !m_userCancelled )
+            {
+              processDOMDoc();
+            }
+            else
+            {
+              resetDOM();
+            }
 
-//            m_userCancelled = false;
-//          }
-//          else
-//          {
-//            processDOMDoc();
-//            ui->actionSave->setEnabled( true );
-//            ui->actionSaveAs->setEnabled( true );
-//          }
+            m_userCancelled = false;
+          }
+          else if( m_superUserMode )
+          {
+            QMessageBox::StandardButton button = QMessageBox::question( this,
+                                                                        "Import XML?",
+                                                                        "Would you like to import the XML document to the active database?",
+                                                                        QMessageBox::Yes | QMessageBox::No,
+                                                                        QMessageBox::No );
 
-          processDOMDoc();
-          batchProcessDOMToDB();
+            if( button == QMessageBox::Yes )
+            {
+              processDOMDoc();
+
+              /* Update the DB in one go. */
+              if( !m_dbInterface->batchProcessDOMDocument( m_domDoc ) )
+              {
+                showErrorMessageBox( m_dbInterface->getLastError() );
+              }
+            }
+            else
+            {
+              resetDOM();
+            }
+          }
+          else
+          {
+            processDOMDoc();
+          }
         }
         else
         {
@@ -182,9 +199,9 @@ void GCMainWindow::newXMLFile()
   resetDOM();
   m_currentXMLFileName = "";
 
-  ui->addElementToDOMComboBox->clear();
-  ui->addElementToDOMComboBox->addItems( m_dbInterface->knownRootElements() );
-  toggleAddElementToDOMWidgets();
+  ui->addElementComboBox->clear();
+  ui->addElementComboBox->addItems( m_dbInterface->knownRootElements() );
+  toggleAddElementWidgets();
 
   ui->actionSave->setEnabled( true );
   ui->actionSaveAs->setEnabled( true );
@@ -235,6 +252,7 @@ void GCMainWindow::saveXMLFileAs()
 void GCMainWindow::resetDOM()
 {
   m_domDoc.clear();
+  ui->dockWidgetTextEdit->clear();
   m_treeItemNodes.clear();
   ui->treeWidget->clear();
   resetTableWidget();
@@ -253,13 +271,21 @@ void GCMainWindow::processDOMDoc()
   /* We want to show the document's root element in the tree widget as well. */
   QTreeWidgetItem *item = new QTreeWidgetItem;
   item->setText( 0, root.tagName() );
-  item->setFlags( item->flags() | Qt::ItemIsEditable );
-  ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
 
+  if( m_superUserMode )
+  {
+    item->setFlags( item->flags() | Qt::ItemIsEditable );
+  }
+
+  ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
   m_treeItemNodes.insert( item, root );
 
   /* Now we can recursively stick the rest of the elements into our widget. */
   populateTreeWidget( root, item );
+
+  /* Enable file save options. */
+  ui->actionSave->setEnabled( true );
+  ui->actionSaveAs->setEnabled( true );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -272,9 +298,13 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
   {
     QTreeWidgetItem *item = new QTreeWidgetItem();
     item->setText( 0, element.tagName() );
-    item->setFlags( item->flags() | Qt::ItemIsEditable );
-    parentItem->addChild( item );             // takes ownership
 
+    if( m_superUserMode )
+    {
+      item->setFlags( item->flags() | Qt::ItemIsEditable );
+    }
+
+    parentItem->addChild( item );             // takes ownership
     m_treeItemNodes.insert( item, element );
 
     populateTreeWidget( element, item );
@@ -288,17 +318,6 @@ void GCMainWindow::resetTableWidget()
 {
   ui->tableWidget->clearContents();   // also deletes current items
   ui->tableWidget->setRowCount( 0 );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::batchProcessDOMToDB()
-{
-  /* Update the DB in one go. */
-  if( !m_dbInterface->batchProcessDOMDocument( m_domDoc ) )
-  {
-    showErrorMessageBox( m_dbInterface->getLastError() );
-  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -321,6 +340,8 @@ void GCMainWindow::updateDataBase()
 
 void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
 {
+  /* This slot will only be called in super user mode so we can safely keep the functionality
+    as it is (i.e. updating the database alongside the DOM) without any other explicit checks. */
   if( m_treeItemNodes.contains( item ) )
   {
     QString elementName      = item->text( column );
@@ -366,6 +387,8 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
         {
           showErrorMessageBox( m_dbInterface->getLastError() );
         }
+
+        ui->dockWidgetTextEdit->setPlainText( m_domDoc.toString() );
       }
     }
   }
@@ -393,7 +416,12 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
   for( int i = 0; i < attributes.count(); ++i )
   {
     QTableWidgetItem *label = new QTableWidgetItem( attributes.at( i ) );
-    label->setFlags( label->flags() | Qt::ItemIsEditable );
+
+    if( m_superUserMode )
+    {
+      label->setFlags( label->flags() | Qt::ItemIsEditable );
+    }
+
     ui->tableWidget->setRowCount( i + 1 );
     ui->tableWidget->setItem( i, 0, label );
 
@@ -417,9 +445,9 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
 
   /* Populate the "add element" combo box with the known first level children of the
     highlighted element. */
-  ui->addElementToDOMComboBox->clear();
-  ui->addElementToDOMComboBox->addItems( m_dbInterface->children( elementName, success ) );
-  toggleAddElementToDOMWidgets();
+  ui->addElementComboBox->clear();
+  ui->addElementComboBox->addItems( m_dbInterface->children( elementName, success ) );
+  toggleAddElementWidgets();
 
   /* This is more for debugging than for end-user functionality. */
   if( !success )
@@ -430,18 +458,18 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::toggleAddElementToDOMWidgets()
+void GCMainWindow::toggleAddElementWidgets()
 {
   /* Make sure we don't inadvertently create "empty" elements. */
-  if( ui->addElementToDOMComboBox->count() < 1 )
+  if( ui->addElementComboBox->count() < 1 )
   {
-    ui->addElementToDOMComboBox->setEnabled( false );
-    ui->addElementToDOMButton->setEnabled( false );
+    ui->addElementComboBox->setEnabled( false );
+    ui->addElementButton->setEnabled( false );
   }
   else
   {
-    ui->addElementToDOMComboBox->setEnabled( true );
-    ui->addElementToDOMButton->setEnabled( true );
+    ui->addElementComboBox->setEnabled( true );
+    ui->addElementButton->setEnabled( true );
   }
 }
 
@@ -530,9 +558,9 @@ void GCMainWindow::setSessionDB( QString dbName )
       to start the document building process. */
     if( m_domDoc.documentElement().isNull() )
     {
-      ui->addElementToDOMComboBox->clear();
-      ui->addElementToDOMComboBox->addItems( m_dbInterface->knownRootElements() );
-      toggleAddElementToDOMWidgets();
+      ui->addElementComboBox->clear();
+      ui->addElementComboBox->addItems( m_dbInterface->knownRootElements() );
+      toggleAddElementWidgets();
     }
   }
 }
@@ -615,12 +643,16 @@ void GCMainWindow::deleteElementFromDOM()
 
 void GCMainWindow::addChildElementToDOM()
 {
-  QString newElementName = ui->addElementToDOMComboBox->currentText();
+  QString newElementName = ui->addElementComboBox->currentText();
 
   /* Update the tree widget. */
   QTreeWidgetItem *newItem = new QTreeWidgetItem;
   newItem->setText( 0, newElementName );
-  newItem->setFlags( newItem->flags() | Qt::ItemIsEditable );
+
+  if( m_superUserMode )
+  {
+    newItem->setFlags( newItem->flags() | Qt::ItemIsEditable );
+  }
 
   /* Update the current DOM document. */
   QDomElement newElement = m_domDoc.createElement( newElementName );
@@ -650,7 +682,9 @@ void GCMainWindow::addChildElementToDOM()
   }
 
   /* Keep everything in sync in the map. */
-  m_treeItemNodes.insert( newItem, newElement );  
+  m_treeItemNodes.insert( newItem, newElement );
+
+  ui->dockWidgetTextEdit->setPlainText( m_domDoc.toString() );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -711,6 +745,23 @@ void GCMainWindow::showKnownDBForm( bool remove )
 void GCMainWindow::userCancelledKnownDBForm()
 {
   m_userCancelled = true;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::toggleSuperUserMode( bool super )
+{
+
+  // TODO: Display warning regarding all edits being persisted to DB
+  m_superUserMode = super;
+
+  ui->addAttributeButton->setVisible( super );
+  ui->addAttributeLabel->setVisible( super );
+  ui->addAttributeLineEdit->setVisible( super );
+
+  /* Needed to reset reset all the tree widget item's "editable" flags
+    to whatever the current mode allows. */
+  processDOMDoc();
 }
 
 /*--------------------------------------------------------------------------------------*/

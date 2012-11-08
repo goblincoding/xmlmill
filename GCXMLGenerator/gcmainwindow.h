@@ -23,20 +23,20 @@ public:
 private:
   void resetDOM();
   void processDOMDoc();
-  void batchProcessDOMToDB();
   void showKnownDBForm    ( bool remove = false );
   void showErrorMessageBox( const QString &errorMsg );
   void addDBConnection    ( const QString &dbName );
   void populateTreeWidget ( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
   void resetTableWidget();
 
-  void toggleAddElementToDOMWidgets();
+  void toggleAddElementWidgets();
 
   Ui::GCMainWindow    *ui;
   GCDataBaseInterface *m_dbInterface;
   QDomDocument         m_domDoc;
   QString              m_currentXMLFileName;
   bool                 m_userCancelled;
+  bool                 m_superUserMode;
 
   QMap< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
 
@@ -45,6 +45,7 @@ private slots:
   void treeWidgetItemChanged     ( QTreeWidgetItem *item, int column );
   void treeWidgetItemActivated   ( QTreeWidgetItem *item, int column );
   void collapseOrExpandTreeWidget( bool checked );
+  void toggleSuperUserMode       ( bool super );
   void userCancelledKnownDBForm  ();
 
   /* XML file related. */
