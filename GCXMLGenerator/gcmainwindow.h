@@ -46,7 +46,7 @@ private slots:
   void treeWidgetItemChanged     ( QTreeWidgetItem *item, int column );
   void treeWidgetItemActivated   ( QTreeWidgetItem *item, int column );
   void collapseOrExpandTreeWidget( bool checked );
-  void toggleSuperUserMode       ( bool super );
+  void switchSuperUserMode       ( bool super );
   void userCancelledKnownDBForm  ();
 
   /* XML file related. */

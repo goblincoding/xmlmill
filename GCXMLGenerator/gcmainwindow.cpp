@@ -25,6 +25,11 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   ui->addAttributeLabel->setVisible( false );
   ui->addAttributeLineEdit->setVisible( false );
 
+  /* The user must see they exist, but shouldn't be able to access these
+    actions except in super user mode. */
+  ui->actionAddNewDatabase->setEnabled( false );
+  ui->actionRemoveDatabase->setEnabled( false );
+
   /* Database related. */
   connect( ui->actionAddNewDatabase,        SIGNAL( triggered() ),     this, SLOT( addNewDB() ) );
   connect( ui->actionAddExistingDatabase,   SIGNAL( triggered() ),     this, SLOT( addExistingDB() ) );
@@ -43,7 +48,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->dockWidgetSaveButton,        SIGNAL( clicked() ),       this, SLOT( saveDirectEdit() ) );
 
   /* Various other actions. */
-  connect( ui->actionSuperUserMode,         SIGNAL( toggled( bool ) ), this, SLOT( toggleSuperUserMode( bool ) ) );
+  connect( ui->actionSuperUserMode,         SIGNAL( toggled( bool ) ), this, SLOT( switchSuperUserMode( bool ) ) );
   connect( ui->expandAllCheckBox,           SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
   connect( ui->actionExit,                  SIGNAL( triggered() ),     this, SLOT( close() ) );
 
@@ -750,15 +755,30 @@ void GCMainWindow::userCancelledKnownDBForm()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::toggleSuperUserMode( bool super )
+void GCMainWindow::switchSuperUserMode( bool super )
 {
 
-  // TODO: Display warning regarding all edits being persisted to DB
+  if( super )
+  {
+    QMessageBox::warning( this,
+                          "Super user mode!",
+                          "Absolutely everything you do in this mode is persisted to the\n"
+                          "active database and cannot be undone.\n\n"
+                          "In other words, if anything goes wrong, it's all your fault..." );
+  }
+
+  showKnownDBForm( GCKnownDBForm::SelectAndExisting );
+
   m_superUserMode = super;
 
   ui->addAttributeButton->setVisible( super );
   ui->addAttributeLabel->setVisible( super );
   ui->addAttributeLineEdit->setVisible( super );
+
+  /* The user must see they exist, but shouldn't be able to access these
+    actions except in super user mode. */
+  ui->actionAddNewDatabase->setEnabled( super );
+  ui->actionRemoveDatabase->setEnabled( super );
 
   /* Needed to reset reset all the tree widget item's "editable" flags
     to whatever the current mode allows. */
