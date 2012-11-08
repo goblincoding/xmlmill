@@ -1,7 +1,6 @@
 #include "gcmainwindow.h"
 #include "ui_gcmainwindow.h"
 #include "db/gcdatabaseinterface.h"
-#include "db/gcknowndbform.h"
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QTextStream>
@@ -63,7 +62,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 
   /* If the interface was successfully initialised, prompt the user to choose a database
     connection for this session. */
-  showKnownDBForm();
+  showKnownDBForm( GCKnownDBForm::ShowAll );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -117,10 +116,10 @@ void GCMainWindow::openXMLFile()
                                     "specific XML style (the elements, attributes, attribute values and\n"
                                     "all the associations between them) of the document you are trying to open.\n\n"
                                     "You can either:\n\n"
-                                    "1. Select an existing database connection that describes this type of XML, or\n"
+                                    "1. Select an existing database that describes this type of XML, or\n"
                                     "2. Switch to \"Super User\" mode and open the file again to import it to the database." );
 
-              showKnownDBForm();
+              showKnownDBForm( GCKnownDBForm::SelectAndExisting );
 
             } while( !m_dbInterface->knownRootElements().contains( m_domDoc.documentElement().tagName() ) &&
                      !m_userCancelled );
@@ -188,7 +187,7 @@ void GCMainWindow::openXMLFile()
   {
     QString errMsg( "No active database set, please set one for this session." );
     showErrorMessageBox( errMsg );
-    showKnownDBForm();
+    showKnownDBForm( GCKnownDBForm::ShowAll );
   }
 }
 
@@ -332,7 +331,7 @@ void GCMainWindow::updateDataBase()
   {
     QString errMsg( "No active database set, please set one for this session." );
     showErrorMessageBox( errMsg );
-    showKnownDBForm();
+    showKnownDBForm( GCKnownDBForm::ShowAll );
   }
 }
 
@@ -525,7 +524,7 @@ void GCMainWindow::addDBConnection( const QString &dbName )
 
   QMessageBox::StandardButton button = QMessageBox::question( this,
                                                               "Set Session",
-                                                              "Would you like to set the new connection as active?",
+                                                              "Would you like to set the new database as active?",
                                                               QMessageBox::Yes | QMessageBox::No,
                                                               QMessageBox::Yes );
 
@@ -537,7 +536,7 @@ void GCMainWindow::addDBConnection( const QString &dbName )
   {
     if( !m_dbInterface->hasActiveSession() )
     {
-      showKnownDBForm();
+      showKnownDBForm( GCKnownDBForm::ShowAll );
     }
   }
 }
@@ -569,7 +568,7 @@ void GCMainWindow::setSessionDB( QString dbName )
 
 void GCMainWindow::removeDB()
 {
-  showKnownDBForm( true );
+  showKnownDBForm( GCKnownDBForm::ToRemove );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -588,7 +587,9 @@ void GCMainWindow::removeDBConnection( QString dbName )
     what he/she intends to replace it with. */
   if( !m_dbInterface->hasActiveSession() )
   {
-    showKnownDBForm();
+    QString errMsg( "The active database has been removed, please set another as active." );
+    showErrorMessageBox( errMsg );
+    showKnownDBForm( GCKnownDBForm::ShowAll );
   }
 }
 
@@ -618,7 +619,7 @@ void GCMainWindow::switchDBSession()
     }
   }
 
-  showKnownDBForm();
+  showKnownDBForm( GCKnownDBForm::ShowAll );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -717,9 +718,9 @@ void GCMainWindow::saveDirectEdit()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::showKnownDBForm( bool remove )
+void GCMainWindow::showKnownDBForm( GCKnownDBForm::Buttons buttons )
 {
-  GCKnownDBForm *knownDBForm = new GCKnownDBForm( m_dbInterface->getDBList(), remove, this );
+  GCKnownDBForm *knownDBForm = new GCKnownDBForm( m_dbInterface->getDBList(), buttons, this );
 
   connect( knownDBForm,   SIGNAL( newConnection() ),       this, SLOT( addNewDB() ) );
   connect( knownDBForm,   SIGNAL( existingConnection() ),  this, SLOT( addExistingDB() ) );

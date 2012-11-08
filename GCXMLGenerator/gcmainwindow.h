@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QDomDocument>
 #include <QMap>
+#include "db/gcknowndbform.h"
 
 namespace Ui {
   class GCMainWindow;
@@ -23,7 +24,7 @@ public:
 private:
   void resetDOM();
   void processDOMDoc();
-  void showKnownDBForm    ( bool remove = false );
+  void showKnownDBForm    ( GCKnownDBForm::Buttons buttons );
   void showErrorMessageBox( const QString &errorMsg );
   void addDBConnection    ( const QString &dbName );
   void populateTreeWidget ( const QDomElement &parentElement, QTreeWidgetItem *parentItem );

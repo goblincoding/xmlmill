@@ -4,10 +4,11 @@
 
 /*--------------------------------------------------------------------------------------*/
 
-GCKnownDBForm::GCKnownDBForm( QStringList dbList, bool remove, QWidget *parent ) :
-  QDialog ( parent),
-  ui      ( new Ui::GCKnownDBForm ),
-  m_remove( remove )
+GCKnownDBForm::GCKnownDBForm( QStringList dbList, Buttons buttons, QWidget *parent ) :
+  QDialog  ( parent),
+  ui       ( new Ui::GCKnownDBForm ),
+  m_buttons( buttons ),
+  m_remove ( false )
 {
   ui->setupUi( this );
 
@@ -21,10 +22,22 @@ GCKnownDBForm::GCKnownDBForm( QStringList dbList, bool remove, QWidget *parent )
     ui->comboBox->addItems( dbList );
   }
 
-  if( m_remove )
+  switch( m_buttons )
   {
-    ui->addNewButton->setVisible( false );
-    ui->addExistingButton->setVisible( false );
+    case SelectOnly:
+      ui->addNewButton->setVisible( false );
+      ui->addExistingButton->setVisible( false );
+      break;
+    case SelectAndExisting:
+      ui->addNewButton->setVisible( false );
+      break;
+    case ToRemove:
+      ui->addNewButton->setVisible( false );
+      ui->addExistingButton->setVisible( false );
+      m_remove = true;
+      break;
+    case ShowAll:
+      break;
   }
 
   connect( ui->addNewButton,      SIGNAL( clicked() ), this, SIGNAL( newConnection() ) );

@@ -12,7 +12,15 @@ class GCKnownDBForm : public QDialog
   Q_OBJECT
   
 public:
-  explicit GCKnownDBForm( QStringList dbList, bool remove, QWidget *parent = 0 );
+  enum Buttons
+  {
+    SelectOnly,
+    SelectAndExisting,
+    ToRemove,
+    ShowAll
+  };
+
+  explicit GCKnownDBForm( QStringList dbList, Buttons buttons, QWidget *parent );
   ~GCKnownDBForm();
 
 signals:
@@ -24,6 +32,7 @@ signals:
   
 private:
   Ui::GCKnownDBForm *ui;
+  Buttons            m_buttons;
   bool               m_remove;
 
 private slots:
