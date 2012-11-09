@@ -591,6 +591,17 @@ void GCMainWindow::setSessionDB( QString dbName )
   }
   else
   {
+    /* If the user set an empty database, prompt to populate it. */
+    if( m_dbInterface->knownElements().size() < 1 )
+    {
+      QMessageBox::warning( this,
+                            "Empty Database",
+                            "The current active database is completely empty (aka \"entirely useless\").\n"
+                            "You can either:\n"
+                            "1. Select a different (populated) database and continue working, or\n"
+                            "2. Switch to \"Super User\" mode and start populating this one." );
+    }
+
     /* If we have an empty DOM doc, load the list of known document root elements
       to start the document building process. */
     if( m_domDoc->documentElement().isNull() )
@@ -800,7 +811,10 @@ void GCMainWindow::switchSuperUserMode( bool super )
                           "In other words, if anything goes wrong, it's all your fault..." );
   }
 
-  showKnownDBForm( GCKnownDBForm::SelectAndExisting );
+  if( !m_dbInterface->hasActiveSession() )
+  {
+    showKnownDBForm( GCKnownDBForm::SelectAndExisting );
+  }
 
   m_superUserMode = super;
 
