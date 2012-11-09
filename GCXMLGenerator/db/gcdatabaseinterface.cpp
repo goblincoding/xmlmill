@@ -297,7 +297,7 @@ bool GCDataBaseInterface::createDBTables() const
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) const
+bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument *domDoc ) const
 {
   GCBatchProcessorHelper helper( domDoc );
   helper.setKnownElements  ( knownElements() );
@@ -305,7 +305,7 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument &domDoc ) 
   helper.createVariantLists();
 
   /* Insert the document root element into the rootelements table. */
-  if( !addRootElement( domDoc.documentElement().tagName() ) )
+  if( !addRootElement( domDoc->documentElement().tagName() ) )
   {
     /* Last error message is set in "addRootElement". */
     return false;

@@ -19,7 +19,7 @@ public:
 
   /* Processes an entire DOM document, adding new or updating existing elements (with their
     corresponding first level children and associated attributes) and known attribute values. */
-  bool batchProcessDOMDocument( const QDomDocument &domDoc ) const;
+  bool batchProcessDOMDocument( const QDomDocument *domDoc ) const;
 
   /* Adds a single new element (this function does nothing if an element with the same name
     already exists). */

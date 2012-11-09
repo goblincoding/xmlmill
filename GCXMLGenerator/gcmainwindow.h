@@ -12,6 +12,7 @@ namespace Ui {
 class GCDataBaseInterface;
 class QTreeWidgetItem;
 class QDomDocument;
+class QDomElement;
 class QTimer;
 
 class GCMainWindow : public QMainWindow

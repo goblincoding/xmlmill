@@ -12,7 +12,7 @@
 class GCBatchProcessorHelper
 {
 public:
-  GCBatchProcessorHelper ( const QDomDocument &domDoc );
+  GCBatchProcessorHelper ( const QDomDocument *domDoc );
   void setKnownElements  ( const QStringList &elementts );
   void setKnownAttributes( const QStringList &attributeKeys );
   void createVariantLists();

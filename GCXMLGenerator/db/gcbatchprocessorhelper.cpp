@@ -3,7 +3,7 @@
 
 /*--------------------------------- MEMBER FUNCTIONS ----------------------------------*/
 
-GCBatchProcessorHelper::GCBatchProcessorHelper( const QDomDocument &domDoc ) :
+GCBatchProcessorHelper::GCBatchProcessorHelper( const QDomDocument *domDoc ) :
   m_knownElements            (),
   m_knownAttributeKeys       (),
   m_newElementsToAdd         (),
@@ -19,7 +19,7 @@ GCBatchProcessorHelper::GCBatchProcessorHelper( const QDomDocument &domDoc ) :
   m_unsorted                 (),
   m_records                  ()
 {
-  QDomElement root = domDoc.documentElement();
+  QDomElement root = domDoc->documentElement();
   createRecord( root );
   processElement( root );   // kicks off a chain of recursive DOM element traversals
   sortRecords();
