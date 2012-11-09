@@ -11,6 +11,7 @@ namespace Ui {
 
 class GCDataBaseInterface;
 class QTreeWidgetItem;
+class QTableWidgetItem;
 class QDomDocument;
 class QDomElement;
 class QTimer;
@@ -49,6 +50,8 @@ private:
 private slots:
   void treeWidgetItemChanged     ( QTreeWidgetItem *item, int column );
   void treeWidgetItemActivated   ( QTreeWidgetItem *item, int column );
+  void attributeNameChanged      ( QTableWidgetItem *item );
+  void attributeValueChanged     ( QString value );
   void collapseOrExpandTreeWidget( bool checked );
   void switchSuperUserMode       ( bool super );
   void userCancelledKnownDBForm  ();
@@ -68,7 +71,6 @@ private slots:
 
   void removeDB();                            // shows known DB form
   void removeDBConnection( QString dbName );  // receives signal from DB form
-  void updateDataBase();
 
   /* Build XML. */
   void deleteElementFromDOM();

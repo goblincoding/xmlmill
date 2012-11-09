@@ -7,6 +7,7 @@
 #include <QTextStream>
 #include <QComboBox>
 #include <QTimer>
+#include <QModelIndex>
 
 /*--------------------------------------------------------------------------------------*/
 
@@ -55,10 +56,15 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->expandAllCheckBox,           SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
   connect( ui->actionExit,                  SIGNAL( triggered() ),     this, SLOT( close() ) );
 
-  /* Everything tree widget related. */
-  connect( ui->treeWidget,                  SIGNAL( itemChanged  ( QTreeWidgetItem*, int ) ), this, SLOT  ( treeWidgetItemChanged  ( QTreeWidgetItem*, int ) ) );
-  connect( ui->treeWidget,                  SIGNAL( itemClicked  ( QTreeWidgetItem*, int ) ), this, SLOT  ( treeWidgetItemActivated( QTreeWidgetItem*, int ) ) );
-  connect( ui->treeWidget,                  SIGNAL( itemActivated( QTreeWidgetItem*, int ) ), this, SLOT  ( treeWidgetItemActivated( QTreeWidgetItem*, int ) ) );
+  /* Everything tree widget related (itemChanged will only ever be emitted in Super User mode since,
+    tree widget items aren't editable otherwise). */
+  connect( ui->treeWidget,                  SIGNAL( itemChanged  ( QTreeWidgetItem*, int ) ), this, SLOT( treeWidgetItemChanged  ( QTreeWidgetItem*, int ) ) );
+  connect( ui->treeWidget,                  SIGNAL( itemClicked  ( QTreeWidgetItem*, int ) ), this, SLOT( treeWidgetItemActivated( QTreeWidgetItem*, int ) ) );
+  connect( ui->treeWidget,                  SIGNAL( itemActivated( QTreeWidgetItem*, int ) ), this, SLOT( treeWidgetItemActivated( QTreeWidgetItem*, int ) ) );
+
+  /* Everything table widget related (itemChanged will only ever be emitted in Super User mode since,
+    table widget items aren't editable otherwise). */
+  connect( ui->tableWidget,                 SIGNAL( itemChanged  ( QTableWidgetItem* ) ),     this, SLOT( attributeNameChanged( QTableWidgetItem* ) ) );
 
   /* Initialise the database interface and retrieve the list of database names (this will
     include the path references to the ".db" files). */
@@ -216,24 +222,6 @@ void GCMainWindow::newXMLFile()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::startSaveTimer()
-{
-  /* Automatically save the file at five minute intervals. */
-  if( !m_saveTimer )
-  {
-    m_saveTimer = new QTimer( this );
-    connect( m_saveTimer, SIGNAL( timeout() ), this, SLOT(saveXMLFile() ) );
-    m_saveTimer->start( 300000 );
-  }
-  else
-  {
-    /* If the timer was stopped due to a DOM reset, start it again. */
-    m_saveTimer->start( 300000 );
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 void GCMainWindow::saveXMLFile()
 {
   if( m_currentXMLFileName.isEmpty() )
@@ -272,6 +260,24 @@ void GCMainWindow::saveXMLFileAs()
     startSaveTimer();
     m_currentXMLFileName = file;
     saveXMLFile();
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::startSaveTimer()
+{
+  /* Automatically save the file at five minute intervals. */
+  if( !m_saveTimer )
+  {
+    m_saveTimer = new QTimer( this );
+    connect( m_saveTimer, SIGNAL( timeout() ), this, SLOT(saveXMLFile() ) );
+    m_saveTimer->start( 300000 );
+  }
+  else
+  {
+    /* If the timer was stopped due to a DOM reset, start it again. */
+    m_saveTimer->start( 300000 );
   }
 }
 
@@ -351,30 +357,6 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::resetTableWidget()
-{
-  ui->tableWidget->clearContents();   // also deletes current items
-  ui->tableWidget->setRowCount( 0 );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::updateDataBase()
-{  
-  if( m_dbInterface->hasActiveSession() )
-  {
-    // Get hold of XML node values here...
-  }
-  else
-  {
-    QString errMsg( "No active database set, please set one for this session." );
-    showErrorMessageBox( errMsg );
-    showKnownDBForm( GCKnownDBForm::ShowAll );
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
 {
   /* This slot will only be called in super user mode so we can safely keep the functionality
@@ -425,7 +407,7 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
           showErrorMessageBox( m_dbInterface->getLastError() );
         }
 
-        ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString() );
+        //ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString() );
       }
     }
   }
@@ -454,9 +436,10 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
   {
     QTableWidgetItem *label = new QTableWidgetItem( attributes.at( i ) );
 
-    if( m_superUserMode )
+    /* Items are editable by default, disable this option if not in super user mode. */
+    if( !m_superUserMode )
     {
-      label->setFlags( label->flags() | Qt::ItemIsEditable );
+      label->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable );
     }
 
     ui->tableWidget->setRowCount( i + 1 );
@@ -464,6 +447,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
 
     QComboBox *attributeCombo = new QComboBox;
     attributeCombo->addItems( m_dbInterface->attributeValues( elementName, attributes.at( i ), success ) );
+    connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged( QString ) ) );
 
     /* Get the current value assigned to the element associated with this tree widget item. */
     QDomElement element = m_treeItemNodes.value( item );
@@ -495,6 +479,150 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCMainWindow::collapseOrExpandTreeWidget( bool checked )
+{
+  if( checked )
+  {
+    ui->treeWidget->expandAll();
+  }
+  else
+  {
+    ui->treeWidget->collapseAll();
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
+{
+  /* All attribute name changes will be assumed to be additions, removing an attribute
+    with a specific name has to be done explicitly. This slot will only ever be called
+    in Super User mode. */
+  QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
+  QDomElement currentElement = m_treeItemNodes.value( currentItem );
+
+  if( !m_dbInterface->updateElementAttributes( currentElement.tagName(), QStringList( item->text() ) ) )
+  {
+    showErrorMessageBox( m_dbInterface->getLastError() );
+  }
+  else
+  {
+    /* The current attribute value will be displayed in the second column (the
+      combo box next to the currently selected table widget item). */
+    QComboBox *attributeValueCombo = dynamic_cast< QComboBox* >( ui->tableWidget->cellWidget( ui->tableWidget->currentRow(), 1 ) );
+
+    if( attributeValueCombo )
+    {
+      currentElement.setAttribute( item->text(), attributeValueCombo->currentText() );
+    }
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::attributeValueChanged( QString value )
+{
+  QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
+  QDomElement currentElement = m_treeItemNodes.value( currentItem );
+
+  /* The current attribute will be displayed in the first column (next to the
+    combo box which will be the actual current item). */
+  QString currentAttributeName = ui->tableWidget->item( ui->tableWidget->currentRow(), 0 )->text();
+  currentElement.setAttribute( currentAttributeName, value );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::resetTableWidget()
+{
+  ui->tableWidget->clearContents();   // also deletes current items
+  ui->tableWidget->setRowCount( 0 );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::deleteElementFromDOM()
+{
+  QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
+  QDomElement currentElement = m_treeItemNodes.value( currentItem );
+
+  /* Remove the element from the DOM first. */
+  QDomNode parentNode = currentElement.parentNode();
+  parentNode.removeChild( currentElement );
+
+  /* Now we can whack it from the tree widget and map. */
+  m_treeItemNodes.remove( currentItem );
+
+  QTreeWidgetItem *parentItem = currentItem->parent();
+  parentItem->removeChild( currentItem );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::addChildElementToDOM()
+{
+  QString newElementName = ui->addElementComboBox->currentText();
+
+  /* Update the tree widget. */
+  QTreeWidgetItem *newItem = new QTreeWidgetItem;
+  newItem->setText( 0, newElementName );
+
+  if( m_superUserMode )
+  {
+    newItem->setFlags( newItem->flags() | Qt::ItemIsEditable );
+  }
+
+  /* Update the current DOM document. */
+  QDomElement newElement = m_domDoc->createElement( newElementName );
+
+  if( !m_treeItemNodes.isEmpty() )
+  {
+    QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
+    currentItem->addChild( newItem );
+
+    /* Expand the item's parent for convenience. */
+    ui->treeWidget->expandItem( currentItem );
+
+    QDomElement parent = m_treeItemNodes.value( currentItem );
+    parent.appendChild( newElement );
+  }
+  else
+  {
+    /* If the user starts creating a DOM document without having explicitly asked for
+      a new file to be created, do it automatically (we can't call newXMLFile here since
+      it resets the DOM document). */
+    m_currentXMLFileName = "";
+    ui->actionSave->setEnabled( true );
+    ui->actionSaveAs->setEnabled( true );
+
+    ui->treeWidget->invisibleRootItem()->addChild( newItem );  // takes ownership
+    m_domDoc->appendChild( newElement );
+  }
+
+  /* Keep everything in sync in the map. */
+  m_treeItemNodes.insert( newItem, newElement );
+
+  /* Add the known attributes associated with this element. */
+  bool success( false );
+  QStringList attributes = m_dbInterface->attributes( newElementName, success );
+
+  if( success )
+  {
+    for( int i = 0; i < attributes.size(); ++i )
+    {
+      newElement.setAttribute( attributes.at( i ), QString( "" ) );
+    }
+  }
+  else
+  {
+    showErrorMessageBox( m_dbInterface->getLastError() );
+  }
+
+  //ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString() );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCMainWindow::toggleAddElementWidgets()
 {
   /* Make sure we don't inadvertently create "empty" elements. */
@@ -507,20 +635,6 @@ void GCMainWindow::toggleAddElementWidgets()
   {
     ui->addElementComboBox->setEnabled( true );
     ui->addElementButton->setEnabled( true );
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::collapseOrExpandTreeWidget( bool checked )
-{
-  if( checked )
-  {
-    ui->treeWidget->expandAll();
-  }
-  else
-  {
-    ui->treeWidget->collapseAll();
   }
 }
 
@@ -669,72 +783,6 @@ void GCMainWindow::switchDBSession()
   }
 
   showKnownDBForm( GCKnownDBForm::ShowAll );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::deleteElementFromDOM()
-{
-  QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
-  QDomElement currentElement = m_treeItemNodes.value( currentItem );
-
-  /* Remove the element from the DOM first. */
-  QDomNode parentNode = currentElement.parentNode();
-  parentNode.removeChild( currentElement );
-
-  /* Now we can whack it from the tree widget and map. */
-  m_treeItemNodes.remove( currentItem );
-
-  QTreeWidgetItem *parentItem = currentItem->parent();
-  parentItem->removeChild( currentItem );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::addChildElementToDOM()
-{
-  QString newElementName = ui->addElementComboBox->currentText();
-
-  /* Update the tree widget. */
-  QTreeWidgetItem *newItem = new QTreeWidgetItem;
-  newItem->setText( 0, newElementName );
-
-  if( m_superUserMode )
-  {
-    newItem->setFlags( newItem->flags() | Qt::ItemIsEditable );
-  }
-
-  /* Update the current DOM document. */
-  QDomElement newElement = m_domDoc->createElement( newElementName );
-
-  if( !m_treeItemNodes.isEmpty() )
-  {
-    QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
-    currentItem->addChild( newItem );
-
-    /* Expand the item's parent for convenience. */
-    ui->treeWidget->expandItem( currentItem );
-
-    QDomElement parent = m_treeItemNodes.value( currentItem );
-    parent.appendChild( newElement );
-  }
-  else
-  {
-    /* If the user starts creating a DOM document without having explicitly asked for
-      a new file to be created, do it automatically (we can't call newXMLFile here since
-      it resets the DOM document). */
-    m_currentXMLFileName = "";
-    ui->actionSave->setEnabled( true );
-    ui->actionSaveAs->setEnabled( true );
-
-    ui->treeWidget->invisibleRootItem()->addChild( newItem );  // takes ownership
-    m_domDoc->appendChild( newElement );
-  }
-
-  /* Keep everything in sync in the map. */
-  m_treeItemNodes.insert( newItem, newElement );
-
-  ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString() );
 }
 
 /*--------------------------------------------------------------------------------------*/
