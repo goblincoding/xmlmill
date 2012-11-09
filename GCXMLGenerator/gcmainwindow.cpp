@@ -1,10 +1,12 @@
 #include "gcmainwindow.h"
 #include "ui_gcmainwindow.h"
 #include "db/gcdatabaseinterface.h"
+#include <QDomDocument>
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QTextStream>
 #include <QComboBox>
+#include <QTimer>
 
 /*--------------------------------------------------------------------------------------*/
 
@@ -12,7 +14,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   QMainWindow         ( parent ),
   ui                  ( new Ui::GCMainWindow ),
   m_dbInterface       ( new GCDataBaseInterface ),
-  m_domDoc            (),
+  m_domDoc            ( NULL ),
+  m_saveTimer         ( NULL ),
   m_currentXMLFileName( "" ),
   m_userCancelled     ( false ),
   m_superUserMode     ( false ),
@@ -20,7 +23,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 {
   ui->setupUi( this );
 
-  /* Disable super user options. */
+  /* Hide super user options. */
   ui->addAttributeButton->setVisible( false );
   ui->addAttributeLabel->setVisible( false );
   ui->addAttributeLineEdit->setVisible( false );
@@ -65,6 +68,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
     this->close();
   }
 
+  m_domDoc = new QDomDocument;
+
   /* If the interface was successfully initialised, prompt the user to choose a database
     connection for this session. */
   showKnownDBForm( GCKnownDBForm::ShowAll );
@@ -76,6 +81,7 @@ GCMainWindow::~GCMainWindow()
 {
   // TODO: Give the user the option to save the current XML file.
 
+  delete m_domDoc;
   delete m_dbInterface;
   delete ui;
 }
@@ -105,12 +111,12 @@ void GCMainWindow::openXMLFile()
         int     line  ( -1 );
         int     col   ( -1 );
 
-        if( m_domDoc.setContent( fileContent, &xmlErr, &line, &col ) )
+        if( m_domDoc->setContent( fileContent, &xmlErr, &line, &col ) )
         {
           /* If the user is opening an XML file of a kind that isn't supported by the current active session,
             we need to warn the user of this fact and let them either switch to the DB that they need, or
             create a new DB connection for the new XML file type. */
-          if( !m_dbInterface->knownRootElements().contains( m_domDoc.documentElement().tagName() ) &&
+          if( !m_dbInterface->knownRootElements().contains( m_domDoc->documentElement().tagName() ) &&
               !m_superUserMode )
           {
             do
@@ -126,7 +132,7 @@ void GCMainWindow::openXMLFile()
 
               showKnownDBForm( GCKnownDBForm::SelectAndExisting );
 
-            } while( !m_dbInterface->knownRootElements().contains( m_domDoc.documentElement().tagName() ) &&
+            } while( !m_dbInterface->knownRootElements().contains( m_domDoc->documentElement().tagName() ) &&
                      !m_userCancelled );
 
             /* If the user selected a database that fits, continue. */
@@ -173,8 +179,7 @@ void GCMainWindow::openXMLFile()
         {
           QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3])." ).arg( xmlErr ).arg( line ).arg( col );
           showErrorMessageBox( errorMsg );
-          resetDOM();
-          m_currentXMLFileName = "";
+          resetDOM();          
         }
 
         file.close();
@@ -184,7 +189,6 @@ void GCMainWindow::openXMLFile()
         QString errorMsg = QString( "Failed to open file \"%1\" - [%2]" ).arg( fileName ).arg( file.errorString() );
         showErrorMessageBox( errorMsg );
         resetDOM();
-        m_currentXMLFileName = "";
       }
     }
   }
@@ -201,7 +205,6 @@ void GCMainWindow::openXMLFile()
 void GCMainWindow::newXMLFile()
 {
   resetDOM();
-  m_currentXMLFileName = "";
 
   ui->addElementComboBox->clear();
   ui->addElementComboBox->addItems( m_dbInterface->knownRootElements() );
@@ -209,6 +212,24 @@ void GCMainWindow::newXMLFile()
 
   ui->actionSave->setEnabled( true );
   ui->actionSaveAs->setEnabled( true );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::startSaveTimer()
+{
+  /* Automatically save the file at five minute intervals. */
+  if( !m_saveTimer )
+  {
+    m_saveTimer = new QTimer( this );
+    connect( m_saveTimer, SIGNAL( timeout() ), this, SLOT(saveXMLFile() ) );
+    m_saveTimer->start( 300000 );
+  }
+  else
+  {
+    /* If the timer was stopped due to a DOM reset, start it again. */
+    m_saveTimer->start( 300000 );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -231,8 +252,10 @@ void GCMainWindow::saveXMLFile()
     else
     {
       QTextStream outStream( &file );
-      outStream << m_domDoc.toString( 2 );
+      outStream << m_domDoc->toString( 2 );
       file.close();
+
+      startSaveTimer();
     }
   }
 }
@@ -246,6 +269,7 @@ void GCMainWindow::saveXMLFileAs()
   /* If the user clicked "OK". */
   if( !file.isEmpty() )
   {
+    startSaveTimer();
     m_currentXMLFileName = file;
     saveXMLFile();
   }
@@ -255,11 +279,20 @@ void GCMainWindow::saveXMLFileAs()
 
 void GCMainWindow::resetDOM()
 {
-  m_domDoc.clear();
+  m_domDoc->clear();
   ui->dockWidgetTextEdit->clear();
   m_treeItemNodes.clear();
   ui->treeWidget->clear();
   resetTableWidget();
+
+  m_currentXMLFileName = "";
+
+  /* The timer will be reactivated as soon as work starts again on a legitimate
+    document and the user saves it for the first time. */
+  if( m_saveTimer )
+  {
+    m_saveTimer->stop();
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -270,7 +303,7 @@ void GCMainWindow::processDOMDoc()
   m_treeItemNodes.clear();
   resetTableWidget();
 
-  QDomElement root = m_domDoc.documentElement();
+  QDomElement root = m_domDoc->documentElement();
 
   /* We want to show the document's root element in the tree widget as well. */
   QTreeWidgetItem *item = new QTreeWidgetItem;
@@ -364,7 +397,7 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
         /* Update the element names in our active DOM doc (since m_treeItemNodes
         contains shallow copied QDomElements, the change will automatically
         be available to the map as well) and the tree widget. */
-        QDomNodeList list = m_domDoc.elementsByTagName( previousName );
+        QDomNodeList list = m_domDoc->elementsByTagName( previousName );
 
         for( int i = 0; i < list.count(); ++i )
         {
@@ -392,7 +425,7 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
           showErrorMessageBox( m_dbInterface->getLastError() );
         }
 
-        ui->dockWidgetTextEdit->setPlainText( m_domDoc.toString() );
+        ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString() );
       }
     }
   }
@@ -560,7 +593,7 @@ void GCMainWindow::setSessionDB( QString dbName )
   {
     /* If we have an empty DOM doc, load the list of known document root elements
       to start the document building process. */
-    if( m_domDoc.documentElement().isNull() )
+    if( m_domDoc->documentElement().isNull() )
     {
       ui->addElementComboBox->clear();
       ui->addElementComboBox->addItems( m_dbInterface->knownRootElements() );
@@ -661,7 +694,7 @@ void GCMainWindow::addChildElementToDOM()
   }
 
   /* Update the current DOM document. */
-  QDomElement newElement = m_domDoc.createElement( newElementName );
+  QDomElement newElement = m_domDoc->createElement( newElementName );
 
   if( !m_treeItemNodes.isEmpty() )
   {
@@ -684,13 +717,13 @@ void GCMainWindow::addChildElementToDOM()
     ui->actionSaveAs->setEnabled( true );
 
     ui->treeWidget->invisibleRootItem()->addChild( newItem );  // takes ownership
-    m_domDoc.appendChild( newElement );
+    m_domDoc->appendChild( newElement );
   }
 
   /* Keep everything in sync in the map. */
   m_treeItemNodes.insert( newItem, newElement );
 
-  ui->dockWidgetTextEdit->setPlainText( m_domDoc.toString() );
+  ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString() );
 }
 
 /*--------------------------------------------------------------------------------------*/

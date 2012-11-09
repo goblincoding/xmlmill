@@ -2,7 +2,6 @@
 #define GCMAINWINDOW_H
 
 #include <QMainWindow>
-#include <QDomDocument>
 #include <QMap>
 #include "db/gcknowndbform.h"
 
@@ -12,6 +11,8 @@ namespace Ui {
 
 class GCDataBaseInterface;
 class QTreeWidgetItem;
+class QDomDocument;
+class QTimer;
 
 class GCMainWindow : public QMainWindow
 {
@@ -29,12 +30,14 @@ private:
   void addDBConnection    ( const QString &dbName );
   void populateTreeWidget ( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
   void resetTableWidget();
+  void startSaveTimer();
 
   void toggleAddElementWidgets();
 
   Ui::GCMainWindow    *ui;
   GCDataBaseInterface *m_dbInterface;
-  QDomDocument         m_domDoc;
+  QDomDocument        *m_domDoc;
+  QTimer              *m_saveTimer;
   QString              m_currentXMLFileName;
   bool                 m_userCancelled;
   bool                 m_superUserMode;
