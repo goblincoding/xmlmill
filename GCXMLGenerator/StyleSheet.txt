@@ -1,0 +1,398 @@
+QMainWindow::separator
+{
+   background-color: rgba(255, 255, 255, 10 );
+   width: 3px;
+   height: 3px;
+ }
+
+QMainWindow
+{
+  background-color: rgba(30, 30, 40, 255);
+  font: 20px;
+}
+
+QMainWindow::separator:hover
+{
+  background-color: rgb(190, 196, 209);
+}
+
+QMessageBox
+{
+  background-color: rgb(80, 10, 10);
+  color: rgb(255,200,100);
+}
+
+QPushButton
+{
+  color: rgb(255, 255, 255);
+  background-color: qlineargradient(spread:pad, x1:0.767, y1:1, x2:1, y2:0, stop:0 rgba(20, 20, 30, 255), stop:1 rgba(60, 60, 70, 255));
+  border-style: outset;
+  border-width: 1px;
+  border-radius: 9px;
+  border-color: black;
+  font: 12px;
+  min-width: 8em;
+  min-height: 1em;
+  padding: 6px;
+}
+
+QPushButton:pressed
+{
+  color: rgb(190, 190, 190);
+  background-color: qlineargradient(spread:pad, x1:0.767, y1:1, x2:1, y2:0, stop:0 rgba(20, 20, 35, 255), stop:1 rgba(60, 60, 70, 255));
+  border-style: inset;
+}
+
+QToolButton
+{
+  background-color: qlineargradient(spread:pad, x1:0.767, y1:1, x2:1, y2:0, stop:0 rgba(25, 25, 40, 255), stop:1 rgba(60, 60, 70, 255));
+  border-style: outset;
+  border-width: 1px;
+  border-radius: 4px;
+  border-color: black;
+}
+
+QToolButton:pressed
+{
+  background-color: qlineargradient(spread:pad, x1:0.767, y1:1, x2:1, y2:0, stop:0 rgba(25, 25, 40, 255), stop:1 rgba(60, 60, 70, 255));
+  border-style: inset;
+}
+
+QComboBox
+{
+  color: rgb(255, 255, 255);
+  background-color: qlineargradient(spread:pad, x1:0.767, y1:1, x2:1, y2:0, stop:0 rgba(25, 25, 40, 255), stop:1 rgba(60, 60, 70, 255));
+  border-style: outset;
+  border-width: 1px;
+  border-radius: 9px;
+  border-color: black;
+  font: 12px;
+  min-width: 8em;
+  min-height: 1em;
+  padding: 6px;
+  text-align: right;
+}
+
+QComboBox::drop-down
+{
+  subcontrol-origin: padding;
+  subcontrol-position: top right;
+  left: -8px;
+  width: 18px;
+  border-left-color: transparent;
+  text-align: right;
+}
+
+QComboBox::down-arrow
+{
+  image: url(":/Icons/DownArrow.png");
+  opacity: 0.6;
+}
+
+QComboBox QAbstractItemView
+{
+  border: 1px solid black;
+  selection-color: rgb(255, 249, 224);
+  color: rgb(255, 255, 255);
+  selection-background-color: rgba(0, 0, 0, 20);
+}
+
+QListView
+{
+  border: 1px solid black;
+  background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0  rgba(40, 40, 50, 255), stop:1 rgba(60, 60, 70, 255));
+  alternate-background-color: yellow;
+  font: 11px;
+  color: rgb(255, 255, 255);
+}
+
+QDockWidget
+{
+  background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0 rgba(50, 50, 60, 255), stop:1 rgba(60, 60, 70, 255));
+  text-align: left;
+  selection-color: rgb(192, 255, 43);
+  border: 1px solid black;
+  color: rgb(220, 220, 220);
+  min-width: 20em;
+  font: 13px;
+  titlebar-close-icon: url(":/Icons/Close.png");
+  titlebar-normal-icon: url(":/Icons/Undock.png");
+}
+
+QDockWidget::title
+{
+  text-align: left;
+  background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0 rgba(40, 40, 50, 255), stop:1 rgba(50, 50, 60, 255));
+  selection-color: rgb(192, 255, 43);
+  color: rgb(255, 255, 255);
+  border: 0px;
+  padding-left: 5px;
+}
+
+QDockWidget::close-button, QDockWidget::float-button
+{
+  min-height: 20px;
+  min-width: 20px;
+  icon-size: 20px;
+}
+
+QDockWidget::close-button
+{
+  subcontrol-origin: margin;
+  subcontrol-position: right;
+  left: -4px;
+ }
+
+QDockWidget::float-button
+{
+  subcontrol-origin: margin;
+  subcontrol-position: right;
+  left: -26px;
+ }
+
+QDockWidget::separator
+{
+  width: 4px;
+  height: 4px;
+  background: lightblue;
+  margin-left: 10px;
+  margin-right: 5px;
+}
+
+QTabWidget::pane
+{
+  border: 1px solid black;
+  background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(60, 60, 70, 255), stop:1 rgba(70, 70, 80, 255));
+}
+
+QTabBar::tab
+{
+  color: rgb(255, 255, 255);
+  border: 1px solid black;
+  background-color: rgb(60, 62, 80);
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  min-width: 9ex;
+  padding: 2px;
+  font: 12px;
+}
+
+QTabBar::tab:selected, QTabBar::tab:hover
+{
+  background-color: rgb(100, 100, 110);
+}
+
+QTabBar::tab:selected
+{
+  background-color: rgb(90, 90, 100);
+}
+
+QTabBar::tab:!selected
+{
+  margin-top: 2px;
+}
+
+QSlider::groove:horizontal
+{
+  background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0.5, stop:0 rgba(26, 35, 56, 255), stop:1 rgba(78, 92, 101, 255));
+  border: 1px solid black;
+  height: 10px;
+  margin: 0px 0;
+}
+
+QSlider::handle:horizontal
+{
+  background-color: qlineargradient(spread:reflect, x1:0, y1:1, x2:0, y2:0.5, stop:0 rgba(54, 5, 5, 255), stop:1 rgba(163, 67, 67, 255));
+  border: 1px solid black;
+  width: 24px;
+  margin: -3px -1;
+  border-radius: 4px;
+}
+
+QSlider::sub-page:horizontal 
+{
+  background-color: qlineargradient(spread:reflect, x1:0, y1:1, x2:0, y2:0.5, stop:0 rgba(24, 0, 0, 255), stop:1 rgba(133, 37, 37, 255));
+  border: 1px solid black;
+ }
+
+QSlider::add-page:horizontal 
+{
+  background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0.5, stop:0 rgba(06, 15, 30, 255), stop:1 rgba(60, 70, 80, 255));
+  border: 1px solid black;
+}
+
+QLabel
+{
+  background-color: rgba(255, 255, 255, 60);
+  border: 1px solid black;
+  border-radius: 4px;
+  padding: 2px;
+  font: 12px;
+}
+
+QCheckBox
+{
+  spacing: 10px;
+  min-height: 20px;
+  min-width: 20px;
+  icon-size: 20px;
+  font: 12px;
+  color: rgb(255, 255, 255);
+}
+
+QCheckBox::indicator
+{
+  width: 20px;
+  height: 20px;
+}
+
+QCheckBox::indicator:unchecked
+{
+  image: url(":/Icons/CheckBox.png");
+}
+
+QCheckBox::indicator:checked
+{
+  image: url(":/Icons/CheckOn.png");
+}
+
+QLineEdit
+{
+   border: 1px solid black;
+   padding: 1 3px;
+   background-color: rgb(210, 210, 230);
+   selection-background-color: rgb(98, 96, 122);
+   font: 12px;
+ }
+
+QTreeView
+{
+   border: 1px solid black;
+   color: rgba(220, 210, 200, 255);
+   background-color: rgba(40, 40, 46, 255);
+   alternate-background-color: rgba(50, 50, 60, 255);
+   font: 13px;
+ }
+
+QTreeView::branch:has-children:!has-siblings:closed, QTreeView::branch:closed:has-children:has-siblings
+{
+  border-image: none;
+  image: url(":/Icons/DownArrow.png");
+ }
+
+QTreeView::branch:open:has-children:!has-siblings, QTreeView::branch:open:has-children:has-siblings
+{
+  border-image: none;
+  image: url(":/Icons/AngledArrow.png");
+ }
+
+QTreeView::branch:hover
+{
+    background-color: rgb(188, 221, 255, 80);
+}
+
+QGroupBox
+{
+    background-color: rgb(0, 0, 0,30);
+    border-radius: 5px;
+    font: 12px;
+    color: rgb(255, 255, 255);  
+    margin-top: 3ex;    
+}
+
+QGroupBox::title
+{
+     subcontrol-origin: margin;
+     padding: 0 5px;
+ }
+
+QColorDialog
+{
+  background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(90, 90, 100, 255), stop:1 rgba(110, 110, 130, 255));
+}
+
+QSpinBox 
+{
+  border: 1px solid black;
+  padding: 1 3px;
+  background-color: rgb(213, 215, 235, 100);
+  selection-background-color: rgb(98, 96, 122, 100);
+  font: 12px;
+}
+
+QSpinBox::up-arrow
+{
+  image: url(":/Icons/SpinUpArrow.png");
+  width: 10px;
+  height: 7px;
+}
+
+QSpinBox::up-button 
+{
+    background-color: qlineargradient(spread:pad, x1:0.767, y1:1, x2:1, y2:0, stop:0 rgba(29, 29, 40, 255), stop:1 rgba(86, 89, 140, 255));  
+}
+
+QSpinBox::up-button:pressed
+{
+  background-color: qlineargradient(spread:pad, x1:0.767, y1:1, x2:1, y2:0, stop:0 rgba(20, 20, 30, 255), stop:1 rgba(74, 74, 90, 255));
+}
+
+ QSpinBox::down-arrow
+ {
+  image: url(":/Icons/SpinDownArrow.png");
+  width: 10px;
+  height: 7px;
+}
+
+QSpinBox::down-button 
+{
+  background-color: qlineargradient(spread:pad, x1:0.767, y1:1, x2:1, y2:0, stop:0 rgba(29, 29, 40, 255), stop:1 rgba(86,89, 140, 255));
+}
+
+QSpinBox::down-button:pressed 
+{
+  background-color: qlineargradient(spread:pad, x1:0.767, y1:1, x2:1, y2:0, stop:0 rgba(20, 20, 30, 255), stop:1 rgba(74, 74, 90, 255));
+}
+
+QDoubleSpinBox 
+{
+  border: 1px solid black;
+  padding: 1 3px;
+  background-color: rgb(213, 215, 235, 100);
+  selection-background-color: rgb(98, 96, 122, 100);
+  font: 12px;
+}
+
+QDoubleSpinBox::up-arrow
+{
+  image: url(":/Icons/SpinUpArrow.png");
+  width: 10px;
+  height: 7px;
+}
+
+QDoubleSpinBox::up-button 
+{
+    background-color: qlineargradient(spread:pad, x1:0.767, y1:1, x2:1, y2:0, stop:0 rgba(29, 29, 45, 255), stop:1 rgba(86, 89, 140, 255));  
+}
+
+QDoubleSpinBox::up-button:pressed
+{
+  background-color: qlineargradient(spread:pad, x1:0.767, y1:1, x2:1, y2:0, stop:0 rgba(20, 20, 30, 255), stop:1 rgba(74, 74, 90, 255));
+}
+
+QDoubleSpinBox::down-arrow
+{
+  image: url(":/Icons/SpinDownArrow.png");
+  width: 10px;
+  height: 7px;
+}
+
+QDoubleSpinBox::down-button 
+{
+  background-color: qlineargradient(spread:pad, x1:0.767, y1:1, x2:1, y2:0, stop:0 rgba(30, 30, 40, 255), stop:1 rgba(80, 85, 120, 255));
+}
+
+QDoubleSpinBox::down-button:pressed 
+{
+  background-color: qlineargradient(spread:pad, x1:0.767, y1:1, x2:1, y2:0, stop:0 rgba(20, 20, 35, 255), stop:1 rgba(74, 74, 100, 255));
+}
