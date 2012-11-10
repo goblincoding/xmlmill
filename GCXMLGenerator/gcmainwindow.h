@@ -43,6 +43,7 @@ private:
   QString              m_currentXMLFileName;
   bool                 m_userCancelled;
   bool                 m_superUserMode;
+  bool                 m_rootElementSet;
 
   QMap< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
 

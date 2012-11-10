@@ -14,14 +14,16 @@ SOURCES += main.cpp\
     db/gcdatabaseinterface.cpp \
     gcmainwindow.cpp \
     db/gcbatchprocessorhelper.cpp \
-    db/gcknowndbform.cpp
+    db/gcknowndbform.cpp \
+    xml/xmlsyntaxhighlighter.cpp
 
 HEADERS  += \
     db/gcdatabaseinterface.h \
     gcmainwindow.h \
     db/gcbatchprocessorhelper.h \
     utils/gcglobals.h \
-    db/gcknowndbform.h
+    db/gcknowndbform.h \
+    xml/xmlsyntaxhighlighter.h
 
 FORMS    += \
     gcmainwindow.ui \

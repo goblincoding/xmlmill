@@ -1,6 +1,7 @@
 #include "gcmainwindow.h"
 #include "ui_gcmainwindow.h"
 #include "db/gcdatabaseinterface.h"
+#include "xml/xmlsyntaxhighlighter.h"
 #include <QDomDocument>
 #include <QMessageBox>
 #include <QFileDialog>
@@ -20,13 +21,14 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_currentXMLFileName( "" ),
   m_userCancelled     ( false ),
   m_superUserMode     ( false ),
+  m_rootElementSet    ( false ),
   m_treeItemNodes     ()
 {
   ui->setupUi( this );
 
   /* Hide super user options. */
   ui->addAttributeButton->setVisible( false );
-  ui->addAttributeLabel->setVisible( false );
+  ui->addAttributeLabel->setVisible ( false );
   ui->addAttributeLineEdit->setVisible( false );
 
   /* The user must see they exist, but shouldn't be able to access these
@@ -79,6 +81,10 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   /* If the interface was successfully initialised, prompt the user to choose a database
     connection for this session. */
   showKnownDBForm( GCKnownDBForm::ShowAll );
+
+  /* Everything happens automagically. */
+  XmlSyntaxHighlighter *highLighter = new XmlSyntaxHighlighter( ui->dockWidgetTextEdit );
+  Q_UNUSED( highLighter );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -111,6 +117,10 @@ void GCMainWindow::openXMLFile()
         resetDOM();
 
         QTextStream inStream( &file );
+
+        /* The reason for this particular attribute is to ensure that we don't inadvertently
+          break the format of the XML file that's being loaded.  Users might like multi line
+          attribute layouts, etc etc. */
         QString fileContent( inStream.readAll() );
 
         QString xmlErr( "" );
@@ -144,7 +154,7 @@ void GCMainWindow::openXMLFile()
             /* If the user selected a database that fits, continue. */
             if( !m_userCancelled )
             {
-              processDOMDoc();
+              processDOMDoc();              
             }
             else
             {
@@ -329,6 +339,9 @@ void GCMainWindow::processDOMDoc()
   /* Enable file save options. */
   ui->actionSave->setEnabled( true );
   ui->actionSaveAs->setEnabled( true );
+
+  /* Display the DOM content in the text edit. */
+  ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -363,8 +376,8 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
     as it is (i.e. updating the database alongside the DOM) without any other explicit checks. */
   if( m_treeItemNodes.contains( item ) )
   {
-    QString elementName      = item->text( column );
-    QString previousName  = m_treeItemNodes.value( item ).toElement().tagName();
+    QString elementName  = item->text( column );
+    QString previousName = m_treeItemNodes.value( item ).toElement().tagName();
 
     /* Watch out for empty strings. */
     if( elementName.isEmpty() )
@@ -407,7 +420,7 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
           showErrorMessageBox( m_dbInterface->getLastError() );
         }
 
-        //ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString() );
+        ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
       }
     }
   }
@@ -452,7 +465,13 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     /* Get the current value assigned to the element associated with this tree widget item. */
     QDomElement element = m_treeItemNodes.value( item );
     QString attributeValue = element.attribute( attributes.at( i ) );
-    attributeCombo->setCurrentIndex( attributeCombo->findText( attributeValue ) );
+
+    /* If we are in the process of building the document, the attribute value will
+      still be empty has it has never been set before. */
+    if( !attributeValue.isEmpty() )
+    {
+      attributeCombo->setCurrentIndex( attributeCombo->findText( attributeValue ) );
+    }
 
     /* This is more for debugging than for end-user functionality. */
     if( !success )
@@ -515,6 +534,8 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
     {
       currentElement.setAttribute( item->text(), attributeValueCombo->currentText() );
     }
+
+    ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
   }
 }
 
@@ -529,6 +550,8 @@ void GCMainWindow::attributeValueChanged( QString value )
     combo box which will be the actual current item). */
   QString currentAttributeName = ui->tableWidget->item( ui->tableWidget->currentRow(), 0 )->text();
   currentElement.setAttribute( currentAttributeName, value );
+
+  ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -555,6 +578,8 @@ void GCMainWindow::deleteElementFromDOM()
 
   QTreeWidgetItem *parentItem = currentItem->parent();
   parentItem->removeChild( currentItem );
+
+  ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -618,7 +643,16 @@ void GCMainWindow::addChildElementToDOM()
     showErrorMessageBox( m_dbInterface->getLastError() );
   }
 
-  //ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString() );
+  ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
+
+  /* If the user just added the root element, we need to make sure that they don't
+    try to add it again...it happens. */
+  if( !m_rootElementSet )
+  {
+    ui->treeWidget->setCurrentItem( newItem, 0 );
+    treeWidgetItemActivated( newItem, 0 );
+    m_rootElementSet = true;
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -723,6 +757,7 @@ void GCMainWindow::setSessionDB( QString dbName )
       ui->addElementComboBox->clear();
       ui->addElementComboBox->addItems( m_dbInterface->knownRootElements() );
       toggleAddElementWidgets();
+      m_rootElementSet = false;
     }
   }
 }
@@ -875,9 +910,27 @@ void GCMainWindow::switchSuperUserMode( bool super )
   ui->actionAddNewDatabase->setEnabled( super );
   ui->actionRemoveDatabase->setEnabled( super );
 
-  /* Needed to reset reset all the tree widget item's "editable" flags
+  /* Needed to reset all the tree widget item's "editable" flags
     to whatever the current mode allows. */
-  processDOMDoc();
+  QList< QTreeWidgetItem* > itemList = m_treeItemNodes.keys();
+
+  if( super )
+  {
+    for( int i = 0; i < itemList.size(); ++i )
+    {
+      const_cast< QTreeWidgetItem* >( itemList.at( i ) )->setFlags( Qt::ItemIsEnabled |
+                                                                    Qt::ItemIsSelectable |
+                                                                    Qt::ItemIsUserCheckable );
+    }
+  }
+  else
+  {
+    for( int i = 0; i < itemList.size(); ++i )
+    {
+      QTreeWidgetItem *item = const_cast< QTreeWidgetItem* >( itemList.at( i ) );
+      item->setFlags( item->flags() | Qt::ItemIsEditable );
+    }
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
