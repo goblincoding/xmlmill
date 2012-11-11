@@ -469,7 +469,6 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
       still be empty has it has never been set before. */
     if( !attributeValue.isEmpty() )
     {
-      int found = attributeCombo->findText( attributeValue );
       attributeCombo->setCurrentIndex( attributeCombo->findText( attributeValue ) );
     }
 
