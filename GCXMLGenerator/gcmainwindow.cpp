@@ -588,70 +588,73 @@ void GCMainWindow::addChildElementToDOM()
 {
   QString newElementName = ui->addElementComboBox->currentText();
 
-  /* Update the tree widget. */
-  QTreeWidgetItem *newItem = new QTreeWidgetItem;
-  newItem->setText( 0, newElementName );
-
-  if( m_superUserMode )
+  if( !newElementName.isEmpty() )
   {
-    newItem->setFlags( newItem->flags() | Qt::ItemIsEditable );
-  }
+    /* Update the tree widget. */
+    QTreeWidgetItem *newItem = new QTreeWidgetItem;
+    newItem->setText( 0, newElementName );
 
-  /* Update the current DOM document. */
-  QDomElement newElement = m_domDoc->createElement( newElementName );
+    if( m_superUserMode )
+    {
+      newItem->setFlags( newItem->flags() | Qt::ItemIsEditable );
+    }
 
-  if( !m_treeItemNodes.isEmpty() )
-  {
-    QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
-    currentItem->addChild( newItem );
+    /* Update the current DOM document. */
+    QDomElement newElement = m_domDoc->createElement( newElementName );
 
-    /* Expand the item's parent for convenience. */
-    ui->treeWidget->expandItem( currentItem );
+    if( !m_treeItemNodes.isEmpty() )
+    {
+      QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
+      currentItem->addChild( newItem );
 
-    QDomElement parent = m_treeItemNodes.value( currentItem );
-    parent.appendChild( newElement );
-  }
-  else
-  {
-    /* If the user starts creating a DOM document without having explicitly asked for
+      /* Expand the item's parent for convenience. */
+      ui->treeWidget->expandItem( currentItem );
+
+      QDomElement parent = m_treeItemNodes.value( currentItem );
+      parent.appendChild( newElement );
+    }
+    else
+    {
+      /* If the user starts creating a DOM document without having explicitly asked for
       a new file to be created, do it automatically (we can't call newXMLFile here since
       it resets the DOM document). */
-    m_currentXMLFileName = "";
-    ui->actionSave->setEnabled( true );
-    ui->actionSaveAs->setEnabled( true );
+      m_currentXMLFileName = "";
+      ui->actionSave->setEnabled( true );
+      ui->actionSaveAs->setEnabled( true );
 
-    ui->treeWidget->invisibleRootItem()->addChild( newItem );  // takes ownership
-    m_domDoc->appendChild( newElement );
-  }
-
-  /* Keep everything in sync in the map. */
-  m_treeItemNodes.insert( newItem, newElement );
-
-  /* Add the known attributes associated with this element. */
-  bool success( false );
-  QStringList attributes = m_dbInterface->attributes( newElementName, success );
-
-  if( success )
-  {
-    for( int i = 0; i < attributes.size(); ++i )
-    {
-      newElement.setAttribute( attributes.at( i ), QString( "" ) );
+      ui->treeWidget->invisibleRootItem()->addChild( newItem );  // takes ownership
+      m_domDoc->appendChild( newElement );
     }
-  }
-  else
-  {
-    showErrorMessageBox( m_dbInterface->getLastError() );
-  }
 
-  ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
+    /* Keep everything in sync in the map. */
+    m_treeItemNodes.insert( newItem, newElement );
 
-  /* If the user just added the root element, we need to make sure that they don't
+    /* Add the known attributes associated with this element. */
+    bool success( false );
+    QStringList attributes = m_dbInterface->attributes( newElementName, success );
+
+    if( success )
+    {
+      for( int i = 0; i < attributes.size(); ++i )
+      {
+        newElement.setAttribute( attributes.at( i ), QString( "" ) );
+      }
+    }
+    else
+    {
+      showErrorMessageBox( m_dbInterface->getLastError() );
+    }
+
+    ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
+
+    /* If the user just added the root element, we need to make sure that they don't
     try to add it again...it happens. */
-  if( !m_rootElementSet )
-  {
-    ui->treeWidget->setCurrentItem( newItem, 0 );
-    treeWidgetItemActivated( newItem, 0 );
-    m_rootElementSet = true;
+    if( !m_rootElementSet )
+    {
+      ui->treeWidget->setCurrentItem( newItem, 0 );
+      treeWidgetItemActivated( newItem, 0 );
+      m_rootElementSet = true;
+    }
   }
 }
 
