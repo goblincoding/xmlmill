@@ -320,6 +320,46 @@ QTableView
  QSplitter::handle:pressed
  {
      background-color: lightgray
+ }
+
+ QMenuBar {
+     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                       stop:0 lightgray, stop:1 darkgray);
+ }
+
+ QMenuBar::item
+ {
+     spacing: 3px;
+     padding: 1px 4px;
+     background: transparent;
+     border-radius: 4px;
+ }
+
+ QMenuBar::item:selected 
+{ 
+     background: #a8a8a8;
+ }
+
+ QMenuBar::item:pressed
+ {
+     background: #888888;
+ }
+
+ QMenu 
+{
+     background-color: #ABABAB;
+     border: 1px solid black;
+ }
+
+ QMenu::item
+ {
+     background-color: transparent;
+ }
+
+ QMenu::item:selected
+ { 
+ background-color: rgba(120, 120, 130, 200)
+/*     background-color: #654321;*/
  }</string>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -497,7 +537,7 @@ QTableView
      <x>0</x>
      <y>0</y>
      <width>1015</width>
-     <height>21</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDatabase">
