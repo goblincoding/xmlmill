@@ -54,7 +54,7 @@ QPushButton
   background-color: qlineargradient(spread:reflect, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0 rgba(110, 110, 110, 240), stop:1 rgba(150, 150, 160, 255));
   border-width: 1px;
   border-radius: 5px;
-  border-color: rgb(40, 40, 40);
+  border-color: gray;
   border-style: outset;
   font: 12px;
   min-width: 5em;
@@ -71,7 +71,7 @@ QPushButton:pressed
 
 QPushButton:default 
 {
-   border-color: darkgray;
+   border-color: gray;
    border-width: 2px;   
    background-color: qlineargradient(spread:reflect, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0 rgba(110, 110, 110, 255), stop:1 rgba(190, 190, 190, 255));
  }
