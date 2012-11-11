@@ -10,8 +10,10 @@ namespace Ui {
 }
 
 class GCDataBaseInterface;
+class QSignalMapper;
 class QTreeWidgetItem;
 class QTableWidgetItem;
+class QComboBox;
 class QDomDocument;
 class QDomElement;
 class QTimer;
@@ -25,12 +27,13 @@ public:
   ~GCMainWindow();
   
 private:
-  void resetDOM();
-  void processDOMDoc();
+  QString scrollToAnchor  ( QDomElement element );
   void showKnownDBForm    ( GCKnownDBForm::Buttons buttons );
   void showErrorMessageBox( const QString &errorMsg );
   void addDBConnection    ( const QString &dbName );
   void populateTreeWidget ( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
+  void processDOMDoc();
+  void resetDOM();
   void resetTableWidget();
   void startSaveTimer();
 
@@ -38,7 +41,9 @@ private:
 
   Ui::GCMainWindow    *ui;
   GCDataBaseInterface *m_dbInterface;
+  QSignalMapper       *m_signalMapper;
   QDomDocument        *m_domDoc;
+  QComboBox           *m_currentCombo;
   QTimer              *m_saveTimer;
   QString              m_currentXMLFileName;
   bool                 m_userCancelled;
@@ -46,12 +51,13 @@ private:
   bool                 m_rootElementSet;
 
   QMap< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
-
+  QMap< QComboBox*, int/* table row*/ > m_comboBoxes;
 
 private slots:
   void treeWidgetItemChanged     ( QTreeWidgetItem *item, int column );
   void treeWidgetItemActivated   ( QTreeWidgetItem *item, int column );
   void attributeNameChanged      ( QTableWidgetItem *item );
+  void setCurrentComboBox        ( QComboBox *combo );
   void attributeValueChanged     ( QString value );
   void collapseOrExpandTreeWidget( bool checked );
   void switchSuperUserMode       ( bool super );

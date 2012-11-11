@@ -2,6 +2,7 @@
 #include "ui_gcmainwindow.h"
 #include "db/gcdatabaseinterface.h"
 #include "xml/xmlsyntaxhighlighter.h"
+#include <QSignalMapper>
 #include <QDomDocument>
 #include <QMessageBox>
 #include <QFileDialog>
@@ -15,14 +16,17 @@
 GCMainWindow::GCMainWindow( QWidget *parent ) :
   QMainWindow         ( parent ),
   ui                  ( new Ui::GCMainWindow ),
-  m_dbInterface       ( new GCDataBaseInterface ),
+  m_dbInterface       ( new GCDataBaseInterface( this ) ),
+  m_signalMapper      ( new QSignalMapper( this ) ),
   m_domDoc            ( NULL ),
+  m_currentCombo      ( NULL ),
   m_saveTimer         ( NULL ),
   m_currentXMLFileName( "" ),
   m_userCancelled     ( false ),
   m_superUserMode     ( false ),
   m_rootElementSet    ( false ),
-  m_treeItemNodes     ()
+  m_treeItemNodes     (),
+  m_comboBoxes        ()
 {
   ui->setupUi( this );
 
@@ -94,7 +98,6 @@ GCMainWindow::~GCMainWindow()
   // TODO: Give the user the option to save the current XML file.
 
   delete m_domDoc;
-  delete m_dbInterface;
   delete ui;
 }
 
@@ -418,7 +421,7 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
         QStringList attributes = m_dbInterface->attributes( previousName, success );
 
         m_dbInterface->addElement( elementName,
-                                   m_dbInterface->children  ( previousName, success ),
+                                   m_dbInterface->children( previousName, success ),
                                    attributes );
 
         foreach( QString attribute, attributes )
@@ -432,6 +435,8 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
         }
 
         ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
+        ui->dockWidgetTextEdit->find( scrollToAnchor( m_treeItemNodes.value( item ).toElement() ) );
+        ui->dockWidgetTextEdit->ensureCursorVisible();
       }
     }
   }
@@ -496,6 +501,14 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
 
     attributeCombo->setEditable( true );
     ui->tableWidget->setCellWidget( i, 1, attributeCombo );
+    m_comboBoxes.insert( attributeCombo, i );
+
+    /* This will point the current combo box member to the combo that's been activated
+      and is used in "attributeValueChanged" to obtain the row number the combo box
+      appears in in the table widget from the combo box map so that the corresponding
+      attribute name can be determined, etc, etc. */
+    connect( attributeCombo, SIGNAL(activated( int ) ), m_signalMapper, SLOT( map() ) );
+    m_signalMapper->setMapping( attributeCombo, attributeCombo );
   }
 
   /* Populate the "add element" combo box with the known first level children of the
@@ -509,6 +522,13 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
   {
     showErrorMessageBox( m_dbInterface->getLastError() );
   }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::setCurrentComboBox( QComboBox *combo )
+{
+  m_currentCombo = combo;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -551,6 +571,8 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
     }
 
     ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
+    ui->dockWidgetTextEdit->find( scrollToAnchor( currentElement ) );
+    ui->dockWidgetTextEdit->ensureCursorVisible();
   }
 }
 
@@ -563,19 +585,28 @@ void GCMainWindow::attributeValueChanged( QString value )
 
   /* The current attribute will be displayed in the first column (next to the
     combo box which will be the actual current item). */
-  int blehRow = ui->tableWidget->currentRow();
-  QTableWidgetItem *blehItem = ui->tableWidget->item( ui->tableWidget->currentRow(), 0 );
-  QString blehText = blehItem->text();
-  QString currentAttributeName = ui->tableWidget->item( ui->tableWidget->currentRow(), 0 )->text();
+  QString currentAttributeName = ui->tableWidget->item( m_comboBoxes.value( m_currentCombo ), 0 )->text();
   currentElement.setAttribute( currentAttributeName, value );
 
   ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
+  ui->dockWidgetTextEdit->find( scrollToAnchor( currentElement ) );
+  ui->dockWidgetTextEdit->ensureCursorVisible();
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::resetTableWidget()
 {
+  /* Remove the currently visible/live combo boxes from the signal mapper's
+    mappings and the combo boxes map before we whack them all with the table
+    widget's "clearContents". */
+  for( int i = 0; i < m_comboBoxes.keys().size(); ++i )
+  {
+    m_signalMapper->removeMappings( m_comboBoxes.keys().at( i ) );
+  }
+
+  m_comboBoxes.clear();
+
   ui->tableWidget->clearContents();   // also deletes current items
   ui->tableWidget->setRowCount( 0 );
 }
@@ -598,6 +629,8 @@ void GCMainWindow::deleteElementFromDOM()
   parentItem->removeChild( currentItem );
 
   ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
+  ui->dockWidgetTextEdit->find( scrollToAnchor( parentNode.toElement() ) );
+  ui->dockWidgetTextEdit->ensureCursorVisible();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -664,6 +697,8 @@ void GCMainWindow::addChildElementToDOM()
     }
 
     ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
+    ui->dockWidgetTextEdit->find( scrollToAnchor( newElement ) );
+    ui->dockWidgetTextEdit->ensureCursorVisible();
 
     /* If the user just added the root element, we need to make sure that they don't
     try to add it again...it happens. */
@@ -952,6 +987,45 @@ void GCMainWindow::switchSuperUserMode( bool super )
       item->setFlags( item->flags() | Qt::ItemIsEditable );
     }
   }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+QString GCMainWindow::scrollToAnchor( QDomElement element )
+{
+  QString anchor( "<" );
+  anchor += element.tagName();
+
+  bool success( false );
+  QStringList attributes = m_dbInterface->attributes( element.tagName(), success );
+
+  if( success && !attributes.empty() )
+  {
+    for( int i = 0; i < attributes.size(); ++i )
+    {
+      anchor += " ";
+
+      QString attribute = attributes.at( i );
+      anchor += attribute;
+      anchor += "=\"";
+
+      QString attributeValue = element.attribute( attribute );
+      anchor += attributeValue;
+      anchor += "\"";
+    }
+
+    anchor += ( "/>" );
+  }
+  else if( attributes.empty() )
+  {
+    anchor += ( ">" );
+  }
+  else
+  {
+    showErrorMessageBox( m_dbInterface->getLastError() );
+  }
+
+  return anchor;
 }
 
 /*--------------------------------------------------------------------------------------*/
