@@ -46,25 +46,25 @@ XmlSyntaxHighlighter::XmlSyntaxHighlighter(QTextEdit *parent)
     HighlightingRule rule;
 
     // tag format
-    tagFormat.setForeground(Qt::darkBlue);
-    tagFormat.setFontWeight(QFont::Bold);
+    tagFormat.setForeground(QColor(70,70,110));
+    //tagFormat.setFontWeight(QFont::Bold);
     rule.pattern = QRegExp("(<[a-zA-Z:]+\\b|<\\?[a-zA-Z:]+\\b|\\?>|>|/>|</[a-zA-Z:]+>)");
     rule.format = tagFormat;
     highlightingRules.append(rule);
 
     // attribute format
-    attributeFormat.setForeground(Qt::darkGreen);
+    attributeFormat.setForeground(QColor(160,10,10));
     rule.pattern = QRegExp("[a-zA-Z:]+=");
     rule.format = attributeFormat;
     highlightingRules.append(rule);
 
     // attribute content format
-    attributeContentFormat.setForeground(Qt::red);
+    attributeContentFormat.setForeground(QColor(160,10,130));
     rule.pattern = QRegExp("(\"[^\"]*\"|'[^']*')");
     rule.format = attributeContentFormat;
     highlightingRules.append(rule);
 
-    commentFormat.setForeground(Qt::lightGray);
+    commentFormat.setForeground(QColor(30,130,0));
     commentFormat.setFontItalic(true);
 
     commentStartExpression = QRegExp("<!--");

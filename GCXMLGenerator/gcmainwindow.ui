@@ -258,7 +258,8 @@ QTableView
 
  QTextEdit
  {
-     background-color: lightgray;
+    background-color: lightgray;
+    selection-background-color: rgba(120, 120, 130, 200);
  }
 
  QSplitter::handle
