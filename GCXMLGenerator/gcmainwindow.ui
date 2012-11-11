@@ -798,6 +798,10 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    </property>
   </action>
   <action name="actionOpen">
+   <property name="icon">
+    <iconset resource="resources/gcresources.qrc">
+     <normaloff>:/resources/open.png</normaloff>:/resources/open.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Open File</string>
    </property>
@@ -814,6 +818,10 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
   <action name="actionSave">
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources/gcresources.qrc">
+     <normaloff>:/resources/save.png</normaloff>:/resources/save.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Save File</string>
@@ -859,6 +867,10 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    </property>
   </action>
   <action name="actionNew">
+   <property name="icon">
+    <iconset resource="resources/gcresources.qrc">
+     <normaloff>:/resources/new.png</normaloff>:/resources/new.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;New File</string>
    </property>
@@ -893,6 +905,10 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    </property>
   </action>
   <action name="actionExit">
+   <property name="icon">
+    <iconset resource="resources/gcresources.qrc">
+     <normaloff>:/resources/close.png</normaloff>:/resources/close.png</iconset>
+   </property>
    <property name="text">
     <string>E&amp;xit</string>
    </property>
