@@ -1,8 +1,6 @@
 <RCC>
     <qresource prefix="/resources">
         <file>goblinicon.jpg</file>
-        <file>CheckBox.png</file>
-        <file>CheckOn.png</file>
         <file>close.png</file>
         <file>undock.png</file>
         <file>downarrow.png</file>
@@ -15,5 +13,7 @@
         <file>new.png</file>
         <file>open.png</file>
         <file>save.png</file>
+        <file>checkbox.png</file>
+        <file>checkon.png</file>
     </qresource>
 </RCC>
