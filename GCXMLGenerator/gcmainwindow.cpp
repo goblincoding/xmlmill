@@ -154,7 +154,7 @@ void GCMainWindow::openXMLFile()
             /* If the user selected a database that fits, continue. */
             if( !m_userCancelled )
             {
-              processDOMDoc();              
+              processDOMDoc();
             }
             else
             {
@@ -228,6 +228,8 @@ void GCMainWindow::newXMLFile()
 
   ui->actionSave->setEnabled( true );
   ui->actionSaveAs->setEnabled( true );
+
+  m_rootElementSet = false;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -342,6 +344,15 @@ void GCMainWindow::processDOMDoc()
 
   /* Display the DOM content in the text edit. */
   ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
+
+  /* If the user just added the root element, we need to make sure that they don't
+  try to add it again...it happens. */
+  if( !m_rootElementSet )
+  {
+    ui->treeWidget->setCurrentItem( item, 0 );
+    treeWidgetItemActivated( item, 0 );
+    m_rootElementSet = true;
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -552,6 +563,9 @@ void GCMainWindow::attributeValueChanged( QString value )
 
   /* The current attribute will be displayed in the first column (next to the
     combo box which will be the actual current item). */
+  int blehRow = ui->tableWidget->currentRow();
+  QTableWidgetItem *blehItem = ui->tableWidget->item( ui->tableWidget->currentRow(), 0 );
+  QString blehText = blehItem->text();
   QString currentAttributeName = ui->tableWidget->item( ui->tableWidget->currentRow(), 0 )->text();
   currentElement.setAttribute( currentAttributeName, value );
 
