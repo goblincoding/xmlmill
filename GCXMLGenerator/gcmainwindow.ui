@@ -226,12 +226,12 @@ QCheckBox::indicator
 
 QCheckBox::indicator:unchecked
 {
-  image: url(&quot;:/resources/CheckBox.png&quot;);
+  image: url(&quot;:/resources/checkbox.png&quot;);
 }
 
 QCheckBox::indicator:checked
 {
-  image: url(&quot;:/resources/CheckOn.png&quot;);
+  image: url(&quot;:/resources/checkon.png&quot;);
 }
 
 QLineEdit
@@ -328,7 +328,7 @@ QTreeView
 QTreeView::branch:has-children:!has-siblings:closed, QTreeView::branch:closed:has-children:has-siblings
 {
    border-image: none;
-   image: url(&quot;:/resources/downarrow.png&quot;);
+   image: url(&quot;:/resources/rightarrow.png&quot;);
  }
 
 QTreeView::branch:open:has-children:!has-siblings, QTreeView::branch:open:has-children:has-siblings

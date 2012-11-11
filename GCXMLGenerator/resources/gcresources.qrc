@@ -3,7 +3,6 @@
         <file>goblinicon.jpg</file>
         <file>CheckBox.png</file>
         <file>CheckOn.png</file>
-        <file>angledarrow.png</file>
         <file>close.png</file>
         <file>undock.png</file>
         <file>downarrow.png</file>
@@ -12,5 +11,6 @@
         <file>leftarrow.png</file>
         <file>rightarrow.png</file>
         <file>scrollgriphorizontal.png</file>
+        <file>angledarrow.png</file>
     </qresource>
 </RCC>
