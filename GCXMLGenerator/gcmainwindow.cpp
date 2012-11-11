@@ -459,8 +459,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     ui->tableWidget->setItem( i, 0, label );
 
     QComboBox *attributeCombo = new QComboBox;
-    attributeCombo->addItems( m_dbInterface->attributeValues( elementName, attributes.at( i ), success ) );
-    connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged( QString ) ) );
+    attributeCombo->addItems( m_dbInterface->attributeValues( elementName, attributes.at( i ), success ) );    
 
     /* Get the current value assigned to the element associated with this tree widget item. */
     QDomElement element = m_treeItemNodes.value( item );
@@ -470,8 +469,14 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
       still be empty has it has never been set before. */
     if( !attributeValue.isEmpty() )
     {
+      int found = attributeCombo->findText( attributeValue );
       attributeCombo->setCurrentIndex( attributeCombo->findText( attributeValue ) );
     }
+
+    /* Attempting the connection before we've set the current index causes the
+      attributeValueChanged slot to be called too early, resulting in a segmentation
+      fault due to value conflicts/missing values. */
+    connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged( QString ) ) );
 
     /* This is more for debugging than for end-user functionality. */
     if( !success )
