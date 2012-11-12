@@ -16,7 +16,7 @@
   ELEMENT (Key) | CHILDREN (First Level Only) | ATTRIBUTES
 
   Table - XMLATTRIBUTES
-  ATTRIBUTEKEY (concatenate element and attribute name) (Key) | ATTRIBUTEVALUES
+  ATTRIBUTEKEY (element name + ! + attribute name) (Key) | ATTRIBUTEVALUES
 
   Table - ROOTELEMENTS
   ROOTS (Key, no other values associated with it for now)
@@ -104,7 +104,6 @@ bool GCDataBaseInterface::initialise()
 
     foreach( QString str, list )
     {
-      /* Split the path/directory structure to use the file name as the key. */
       if( !addDatabase( str ) )
       {
         m_lastErrorMsg = QString( "Failed to load existing connection: \n %1" );
@@ -172,9 +171,9 @@ bool GCDataBaseInterface::removeDatabase( QString dbName )
       m_hasActiveSession = false;
     }
 
-    /* If the DB connection being removed was also the active one, removeDatabase will output a
-      warning.  This is purely because we have a DB member and isn't cause for concern as there
-      seems to be no way around it with the current QtSQL modules. */
+    /* If the DB connection being removed was also the active one, "removeDatabase" will output
+      a warning.  This is purely because we have a DB member variable and isn't cause for concern
+      as there seems to be no way around it with the current QtSQL modules. */
     QSqlDatabase::removeDatabase( dbConName );
     m_dbMap.remove( dbConName );
     saveDBFile();
@@ -204,7 +203,7 @@ bool GCDataBaseInterface::setSessionDB( QString dbName )
   }
   else
   {
-    /* If we somehow tried to set a DB for the session that doesn't exist,
+    /* If we set a DB for the session that doesn't exist (new, unknown),
       then we'll automatically try to add it and set it as active. */
     if( addDatabase( dbName ) )
     {
@@ -267,7 +266,8 @@ bool GCDataBaseInterface::openDBConnection( QString dbConName )
 
 bool GCDataBaseInterface::createDBTables() const
 {
-  /* DB connection should be open from openDBConnection() above. */
+  /* DB connection will be open from openDBConnection() above so no need
+    to do any checks here. */
   QSqlQuery query( m_sessionDB );
 
   if( !query.exec( "CREATE TABLE xmlelements( element QString primary key, children QString, attributes QString )" ) )
@@ -337,9 +337,9 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument *domDoc ) 
     return false;
   }
 
-  /* Since we're doing batch updates, we need to ensure that all the variant lists we provide
-    have exactly the same size.  We furthermore require that the concatenation of new to old values
-    be separated by our SEPARATOR string, which is why we have a separator list below. */
+  /* Since we're doing batch updates we need to ensure that all the variant lists we provide
+    have exactly the same size.  We furthermore require that the concatenation of new and old values
+    are done in a way that includes our SEPARATOR string (which is why the separator list below). */
   QVariantList separatorList;
 
   for( int i = 0; i < helper.elementsToUpdate().size(); ++i )
@@ -431,8 +431,10 @@ bool GCDataBaseInterface::removeDuplicatesFromFields() const
     element = elementNames.at( i );
     QSqlQuery query = selectElement( element, success );
 
+    /* Check that we are working with a valid query. */
     if( success )
     {
+      /* Does a record for this element exist? */
       if( query.first() )
       {
         QStringList allChildren  ( query.record().field( "children" ).value().toString().split( SEPARATOR ) );
@@ -475,6 +477,7 @@ bool GCDataBaseInterface::removeDuplicatesFromFields() const
     }
     else
     {
+      /* Last error message set in selectElement(). */
       return false;
     }
   }
@@ -487,8 +490,10 @@ bool GCDataBaseInterface::removeDuplicatesFromFields() const
     QString attributeKey = attributeKeys.at( i );
     QSqlQuery query = selectAttribute( attributeKey, success );
 
+    /* Check that we are working with a valid query. */
     if( success )
     {
+      /* Does a record for this attribute exist? */
       if( query.first() )
       {
         QStringList allValues( query.record().field( "attributeValues" ).value().toString().split( SEPARATOR ) );
@@ -513,6 +518,7 @@ bool GCDataBaseInterface::removeDuplicatesFromFields() const
     }
     else
     {
+      /* Last error message set in selectElement(). */
       return false;
     }
   }
@@ -544,6 +550,7 @@ QSqlQuery GCDataBaseInterface::selectElement( const QString &element, bool &succ
     success = false;
   }
 
+  m_lastErrorMsg = "";
   success = true;
   return query;
 }
@@ -571,7 +578,6 @@ bool GCDataBaseInterface::addElement( const QString &element, const QStringList 
       return false;
     }
 
-    /* Create a comma-separated list of all the associated attributes and children. */
     query.addBindValue( element );
     query.addBindValue( joinListElements( children ) );
     query.addBindValue( joinListElements( attributes ) );
@@ -594,7 +600,6 @@ bool GCDataBaseInterface::addRootElement( const QString &root ) const
 {
   QSqlQuery query( m_sessionDB );
 
-  /* Make sure we aren't trying to insert an existing element. */
   if( !query.prepare( "SELECT * FROM rootelements WHERE root = ? ") )
   {
     m_lastErrorMsg = QString( "Prepare SELECT root element failed for root [%1], error: [%2]" ).arg( root )
@@ -611,6 +616,7 @@ bool GCDataBaseInterface::addRootElement( const QString &root ) const
     return false;
   }
 
+  /* Make sure we aren't trying to insert a known root element. */
   if( !query.first() )
   {
     if( !query.prepare( "INSERT INTO rootelements ( root ) VALUES( ? )" ) )
@@ -620,7 +626,6 @@ bool GCDataBaseInterface::addRootElement( const QString &root ) const
       return false;
     }
 
-    /* Create a comma-separated list of all the associated attributes and children. */
     query.addBindValue( root );
 
     if( !query.exec() )
@@ -747,7 +752,6 @@ QSqlQuery GCDataBaseInterface::selectAttribute( const QString &attributeKey, boo
     success = false;
   }
 
-  /* The DB Key for this table is attributeKey (concatenated). */
   query.addBindValue( attributeKey );
 
   if( !query.exec() )
@@ -784,7 +788,6 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
       return false;
     }
 
-    /* Create a list of all the associated attributes and children. */
     query.addBindValue( element + "!" + attribute );
     query.addBindValue( joinListElements( attributeValues ) );
 
@@ -934,6 +937,7 @@ QStringList GCDataBaseInterface::children( const QString &element, bool &success
   /* There should be only one record corresponding to this element. */
   if( !success || !query.first() )
   {
+    m_lastErrorMsg = QString( "Failed to obtain the list of children for element \"%1\"" ).arg( element );
     return QStringList();
   }
 
@@ -951,6 +955,7 @@ QStringList GCDataBaseInterface::attributes( const QString &element, bool &succe
   /* There should be only one record corresponding to this element. */
   if( !success || !query.first() )
   {
+    m_lastErrorMsg = QString( "Failed to obtain the list of attributes for element \"%1\"" ).arg( element );
     return QStringList();
   }
 
@@ -968,6 +973,7 @@ QStringList GCDataBaseInterface::attributeValues( const QString &element, const 
   /* There should be only one record corresponding to this element. */
   if( !success || !query.first() )
   {
+    m_lastErrorMsg = QString( "Failed to obtain the list of attribute values for attribute \"%1\"" ).arg( attribute );
     return QStringList();
   }
 
