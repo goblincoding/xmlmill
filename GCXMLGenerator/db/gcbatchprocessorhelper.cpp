@@ -79,6 +79,10 @@ void GCBatchProcessorHelper::createRecord( const QDomElement &element )
 
 void GCBatchProcessorHelper::sortRecords()
 {
+  /* We inserted every element in the DOM doc into the unsorted map and will almost
+    definitely have duplicates.  Since the DB requires unique element entries (elements
+    are the primary keys), we iterate through the unique keys and consolidate the entries
+    per element. */
   foreach( QString element, m_unsorted.uniqueKeys() )
   {
     /* Retrieve all the records associated with this element. */
@@ -97,12 +101,16 @@ void GCBatchProcessorHelper::sortRecords()
 
       for( int i = 0; i < duplicateRecords.size(); ++i )
       {
-        /* Since we're already iterating through the list, we may as well consolidate the
+        recordAttributes += duplicateRecords.at( i ).attributes;
+
+        /* Don't consolidate the attribute values here (see above comment) but since
+          we're already iterating through the list, we may as well consolidate the
           children while we're at it (they are relatively simple to handle compared
           to the attribute value maps). */
-        record.children.append( duplicateRecords.at( i ).children );
-        recordAttributes += duplicateRecords.at( i ).attributes;
+        record.children.append( duplicateRecords.at( i ).children );        
       }
+
+      record.children.removeDuplicates();
 
       /* Now we can sort out the chaos. For each unique attribute, we will obtain
         the associated QStringList(s) of attribute values and consolidate the lot. */
@@ -120,11 +128,12 @@ void GCBatchProcessorHelper::sortRecords()
         record.attributes.insert( attribute, finalListOfAttributeValues );
       }
 
-      record.children.removeDuplicates();
       m_records.insert( element, record );
     }
     else
     {
+      /* If we only have one entry for this particular element name, we can
+        safely insert it into the sorted map. */
       m_records.insert( element, duplicateRecords.at( 0 ) );
     }
   }
@@ -155,15 +164,22 @@ void GCBatchProcessorHelper::createVariantLists()
   {
     QString element = var.toString();
 
+    /* Do we have first level children? */
     if( !m_records.value( element ).children.isEmpty() )
     {
       m_newElementChildrenToAdd << m_records.value( element ).children.join( SEPARATOR );
     }
     else
     {
+      /* To keep the indices in sync, the following will result in a NULL value
+        being bound to the relevant prepared query on the DB side (we need to have
+        exactly the same number of items in all lists associated with the "new elements"
+        in order for the batch bind to succeed). The same argument holds for the
+        "elements to update" and two types of attribute lists below. */
       m_newElementChildrenToAdd << QVariant( QVariant::String );
     }
 
+    /* Do we have associated attributes? */
     if( !m_records.value( element ).attributes.keys().isEmpty() )
     {
       QStringList attributeNames = m_records.value( element ).attributes.keys();
@@ -180,6 +196,7 @@ void GCBatchProcessorHelper::createVariantLists()
   {
     QString element = var.toString();
 
+    /* Do we have first level children? */
     if( !m_records.value( element ).children.isEmpty() )
     {
       m_elementChildrenToUpdate << m_records.value( element ).children.join( SEPARATOR );
@@ -189,6 +206,7 @@ void GCBatchProcessorHelper::createVariantLists()
       m_elementChildrenToUpdate << QVariant( QVariant::String );
     }
 
+    /* Do we have associated attributes? */
     if( !m_records.value( element ).attributes.keys().isEmpty() )
     {
       QStringList attributeNames = m_records.value( element ).attributes.keys();
@@ -210,6 +228,13 @@ void GCBatchProcessorHelper::createVariantLists()
       QStringList attributeValues = m_records.value( element ).attributes.value( attribute );
       attributeValues.removeDuplicates();
 
+      /* Do we know about this attribute? (by the way, the "!" is a separator
+        used to create a unique key in the xmlattributes table for each element
+        and known associated attribute, i.e. element!attribute tells us that
+        "element" has "attribute" specifically associated with it and a list of
+        known values for "attribute" is stored against this unique key). I should
+        probably look into how to rather use secondary keys for the same end result,
+        but for now this will do. */
       if( !m_knownAttributeKeys.contains( element + "!" + attribute ) )
       {
         m_newAttributeKeysToAdd << element + "!" + attribute;
@@ -242,9 +267,9 @@ void GCBatchProcessorHelper::createVariantLists()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCBatchProcessorHelper::setKnownElements( const QStringList &elementts )
+void GCBatchProcessorHelper::setKnownElements( const QStringList &elements )
 {
-  m_knownElements = elementts;
+  m_knownElements = elements;
 }
 
 /*--------------------------------------------------------------------------------------*/
