@@ -295,8 +295,9 @@ bool GCDataBaseInterface::createDBTables() const
     return false;
   }
 
-  if( !query.exec( "CREATE TABLE xmlattributes( UNIQUE(attribute QString, associatedElement QString), attributeValues QString, "
-                   "FOREIGN KEY(associatedElement) REFERENCES xmlelements(element)") )
+  if( !query.exec( "CREATE TABLE xmlattributes( attribute QString, associatedElement QString, attributeValues QString, "
+                   "UNIQUE(attribute, associatedElement), "
+                   "FOREIGN KEY(associatedElement) REFERENCES xmlelements(element) )" ) )
   {
     m_lastErrorMsg = QString( "Failed to create attribute values table for \"%1\": [%2]" )
         .arg( m_sessionDB.connectionName() )
@@ -801,7 +802,7 @@ bool GCDataBaseInterface::updateElementAttributes( const QString &element, const
 
 /*--------------------------------------------------------------------------------------*/
 
-QSqlQuery GCDataBaseInterface::selectAttribute( const QString &attribute, const QString &associatedElement,  bool &success ) const
+QSqlQuery GCDataBaseInterface::selectAttribute( const QString &attribute, const QString &associatedElement, bool &success ) const
 {
   QSqlQuery query( m_sessionDB );
 
@@ -835,7 +836,7 @@ QSqlQuery GCDataBaseInterface::selectAttribute( const QString &attribute, const 
 bool GCDataBaseInterface::updateAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const
 {
   bool success( false );
-  QSqlQuery query = selectAttribute( element, attribute, success );
+  QSqlQuery query = selectAttribute( attribute, element, success );
 
   if( !success )
   {
@@ -1051,7 +1052,7 @@ QStringList GCDataBaseInterface::attributes( const QString &element, bool &succe
 
 QStringList GCDataBaseInterface::attributeValues( const QString &element, const QString &attribute, bool &success ) const
 {
-  QSqlQuery query = selectAttribute( element, attribute, success );
+  QSqlQuery query = selectAttribute( attribute, element, success );
 
   /* There should be only one record corresponding to this element. */
   if( !success || !query.first() )

@@ -110,7 +110,7 @@ public slots:
 
 private:
   QSqlQuery   selectElement  ( const QString &element, bool &success ) const;
-  QSqlQuery   selectAttribute( const QString &attribute, const QString &associatedElement,  bool &success ) const;
+  QSqlQuery   selectAttribute( const QString &attribute, const QString &associatedElement, bool &success ) const;
   QStringList knownAttributeKeys() const;
 
   /* After batch processing a DOM document, we concatenate new values to existing values
