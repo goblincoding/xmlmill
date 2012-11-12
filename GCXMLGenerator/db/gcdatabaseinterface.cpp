@@ -83,7 +83,7 @@ void cleanList( QStringList &list )
 
 /*--------------------------------------------------------------------------------------*/
 
-QString joinListElements( QStringList list )
+QString cleanAndJoinListElements( QStringList list )
 {
   cleanList( list );
   return list.join( SEPARATOR );
@@ -491,7 +491,7 @@ bool GCDataBaseInterface::removeDuplicatesFromFields() const
           return false;
         }
 
-        query.addBindValue( joinListElements( allChildren ) );
+        query.addBindValue( cleanAndJoinListElements( allChildren ) );
         query.addBindValue( element );
 
         if( !query.exec() )
@@ -510,7 +510,7 @@ bool GCDataBaseInterface::removeDuplicatesFromFields() const
           return false;
         }
 
-        query.addBindValue( joinListElements( allAttributes ) );
+        query.addBindValue( cleanAndJoinListElements( allAttributes ) );
         query.addBindValue( element );
 
         if( !query.exec() )
@@ -555,7 +555,7 @@ bool GCDataBaseInterface::removeDuplicatesFromFields() const
           return false;
         }
 
-        query.addBindValue( joinListElements( allValues ) );
+        query.addBindValue( cleanAndJoinListElements( allValues ) );
         query.addBindValue( attribute );
         query.addBindValue( associatedElement );
 
@@ -635,8 +635,8 @@ bool GCDataBaseInterface::addElement( const QString &element, const QStringList 
     }
 
     query.addBindValue( element );
-    query.addBindValue( joinListElements( children ) );
-    query.addBindValue( joinListElements( attributes ) );
+    query.addBindValue( cleanAndJoinListElements( children ) );
+    query.addBindValue( cleanAndJoinListElements( attributes ) );
 
     if( !query.exec() )
     {
@@ -728,7 +728,7 @@ bool GCDataBaseInterface::updateElementChildren( const QString &element, const Q
       return false;
     }
 
-    query.addBindValue( joinListElements( allChildren ) );
+    query.addBindValue( cleanAndJoinListElements( allChildren ) );
     query.addBindValue( element );
 
     if( !query.exec() )
@@ -777,7 +777,7 @@ bool GCDataBaseInterface::updateElementAttributes( const QString &element, const
       return false;
     }
 
-    query.addBindValue( joinListElements( allAttributes ) );
+    query.addBindValue( cleanAndJoinListElements( allAttributes ) );
     query.addBindValue( element );
 
     if( !query.exec() )
@@ -856,7 +856,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
 
     query.addBindValue( attribute );
     query.addBindValue( element );
-    query.addBindValue( joinListElements( attributeValues ) );
+    query.addBindValue( cleanAndJoinListElements( attributeValues ) );
 
     if( !query.exec() )
     {
@@ -880,7 +880,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
       return false;
     }
 
-    query.addBindValue( joinListElements( existingValues ) );
+    query.addBindValue( cleanAndJoinListElements( existingValues ) );
     query.addBindValue( attribute );
     query.addBindValue( element );
 
