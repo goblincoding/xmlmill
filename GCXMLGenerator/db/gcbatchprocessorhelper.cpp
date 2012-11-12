@@ -4,20 +4,22 @@
 /*--------------------------------- MEMBER FUNCTIONS ----------------------------------*/
 
 GCBatchProcessorHelper::GCBatchProcessorHelper( const QDomDocument *domDoc ) :
-  m_knownElements            (),
-  m_knownAttributeKeys       (),
-  m_newElementsToAdd         (),
-  m_newElementChildrenToAdd  (),
-  m_newElementAttributesToAdd(),
-  m_elementsToUpdate         (),
-  m_elementChildrenToUpdate  (),
-  m_elementAttributesToUpdate(),
-  m_newAttributeKeysToAdd    (),
-  m_newAttributeValuesToAdd  (),
-  m_attributeKeysToUpdate    (),
-  m_attributeValuesToUpdate  (),
-  m_unsorted                 (),
-  m_records                  ()
+  m_knownElements             (),
+  m_knownAttributeKeys        (),
+  m_newElementsToAdd          (),
+  m_newElementChildrenToAdd   (),
+  m_newElementAttributesToAdd (),
+  m_elementsToUpdate          (),
+  m_elementChildrenToUpdate   (),
+  m_elementAttributesToUpdate (),
+  m_newAttributeKeysToAdd     (),
+  m_newAssociatedElementsToAdd(),
+  m_newAttributeValuesToAdd   (),
+  m_attributeKeysToUpdate     (),
+  m_associatedElementsToUpdate(),
+  m_attributeValuesToUpdate   (),
+  m_unsorted                  (),
+  m_records                   ()
 {
   QDomElement root = domDoc->documentElement();
   createRecord( root );
@@ -235,9 +237,10 @@ void GCBatchProcessorHelper::createVariantLists()
         known values for "attribute" is stored against this unique key). I should
         probably look into how to rather use secondary keys for the same end result,
         but for now this will do. */
-      if( !m_knownAttributeKeys.contains( element + "!" + attribute ) )
+      if( !m_knownAttributeKeys.contains( attribute + "!" + element ) )
       {
-        m_newAttributeKeysToAdd << element + "!" + attribute;
+        m_newAttributeKeysToAdd << attribute;
+        m_newAssociatedElementsToAdd << element;
 
         if( !attributeValues.isEmpty() )
         {
@@ -250,7 +253,8 @@ void GCBatchProcessorHelper::createVariantLists()
       }
       else
       {
-        m_attributeKeysToUpdate << element + "!" + attribute;
+        m_attributeKeysToUpdate << attribute;
+        m_associatedElementsToUpdate << element;
 
         if( !attributeValues.isEmpty() )
         {
@@ -330,6 +334,12 @@ QVariantList GCBatchProcessorHelper::newAttributeKeysToAdd() const
 
 /*--------------------------------------------------------------------------------------*/
 
+QVariantList GCBatchProcessorHelper::newAssociatedElementsToAdd() const
+{
+  return m_newAssociatedElementsToAdd;
+}
+/*--------------------------------------------------------------------------------------*/
+
 QVariantList GCBatchProcessorHelper::newAttributeValuesToAdd() const
 {
   return m_newAttributeValuesToAdd;
@@ -340,6 +350,13 @@ QVariantList GCBatchProcessorHelper::newAttributeValuesToAdd() const
 QVariantList GCBatchProcessorHelper::attributeKeysToUpdate() const
 {
   return m_attributeKeysToUpdate;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+QVariantList GCBatchProcessorHelper::associatedElementsToUpdate() const
+{
+  return m_associatedElementsToUpdate;
 }
 
 /*--------------------------------------------------------------------------------------*/

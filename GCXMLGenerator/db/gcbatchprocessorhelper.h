@@ -48,9 +48,11 @@ public:
   QVariantList elementAttributesToUpdate() const;
 
   QVariantList newAttributeKeysToAdd() const;
+  QVariantList newAssociatedElementsToAdd() const;
   QVariantList newAttributeValuesToAdd() const;
 
   QVariantList attributeKeysToUpdate() const;
+  QVariantList associatedElementsToUpdate() const;
   QVariantList attributeValuesToUpdate() const;
 
 private:
@@ -70,9 +72,11 @@ private:
   QVariantList m_elementAttributesToUpdate;
 
   QVariantList m_newAttributeKeysToAdd;
+  QVariantList m_newAssociatedElementsToAdd;
   QVariantList m_newAttributeValuesToAdd;
 
   QVariantList m_attributeKeysToUpdate;
+  QVariantList m_associatedElementsToUpdate;
   QVariantList m_attributeValuesToUpdate;
 
   /* Represents a single element's associated first level children,
