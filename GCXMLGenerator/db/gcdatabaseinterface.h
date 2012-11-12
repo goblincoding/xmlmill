@@ -5,6 +5,35 @@
 #include <QMap>
 #include <QtSql/QSqlQuery>
 
+/*--------------------------------------------------------------------------------------*/
+/*
+  This class is designed to set up and manage embedded SQLite databases used to profile
+  XML documents.  Databases created by this class will consist of three tables:
+
+    * "xmlelements"   - accepts element names as unique primary keys and associates two
+                        fields with each record: "children" represents all the first level
+                        children of the element in question and "attributes" contain all the
+                        attributes known to be associated with the element (these will be ALL
+                        the children and attribute names ever associated with any particular
+                        unique element name in any particular database so it is best not to mix
+                        vastly different XML profiles in the same database).
+
+    * "xmlattributes" - accepts an attribute name as foreign key referencing the unique element it
+                        is known to be associated with.  Only one additional field exists for each
+                        record: "attributevalues" contains all the values ever associated with this
+                        particular attribute when assigned to the specific element it references
+                        as foreign key.  In other words, if element "x" is known to have had attribute
+                        "y" associated with it, then "attributevalues" will contain all the values
+                        ever assigned to "y" when associated with "x" across all XML profiles stored
+                        in a particular database.
+
+    * "rootelements"  - consists of a single field containing all known root elements stored in a
+                        specific database.  If more than one XML profile has been loaded into the
+                        database in question, the database will have all their root elements listed
+                        in this table.
+
+*/
+
 class QDomDocument;
 
 class GCDataBaseInterface : public QObject
