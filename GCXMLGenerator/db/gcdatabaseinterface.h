@@ -60,7 +60,7 @@ public:
 
   /* Updates the list of known children associated with "element" by appending
     the new children to the existing list (nothing is deleted). */
-  bool updateElementChildren  ( const QString &element, const QStringList &children ) const;
+  bool updateElementChildren( const QString &element, const QStringList &children ) const;
 
   /* Updates the list of known attributes associated with "element" by appending
     the new attributes to the existing list (nothing is deleted). */
@@ -69,14 +69,14 @@ public:
   /* Updates the list of known attribute values that is associated with "element" and its
     corresponding "attribute" by appending the new attribute values to the existing list
     (nothing is deleted). */
-  bool updateAttributeValues  ( const QString &element, const QString &attribute, const QStringList &attributeValues ) const;
+  bool updateAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const;
 
   /* Remove single entries/values from the database. */
-  bool removeElement          ( const QString &element ) const;
-  bool removeElementChild     ( const QString &element, const QString &children ) const;
-  bool removeElementAttribute ( const QString &element, const QString &attribute ) const;
-  bool removeAttributeValue   ( const QString &element, const QString &attribute, const QString &attributeValue ) const;
-  bool removeRootElement      ( const QString &element );
+  bool removeElement         ( const QString &element ) const;
+  bool removeElementChild    ( const QString &element, const QString &children ) const;
+  bool removeElementAttribute( const QString &element, const QString &attribute ) const;
+  bool removeAttributeValue  ( const QString &element, const QString &attribute, const QString &attributeValue ) const;
+  bool removeRootElement     ( const QString &element );
 
   /* Getters. */
   QStringList getDBList() const;    // returns a list of known DB connections
@@ -104,22 +104,22 @@ public:
   QStringList knownRootElements() const;
   
 public slots:
-  bool addDatabase   ( QString dbName );
-  bool removeDatabase( QString dbName );
-  bool setSessionDB  ( QString dbName );
+  bool addDatabase   ( const QString &dbName );
+  bool removeDatabase( const QString &dbName );
+  bool setSessionDB  ( const QString &dbName );
 
 private:
-  QSqlQuery   selectElement  ( const QString &element, bool &success ) const;
-  QSqlQuery   selectAttribute( const QString &attribute, const QString &associatedElement, bool &success ) const;
   QStringList knownAttributeKeys() const;
+  QSqlQuery selectElement  ( const QString &element, bool &success ) const;
+  QSqlQuery selectAttribute( const QString &attribute, const QString &associatedElement, bool &success ) const;
 
   /* After batch processing a DOM document, we concatenate new values to existing values
     in the record fields.  This function removes all duplicates that may have been
     introduced in this way by consolidating the values and updating the records. */
   bool removeDuplicatesFromFields() const;
 
-  bool openDBConnection( QString dbConName );
-  bool createDBTables  () const;
+  bool openDBConnection( const QString &dbConName );
+  bool createDBTables() const;
   void saveDBFile() const;
 
   QSqlDatabase    m_sessionDB;

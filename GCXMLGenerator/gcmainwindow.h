@@ -25,19 +25,61 @@ class GCMainWindow : public QMainWindow
 public:
   explicit GCMainWindow( QWidget *parent = 0 );
   ~GCMainWindow();
+
+private slots:
+  void treeWidgetItemChanged     ( QTreeWidgetItem *item, int column );
+  void treeWidgetItemActivated   ( QTreeWidgetItem *item, int column );
+
+  void attributeNameChanged      ( QTableWidgetItem *item );
+  void attributeValueChanged     ( QString value );
+
+  void setCurrentComboBox        ( QComboBox *combo );
+  void collapseOrExpandTreeWidget( bool checked );
+  void switchSuperUserMode       ( bool super );
+  void userCancelledKnownDBForm  ();
+
+  /* XML file related. */
+  void newXMLFile();
+  void openXMLFile();
+  void saveXMLFile();
+  void saveXMLFileAs();
+
+  /* Database related. */
+  void addNewDB();      // calls addDBConnection
+  void addExistingDB(); // calls addDBConnection
+
+  void switchDBSession();                     // shows known DB form
+  void setSessionDB( const QString &dbName ); // receives signal from DB form
+
+  void removeDB();                                  // shows known DB form
+  void removeDBConnection( const QString &dbName ); // receives signal from DB form
+
+  /* Build XML. */
+  void deleteElementFromDOM();
+  void addChildElementToDOM();
+
+  /* Edit XML store. */
+  void deleteElementFromDB();
+  void deleteAttributeValuesFromDB();
+
+  /* Direct DOM edit. */
+  void revertDirectEdit();
+  void saveDirectEdit();
   
 private:
-  QString scrollAnchorText( QDomElement element );
-  void showKnownDBForm    ( GCKnownDBForm::Buttons buttons );
-  void showErrorMessageBox( const QString &errorMsg );
+  QString scrollAnchorText( const QDomElement &element );
   void addDBConnection    ( const QString &dbName );
-  void populateTreeWidget ( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
-  void processDOMDoc();
-  void resetDOM();
+  void showErrorMessageBox( const QString &errorMsg );
+  void showKnownDBForm    ( GCKnownDBForm::Buttons buttons );
+
   void resetTableWidget();
   void startSaveTimer();
 
   void toggleAddElementWidgets();
+
+  void processDOMDoc();
+  void populateTreeWidget( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
+  void resetDOM();
 
   Ui::GCMainWindow    *ui;
   GCDataBaseInterface *m_dbInterface;
@@ -52,44 +94,6 @@ private:
 
   QMap< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
   QMap< QComboBox*, int/* table row*/ > m_comboBoxes;
-
-private slots:
-  void treeWidgetItemChanged     ( QTreeWidgetItem *item, int column );
-  void treeWidgetItemActivated   ( QTreeWidgetItem *item, int column );
-  void attributeNameChanged      ( QTableWidgetItem *item );
-  void setCurrentComboBox        ( QComboBox *combo );
-  void attributeValueChanged     ( QString value );
-  void collapseOrExpandTreeWidget( bool checked );
-  void switchSuperUserMode       ( bool super );
-  void userCancelledKnownDBForm  ();
-
-  /* XML file related. */
-  void newXMLFile();
-  void openXMLFile();
-  void saveXMLFile();
-  void saveXMLFileAs();
-
-  /* Database related. */
-  void addNewDB();                            // calls addDBConnection
-  void addExistingDB();                       // calls addDBConnection
-
-  void switchDBSession();                     // shows known DB form
-  void setSessionDB( QString dbName );        // receives signal from DB form
-
-  void removeDB();                            // shows known DB form
-  void removeDBConnection( QString dbName );  // receives signal from DB form
-
-  /* Build XML. */
-  void deleteElementFromDOM();
-  void addChildElementToDOM();
-
-  /* Edit XML store. */
-  void deleteElementFromDB();
-  void deleteAttributeValuesFromDB();
-
-  /* Direct DOM edit. */
-  void revertDirectEdit();
-  void saveDirectEdit();
 
 };
 

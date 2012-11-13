@@ -785,7 +785,7 @@ void GCMainWindow::addDBConnection( const QString &dbName )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::setSessionDB( QString dbName )
+void GCMainWindow::setSessionDB( const QString &dbName )
 {
   if( !m_dbInterface->setSessionDB( dbName ) )
   {
@@ -828,7 +828,7 @@ void GCMainWindow::removeDB()
 /*--------------------------------------------------------------------------------------*/
 
 
-void GCMainWindow::removeDBConnection( QString dbName )
+void GCMainWindow::removeDBConnection( const QString &dbName )
 {
   if( !m_dbInterface->removeDatabase( dbName ) )
   {
@@ -991,7 +991,7 @@ void GCMainWindow::switchSuperUserMode( bool super )
 
 /*--------------------------------------------------------------------------------------*/
 
-QString GCMainWindow::scrollAnchorText( QDomElement element )
+QString GCMainWindow::scrollAnchorText( const QDomElement &element )
 {
   QString anchor( "<" );
   anchor += element.tagName();

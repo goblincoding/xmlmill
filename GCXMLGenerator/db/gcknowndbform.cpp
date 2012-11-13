@@ -4,7 +4,7 @@
 
 /*--------------------------------------------------------------------------------------*/
 
-GCKnownDBForm::GCKnownDBForm( QStringList dbList, Buttons buttons, QWidget *parent ) :
+GCKnownDBForm::GCKnownDBForm( const QStringList &dbList, Buttons buttons, QWidget *parent ) :
   QDialog  ( parent),
   ui       ( new Ui::GCKnownDBForm ),
   m_buttons( buttons ),

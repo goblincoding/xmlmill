@@ -135,7 +135,7 @@ bool GCDataBaseInterface::initialise()
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::addDatabase( QString dbName )
+bool GCDataBaseInterface::addDatabase( const QString &dbName )
 {
   if( !dbName.isEmpty() )
   {
@@ -172,7 +172,7 @@ bool GCDataBaseInterface::addDatabase( QString dbName )
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::removeDatabase( QString dbName )
+bool GCDataBaseInterface::removeDatabase( const QString &dbName )
 {
   if( !dbName.isEmpty() )
   {
@@ -202,7 +202,7 @@ bool GCDataBaseInterface::removeDatabase( QString dbName )
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::setSessionDB( QString dbName )
+bool GCDataBaseInterface::setSessionDB( const QString &dbName )
 {
   /* The DB name passed in will most probably consist of a path/to/file string. */
   QString dbConName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
@@ -238,7 +238,7 @@ bool GCDataBaseInterface::setSessionDB( QString dbName )
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::openDBConnection( QString dbConName )
+bool GCDataBaseInterface::openDBConnection( const QString &dbConName )
 {
   /* If we have a previous connection open, close it. */
   if( m_sessionDB.isValid() && m_sessionDB.isOpen() )

@@ -30,12 +30,12 @@ public:
     ShowAll
   };
 
-  explicit GCKnownDBForm( QStringList dbList, Buttons buttons, QWidget *parent );
+  explicit GCKnownDBForm( const QStringList &dbList, Buttons buttons, QWidget *parent );
   ~GCKnownDBForm();
 
 signals:
-  void dbSelected( QString );
-  void dbRemoved ( QString );
+  void dbSelected( const QString& );
+  void dbRemoved ( const QString& );
   void existingConnection();
   void newConnection();
   void userCancelled();
