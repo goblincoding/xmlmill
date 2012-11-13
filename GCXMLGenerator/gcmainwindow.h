@@ -30,7 +30,7 @@ private slots:
   void treeWidgetItemChanged     ( QTreeWidgetItem *item, int column );
   void treeWidgetItemActivated   ( QTreeWidgetItem *item, int column );
 
-  void setActiveAttributeName   ( QTableWidgetItem *item );
+  void setActiveAttributeName    ( QTableWidgetItem *item );
   void attributeNameChanged      ( QTableWidgetItem *item );
   void attributeValueChanged     ( const QString &value );
   void attributeValueAdded       ( const QString &value );
@@ -94,6 +94,7 @@ private:
   bool                 m_userCancelled;
   bool                 m_superUserMode;
   bool                 m_rootElementSet;
+  bool                 m_wasTreeItemActivated;
 
   QMap< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
   QMap< QComboBox*, int/* table row*/ > m_comboBoxes;

@@ -26,6 +26,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_userCancelled       ( false ),
   m_superUserMode       ( false ),
   m_rootElementSet      ( false ),
+  m_wasTreeItemActivated( false ),
   m_treeItemNodes       (),
   m_comboBoxes          ()
 {
@@ -454,6 +455,12 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
 
 void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
 {
+  /* Because the table widget is re-populated with the attribute names and
+    values associated with the activated tree widget item, this flag is set
+    to prevent the functionality in "attributeNameChanged" (which is triggered
+    by the population of the table widget). */
+  m_wasTreeItemActivated = true;
+
   resetTableWidget();
 
   /* Get only the attributes currently assigned to the element
@@ -529,6 +536,9 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
   {
     showErrorMessageBox( m_dbInterface->getLastError() );
   }
+
+  /* Unset flag. */
+  m_wasTreeItemActivated = false;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -563,44 +573,49 @@ void GCMainWindow::setActiveAttributeName( QTableWidgetItem *item )
 
 void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
 {
-  /* All attribute name changes will be assumed to be additions, removing an attribute
-    with a specific name has to be done explicitly. This slot will only ever be called
-    in Super User mode. */
-  QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
-  QDomElement currentElement = m_treeItemNodes.value( currentItem );
-
-  if( !m_dbInterface->updateElementAttributes( currentElement.tagName(), QStringList( item->text() ) ) )
+  /* Don't execute the logic if a tree widget item's activating is triggering
+    a re-population of the table widget, resulting in this slot being called. */
+  if( !m_wasTreeItemActivated )
   {
-    showErrorMessageBox( m_dbInterface->getLastError() );
-  }
-  else
-  {
-    /* The current attribute value will be displayed in the second column (the
-      combo box next to the currently selected table widget item). */
-    QComboBox *attributeValueCombo = dynamic_cast< QComboBox* >( ui->tableWidget->cellWidget( ui->tableWidget->currentRow(), 1 ) );
+    /* All attribute name changes will be assumed to be additions, removing an attribute
+      with a specific name has to be done explicitly. This slot will only ever be called
+      in Super User mode. */
+    QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
+    QDomElement currentElement = m_treeItemNodes.value( currentItem );
 
-    if( attributeValueCombo )
+    if( !m_dbInterface->updateElementAttributes( currentElement.tagName(), QStringList( item->text() ) ) )
     {
-      currentElement.removeAttribute( m_activeAttributeName );
-      currentElement.setAttribute( item->text(), attributeValueCombo->currentText() );
-
-      bool success;
-      QStringList attributeValues = m_dbInterface->attributeValues( currentElement.tagName(),
-                                                                    m_activeAttributeName,
-                                                                    success );
-
-      if( !m_dbInterface->updateAttributeValues( currentElement.tagName(),
-                                                 item->text(),
-                                                 attributeValues ) ||
-          !success)
-      {
-        showErrorMessageBox( m_dbInterface->getLastError() );
-      }
+      showErrorMessageBox( m_dbInterface->getLastError() );
     }
+    else
+    {
+      /* The current attribute value will be displayed in the second column (the
+        combo box next to the currently selected table widget item). */
+      QComboBox *attributeValueCombo = dynamic_cast< QComboBox* >( ui->tableWidget->cellWidget( ui->tableWidget->currentRow(), 1 ) );
 
-    ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
-    ui->dockWidgetTextEdit->find( scrollAnchorText( currentElement ) );
-    ui->dockWidgetTextEdit->ensureCursorVisible();
+      if( attributeValueCombo )
+      {
+        currentElement.removeAttribute( m_activeAttributeName );
+        currentElement.setAttribute( item->text(), attributeValueCombo->currentText() );
+
+        bool success;
+        QStringList attributeValues = m_dbInterface->attributeValues( currentElement.tagName(),
+                                                                      m_activeAttributeName,
+                                                                      success );
+
+        if( !m_dbInterface->updateAttributeValues( currentElement.tagName(),
+                                                   item->text(),
+                                                   attributeValues ) ||
+            !success)
+        {
+          showErrorMessageBox( m_dbInterface->getLastError() );
+        }
+      }
+
+      ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
+      ui->dockWidgetTextEdit->find( scrollAnchorText( currentElement ) );
+      ui->dockWidgetTextEdit->ensureCursorVisible();
+    }
   }
 }
 
