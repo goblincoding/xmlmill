@@ -105,114 +105,120 @@ GCMainWindow::~GCMainWindow()
 
 void GCMainWindow::openXMLFile()
 {
-  if( m_dbInterface->hasActiveSession() )
-  {
-    QString fileName = QFileDialog::getOpenFileName( this, "Open File", QDir::homePath(), "XML Files (*.*)" );
-
-    /* If the user clicked "OK". */
-    if( !fileName.isEmpty() )
-    {
-      m_currentXMLFileName = fileName;
-      QFile file( m_currentXMLFileName );
-
-      if( file.open( QIODevice::ReadOnly | QIODevice::Text ) )
-      {
-        resetDOM();
-
-        QTextStream inStream( &file );
-        QString xmlErr( "" );
-        int     line  ( -1 );
-        int     col   ( -1 );
-
-        if( m_domDoc->setContent( inStream.readAll(), &xmlErr, &line, &col ) )
-        {
-          /* If the user is opening an XML file of a kind that isn't supported by the current active session,
-            we need to warn the user of this fact and let them either switch to the DB that they need, or
-            create a new DB connection for the new XML file type. */
-          if( !m_dbInterface->knownRootElements().contains( m_domDoc->documentElement().tagName() ) &&
-              !m_superUserMode )
-          {
-            do
-            {
-              QMessageBox::warning( this,
-                                    "Unknown XML Style",
-                                    "The current active database has no knowledge of the\n"
-                                    "specific XML style (the elements, attributes, attribute values and\n"
-                                    "all the associations between them) of the document you are trying to open.\n\n"
-                                    "You can either:\n\n"
-                                    "1. Select an existing database that describes this type of XML, or\n"
-                                    "2. Switch to \"Super User\" mode and open the file again to import it to the database." );
-
-              showKnownDBForm( GCKnownDBForm::SelectAndExisting );
-
-            } while( !m_dbInterface->knownRootElements().contains( m_domDoc->documentElement().tagName() ) &&
-                     !m_userCancelled );
-
-            /* If the user selected a database that fits, continue. */
-            if( !m_userCancelled )
-            {
-              processDOMDoc();
-            }
-            else
-            {
-              resetDOM();
-            }
-
-            m_userCancelled = false;
-          }
-          else if( m_superUserMode )
-          {
-            /* If the user is a super user, he/she might want to import the XML profile to the
-              current database. */
-            QMessageBox::StandardButton button = QMessageBox::question( this,
-                                                                        "Import XML?",
-                                                                        "Would you like to import the XML document to the active database?",
-                                                                        QMessageBox::Yes | QMessageBox::No,
-                                                                        QMessageBox::No );
-
-            if( button == QMessageBox::Yes )
-            {
-              processDOMDoc();
-
-              /* Update the DB in one go. */
-              if( !m_dbInterface->batchProcessDOMDocument( m_domDoc ) )
-              {
-                showErrorMessageBox( m_dbInterface->getLastError() );
-              }
-            }
-            else
-            {
-              resetDOM();
-            }
-          }
-          else
-          {
-            processDOMDoc();
-          }
-        }
-        else
-        {
-          QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3])." ).arg( xmlErr ).arg( line ).arg( col );
-          showErrorMessageBox( errorMsg );
-          resetDOM();          
-        }
-
-        file.close();
-      }
-      else
-      {
-        QString errorMsg = QString( "Failed to open file \"%1\" - [%2]" ).arg( fileName ).arg( file.errorString() );
-        showErrorMessageBox( errorMsg );
-        resetDOM();
-      }
-    }
-  }
-  else
+  if( !m_dbInterface->hasActiveSession() )
   {
     QString errMsg( "No active database set, please set one for this session." );
     showErrorMessageBox( errMsg );
     showKnownDBForm( GCKnownDBForm::ShowAll );
+    return;
   }
+
+  QString fileName = QFileDialog::getOpenFileName( this, "Open File", QDir::homePath(), "XML Files (*.*)" );
+
+  /* If the user clicked "OK". */
+  if( !fileName.isEmpty() )
+  {
+    m_currentXMLFileName = fileName;
+    QFile file( m_currentXMLFileName );
+
+    if( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
+    {
+      QString errorMsg = QString( "Failed to open file \"%1\" - [%2]" ).arg( fileName ).arg( file.errorString() );
+      showErrorMessageBox( errorMsg );
+      return;
+    }
+
+    resetDOM();
+
+    QTextStream inStream( &file );
+    QString fileContent( inStream.readAll() );
+    file.close();
+
+    QString xmlErr( "" );
+    int     line  ( -1 );
+    int     col   ( -1 );
+
+    if( !m_domDoc->setContent( fileContent, &xmlErr, &line, &col ) )
+    {
+      QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3])." ).arg( xmlErr ).arg( line ).arg( col );
+      showErrorMessageBox( errorMsg );
+      resetDOM();
+      return;
+    }
+
+    /* If the user is opening an XML file of a kind that isn't supported by the current active session,
+            we need to warn the user of this fact and let them either switch to the DB that they need, or
+            create a new DB connection for the new XML file type. */
+    if( !m_dbInterface->knownRootElements().contains( m_domDoc->documentElement().tagName() ) &&
+        !m_superUserMode )
+    {
+      do
+      {
+        QMessageBox::warning( this,
+                              "Unknown XML Style",
+                              "The current active database has no knowledge of the\n"
+                              "specific XML style (the elements, attributes, attribute values and\n"
+                              "all the associations between them) of the document you are trying to open.\n\n"
+                              "You can either:\n\n"
+                              "1. Select an existing database that describes this type of XML, or\n"
+                              "2. Switch to \"Super User\" mode and open the file again to import it to the database." );
+
+        showKnownDBForm( GCKnownDBForm::SelectAndExisting );
+
+      } while( !m_dbInterface->knownRootElements().contains( m_domDoc->documentElement().tagName() ) &&
+               !m_userCancelled );
+
+      /* If the user selected a database that fits, continue. */
+      if( !m_userCancelled )
+      {
+        processDOMDoc();
+      }
+      else
+      {
+        resetDOM();
+      }
+
+      m_userCancelled = false;
+    }
+    else if( m_superUserMode )
+    {
+      /* If the user is a super user, he/she might want to import the XML profile to the
+          current database. */
+      QMessageBox::StandardButton button = QMessageBox::question( this,
+                                                                  "Import XML?",
+                                                                  "Would you like to import the XML document to the active database?",
+                                                                  QMessageBox::Yes | QMessageBox::No,
+                                                                  QMessageBox::No );
+
+      if( button == QMessageBox::Yes )
+      {
+        processDOMDoc();
+
+        /* Update the DB in one go. */
+        if( !m_dbInterface->batchProcessDOMDocument( m_domDoc ) )
+        {
+          showErrorMessageBox( m_dbInterface->getLastError() );
+        }
+      }
+      else
+      {
+        resetDOM();
+      }
+    }
+    else
+    {
+      /* Finally, if the user selected a database that knows of this particular XML profile,
+        simply process the document. */
+      processDOMDoc();
+    }
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::importXMLFile()
+{
+
 }
 
 /*--------------------------------------------------------------------------------------*/
