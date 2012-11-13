@@ -30,8 +30,10 @@ private slots:
   void treeWidgetItemChanged     ( QTreeWidgetItem *item, int column );
   void treeWidgetItemActivated   ( QTreeWidgetItem *item, int column );
 
+  void setActiveAttributeName   ( QTableWidgetItem *item );
   void attributeNameChanged      ( QTableWidgetItem *item );
-  void attributeValueChanged     ( QString value );
+  void attributeValueChanged     ( const QString &value );
+  void attributeValueAdded       ( const QString &value );
 
   void setCurrentComboBox        ( QComboBox *combo );
   void collapseOrExpandTreeWidget( bool checked );
@@ -88,6 +90,7 @@ private:
   QComboBox           *m_currentCombo;
   QTimer              *m_saveTimer;
   QString              m_currentXMLFileName;
+  QString              m_activeAttributeName;
   bool                 m_userCancelled;
   bool                 m_superUserMode;
   bool                 m_rootElementSet;

@@ -14,19 +14,20 @@
 /*--------------------------------------------------------------------------------------*/
 
 GCMainWindow::GCMainWindow( QWidget *parent ) :
-  QMainWindow         ( parent ),
-  ui                  ( new Ui::GCMainWindow ),
-  m_dbInterface       ( new GCDataBaseInterface( this ) ),
-  m_signalMapper      ( new QSignalMapper( this ) ),
-  m_domDoc            ( NULL ),
-  m_currentCombo      ( NULL ),
-  m_saveTimer         ( NULL ),
-  m_currentXMLFileName( "" ),
-  m_userCancelled     ( false ),
-  m_superUserMode     ( false ),
-  m_rootElementSet    ( false ),
-  m_treeItemNodes     (),
-  m_comboBoxes        ()
+  QMainWindow           ( parent ),
+  ui                    ( new Ui::GCMainWindow ),
+  m_dbInterface         ( new GCDataBaseInterface( this ) ),
+  m_signalMapper        ( new QSignalMapper( this ) ),
+  m_domDoc              ( NULL ),
+  m_currentCombo        ( NULL ),
+  m_saveTimer           ( NULL ),
+  m_currentXMLFileName  ( "" ),
+  m_activeAttributeName( "" ),
+  m_userCancelled       ( false ),
+  m_superUserMode       ( false ),
+  m_rootElementSet      ( false ),
+  m_treeItemNodes       (),
+  m_comboBoxes          ()
 {
   ui->setupUi( this );
 
@@ -70,7 +71,9 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 
   /* Everything table widget related ("itemChanged" will only ever be emitted in Super User mode
     since table widget items aren't editable otherwise). */
-  connect( ui->tableWidget,                 SIGNAL( itemChanged  ( QTableWidgetItem* ) ),     this, SLOT( attributeNameChanged( QTableWidgetItem* ) ) );
+  connect( ui->tableWidget,                 SIGNAL( itemChanged  ( QTableWidgetItem* ) ),     this, SLOT( attributeNameChanged  ( QTableWidgetItem* ) ) );
+  connect( ui->tableWidget,                 SIGNAL( itemClicked  ( QTableWidgetItem* ) ),     this, SLOT( setActiveAttributeName( QTableWidgetItem* ) ) );
+  connect( ui->tableWidget,                 SIGNAL( itemActivated( QTableWidgetItem* ) ),     this, SLOT( setActiveAttributeName( QTableWidgetItem* ) ) );
 
   /* Initialise the database interface and retrieve the list of database names (this will
     include the path references to the ".db" files). */
@@ -551,6 +554,13 @@ void GCMainWindow::collapseOrExpandTreeWidget( bool checked )
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCMainWindow::setActiveAttributeName( QTableWidgetItem *item )
+{
+  m_activeAttributeName = item->text();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
 {
   /* All attribute name changes will be assumed to be additions, removing an attribute
@@ -571,7 +581,21 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
 
     if( attributeValueCombo )
     {
+      currentElement.removeAttribute( m_activeAttributeName );
       currentElement.setAttribute( item->text(), attributeValueCombo->currentText() );
+
+      bool success;
+      QStringList attributeValues = m_dbInterface->attributeValues( currentElement.tagName(),
+                                                                    m_activeAttributeName,
+                                                                    success );
+
+      if( !m_dbInterface->updateAttributeValues( currentElement.tagName(),
+                                                 item->text(),
+                                                 attributeValues ) ||
+          !success)
+      {
+        showErrorMessageBox( m_dbInterface->getLastError() );
+      }
     }
 
     ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
@@ -582,7 +606,7 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::attributeValueChanged( QString value )
+void GCMainWindow::attributeValueChanged( const QString &value )
 {
   QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
   QDomElement currentElement = m_treeItemNodes.value( currentItem );
@@ -595,6 +619,33 @@ void GCMainWindow::attributeValueChanged( QString value )
   ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
   ui->dockWidgetTextEdit->find( scrollAnchorText( currentElement ) );
   ui->dockWidgetTextEdit->ensureCursorVisible();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::attributeValueAdded( const QString &value )
+{
+  /* It would have been nice if we could simply call "attributeValueChanged"
+    here, but we need to know which element and attribute the new value is
+    asociated with in any case so we may as well just do it all here. */
+  QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
+  QDomElement currentElement = m_treeItemNodes.value( currentItem );
+
+  /* The current attribute will be displayed in the first column (next to the
+    combo box which will be the actual current item). */
+  QString currentAttributeName = ui->tableWidget->item( m_comboBoxes.value( m_currentCombo ), 0 )->text();
+  currentElement.setAttribute( currentAttributeName, value );
+
+  ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
+  ui->dockWidgetTextEdit->find( scrollAnchorText( currentElement ) );
+  ui->dockWidgetTextEdit->ensureCursorVisible();
+
+  if( !m_dbInterface->updateAttributeValues( currentElement.tagName(),
+                                             currentAttributeName,
+                                             QStringList( value ) ) )
+  {
+    showErrorMessageBox( m_dbInterface->getLastError() );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
