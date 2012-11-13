@@ -62,14 +62,14 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->expandAllCheckBox,           SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
   connect( ui->actionExit,                  SIGNAL( triggered() ),     this, SLOT( close() ) );
 
-  /* Everything tree widget related (itemChanged will only ever be emitted in Super User mode since,
-    tree widget items aren't editable otherwise). */
+  /* Everything tree widget related ("itemChanged" will only ever be emitted in Super User mode
+    since tree widget items aren't editable otherwise). */
   connect( ui->treeWidget,                  SIGNAL( itemChanged  ( QTreeWidgetItem*, int ) ), this, SLOT( treeWidgetItemChanged  ( QTreeWidgetItem*, int ) ) );
   connect( ui->treeWidget,                  SIGNAL( itemClicked  ( QTreeWidgetItem*, int ) ), this, SLOT( treeWidgetItemActivated( QTreeWidgetItem*, int ) ) );
   connect( ui->treeWidget,                  SIGNAL( itemActivated( QTreeWidgetItem*, int ) ), this, SLOT( treeWidgetItemActivated( QTreeWidgetItem*, int ) ) );
 
-  /* Everything table widget related (itemChanged will only ever be emitted in Super User mode since,
-    table widget items aren't editable otherwise). */
+  /* Everything table widget related ("itemChanged" will only ever be emitted in Super User mode
+    since table widget items aren't editable otherwise). */
   connect( ui->tableWidget,                 SIGNAL( itemChanged  ( QTableWidgetItem* ) ),     this, SLOT( attributeNameChanged( QTableWidgetItem* ) ) );
 
   /* Initialise the database interface and retrieve the list of database names (this will
@@ -123,7 +123,9 @@ void GCMainWindow::openXMLFile()
 
     if( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
     {
-      QString errorMsg = QString( "Failed to open file \"%1\" - [%2]" ).arg( fileName ).arg( file.errorString() );
+      QString errorMsg = QString( "Failed to open file \"%1\": [%2]" )
+          .arg( fileName )
+          .arg( file.errorString() );
       showErrorMessageBox( errorMsg );
       return;
     }
@@ -140,15 +142,18 @@ void GCMainWindow::openXMLFile()
 
     if( !m_domDoc->setContent( fileContent, &xmlErr, &line, &col ) )
     {
-      QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3])." ).arg( xmlErr ).arg( line ).arg( col );
+      QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3]" )
+          .arg( xmlErr )
+          .arg( line )
+          .arg( col );
       showErrorMessageBox( errorMsg );
       resetDOM();
       return;
     }
 
     /* If the user is opening an XML file of a kind that isn't supported by the current active session,
-            we need to warn the user of this fact and let them either switch to the DB that they need, or
-            create a new DB connection for the new XML file type. */
+      we need to warn him/her of this fact and let them either switch to the DB that they need, or
+      create a new DB connection for the new XML profile. */
     if( !m_dbInterface->knownRootElements().contains( m_domDoc->documentElement().tagName() ) &&
         !m_superUserMode )
     {
@@ -183,7 +188,7 @@ void GCMainWindow::openXMLFile()
     else if( m_superUserMode )
     {
       /* If the user is a super user, he/she might want to import the XML profile to the
-          current database. */
+        current database. */
       QMessageBox::StandardButton button = QMessageBox::question( this,
                                                                   "Import XML?",
                                                                   "Would you like to import the XML document to the active database?",
@@ -216,13 +221,6 @@ void GCMainWindow::openXMLFile()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::importXMLFile()
-{
-
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 void GCMainWindow::newXMLFile()
 {
   resetDOM();
@@ -251,7 +249,9 @@ void GCMainWindow::saveXMLFile()
 
     if( !file.open( QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text ) )
     {
-      QString errMsg = QString( "Failed to save file \"%1\" - [%2]." ).arg( m_currentXMLFileName ).arg( file.errorString() );
+      QString errMsg = QString( "Failed to save file \"%1\": [%2]." )
+          .arg( m_currentXMLFileName )
+          .arg( file.errorString() );
       showErrorMessageBox( errMsg );
     }
     else
@@ -288,7 +288,7 @@ void GCMainWindow::startSaveTimer()
   if( !m_saveTimer )
   {
     m_saveTimer = new QTimer( this );
-    connect( m_saveTimer, SIGNAL( timeout() ), this, SLOT(saveXMLFile() ) );
+    connect( m_saveTimer, SIGNAL( timeout() ), this, SLOT( saveXMLFile() ) );
     m_saveTimer->start( 300000 );
   }
   else
@@ -322,7 +322,7 @@ void GCMainWindow::resetDOM()
 
 void GCMainWindow::processDOMDoc()
 {
-  ui->treeWidget->clear();            // also deletes current items
+  ui->treeWidget->clear(); // also deletes current items
   m_treeItemNodes.clear();
   resetTableWidget();
 
@@ -340,7 +340,7 @@ void GCMainWindow::processDOMDoc()
   ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
   m_treeItemNodes.insert( item, root );
 
-  /* Now we can recursively stick the rest of the elements into our widget. */
+  /* Now we can recursively stick the rest of the elements into the tree widget. */
   populateTreeWidget( root, item );
 
   /* Enable file save options. */
@@ -351,7 +351,7 @@ void GCMainWindow::processDOMDoc()
   ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
 
   /* If the user just added the root element, we need to make sure that they don't
-  try to add it again...it happens. */
+    try to add it again...it happens. */
   if( !m_rootElementSet )
   {
     ui->treeWidget->setCurrentItem( item, 0 );
@@ -366,7 +366,7 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
 {
   QDomElement element = parentElement.firstChildElement();
 
-  while ( !element.isNull() )
+  while( !element.isNull() )
   {
     QTreeWidgetItem *item = new QTreeWidgetItem();
     item->setText( 0, element.tagName() );
@@ -376,7 +376,7 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
       item->setFlags( item->flags() | Qt::ItemIsEditable );
     }
 
-    parentItem->addChild( item );             // takes ownership
+    parentItem->addChild( item );  // takes ownership
     m_treeItemNodes.insert( item, element );
 
     populateTreeWidget( element, item );
@@ -388,7 +388,7 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
 
 void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
 {
-  /* This slot will only be called in super user mode so we can safely keep the functionality
+  /* This slot will only be called in Super User mode so we can safely keep the functionality
     as it is (i.e. updating the database alongside the DOM) without any other explicit checks. */
   if( m_treeItemNodes.contains( item ) )
   {
@@ -403,11 +403,12 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
     }
     else
     {
+      /* If the element name didn't change, do nothing. */
       if( elementName != previousName )
       {
-        /* Update the element names in our active DOM doc (since m_treeItemNodes
-        contains shallow copied QDomElements, the change will automatically
-        be available to the map as well) and the tree widget. */
+        /* Update the element names in our active DOM doc (since "m_treeItemNodes"
+          contains shallow copied QDomElements, the change will automatically
+          be available to the map as well) and the tree widget. */
         QDomNodeList list = m_domDoc->elementsByTagName( previousName );
 
         for( int i = 0; i < list.count(); ++i )
@@ -428,7 +429,9 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
 
         foreach( QString attribute, attributes )
         {
-          m_dbInterface->updateAttributeValues( elementName, attribute, m_dbInterface->attributeValues( previousName, attribute, success ) );
+          m_dbInterface->updateAttributeValues( elementName,
+                                                attribute,
+                                                m_dbInterface->attributeValues( previousName, attribute, success ) );
         }
 
         if( !success )
@@ -451,7 +454,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
   resetTableWidget();
 
   /* Get only the attributes currently assigned to the element
-    corresponding to this item (and the lists of associated
+    corresponding to the activated item (and the lists of associated
     values for these attributes) and populate our table widget. */
   bool success( false );
   QString elementName = item->text( column );
@@ -467,7 +470,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
   {
     QTableWidgetItem *label = new QTableWidgetItem( attributes.at( i ) );
 
-    /* Items are editable by default, disable this option if not in super user mode. */
+    /* Items are editable by default, disable this option if not in Super User mode. */
     if( !m_superUserMode )
     {
       label->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable );
@@ -479,36 +482,35 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     QComboBox *attributeCombo = new QComboBox;
     attributeCombo->addItems( m_dbInterface->attributeValues( elementName, attributes.at( i ), success ) );    
 
-    /* Get the current value assigned to the element associated with this tree widget item. */
-    QDomElement element = m_treeItemNodes.value( item );
-    QString attributeValue = element.attribute( attributes.at( i ) );
-
-    /* If we are in the process of building the document, the attribute value will
-      still be empty has it has never been set before. */
-    if( !attributeValue.isEmpty() )
-    {
-      attributeCombo->setCurrentIndex( attributeCombo->findText( attributeValue ) );
-    }
-
-    /* Attempting the connection before we've set the current index causes the
-      attributeValueChanged slot to be called too early, resulting in a segmentation
-      fault due to value conflicts/missing values. */
-    connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged( QString ) ) );
-
     /* This is more for debugging than for end-user functionality. */
     if( !success )
     {
       showErrorMessageBox( m_dbInterface->getLastError() );
     }
 
+    QDomElement element = m_treeItemNodes.value( item );
+    QString attributeValue = element.attribute( attributes.at( i ) );
+
+    /* If we are still in the process of building the document, the attribute value will
+      be empty since it has never been set before.  For this particular case,
+      calling "findText" will result in a null pointer exception. */
+    if( !attributeValue.isEmpty() )
+    {
+      attributeCombo->setCurrentIndex( attributeCombo->findText( attributeValue ) );
+    }
+
+    /* Attempting the connection before we've set the current index causes the
+      "attributeValueChanged" slot to be called too early, resulting in a segmentation
+      fault due to value conflicts/missing values. */
+    connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged( QString ) ) );
+
     attributeCombo->setEditable( true );
     ui->tableWidget->setCellWidget( i, 1, attributeCombo );
     m_comboBoxes.insert( attributeCombo, i );
 
     /* This will point the current combo box member to the combo that's been activated
-      and is used in "attributeValueChanged" to obtain the row number the combo box
-      appears in in the table widget from the combo box map so that the corresponding
-      attribute name can be determined, etc, etc. */
+      in the table widget (used in "attributeValueChanged" to obtain the row number the
+      combo box appears in in the table widget, etc, etc). */
     connect( attributeCombo, SIGNAL(activated( int ) ), m_signalMapper, SLOT( map() ) );
     m_signalMapper->setMapping( attributeCombo, attributeCombo );
   }
@@ -600,8 +602,7 @@ void GCMainWindow::attributeValueChanged( QString value )
 void GCMainWindow::resetTableWidget()
 {
   /* Remove the currently visible/live combo boxes from the signal mapper's
-    mappings and the combo boxes map before we whack them all with the table
-    widget's "clearContents". */
+    mappings and the combo box map before we whack them all. */
   for( int i = 0; i < m_comboBoxes.keys().size(); ++i )
   {
     m_signalMapper->removeMappings( m_comboBoxes.keys().at( i ) );
@@ -669,8 +670,8 @@ void GCMainWindow::addChildElementToDOM()
     else
     {
       /* If the user starts creating a DOM document without having explicitly asked for
-      a new file to be created, do it automatically (we can't call newXMLFile here since
-      it resets the DOM document). */
+      a new file to be created, do it automatically (we can't call "newXMLFile here" since
+      it resets the DOM document as well). */
       m_currentXMLFileName = "";
       ui->actionSave->setEnabled( true );
       ui->actionSaveAs->setEnabled( true );
@@ -834,7 +835,7 @@ void GCMainWindow::removeDBConnection( const QString &dbName )
 {
   if( !m_dbInterface->removeDatabase( dbName ) )
   {
-    QString error = QString( "Failed to remove database \"%1\" - [%2]" ).arg( dbName )
+    QString error = QString( "Failed to remove database \"%1\": [%2]" ).arg( dbName )
                     .arg( m_dbInterface->getLastError() );
     showErrorMessageBox( error );
   }
@@ -946,7 +947,7 @@ void GCMainWindow::switchSuperUserMode( bool super )
   if( super )
   {
     QMessageBox::warning( this,
-                          "Super user mode!",
+                          "Super User Mode!",
                           "Absolutely everything you do in this mode is persisted to the\n"
                           "active database and cannot be undone.\n\n"
                           "In other words, if anything goes wrong, it's all your fault..." );
@@ -963,8 +964,8 @@ void GCMainWindow::switchSuperUserMode( bool super )
   ui->addAttributeLabel->setVisible( super );
   ui->addAttributeLineEdit->setVisible( super );
 
-  /* The user must see they exist, but shouldn't be able to access these
-    actions except in super user mode. */
+  /* The user must see these actions exist, but shouldn't be able to access
+    them except when in super user mode. */
   ui->actionAddNewDatabase->setEnabled( super );
   ui->actionRemoveDatabase->setEnabled( super );
 
