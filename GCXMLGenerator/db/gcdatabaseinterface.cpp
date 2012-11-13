@@ -129,7 +129,7 @@ bool GCDataBaseInterface::initialise()
     return true;
   }
 
-  m_lastErrorMsg = QString( "Failed to access list of databases, file open error - [%1]." ).arg( flatFile.errorString() );
+  m_lastErrorMsg = QString( "Failed to access list of databases, file open error: [%1]." ).arg( flatFile.errorString() );
   return false;
 }
 
@@ -156,7 +156,7 @@ bool GCDataBaseInterface::addDatabase( const QString &dbName )
         return true;
       }
 
-      m_lastErrorMsg = QString( "Failed to add database \"%1\" - [%2]." ).arg( dbConName ).arg( db.lastError().text() );
+      m_lastErrorMsg = QString( "Failed to add database \"%1\": [%2]." ).arg( dbConName ).arg( db.lastError().text() );
       return false;
     }
     else
@@ -183,6 +183,15 @@ bool GCDataBaseInterface::removeDatabase( const QString &dbName )
     {
       m_sessionDB.close();
       m_hasActiveSession = false;
+    }
+
+    QFile file( m_dbMap.value( dbConName ) );
+
+    if( !file.remove() )
+    {
+      m_lastErrorMsg = QString( "Failed to remove database file: [%1]")
+          .arg( dbName );
+      return false;
     }
 
     /* If the DB connection being removed was also the active one, "removeDatabase" will output
@@ -269,7 +278,7 @@ bool GCDataBaseInterface::openDBConnection( const QString &dbConName )
   }
   else
   {
-    m_lastErrorMsg = QString( "Failed to open a valid session connection \"%1\", error: %2" )
+    m_lastErrorMsg = QString( "Failed to open a valid session connection \"%1\": [%2]" )
         .arg( dbConName )
         .arg( m_sessionDB.lastError().text() );
     return false;

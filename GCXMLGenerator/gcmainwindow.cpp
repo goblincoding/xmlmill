@@ -120,17 +120,11 @@ void GCMainWindow::openXMLFile()
         resetDOM();
 
         QTextStream inStream( &file );
-
-        /* The reason for this particular attribute is to ensure that we don't inadvertently
-          break the format of the XML file that's being loaded.  Users might like multi line
-          attribute layouts, etc etc. */
-        QString fileContent( inStream.readAll() );
-
         QString xmlErr( "" );
         int     line  ( -1 );
         int     col   ( -1 );
 
-        if( m_domDoc->setContent( fileContent, &xmlErr, &line, &col ) )
+        if( m_domDoc->setContent( inStream.readAll(), &xmlErr, &line, &col ) )
         {
           /* If the user is opening an XML file of a kind that isn't supported by the current active session,
             we need to warn the user of this fact and let them either switch to the DB that they need, or
@@ -168,6 +162,8 @@ void GCMainWindow::openXMLFile()
           }
           else if( m_superUserMode )
           {
+            /* If the user is a super user, he/she might want to import the XML profile to the
+              current database. */
             QMessageBox::StandardButton button = QMessageBox::question( this,
                                                                         "Import XML?",
                                                                         "Would you like to import the XML document to the active database?",
