@@ -27,7 +27,7 @@ public:
   ~GCMainWindow();
   
 private:
-  QString scrollToAnchor  ( QDomElement element );
+  QString scrollAnchorText( QDomElement element );
   void showKnownDBForm    ( GCKnownDBForm::Buttons buttons );
   void showErrorMessageBox( const QString &errorMsg );
   void addDBConnection    ( const QString &dbName );

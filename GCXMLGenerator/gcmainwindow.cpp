@@ -35,8 +35,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   ui->addAttributeLabel->setVisible ( false );
   ui->addAttributeLineEdit->setVisible( false );
 
-  /* The user must see they exist, but shouldn't be able to access these
-    actions except in super user mode. */
+  /* The user must see these actions exist, but shouldn't be able to access
+    them except in super user mode. */
   ui->actionAddNewDatabase->setEnabled( false );
   ui->actionRemoveDatabase->setEnabled( false );
 
@@ -435,7 +435,7 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
         }
 
         ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
-        ui->dockWidgetTextEdit->find( scrollToAnchor( m_treeItemNodes.value( item ).toElement() ) );
+        ui->dockWidgetTextEdit->find( scrollAnchorText( m_treeItemNodes.value( item ).toElement() ) );
         ui->dockWidgetTextEdit->ensureCursorVisible();
       }
     }
@@ -571,7 +571,7 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
     }
 
     ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
-    ui->dockWidgetTextEdit->find( scrollToAnchor( currentElement ) );
+    ui->dockWidgetTextEdit->find( scrollAnchorText( currentElement ) );
     ui->dockWidgetTextEdit->ensureCursorVisible();
   }
 }
@@ -589,7 +589,7 @@ void GCMainWindow::attributeValueChanged( QString value )
   currentElement.setAttribute( currentAttributeName, value );
 
   ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
-  ui->dockWidgetTextEdit->find( scrollToAnchor( currentElement ) );
+  ui->dockWidgetTextEdit->find( scrollAnchorText( currentElement ) );
   ui->dockWidgetTextEdit->ensureCursorVisible();
 }
 
@@ -629,7 +629,7 @@ void GCMainWindow::deleteElementFromDOM()
   parentItem->removeChild( currentItem );
 
   ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
-  ui->dockWidgetTextEdit->find( scrollToAnchor( parentNode.toElement() ) );
+  ui->dockWidgetTextEdit->find( scrollAnchorText( parentNode.toElement() ) );
   ui->dockWidgetTextEdit->ensureCursorVisible();
 }
 
@@ -697,7 +697,7 @@ void GCMainWindow::addChildElementToDOM()
     }
 
     ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
-    ui->dockWidgetTextEdit->find( scrollToAnchor( newElement ) );
+    ui->dockWidgetTextEdit->find( scrollAnchorText( newElement ) );
     ui->dockWidgetTextEdit->ensureCursorVisible();
 
     /* If the user just added the root element, we need to make sure that they don't
@@ -991,7 +991,7 @@ void GCMainWindow::switchSuperUserMode( bool super )
 
 /*--------------------------------------------------------------------------------------*/
 
-QString GCMainWindow::scrollToAnchor( QDomElement element )
+QString GCMainWindow::scrollAnchorText( QDomElement element )
 {
   QString anchor( "<" );
   anchor += element.tagName();
