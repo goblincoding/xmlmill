@@ -1009,8 +1009,9 @@ void GCMainWindow::userCancelledKnownDBForm()
 
 void GCMainWindow::switchSuperUserMode( bool super )
 {
+  m_superUserMode = super;
 
-  if( super )
+  if( m_superUserMode )
   {
     QMessageBox::warning( this,
                           "Super User Mode!",
@@ -1024,22 +1025,23 @@ void GCMainWindow::switchSuperUserMode( bool super )
     showKnownDBForm( GCKnownDBForm::SelectAndExisting );
   }
 
-  m_superUserMode = super;
+  ui->addElementComboBox->setEditable( m_superUserMode );
 
-  ui->addAttributeButton->setVisible( super );
-  ui->addAttributeLabel->setVisible( super );
-  ui->addAttributeLineEdit->setVisible( super );
+  /* Set the attribute options' visibility. */
+  ui->addAttributeButton->setVisible( m_superUserMode );
+  ui->addAttributeLabel->setVisible( m_superUserMode );
+  ui->addAttributeLineEdit->setVisible( m_superUserMode );
 
   /* The user must see these actions exist, but shouldn't be able to access
-    them except when in super user mode. */
-  ui->actionAddNewDatabase->setEnabled( super );
-  ui->actionRemoveDatabase->setEnabled( super );
+    them except when in "Super User" mode. */
+  ui->actionAddNewDatabase->setEnabled( m_superUserMode );
+  ui->actionRemoveDatabase->setEnabled( m_superUserMode );
 
   /* Needed to reset all the tree widget item's "editable" flags
     to whatever the current mode allows. */
   QList< QTreeWidgetItem* > itemList = m_treeItemNodes.keys();
 
-  if( super )
+  if( m_superUserMode )
   {
     for( int i = 0; i < itemList.size(); ++i )
     {
