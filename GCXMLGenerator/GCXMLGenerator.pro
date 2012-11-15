@@ -13,21 +13,24 @@ TEMPLATE = app
 SOURCES += main.cpp\
     db/gcdatabaseinterface.cpp \
     gcmainwindow.cpp \
-    db/gcbatchprocessorhelper.cpp \
-    db/gcknowndbform.cpp \
-    xml/xmlsyntaxhighlighter.cpp
+    db/gcbatchprocessorhelper.cpp \    
+    xml/xmlsyntaxhighlighter.cpp \
+    forms/gcnewelementform.cpp \
+    forms/gcknowndbform.cpp
 
 HEADERS  += \
     db/gcdatabaseinterface.h \
     gcmainwindow.h \
     db/gcbatchprocessorhelper.h \
     utils/gcglobals.h \
-    db/gcknowndbform.h \
-    xml/xmlsyntaxhighlighter.h
+    xml/xmlsyntaxhighlighter.h \
+    forms/gcnewelementform.h \
+    forms/gcknowndbform.h
 
 FORMS    += \
     gcmainwindow.ui \
-    db/gcsessiondbform.ui
+    forms/gcnewelementform.ui \
+    forms/gcknowndbform.ui
 
 RESOURCES += \
     resources/gcresources.qrc

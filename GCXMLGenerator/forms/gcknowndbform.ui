@@ -38,6 +38,9 @@
    </property>
    <item>
     <widget class="QComboBox" name="comboBox">
+     <property name="whatsThis">
+      <string>All known XML profiles are shown here.</string>
+     </property>
      <property name="layoutDirection">
       <enum>Qt::LeftToRight</enum>
      </property>
@@ -53,6 +56,9 @@
     <layout class="QHBoxLayout" name="buttonLayout">
      <item>
       <widget class="QPushButton" name="okButton">
+       <property name="whatsThis">
+        <string>Select the profile displayed in the combo drop down.</string>
+       </property>
        <property name="text">
         <string>OK</string>
        </property>
@@ -66,6 +72,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="addNewButton">
+       <property name="whatsThis">
+        <string>Add a new XML profile.</string>
+       </property>
        <property name="text">
         <string>Add New</string>
        </property>
@@ -73,6 +82,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="addExistingButton">
+       <property name="whatsThis">
+        <string>Add an existing XML profile.</string>
+       </property>
        <property name="text">
         <string>Add Existing</string>
        </property>
@@ -80,6 +92,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="cancelButton">
+       <property name="whatsThis">
+        <string>I've changed my mind, close this form.</string>
+       </property>
        <property name="text">
         <string>Cancel</string>
        </property>

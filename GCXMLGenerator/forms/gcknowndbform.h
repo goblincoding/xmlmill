@@ -11,7 +11,10 @@
 
   Selecting a database or adding new or existing connections result in the dbSelected() signal being
   emitted.  If the "ToRemove" option was set in the constructor, the dbRemoved() signal will be emitted
-  (in both cases with the name of the database connection in question). */
+  (in both cases with the name of the database connection in question).
+*/
+
+/*--------------------------------------------------------------------------------------*/
 
 namespace Ui {
   class GCKnownDBForm;

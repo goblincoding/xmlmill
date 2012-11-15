@@ -1,5 +1,5 @@
 #include "gcknowndbform.h"
-#include "ui_gcsessiondbform.h"
+#include "ui_gcknowndbform.h"
 #include <QFileDialog>
 
 /*--------------------------------------------------------------------------------------*/
@@ -50,6 +50,8 @@ GCKnownDBForm::GCKnownDBForm( const QStringList &dbList, Buttons buttons, QWidge
   connect( ui->cancelButton,      SIGNAL( clicked() ), this, SLOT  ( close() ) );
 
   connect( ui->okButton,          SIGNAL( clicked() ), this, SLOT  ( select() ) );
+
+  setAttribute( Qt::WA_DeleteOnClose );
 }
 
 /*--------------------------------------------------------------------------------------*/
