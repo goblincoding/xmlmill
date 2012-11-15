@@ -2,6 +2,7 @@
 #include "ui_gcmainwindow.h"
 #include "db/gcdatabaseinterface.h"
 #include "xml/xmlsyntaxhighlighter.h"
+#include "forms/gcnewelementform.h"
 #include <QSignalMapper>
 #include <QDomDocument>
 #include <QMessageBox>
@@ -22,7 +23,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_currentCombo        ( NULL ),
   m_saveTimer           ( NULL ),
   m_currentXMLFileName  ( "" ),
-  m_activeAttributeName( "" ),
+  m_activeAttributeName ( "" ),
   m_userCancelled       ( false ),
   m_superUserMode       ( false ),
   m_rootElementSet      ( false ),
@@ -34,8 +35,9 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 
   /* Hide super user options. */
   ui->addAttributeButton->setVisible( false );
-  ui->addAttributeLabel->setVisible ( false );
+  ui->addAttributeLabel->setVisible( false );
   ui->addAttributeLineEdit->setVisible( false );
+  ui->addNewElementPushButton->setVisible( false );
 
   /* The user must see these actions exist, but shouldn't be able to access
     them except in super user mode. */
@@ -63,6 +65,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionSuperUserMode,         SIGNAL( toggled( bool ) ), this, SLOT( switchSuperUserMode( bool ) ) );
   connect( ui->expandAllCheckBox,           SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
   connect( ui->actionExit,                  SIGNAL( triggered() ),     this, SLOT( close() ) );
+  connect( ui->addNewElementPushButton,     SIGNAL( clicked() ),       this, SLOT( showNewElementForm() ) );
 
   /* Everything tree widget related ("itemChanged" will only ever be emitted in Super User mode
     since tree widget items aren't editable otherwise). */
@@ -111,7 +114,7 @@ void GCMainWindow::openXMLFile()
 {
   if( !m_dbInterface->hasActiveSession() )
   {
-    QString errMsg( "No active database set, please set one for this session." );
+    QString errMsg( "No active profile set, please set one for this session." );
     showErrorMessageBox( errMsg );
     showKnownDBForm( GCKnownDBForm::ShowAll );
     return;
@@ -165,12 +168,12 @@ void GCMainWindow::openXMLFile()
       {
         QMessageBox::warning( this,
                               "Unknown XML Style",
-                              "The current active database has no knowledge of the\n"
+                              "The current active profile has no knowledge of the\n"
                               "specific XML style (the elements, attributes, attribute values and\n"
                               "all the associations between them) of the document you are trying to open.\n\n"
                               "You can either:\n\n"
-                              "1. Select an existing database that describes this type of XML, or\n"
-                              "2. Switch to \"Super User\" mode and open the file again to import it to the database." );
+                              "1. Select an existing profile that describes this type of XML, or\n"
+                              "2. Switch to \"Super User\" mode and open the file again to import it to the profile." );
 
         showKnownDBForm( GCKnownDBForm::SelectAndExisting );
 
@@ -195,7 +198,7 @@ void GCMainWindow::openXMLFile()
         current database. */
       QMessageBox::StandardButton button = QMessageBox::question( this,
                                                                   "Import XML?",
-                                                                  "Would you like to import the XML document to the active database?",
+                                                                  "Would you like to import the XML document to the active profile?",
                                                                   QMessageBox::Yes | QMessageBox::No,
                                                                   QMessageBox::No );
 
@@ -732,6 +735,13 @@ void GCMainWindow::addChildElementToDOM()
 
       QDomElement parent = m_treeItemNodes.value( currentItem );
       parent.appendChild( newElement );
+
+      /* If "addChildElementToDOM" was called from within "addNewElement", then
+        the new element name must be added as a child of the current element. */
+      if( m_newElementWasAdded )
+      {
+        m_dbInterface->updateElementChildren( currentItem->text( 0 ), QStringList( newElementName ) );
+      }
     }
     else
     {
@@ -744,6 +754,13 @@ void GCMainWindow::addChildElementToDOM()
 
       ui->treeWidget->invisibleRootItem()->addChild( newItem );  // takes ownership
       m_domDoc->appendChild( newElement );
+
+      /* If "addChildElementToDOM" was called from within "addNewElement", then
+        the new element name will be a new root element. */
+      if( m_newElementWasAdded )
+      {
+        m_dbInterface->addRootElement( newElementName );
+      }
     }
 
     /* Keep everything in sync in the map. */
@@ -782,18 +799,17 @@ void GCMainWindow::addChildElementToDOM()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::toggleAddElementWidgets()
+void GCMainWindow::addNewElement( const QString &element, const QStringList &attributes )
 {
-  /* Make sure we don't inadvertently create "empty" elements. */
-  if( ui->addElementComboBox->count() < 1 )
+  if( !element.isEmpty() )
   {
-    ui->addElementComboBox->setEnabled( false );
-    ui->addElementButton->setEnabled( false );
-  }
-  else
-  {
-    ui->addElementComboBox->setEnabled( true );
-    ui->addElementButton->setEnabled( true );
+    /* Add the new element and associated attributes to the database. */
+    m_dbInterface->addElement( element, QStringList(), attributes );
+
+    /* The new element is added as a first level child Now we can update the DOM doc as well. */
+    ui->addElementComboBox->insertItem( 0, element );
+    ui->addElementComboBox->setCurrentIndex( 0 );
+    addChildElementToDOM();
   }
 }
 
@@ -801,7 +817,7 @@ void GCMainWindow::toggleAddElementWidgets()
 
 void GCMainWindow::addNewDB()
 {
-  QString file = QFileDialog::getSaveFileName( this, "Add New Database", QDir::homePath(), "Database Files (*.db)" );
+  QString file = QFileDialog::getSaveFileName( this, "Add New Profile", QDir::homePath(), "XML Profiles (*.db)" );
 
   /* If the user clicked "OK". */
   if( !file.isEmpty() )
@@ -814,7 +830,7 @@ void GCMainWindow::addNewDB()
 
 void GCMainWindow::addExistingDB()
 {
-  QString file = QFileDialog::getOpenFileName( this, "Add Existing Database", QDir::homePath(), "Database Files (*.db)" );
+  QString file = QFileDialog::getOpenFileName( this, "Add Existing Profile", QDir::homePath(), "XML Profiles (*.db)" );
 
   /* If the user clicked "OK". */
   if( !file.isEmpty() )
@@ -835,7 +851,7 @@ void GCMainWindow::addDBConnection( const QString &dbName )
 
   QMessageBox::StandardButton button = QMessageBox::question( this,
                                                               "Set Session",
-                                                              "Would you like to set the new database as active?",
+                                                              "Would you like to set the new profile as active?",
                                                               QMessageBox::Yes | QMessageBox::No,
                                                               QMessageBox::Yes );
 
@@ -868,10 +884,10 @@ void GCMainWindow::setSessionDB( const QString &dbName )
     if( m_dbInterface->knownElements().size() < 1 )
     {
       QMessageBox::warning( this,
-                            "Empty Database",
-                            "The current active database is completely empty (aka \"entirely useless\").\n"
+                            "Empty Profile",
+                            "The current active profile is completely empty (aka \"entirely useless\").\n"
                             "You can either:\n"
-                            "1. Select a different (populated) database and continue working, or\n"
+                            "1. Select a different (populated) profile and continue working, or\n"
                             "2. Switch to \"Super User\" mode and start populating this one." );
     }
 
@@ -901,7 +917,7 @@ void GCMainWindow::removeDBConnection( const QString &dbName )
 {
   if( !m_dbInterface->removeDatabase( dbName ) )
   {
-    QString error = QString( "Failed to remove database \"%1\": [%2]" ).arg( dbName )
+    QString error = QString( "Failed to remove profile \"%1\": [%2]" ).arg( dbName )
                     .arg( m_dbInterface->getLastError() );
     showErrorMessageBox( error );
   }
@@ -910,7 +926,7 @@ void GCMainWindow::removeDBConnection( const QString &dbName )
     what he/she intends to replace it with. */
   if( !m_dbInterface->hasActiveSession() )
   {
-    QString errMsg( "The active database has been removed, please set another as active." );
+    QString errMsg( "The active profile has been removed, please set another as active." );
     showErrorMessageBox( errMsg );
     showKnownDBForm( GCKnownDBForm::ShowAll );
   }
@@ -926,7 +942,7 @@ void GCMainWindow::switchDBSession()
   {
     QMessageBox::StandardButton button = QMessageBox::warning( this,
                                                                "Warning",
-                                                               "Switching database sessions while building an XML document\n"
+                                                               "Switching profiles sessions while building an XML document\n"
                                                                "will cause the document to be reset and your work will be lost.  If this is fine, proceed with \"OK\".\n\n"
                                                                "On the other hand, if you wish to keep your work, please hit \"Cancel\" and \n"
                                                                "save the document first before coming back here.",
@@ -975,6 +991,29 @@ void GCMainWindow::saveDirectEdit()
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCMainWindow::showNewElementForm()
+{
+  QMessageBox::StandardButton button = QMessageBox::information( this,
+                                                                 "Careful!",
+                                                                 "All the new elements you add will be added as first level\n"
+                                                                 "children of the element highlighted in the tree view (in\n"
+                                                                 "other words it will become a sibling to the elements currently\n"
+                                                                 "in the dropdown menu).\nn"
+                                                                 "If this is not what you intended, I suggest you \"Cancel\".",
+                                                                 QMessageBox::Ok | QMessageBox::Cancel,
+                                                                 QMessageBox::Ok );
+
+  if( button == QMessageBox::Ok )
+  {
+    GCNewElementForm *form = new GCNewElementForm;
+    form->setWindowModality( Qt::ApplicationModal );
+    connect( form, SIGNAL( newElementDetails( QString,QStringList ) ), this, SLOT( addNewElement( QString,QStringList ) ) );
+    form->show();
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCMainWindow::showKnownDBForm( GCKnownDBForm::Buttons buttons )
 {
   GCKnownDBForm *knownDBForm = new GCKnownDBForm( m_dbInterface->getDBList(), buttons, this );
@@ -1016,7 +1055,7 @@ void GCMainWindow::switchSuperUserMode( bool super )
     QMessageBox::warning( this,
                           "Super User Mode!",
                           "Absolutely everything you do in this mode is persisted to the\n"
-                          "active database and cannot be undone.\n\n"
+                          "active profile and cannot be undone.\n\n"
                           "In other words, if anything goes wrong, it's all your fault..." );
   }
 
@@ -1025,9 +1064,8 @@ void GCMainWindow::switchSuperUserMode( bool super )
     showKnownDBForm( GCKnownDBForm::SelectAndExisting );
   }
 
-  ui->addElementComboBox->setEditable( m_superUserMode );
-
   /* Set the attribute options' visibility. */
+  ui->addNewElementPushButton->setVisible( m_superUserMode );
   ui->addAttributeButton->setVisible( m_superUserMode );
   ui->addAttributeLabel->setVisible( m_superUserMode );
   ui->addAttributeLineEdit->setVisible( m_superUserMode );
@@ -1097,6 +1135,23 @@ QString GCMainWindow::scrollAnchorText( const QDomElement &element )
   }
 
   return anchor;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::toggleAddElementWidgets()
+{
+  /* Make sure we don't inadvertently create "empty" elements. */
+  if( ui->addElementComboBox->count() < 1 )
+  {
+    ui->addElementComboBox->setEnabled( false );
+    ui->addElementButton->setEnabled( false );
+  }
+  else
+  {
+    ui->addElementComboBox->setEnabled( true );
+    ui->addElementButton->setEnabled( true );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/

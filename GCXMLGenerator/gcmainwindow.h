@@ -3,7 +3,17 @@
 
 #include <QMainWindow>
 #include <QMap>
-#include "db/gcknowndbform.h"
+#include "forms/gcknowndbform.h"
+
+/*--------------------------------------------------------------------------------------*/
+/*
+  All the code refers to "database" whereas all the user prompts reference "profiles". This
+  is deliberate.  In reality, everything is persisted to SQLite database files, but a friend
+  suggested that end users may be intimidated by the use of the word "database" (especially
+  if they aren't necessarily technically inclined) and that "profiles" may be less scary :)
+*/
+
+/*--------------------------------------------------------------------------------------*/
 
 namespace Ui {
   class GCMainWindow;
@@ -26,6 +36,9 @@ public:
   explicit GCMainWindow( QWidget *parent = 0 );
   ~GCMainWindow();
 
+public slots:
+  void addNewElement( const QString &element, const QStringList &attributes );
+
 private slots:
   void treeWidgetItemChanged     ( QTreeWidgetItem *item, int column );
   void treeWidgetItemActivated   ( QTreeWidgetItem *item, int column );
@@ -38,7 +51,8 @@ private slots:
   void setCurrentComboBox        ( QComboBox *combo );
   void collapseOrExpandTreeWidget( bool checked );
   void switchSuperUserMode       ( bool super );
-  void userCancelledKnownDBForm  ();
+
+  void userCancelledKnownDBForm();
 
   /* XML file related. */
   void newXMLFile();
@@ -56,11 +70,12 @@ private slots:
   void removeDB();                                  // shows known DB form
   void removeDBConnection( const QString &dbName ); // receives signal from DB form
 
-  /* Build XML. */
+  /* DOM and DB. */
+  void showNewElementForm();
+
   void deleteElementFromDOM();
   void addChildElementToDOM();
 
-  /* Edit XML store. */
   void deleteElementFromDB();
   void deleteAttributeValuesFromDB();
 
@@ -95,6 +110,7 @@ private:
   bool                 m_superUserMode;
   bool                 m_rootElementSet;
   bool                 m_wasTreeItemActivated;
+  bool                 m_newElementWasAdded;
 
   QMap< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
   QMap< QComboBox*, int/* table row*/ > m_comboBoxes;
