@@ -45,10 +45,11 @@ private slots:
 
   void setActiveAttributeName    ( QTableWidgetItem *item );
   void attributeNameChanged      ( QTableWidgetItem *item );
+  void setActiveAttributeValue   ( const QString &value );
   void attributeValueChanged     ( const QString &value );
   void attributeValueAdded       ( const QString &value );
 
-  void setCurrentComboBox        ( QComboBox *combo );
+  void setCurrentComboBox        ( QWidget *combo );
   void collapseOrExpandTreeWidget( bool checked );
   void switchSuperUserMode       ( bool super );
 
@@ -102,10 +103,11 @@ private:
   GCDataBaseInterface *m_dbInterface;
   QSignalMapper       *m_signalMapper;
   QDomDocument        *m_domDoc;
-  QComboBox           *m_currentCombo;
+  QWidget             *m_currentCombo;
   QTimer              *m_saveTimer;
   QString              m_currentXMLFileName;
   QString              m_activeAttributeName;
+  QString              m_activeAttributeValue;
   bool                 m_userCancelled;
   bool                 m_superUserMode;
   bool                 m_rootElementSet;
@@ -113,7 +115,7 @@ private:
   bool                 m_newElementWasAdded;
 
   QMap< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
-  QMap< QComboBox*, int/* table row*/ > m_comboBoxes;
+  QMap< QWidget*, int/* table row*/ >   m_comboBoxes;
 
 };
 

@@ -24,6 +24,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_saveTimer           ( NULL ),
   m_currentXMLFileName  ( "" ),
   m_activeAttributeName ( "" ),
+  m_activeAttributeValue( "" ),
   m_userCancelled       ( false ),
   m_superUserMode       ( false ),
   m_rootElementSet      ( false ),
@@ -96,6 +97,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   /* Everything happens automagically. */
   XmlSyntaxHighlighter *highLighter = new XmlSyntaxHighlighter( ui->dockWidgetTextEdit );
   Q_UNUSED( highLighter );
+
+  connect( m_signalMapper, SIGNAL( mapped( QWidget* ) ), this, SLOT( setCurrentComboBox( QWidget* ) ) );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -489,7 +492,8 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     ui->tableWidget->setItem( i, 0, label );
 
     QComboBox *attributeCombo = new QComboBox;
-    attributeCombo->addItems( m_dbInterface->attributeValues( elementName, attributes.at( i ), success ) );    
+    attributeCombo->addItems( m_dbInterface->attributeValues( elementName, attributes.at( i ), success ) );
+    attributeCombo->insertItem( 0, "---" );
 
     /* This is more for debugging than for end-user functionality. */
     if( !success )
@@ -507,11 +511,16 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     {
       attributeCombo->setCurrentIndex( attributeCombo->findText( attributeValue ) );
     }
+    else
+    {
+      attributeCombo->setCurrentIndex( 0 );
+    }
 
     /* Attempting the connection before we've set the current index causes the
       "attributeValueChanged" slot to be called too early, resulting in a segmentation
       fault due to value conflicts/missing values. */
-    connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged( QString ) ) );
+    connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged  ( QString ) ) );
+    connect( attributeCombo, SIGNAL( activated( QString ) ),           this, SLOT( setActiveAttributeValue( QString ) ) );
 
     attributeCombo->setEditable( true );
     ui->tableWidget->setCellWidget( i, 1, attributeCombo );
@@ -520,7 +529,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     /* This will point the current combo box member to the combo that's been activated
       in the table widget (used in "attributeValueChanged" to obtain the row number the
       combo box appears in in the table widget, etc, etc). */
-    connect( attributeCombo, SIGNAL(activated( int ) ), m_signalMapper, SLOT( map() ) );
+    connect( attributeCombo, SIGNAL( activated( int ) ), m_signalMapper, SLOT( map() ) );
     m_signalMapper->setMapping( attributeCombo, attributeCombo );
   }
 
@@ -542,23 +551,9 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::setCurrentComboBox( QComboBox *combo )
+void GCMainWindow::setCurrentComboBox( QWidget *combo )
 {
   m_currentCombo = combo;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::collapseOrExpandTreeWidget( bool checked )
-{
-  if( checked )
-  {
-    ui->treeWidget->expandAll();
-  }
-  else
-  {
-    ui->treeWidget->collapseAll();
-  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -620,6 +615,13 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCMainWindow::setActiveAttributeValue( const QString &value )
+{
+  m_activeAttributeValue = value;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCMainWindow::attributeValueChanged( const QString &value )
 {
   QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
@@ -627,12 +629,14 @@ void GCMainWindow::attributeValueChanged( const QString &value )
 
   /* The current attribute will be displayed in the first column (next to the
     combo box which will be the actual current item). */
+  int row = m_comboBoxes.value( m_currentCombo );
   QString currentAttributeName = ui->tableWidget->item( m_comboBoxes.value( m_currentCombo ), 0 )->text();
   currentElement.setAttribute( currentAttributeName, value );
 
   ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
   ui->dockWidgetTextEdit->find( scrollAnchorText( currentElement ) );
   ui->dockWidgetTextEdit->ensureCursorVisible();
+
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1138,6 +1142,20 @@ QString GCMainWindow::scrollAnchorText( const QDomElement &element )
   }
 
   return anchor;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::collapseOrExpandTreeWidget( bool checked )
+{
+  if( checked )
+  {
+    ui->treeWidget->expandAll();
+  }
+  else
+  {
+    ui->treeWidget->collapseAll();
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
