@@ -15,5 +15,6 @@
         <file>save.png</file>
         <file>checkbox.png</file>
         <file>checkon.png</file>
+        <file>helpcursor.png</file>
     </qresource>
 </RCC>
