@@ -194,6 +194,8 @@ void GCMainWindow::openXMLFile()
     }
     else if( m_superUserMode )
     {
+      processDOMDoc();
+
       /* If the user is a super user, he/she might want to import the XML profile to the
         current database. */
       QMessageBox::StandardButton button = QMessageBox::question( this,
@@ -204,17 +206,11 @@ void GCMainWindow::openXMLFile()
 
       if( button == QMessageBox::Yes )
       {
-        processDOMDoc();
-
         /* Update the DB in one go. */
         if( !m_dbInterface->batchProcessDOMDocument( m_domDoc ) )
         {
           showErrorMessageBox( m_dbInterface->getLastError() );
         }
-      }
-      else
-      {
-        resetDOM();
       }
     }
     else
@@ -1064,7 +1060,7 @@ void GCMainWindow::switchSuperUserMode( bool super )
     showKnownDBForm( GCKnownDBForm::SelectAndExisting );
   }
 
-  /* Set the attribute options' visibility. */
+  /* Set the new element and attribute options' visibility. */
   ui->addNewElementPushButton->setVisible( m_superUserMode );
   ui->addAttributeButton->setVisible( m_superUserMode );
   ui->addAttributeLabel->setVisible( m_superUserMode );
@@ -1095,6 +1091,13 @@ void GCMainWindow::switchSuperUserMode( bool super )
       QTreeWidgetItem *item = const_cast< QTreeWidgetItem* >( itemList.at( i ) );
       item->setFlags( item->flags() | Qt::ItemIsEditable );
     }
+  }
+
+  /* Reactivate the current item to populate the table widget with the new
+    editable (or otherwise) combo boxes and attribute cells. */
+  if( ui->treeWidget->currentItem() )
+  {
+    treeWidgetItemActivated( ui->treeWidget->currentItem(), 0 );
   }
 }
 
