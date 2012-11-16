@@ -16,7 +16,8 @@ SOURCES += main.cpp\
     db/gcbatchprocessorhelper.cpp \    
     xml/xmlsyntaxhighlighter.cpp \
     forms/gcnewelementform.cpp \
-    forms/gcknowndbform.cpp
+    forms/gcknowndbform.cpp \
+    utils/gccombobox.cpp
 
 HEADERS  += \
     db/gcdatabaseinterface.h \
@@ -25,7 +26,8 @@ HEADERS  += \
     utils/gcglobals.h \
     xml/xmlsyntaxhighlighter.h \
     forms/gcnewelementform.h \
-    forms/gcknowndbform.h
+    forms/gcknowndbform.h \
+    utils/gccombobox.h
 
 FORMS    += \
     gcmainwindow.ui \

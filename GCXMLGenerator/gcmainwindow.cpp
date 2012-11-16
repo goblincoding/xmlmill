@@ -3,6 +3,7 @@
 #include "db/gcdatabaseinterface.h"
 #include "xml/xmlsyntaxhighlighter.h"
 #include "forms/gcnewelementform.h"
+#include "utils/gccombobox.h"
 #include <QSignalMapper>
 #include <QDomDocument>
 #include <QMessageBox>
@@ -491,7 +492,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     ui->tableWidget->setRowCount( i + 1 );
     ui->tableWidget->setItem( i, 0, label );
 
-    QComboBox *attributeCombo = new QComboBox;
+    GCComboBox *attributeCombo = new GCComboBox;
     attributeCombo->addItems( m_dbInterface->attributeValues( elementName, attributes.at( i ), success ) );
     attributeCombo->insertItem( 0, "---" );
 
@@ -629,7 +630,6 @@ void GCMainWindow::attributeValueChanged( const QString &value )
 
   /* The current attribute will be displayed in the first column (next to the
     combo box which will be the actual current item). */
-  int row = m_comboBoxes.value( m_currentCombo );
   QString currentAttributeName = ui->tableWidget->item( m_comboBoxes.value( m_currentCombo ), 0 )->text();
   currentElement.setAttribute( currentAttributeName, value );
 
