@@ -91,8 +91,9 @@ public:
     "element" in the active database. */
   QStringList children( const QString &element, bool &success ) const;
 
-  /* Returns a sorted (case sensitive, ascending) list of all the attributes associated with
-    "element" in the active database. */
+  /* Returns an UNSORTED list of all the attributes associated with "element" in the active
+    database (the reason is that all the other lists are used to populate combo boxes, where
+    ordering makes sense, but this particular list is used to populate a table). */
   QStringList attributes( const QString &element, bool &success ) const;
 
   /* Returns a sorted (case sensitive, ascending) list of all the attribute values associated with

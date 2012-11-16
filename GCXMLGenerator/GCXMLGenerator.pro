@@ -27,7 +27,7 @@ HEADERS  += \
     xml/xmlsyntaxhighlighter.h \
     forms/gcnewelementform.h \
     forms/gcknowndbform.h \
-    utils/gccombobox.h
+    utils/gccombobox.h \
 
 FORMS    += \
     gcmainwindow.ui \

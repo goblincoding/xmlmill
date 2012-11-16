@@ -128,3 +128,7 @@ VSSolution/GCXMLGenerator.sln
 VSSolution/GCXMLGenerator.suo
 VSSolution/GCXMLGenerator.vskdb
 VSSolution/GCXMLGenerator.vsksln
+GCXMLGenerator/debug/BuildLog.htm
+VSSolution/GCXMLGenerator.ncb
+GCXMLGenerator-build-desktop-Qt_4_8_1_for_Desktop_-_MSVC2008__Qt_SDK__Debug/debug/moc_dialog.cpp
+GCXMLGenerator-build-desktop-Qt_4_8_1_for_Desktop_-_MSVC2008__Qt_SDK__Debug/debug/moc_dialog.o

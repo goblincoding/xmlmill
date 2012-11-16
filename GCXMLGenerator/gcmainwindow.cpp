@@ -15,6 +15,10 @@
 
 /*--------------------------------------------------------------------------------------*/
 
+const QString EMPTY( "---" );
+
+/*--------------------------------------------------------------------------------------*/
+
 GCMainWindow::GCMainWindow( QWidget *parent ) :
   QMainWindow           ( parent ),
   ui                    ( new Ui::GCMainWindow ),
@@ -25,7 +29,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_saveTimer           ( NULL ),
   m_currentXMLFileName  ( "" ),
   m_activeAttributeName ( "" ),
-  m_activeAttributeValue( "" ),
   m_userCancelled       ( false ),
   m_superUserMode       ( false ),
   m_rootElementSet      ( false ),
@@ -471,7 +474,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     values for these attributes) and populate our table widget. */
   bool success( false );
   QString elementName = item->text( column );
-  QStringList attributes = m_dbInterface->attributes( elementName, success );
+  QStringList attributeNames = m_dbInterface->attributes( elementName, success );
 
   /* This is more for debugging than for end-user functionality. */
   if( !success )
@@ -479,9 +482,16 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     showErrorMessageBox( m_dbInterface->getLastError() );
   }
 
-  for( int i = 0; i < attributes.count(); ++i )
+  /* Add all the known attribute names in the cells in the first column
+    of the table widget, create and populate combo boxes with the values
+    associated with the attribute in question and insert the combo boxes
+    into the second column of the table widget.  Attribute names are only
+    editable in Super User mode whereas attribute values can always be edited.
+    Finally we insert an "empty" row when in Super User mode so that the user
+    may add additional attributes and values to the current element. */
+  for( int i = 0; i < attributeNames.count(); ++i )
   {
-    QTableWidgetItem *label = new QTableWidgetItem( attributes.at( i ) );
+    QTableWidgetItem *label = new QTableWidgetItem( attributeNames.at( i ) );
 
     /* Items are editable by default, disable this option if not in Super User mode. */
     if( !m_superUserMode )
@@ -493,8 +503,8 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     ui->tableWidget->setItem( i, 0, label );
 
     GCComboBox *attributeCombo = new GCComboBox;
-    attributeCombo->addItems( m_dbInterface->attributeValues( elementName, attributes.at( i ), success ) );
-    attributeCombo->insertItem( 0, "---" );
+    attributeCombo->addItems( m_dbInterface->attributeValues( elementName, attributeNames.at( i ), success ) );
+    attributeCombo->insertItem( 0, EMPTY );
 
     /* This is more for debugging than for end-user functionality. */
     if( !success )
@@ -503,7 +513,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     }
 
     QDomElement element = m_treeItemNodes.value( item );
-    QString attributeValue = element.attribute( attributes.at( i ) );
+    QString attributeValue = element.attribute( attributeNames.at( i ) );
 
     /* If we are still in the process of building the document, the attribute value will
       be empty since it has never been set before.  For this particular case,
@@ -519,13 +529,39 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
 
     /* Attempting the connection before we've set the current index causes the
       "attributeValueChanged" slot to be called too early, resulting in a segmentation
-      fault due to value conflicts/missing values. */
+      fault due to value conflicts/missing values (i.e we can't do the connect before
+      we've set the current index). */
     connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged  ( QString ) ) );
     connect( attributeCombo, SIGNAL( activated( QString ) ),           this, SLOT( setActiveAttributeValue( QString ) ) );
 
     attributeCombo->setEditable( true );
     ui->tableWidget->setCellWidget( i, 1, attributeCombo );
     m_comboBoxes.insert( attributeCombo, i );
+
+    /* This will point the current combo box member to the combo that's been activated
+      in the table widget (used in "attributeValueChanged" to obtain the row number the
+      combo box appears in in the table widget, etc, etc). */
+    connect( attributeCombo, SIGNAL( activated( int ) ), m_signalMapper, SLOT( map() ) );
+    m_signalMapper->setMapping( attributeCombo, attributeCombo );
+  }
+
+  /* Add the "empty" row as described above when in Super User mode. */
+  if( m_superUserMode )
+  {
+    QTableWidgetItem *label = new QTableWidgetItem( EMPTY );
+
+    int lastRow = ui->tableWidget->rowCount();
+    ui->tableWidget->setRowCount( lastRow + 1 );
+    ui->tableWidget->setItem( lastRow, 0, label );
+
+    GCComboBox *attributeCombo = new GCComboBox;
+    attributeCombo->insertItem( 0, EMPTY );
+
+    connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged  ( QString ) ) );
+
+    attributeCombo->setEditable( true );
+    ui->tableWidget->setCellWidget( lastRow, 1, attributeCombo );
+    m_comboBoxes.insert( attributeCombo, lastRow );
 
     /* This will point the current combo box member to the combo that's been activated
       in the table widget (used in "attributeValueChanged" to obtain the row number the
@@ -566,15 +602,15 @@ void GCMainWindow::setActiveAttributeName( QTableWidgetItem *item )
 
 /*--------------------------------------------------------------------------------------*/
 
+/* This slot will only ever be called in Super User mode. */
 void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
 {
-  /* Don't execute the logic if a tree widget item's activating is triggering
+  /* Don't execute the logic if a tree widget item's activation is triggering
     a re-population of the table widget, resulting in this slot being called. */
   if( !m_wasTreeItemActivated )
   {
     /* All attribute name changes will be assumed to be additions, removing an attribute
-      with a specific name has to be done explicitly. This slot will only ever be called
-      in Super User mode. */
+      with a specific name has to be done explicitly. */
     QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
     QDomElement currentElement = m_treeItemNodes.value( currentItem );
 
@@ -586,12 +622,19 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
     {
       /* The current attribute value will be displayed in the second column (the
         combo box next to the currently selected table widget item). */
-      QComboBox *attributeValueCombo = dynamic_cast< QComboBox* >( ui->tableWidget->cellWidget( ui->tableWidget->currentRow(), 1 ) );
+      GCComboBox *attributeValueCombo = dynamic_cast< GCComboBox* >( ui->tableWidget->cellWidget( ui->tableWidget->currentRow(), 1 ) );
 
       if( attributeValueCombo )
       {
-        currentElement.removeAttribute( m_activeAttributeName );
-        currentElement.setAttribute( item->text(), attributeValueCombo->currentText() );
+        if( attributeValueCombo->currentText() != EMPTY )
+        {
+          currentElement.removeAttribute( m_activeAttributeName );
+          currentElement.setAttribute( item->text(), attributeValueCombo->currentText() );
+        }
+        else
+        {
+          currentElement.setAttribute( item->text(), "" );
+        }
 
         bool success;
         QStringList attributeValues = m_dbInterface->attributeValues( currentElement.tagName(),
@@ -610,15 +653,16 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
       ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
       ui->dockWidgetTextEdit->find( scrollAnchorText( currentElement ) );
       ui->dockWidgetTextEdit->ensureCursorVisible();
+
+      /* If the user added a new attribute, we wish to insert another new
+        "empty" row so that he/she may add even more attributes if he/she
+        wishes to do so. */
+      if( m_activeAttributeName == EMPTY )
+      {
+        treeWidgetItemActivated( ui->treeWidget->currentItem(), 0 );
+      }
     }
   }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::setActiveAttributeValue( const QString &value )
-{
-  m_activeAttributeValue = value;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -631,39 +675,42 @@ void GCMainWindow::attributeValueChanged( const QString &value )
   /* The current attribute will be displayed in the first column (next to the
     combo box which will be the actual current item). */
   QString currentAttributeName = ui->tableWidget->item( m_comboBoxes.value( m_currentCombo ), 0 )->text();
-  currentElement.setAttribute( currentAttributeName, value );
 
-  ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
-  ui->dockWidgetTextEdit->find( scrollAnchorText( currentElement ) );
-  ui->dockWidgetTextEdit->ensureCursorVisible();
-
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::attributeValueAdded( const QString &value )
-{
-  /* It would have been nice if we could simply call "attributeValueChanged"
-    here, but we need to know which element and attribute the new value is
-    asociated with in any case so we may as well just do it all here. */
-  QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
-  QDomElement currentElement = m_treeItemNodes.value( currentItem );
-
-  /* The current attribute will be displayed in the first column (next to the
-    combo box which will be the actual current item). */
-  QString currentAttributeName = ui->tableWidget->item( m_comboBoxes.value( m_currentCombo ), 0 )->text();
-  currentElement.setAttribute( currentAttributeName, value );
-
-  ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
-  ui->dockWidgetTextEdit->find( scrollAnchorText( currentElement ) );
-  ui->dockWidgetTextEdit->ensureCursorVisible();
-
-  if( !m_dbInterface->updateAttributeValues( currentElement.tagName(),
-                                             currentAttributeName,
-                                             QStringList( value ) ) )
+    /* If the user sets the attribute value to EMPTY, the attribute is removed from
+    the current document. */
+  if( value == EMPTY )
   {
-    showErrorMessageBox( m_dbInterface->getLastError() );
+    currentElement.removeAttribute( currentAttributeName );
   }
+  else
+  {
+    currentElement.setAttribute( currentAttributeName, value );
+
+    /* If we don't know about this value, we need to add it to the DB. */
+    bool success( false );
+    QStringList attributeValues = m_dbInterface->attributeValues( currentElement.tagName(), currentAttributeName, success );
+
+    if( success )
+    {
+      if( !attributeValues.contains( value ) )
+      {
+        if( !m_dbInterface->updateAttributeValues( currentElement.tagName(),
+                                                   currentAttributeName,
+                                                   QStringList( value ) ) )
+        {
+          showErrorMessageBox( m_dbInterface->getLastError() );
+        }
+      }
+    }
+    else
+    {
+      showErrorMessageBox( m_dbInterface->getLastError() );
+    }
+  }
+
+  ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
+  ui->dockWidgetTextEdit->find( scrollAnchorText( currentElement ) );
+  ui->dockWidgetTextEdit->ensureCursorVisible();
 }
 
 /*--------------------------------------------------------------------------------------*/

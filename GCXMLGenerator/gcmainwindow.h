@@ -45,9 +45,7 @@ private slots:
 
   void setActiveAttributeName    ( QTableWidgetItem *item );
   void attributeNameChanged      ( QTableWidgetItem *item );
-  void setActiveAttributeValue   ( const QString &value );
   void attributeValueChanged     ( const QString &value );
-  void attributeValueAdded       ( const QString &value );
 
   void setCurrentComboBox        ( QWidget *combo );
   void collapseOrExpandTreeWidget( bool checked );
@@ -107,7 +105,6 @@ private:
   QTimer              *m_saveTimer;
   QString              m_currentXMLFileName;
   QString              m_activeAttributeName;
-  QString              m_activeAttributeValue;
   bool                 m_userCancelled;
   bool                 m_superUserMode;
   bool                 m_rootElementSet;

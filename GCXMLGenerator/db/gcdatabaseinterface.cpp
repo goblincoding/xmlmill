@@ -11,17 +11,7 @@
 
 /*--------------------------------------------------------------------------------------*/
 
-/* DB tables are set up as follows:
-  Table - XMLELEMENTS
-  ELEMENT (Key) | CHILDREN (First Level Only) | ATTRIBUTES
-
-  Table - XMLATTRIBUTES
-  ATTRIBUTEKEY (element name + ! + attribute name) (Key) | ATTRIBUTEVALUES
-
-  Table - ROOTELEMENTS
-  ROOTS (Key, no other values associated with it for now)
-*/
-
+/* Have a look at "createDBTables" to see how the DB is set up. */
 static const QLatin1String INSERT_ELEMENT(
     "INSERT INTO xmlelements( element, children, attributes ) VALUES( ?, ?, ? )" );
 
@@ -76,7 +66,6 @@ static const QString REGEXP_SLASHES( "(\\\\|\\/)" );
 
 void cleanList( QStringList &list )
 {
-  list.sort();
   list.removeDuplicates();
   list.removeAll( "" );
 }
@@ -964,6 +953,7 @@ QStringList GCDataBaseInterface::knownElements() const
   }
 
   cleanList( elementNames );
+  elementNames.sort();
   return elementNames;
 }
 
@@ -1035,6 +1025,7 @@ QStringList GCDataBaseInterface::children( const QString &element, bool &success
 
   QStringList children = query.record().value( "children" ).toString().split( SEPARATOR );
   cleanList( children );
+  children.sort();
   return children;
 }
 
@@ -1073,6 +1064,7 @@ QStringList GCDataBaseInterface::attributeValues( const QString &element, const 
 
   QStringList attributeValues = query.record().value( "attributeValues" ).toString().split( SEPARATOR );
   cleanList( attributeValues );
+  attributeValues.sort();
   return attributeValues;
 }
 
