@@ -17,7 +17,49 @@
 
 const QString EMPTY( "---" );
 
-/*--------------------------------------------------------------------------------------*/
+/*--------------------------- NON-MEMBER UTILITY FUNCTIONS ----------------------------*/
+
+QString getScrollAnchorText( const QDomElement &element )
+{
+  QString anchor( "<" );
+  anchor += element.tagName();
+
+  QDomNamedNodeMap attributes = element.attributes();
+
+  /* For elements with no children (e.g. <element/> */
+  if( attributes.isEmpty() &&
+      element.childNodes().isEmpty() )
+  {
+    anchor += "/>";
+    return anchor;
+  }
+
+  if( !attributes.isEmpty() )
+  {
+    for( int i = 0; i < attributes.size(); ++i )
+    {
+      anchor += " ";
+
+      QString attribute = attributes.item( i ).toAttr().name();
+      anchor += attribute;
+      anchor += "=\"";
+
+      QString attributeValue = attributes.item( i ).toAttr().value();
+      anchor += attributeValue;
+      anchor += "\"";
+    }
+
+    anchor += "/>";
+  }
+  else
+  {
+    anchor += ">";
+  }
+
+  return anchor;
+}
+
+/*--------------------------------- MEMBER FUNCTIONS ----------------------------------*/
 
 GCMainWindow::GCMainWindow( QWidget *parent ) :
   QMainWindow           ( parent ),
@@ -450,7 +492,7 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
         }
 
         ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
-        ui->dockWidgetTextEdit->find( scrollAnchorText( m_treeItemNodes.value( item ).toElement() ) );
+        ui->dockWidgetTextEdit->find( getScrollAnchorText( m_treeItemNodes.value( item ).toElement() ) );
         ui->dockWidgetTextEdit->ensureCursorVisible();
       }
     }
@@ -461,6 +503,8 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
 
 void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
 {
+  Q_UNUSED( column );
+
   /* Because the table widget is re-populated with the attribute names and
     values associated with the activated tree widget item, this flag is set
     to prevent the functionality in "attributeNameChanged" (which is triggered
@@ -473,8 +517,8 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     corresponding to the activated item (and the lists of associated
     values for these attributes) and populate our table widget. */
   bool success( false );
-  QString elementName = item->text( column );
-  QStringList attributeNames = m_dbInterface->attributes( elementName, success );
+  QDomElement element = m_treeItemNodes.value( item );
+  QStringList attributeNames = m_dbInterface->attributes( element.tagName(), success );
 
   /* This is more for debugging than for end-user functionality. */
   if( !success )
@@ -503,7 +547,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     ui->tableWidget->setItem( i, 0, label );
 
     GCComboBox *attributeCombo = new GCComboBox;
-    attributeCombo->addItems( m_dbInterface->attributeValues( elementName, attributeNames.at( i ), success ) );
+    attributeCombo->addItems( m_dbInterface->attributeValues( element.tagName(), attributeNames.at( i ), success ) );
     attributeCombo->insertItem( 0, EMPTY );
     attributeCombo->setEditable( true );
 
@@ -513,12 +557,11 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
       showErrorMessageBox( m_dbInterface->getLastError() );
     }
 
-    QDomElement element = m_treeItemNodes.value( item );
-    QString attributeValue = element.attribute( attributeNames.at( i ) );
-
     /* If we are still in the process of building the document, the attribute value will
       be empty since it has never been set before.  For this particular case,
       calling "findText" will result in a null pointer exception. */
+    QString attributeValue = element.attribute( attributeNames.at( i ) );
+
     if( !attributeValue.isEmpty() )
     {
       attributeCombo->setCurrentIndex( attributeCombo->findText( attributeValue ) );
@@ -572,7 +615,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
   /* Populate the "add element" combo box with the known first level children of the
     highlighted element. */
   ui->addElementComboBox->clear();
-  ui->addElementComboBox->addItems( m_dbInterface->children( elementName, success ) );
+  ui->addElementComboBox->addItems( m_dbInterface->children( element.tagName(), success ) );
   toggleAddElementWidgets();
 
   /* This is more for debugging than for end-user functionality. */
@@ -580,6 +623,10 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
   {
     showErrorMessageBox( m_dbInterface->getLastError() );
   }
+
+  ui->dockWidgetTextEdit->moveCursor( QTextCursor::Start );
+  ui->dockWidgetTextEdit->find( getScrollAnchorText( element ) );
+  ui->dockWidgetTextEdit->ensureCursorVisible();
 
   /* Unset flag. */
   m_wasTreeItemActivated = false;
@@ -660,7 +707,7 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
       }
 
       ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
-      ui->dockWidgetTextEdit->find( scrollAnchorText( currentElement ) );
+      ui->dockWidgetTextEdit->find( getScrollAnchorText( currentElement ) );
       ui->dockWidgetTextEdit->ensureCursorVisible();
 
       /* If the user added a new attribute, we wish to insert another new
@@ -721,7 +768,7 @@ void GCMainWindow::attributeValueChanged( const QString &value )
   }
 
   ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
-  ui->dockWidgetTextEdit->find( scrollAnchorText( currentElement ) );
+  ui->dockWidgetTextEdit->find( getScrollAnchorText( currentElement ) );
   ui->dockWidgetTextEdit->ensureCursorVisible();
 }
 
@@ -760,7 +807,7 @@ void GCMainWindow::deleteElementFromDOM()
   parentItem->removeChild( currentItem );
 
   ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
-  ui->dockWidgetTextEdit->find( scrollAnchorText( parentNode.toElement() ) );
+  ui->dockWidgetTextEdit->find( getScrollAnchorText( parentNode.toElement() ) );
   ui->dockWidgetTextEdit->ensureCursorVisible();
 }
 
@@ -842,7 +889,7 @@ void GCMainWindow::addChildElementToDOM()
     }
 
     ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
-    ui->dockWidgetTextEdit->find( scrollAnchorText( newElement ) );
+    ui->dockWidgetTextEdit->find( getScrollAnchorText( newElement ) );
     ui->dockWidgetTextEdit->ensureCursorVisible();
 
     /* If the user just added the root element, we need to make sure that they don't
@@ -1162,45 +1209,6 @@ void GCMainWindow::switchSuperUserMode( bool super )
   {
     treeWidgetItemActivated( ui->treeWidget->currentItem(), 0 );
   }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-QString GCMainWindow::scrollAnchorText( const QDomElement &element )
-{
-  QString anchor( "<" );
-  anchor += element.tagName();
-
-  bool success( false );
-  QStringList attributes = m_dbInterface->attributes( element.tagName(), success );
-
-  if( success && !attributes.empty() )
-  {
-    for( int i = 0; i < attributes.size(); ++i )
-    {
-      anchor += " ";
-
-      QString attribute = attributes.at( i );
-      anchor += attribute;
-      anchor += "=\"";
-
-      QString attributeValue = element.attribute( attribute );
-      anchor += attributeValue;
-      anchor += "\"";
-    }
-
-    anchor += ( "/>" );
-  }
-  else if( attributes.empty() )
-  {
-    anchor += ( ">" );
-  }
-  else
-  {
-    showErrorMessageBox( m_dbInterface->getLastError() );
-  }
-
-  return anchor;
 }
 
 /*--------------------------------------------------------------------------------------*/

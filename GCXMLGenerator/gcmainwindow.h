@@ -83,7 +83,6 @@ private slots:
   void saveDirectEdit();
   
 private:
-  QString scrollAnchorText( const QDomElement &element );
   void addDBConnection    ( const QString &dbName );
   void showErrorMessageBox( const QString &errorMsg );
   void showKnownDBForm    ( GCKnownDBForm::Buttons buttons );
