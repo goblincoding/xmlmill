@@ -21,6 +21,7 @@ public:
   
 protected:
   void mousePressEvent( QMouseEvent *e );
+  void focusInEvent( QFocusEvent *e );
   
 };
 

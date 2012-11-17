@@ -505,6 +505,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     GCComboBox *attributeCombo = new GCComboBox;
     attributeCombo->addItems( m_dbInterface->attributeValues( elementName, attributeNames.at( i ), success ) );
     attributeCombo->insertItem( 0, EMPTY );
+    attributeCombo->setEditable( true );
 
     /* This is more for debugging than for end-user functionality. */
     if( !success )
@@ -532,9 +533,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
       fault due to value conflicts/missing values (i.e we can't do the connect before
       we've set the current index). */
     connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged  ( QString ) ) );
-    connect( attributeCombo, SIGNAL( activated( QString ) ),           this, SLOT( setActiveAttributeValue( QString ) ) );
 
-    attributeCombo->setEditable( true );
     ui->tableWidget->setCellWidget( i, 1, attributeCombo );
     m_comboBoxes.insert( attributeCombo, i );
 
@@ -554,12 +553,12 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     ui->tableWidget->setRowCount( lastRow + 1 );
     ui->tableWidget->setItem( lastRow, 0, label );
 
+    /* Create the combo box, but deactivate it until we have an associated attribute name. */
     GCComboBox *attributeCombo = new GCComboBox;
-    attributeCombo->insertItem( 0, EMPTY );
-
     connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged  ( QString ) ) );
+    attributeCombo->insertItem( 0, EMPTY );
+    attributeCombo->setEnabled( false );
 
-    attributeCombo->setEditable( true );
     ui->tableWidget->setCellWidget( lastRow, 1, attributeCombo );
     m_comboBoxes.insert( attributeCombo, lastRow );
 
@@ -632,8 +631,18 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
           currentElement.setAttribute( item->text(), attributeValueCombo->currentText() );
         }
         else
-        {
+        {          
           currentElement.setAttribute( item->text(), "" );
+
+          /* If the attribute value was empty, we might have just started
+            editing a previously inactive row (in other words this could
+            be the first time that an attribute of this name has been created).
+            Enable the attribute value combo box in this case. */
+          if( m_activeAttributeName == EMPTY &&
+              !attributeValueCombo->isEnabled() )
+          {
+            attributeValueCombo->setEnabled( true );
+          }
         }
 
         bool success;
@@ -656,10 +665,13 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
 
       /* If the user added a new attribute, we wish to insert another new
         "empty" row so that he/she may add even more attributes if he/she
-        wishes to do so. */
+        wishes to do so. We also need to update the active attribute name
+        to the new attribute name (normally this is handled by a signal
+        that calls "setActiveAttributeName" but these signals are emitted
+        by clicking on the table widget only). */
       if( m_activeAttributeName == EMPTY )
       {
-        treeWidgetItemActivated( ui->treeWidget->currentItem(), 0 );
+        treeWidgetItemActivated( ui->treeWidget->currentItem(), 0 );        
       }
     }
   }
