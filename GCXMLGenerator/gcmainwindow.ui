@@ -766,9 +766,16 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="dockWidgetSaveButton">
+        <widget class="QPushButton" name="textSaveButton">
          <property name="text">
           <string>Save Changes</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="textRevertButton">
+         <property name="text">
+          <string>Revert</string>
          </property>
         </widget>
        </item>

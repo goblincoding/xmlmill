@@ -92,6 +92,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   ui->addAttributeLabel->setVisible( false );
   ui->addAttributeLineEdit->setVisible( false );
   ui->addNewElementPushButton->setVisible( false );
+  ui->textSaveButton->setVisible( false );
+  ui->textRevertButton->setVisible( false );
 
   /* The user must see these actions exist, but shouldn't be able to access
     them except in super user mode. */
@@ -115,7 +117,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   /* Build XML/Edit DOM. */
   connect( ui->deleteElementButton,         SIGNAL( clicked() ),       this, SLOT( deleteElementFromDOM() ) );
   connect( ui->addElementButton,            SIGNAL( clicked() ),       this, SLOT( addChildElementToDOM() ) );
-  connect( ui->dockWidgetSaveButton,        SIGNAL( clicked() ),       this, SLOT( saveDirectEdit() ) );
+  connect( ui->textSaveButton,              SIGNAL( clicked() ),       this, SLOT( saveDirectEdit() ) );
+  connect( ui->textRevertButton,            SIGNAL( clicked() ),       this, SLOT( revertDirectEdit() ) );
 
   /* Various other actions. */
   connect( ui->actionSuperUserMode,         SIGNAL( toggled( bool ) ), this, SLOT( switchSuperUserMode( bool ) ) );
@@ -1261,14 +1264,32 @@ void GCMainWindow::deleteAttributeValuesFromDB()
 
 void GCMainWindow::revertDirectEdit()
 {
-
+  ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::saveDirectEdit()
 {
+  /* This slot will only ever be called in Super User mode. */
+  QString xmlErr( "" );
+  int     line  ( -1 );
+  int     col   ( -1 );
 
+  if( !m_domDoc->setContent( ui->dockWidgetTextEdit->toPlainText(), &xmlErr, &line, &col ) )
+  {
+    QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3]" )
+        .arg( xmlErr )
+        .arg( line )
+        .arg( col );
+    showErrorMessageBox( errorMsg );
+    resetDOM();
+    return;
+  }
+  else
+  {
+    importXMLToDatabase();
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1392,6 +1413,8 @@ void GCMainWindow::switchSuperUserMode( bool super )
   ui->addAttributeButton->setVisible( m_superUserMode );
   ui->addAttributeLabel->setVisible( m_superUserMode );
   ui->addAttributeLineEdit->setVisible( m_superUserMode );
+  ui->textSaveButton->setVisible( m_superUserMode );
+  ui->textRevertButton->setVisible( m_superUserMode );
 
   /* The user must see these actions exist, but shouldn't be able to access
     them except when in "Super User" mode. */
