@@ -686,12 +686,13 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    </property>
    <widget class="QMenu" name="menuDatabase">
     <property name="title">
-     <string>&amp;Database</string>
+     <string>Profile</string>
     </property>
     <addaction name="actionAddNewDatabase"/>
     <addaction name="actionAddExistingDatabase"/>
     <addaction name="actionRemoveDatabase"/>
     <addaction name="actionSwitchSessionDatabase"/>
+    <addaction name="actionImportXMLToDatabase"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -706,9 +707,10 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    </widget>
    <widget class="QMenu" name="menu_Advanced">
     <property name="title">
-     <string>&amp;Advanced</string>
+     <string>Options</string>
     </property>
     <addaction name="actionSuperUserMode"/>
+    <addaction name="actionForgetSavedPreferences"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuDatabase"/>
@@ -777,7 +779,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
   </widget>
   <action name="actionAddNewDatabase">
    <property name="text">
-    <string>&amp;Add New Database</string>
+    <string>&amp;Add New Profile</string>
    </property>
    <property name="toolTip">
     <string>Add a new database to the list of known databases.</string>
@@ -791,7 +793,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
   </action>
   <action name="actionAddExistingDatabase">
    <property name="text">
-    <string>Add &amp;Existing Database</string>
+    <string>Add &amp;Existing Profile</string>
    </property>
    <property name="toolTip">
     <string>Add an existing database to the list of known databases.</string>
@@ -841,7 +843,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
   </action>
   <action name="actionRemoveDatabase">
    <property name="text">
-    <string>&amp;Remove Database</string>
+    <string>&amp;Remove Profile</string>
    </property>
    <property name="toolTip">
     <string>Remove a database from the list of known databases.</string>
@@ -855,7 +857,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
   </action>
   <action name="actionSwitchSessionDatabase">
    <property name="text">
-    <string>S&amp;witch Database Session</string>
+    <string>S&amp;witch Profile</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+D</string>
@@ -923,6 +925,22 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    </property>
    <property name="shortcut">
     <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="actionForgetSavedPreferences">
+   <property name="text">
+    <string>Forget Saved Preferences</string>
+   </property>
+   <property name="whatsThis">
+    <string>Forget all saved preferences regarding messages/warnings/queries.</string>
+   </property>
+  </action>
+  <action name="actionImportXMLToDatabase">
+   <property name="text">
+    <string>Import XML to Profile</string>
+   </property>
+   <property name="whatsThis">
+    <string>Import the current XML document to the active profile.</string>
    </property>
   </action>
  </widget>

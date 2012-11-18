@@ -3,9 +3,12 @@
 #include "db/gcdatabaseinterface.h"
 #include "xml/xmlsyntaxhighlighter.h"
 #include "forms/gcnewelementform.h"
+#include "forms/gcmessagedialog.h"
 #include "utils/gccombobox.h"
+
 #include <QSignalMapper>
 #include <QDomDocument>
+#include <QSettings>
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QTextStream>
@@ -67,6 +70,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_dbInterface         ( new GCDataBaseInterface( this ) ),
   m_signalMapper        ( new QSignalMapper( this ) ),
   m_domDoc              ( NULL ),
+  m_settings            ( NULL ),
   m_currentCombo        ( NULL ),
   m_saveTimer           ( NULL ),
   m_currentXMLFileName  ( "" ),
@@ -75,8 +79,10 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_superUserMode       ( false ),
   m_rootElementSet      ( false ),
   m_wasTreeItemActivated( false ),
+  m_rememberPreference  ( false ),
   m_treeItemNodes       (),
-  m_comboBoxes          ()
+  m_comboBoxes          (),
+  m_messages            ()
 {
   ui->setupUi( this );
 
@@ -90,12 +96,14 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
     them except in super user mode. */
   ui->actionAddNewDatabase->setEnabled( false );
   ui->actionRemoveDatabase->setEnabled( false );
+  ui->actionImportXMLToDatabase->setEnabled( false );
 
   /* Database related. */
   connect( ui->actionAddNewDatabase,        SIGNAL( triggered() ),     this, SLOT( addNewDB() ) );
   connect( ui->actionAddExistingDatabase,   SIGNAL( triggered() ),     this, SLOT( addExistingDB() ) );
   connect( ui->actionRemoveDatabase,        SIGNAL( triggered() ),     this, SLOT( removeDB() ) );
   connect( ui->actionSwitchSessionDatabase, SIGNAL( triggered() ),     this, SLOT( switchDBSession() ) );
+  connect( ui->actionImportXMLToDatabase,   SIGNAL( triggered() ),     this, SLOT( importXMLToDatabase() ) );
 
   /* XML File related. */
   connect( ui->actionNew,                   SIGNAL( triggered() ),     this, SLOT( newXMLFile() ) );
@@ -134,7 +142,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
     this->close();
   }
 
-  m_domDoc = new QDomDocument;
+  m_domDoc   = new QDomDocument;
+  m_settings = new QSettings( "GoblinCoding", "XML Studio", this );
 
   /* If the interface was successfully initialised, prompt the user to choose a database
     connection for this session. */
@@ -215,6 +224,8 @@ void GCMainWindow::openXMLFile()
     {
       do
       {
+        /* This message must always be shown (i.e. we don't have to show the custom
+          dialog box that provides the \"Don't show this again\" option). */
         QMessageBox::warning( this,
                               "Unknown XML Style",
                               "The current active profile has no knowledge of the\n"
@@ -243,22 +254,63 @@ void GCMainWindow::openXMLFile()
     }
     else if( m_superUserMode )
     {
-      processDOMDoc();
+      /* Check if the user previously requested that his/her accept must be saved. */
+      bool remembered = m_settings->value( "Messages/Message01", false ).toBool();
 
-      /* If the user is a super user, he/she might want to import the XML profile to the
-        current database. */
-      QMessageBox::StandardButton button = QMessageBox::question( this,
-                                                                  "Import XML?",
-                                                                  "Would you like to import the XML document to the active profile?",
-                                                                  QMessageBox::Yes | QMessageBox::No,
-                                                                  QMessageBox::No );
-
-      if( button == QMessageBox::Yes )
+      if( !remembered )
       {
-        /* Update the DB in one go. */
-        if( !m_dbInterface->batchProcessDOMDocument( m_domDoc ) )
+        /* If the user is a super user, he/she might want to import the XML profile to the
+        current database. */
+        GCMessageDialog *dialog = new GCMessageDialog( "Import XML?",
+                                                       "Would you like to import the XML document to the active profile?",
+                                                       GCMessageDialog::YesNo,
+                                                       GCMessageDialog::No,
+                                                       GCMessageDialog::Question );
+
+        QDialog::DialogCode accept = static_cast< QDialog::DialogCode >( dialog->exec() );
+
+        if( accept == QDialog::Accepted )
         {
-          showErrorMessageBox( m_dbInterface->getLastError() );
+          /* Update the DB in one go. */
+          if( !m_dbInterface->batchProcessDOMDocument( m_domDoc ) )
+          {
+            showErrorMessageBox( m_dbInterface->getLastError() );
+          }
+          else
+          {
+            processDOMDoc();
+          }
+
+          if( m_rememberPreference )
+          {
+            m_settings->setValue( "Messages/Message01", true );
+            m_settings->setValue( "Messages/Message01/Preference", true );
+          }
+        }
+        else
+        {
+          if( m_rememberPreference )
+          {
+            m_settings->setValue( "Messages/Message01", true );
+            m_settings->setValue( "Messages/Message01/Preference", false );
+          }
+        }
+      }
+      else
+      {
+        bool batchProcess = m_settings->value( "Messages/Message01/Preference" ).toBool();
+
+        if( batchProcess )
+        {
+          /* Update the DB in one go. */
+          if( !m_dbInterface->batchProcessDOMDocument( m_domDoc ) )
+          {
+            showErrorMessageBox( m_dbInterface->getLastError() );
+          }
+          else
+          {
+            processDOMDoc();
+          }
         }
       }
     }
@@ -955,21 +1007,57 @@ void GCMainWindow::addDBConnection( const QString &dbName )
     return;
   }
 
-  QMessageBox::StandardButton button = QMessageBox::question( this,
-                                                              "Set Session",
-                                                              "Would you like to set the new profile as active?",
-                                                              QMessageBox::Yes | QMessageBox::No,
-                                                              QMessageBox::Yes );
+  /* Check if we have a saved user preference for this situation. */
+  bool remembered = m_settings->value( "Messages/Message02", false ).toBool();
 
-  if( button == QMessageBox::Yes )
+  if( !remembered )
   {
-    setSessionDB( dbName );
+    GCMessageDialog *dialog = new GCMessageDialog( "Set Session",
+                                                   "Would you like to set the new profile as active?",
+                                                   GCMessageDialog::YesNo,
+                                                   GCMessageDialog::Yes,
+                                                   GCMessageDialog::Question );
+
+    QDialog::DialogCode accept = static_cast< QDialog::DialogCode >( dialog->exec() );
+
+    if( accept == QDialog::Accepted )
+    {
+      if( m_rememberPreference )
+      {
+        m_settings->setValue( "Messages/Message02", true );
+        m_settings->setValue( "Messages/Message02/Preference", true );
+      }
+
+      setSessionDB( dbName );
+    }
+    else
+    {
+      if( m_rememberPreference )
+      {
+        m_settings->setValue( "Messages/Message02", true );
+        m_settings->setValue( "Messages/Message02/Preference", false );
+      }
+
+      if( !m_dbInterface->hasActiveSession() )
+      {
+        showKnownDBForm( GCKnownDBForm::ShowAll );
+      }
+    }
   }
   else
   {
-    if( !m_dbInterface->hasActiveSession() )
+    bool setSession = m_settings->value( "Messages/Message02/Preference" ).toBool();
+
+    if( setSession )
     {
-      showKnownDBForm( GCKnownDBForm::ShowAll );
+      setSessionDB( dbName );
+    }
+    else
+    {
+      if( !m_dbInterface->hasActiveSession() )
+      {
+        showKnownDBForm( GCKnownDBForm::ShowAll );
+      }
     }
   }
 }
@@ -986,7 +1074,9 @@ void GCMainWindow::setSessionDB( const QString &dbName )
   }
   else
   {
-    /* If the user set an empty database, prompt to populate it. */
+    /* If the user set an empty database, prompt to populate it.  This message must
+      always be shown (i.e. we don't have to show the custom dialog box that provides
+      the \"Don't show this again\" option). */
     if( m_dbInterface->knownElements().size() < 1 )
     {
       QMessageBox::warning( this,
@@ -1046,25 +1136,74 @@ void GCMainWindow::switchDBSession()
     since the items known to the current session may not be known to the next. */
   if( !m_treeItemNodes.isEmpty() )
   {
-    QMessageBox::StandardButton button = QMessageBox::warning( this,
-                                                               "Warning",
-                                                               "Switching profiles sessions while building an XML document\n"
-                                                               "will cause the document to be reset and your work will be lost.  If this is fine, proceed with \"OK\".\n\n"
-                                                               "On the other hand, if you wish to keep your work, please hit \"Cancel\" and \n"
-                                                               "save the document first before coming back here.",
-                                                               QMessageBox::Ok | QMessageBox::Cancel );
+    /* Check if we have a previously saved user preference. */
+    bool remembered = m_settings->value( "Messages/Message03", false ).toBool();
 
-    if( button == QMessageBox::Ok )
+    if( !remembered )
     {
-      resetDOM();
+      GCMessageDialog *dialog = new GCMessageDialog( "Warning!",
+                                                     "Switching profile sessions while building an XML document "
+                                                     "will cause the document to be reset and your work will be lost. "
+                                                     "If this is fine, proceed with \"OK\".\n\n"
+                                                     "On the other hand, if you wish to keep your work, please hit \"Cancel\" and "
+                                                     "save the document first before coming back here.",
+                                                     GCMessageDialog::OKCancel,
+                                                     GCMessageDialog::Cancel,
+                                                     GCMessageDialog::Warning );
+
+      QDialog::DialogCode accept = static_cast< QDialog::DialogCode >( dialog->exec() );
+
+      if( accept == QDialog::Accepted )
+      {
+        resetDOM();
+
+        if( m_rememberPreference )
+        {
+          m_settings->setValue( "Messages/Message03", true );
+          m_settings->setValue( "Messages/Message03/Preference", true );
+        }
+      }
+      else
+      {
+        if( m_rememberPreference )
+        {
+          m_settings->setValue( "Messages/Message03", true );
+          m_settings->setValue( "Messages/Message03/Preference", false );
+        }
+
+        return;
+      }
     }
     else
     {
-      return;
+      bool reset = m_settings->value( "Messages/Message03/Preference" ).toBool();
+
+      if( reset )
+      {
+        resetDOM();
+      }
+      else
+      {
+        return;
+      }
     }
   }
 
   showKnownDBForm( GCKnownDBForm::ShowAll );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::importXMLToDatabase()
+{
+  if (!m_domDoc->documentElement().isNull() )
+  {
+    /* Update the DB in one go. */
+    if( !m_dbInterface->batchProcessDOMDocument( m_domDoc ) )
+    {
+      showErrorMessageBox( m_dbInterface->getLastError() );
+    }
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1099,17 +1238,45 @@ void GCMainWindow::saveDirectEdit()
 
 void GCMainWindow::showNewElementForm()
 {
-  QMessageBox::StandardButton button = QMessageBox::information( this,
-                                                                 "Careful!",
-                                                                 "All the new elements you add will be added as first level\n"
-                                                                 "children of the element highlighted in the tree view (in\n"
-                                                                 "other words it will become a sibling to the elements currently\n"
-                                                                 "in the dropdown menu).\nn"
-                                                                 "If this is not what you intended, I suggest you \"Cancel\".",
-                                                                 QMessageBox::Ok | QMessageBox::Cancel,
-                                                                 QMessageBox::Ok );
+  /* Check if there is a previously saved user preference for this action. */
+  bool remembered = m_settings->value( "Messages/Message04", false ).toBool();
 
-  if( button == QMessageBox::Ok )
+  if( !remembered )
+  {
+    GCMessageDialog *dialog = new GCMessageDialog( "Careful!",
+                                                   "All the new elements you add will be added as first level "
+                                                   "children of the element highlighted in the tree view (in "
+                                                   "other words it will become a sibling to the elements currently "
+                                                   "in the dropdown menu).\nn"
+                                                   "If this is not what you intended, I suggest you \"Cancel\".",
+                                                   GCMessageDialog::OKCancel,
+                                                   GCMessageDialog::OK,
+                                                   GCMessageDialog::Warning );
+
+    QDialog::DialogCode accept = static_cast< QDialog::DialogCode >( dialog->exec() );
+
+    if( accept == QDialog::Accepted )
+    {
+      GCNewElementForm *form = new GCNewElementForm;
+      form->setWindowModality( Qt::ApplicationModal );
+      connect( form, SIGNAL( newElementDetails( QString,QStringList ) ), this, SLOT( addNewElement( QString,QStringList ) ) );
+      form->show();
+
+      if( m_rememberPreference )
+      {
+        m_settings->setValue( "Messages/Message04", true );
+      }
+    }
+    else
+    {
+      /* We don't want to remember a \"Cancel\" option for this particular situation. */
+      if( m_rememberPreference )
+      {
+        m_settings->setValue( "Messages/Message04", false );
+      }
+    }
+  }
+  else
   {
     GCNewElementForm *form = new GCNewElementForm;
     form->setWindowModality( Qt::ApplicationModal );
@@ -1158,11 +1325,29 @@ void GCMainWindow::switchSuperUserMode( bool super )
 
   if( m_superUserMode )
   {
-    QMessageBox::warning( this,
-                          "Super User Mode!",
-                          "Absolutely everything you do in this mode is persisted to the\n"
-                          "active profile and cannot be undone.\n\n"
-                          "In other words, if anything goes wrong, it's all your fault..." );
+    /* See if the user wants to see this message again. */
+    bool remembered = m_settings->value( "Messages/Message05", false ).toBool();
+
+    if( !remembered )
+    {
+      GCMessageDialog *dialog = new GCMessageDialog( "Super User Mode!",
+                                                     "Absolutely everything you do in this mode is persisted to the\n"
+                                                     "active profile and cannot be undone.\n\n"
+                                                     "In other words, if anything goes wrong, it's all your fault...",
+                                                     GCMessageDialog::OKOnly,
+                                                     GCMessageDialog::OK,
+                                                     GCMessageDialog::Warning );
+
+      QDialog::DialogCode accept = static_cast< QDialog::DialogCode >( dialog->exec() );
+
+      if( accept == QDialog::Accepted )
+      {
+        if( m_rememberPreference )
+        {
+          m_settings->setValue( "Messages/Message05", true );
+        }
+      }
+    }
   }
 
   if( !m_dbInterface->hasActiveSession() )
@@ -1180,6 +1365,7 @@ void GCMainWindow::switchSuperUserMode( bool super )
     them except when in "Super User" mode. */
   ui->actionAddNewDatabase->setEnabled( m_superUserMode );
   ui->actionRemoveDatabase->setEnabled( m_superUserMode );
+  ui->actionImportXMLToDatabase->setEnabled( m_superUserMode );
 
   /* Needed to reset all the tree widget item's "editable" flags
     to whatever the current mode allows. */
@@ -1209,6 +1395,20 @@ void GCMainWindow::switchSuperUserMode( bool super )
   {
     treeWidgetItemActivated( ui->treeWidget->currentItem(), 0 );
   }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::rememberPreference( bool remember )
+{
+  m_rememberPreference = remember;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::forgetAllMessagePreferences()
+{
+  m_settings->remove( "Messages" );
 }
 
 /*--------------------------------------------------------------------------------------*/

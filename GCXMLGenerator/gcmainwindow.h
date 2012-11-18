@@ -25,6 +25,7 @@ class QTreeWidgetItem;
 class QTableWidgetItem;
 class QComboBox;
 class QDomDocument;
+class QSettings;
 class QDomElement;
 class QTimer;
 
@@ -35,9 +36,6 @@ class GCMainWindow : public QMainWindow
 public:
   explicit GCMainWindow( QWidget *parent = 0 );
   ~GCMainWindow();
-
-public slots:
-  void addNewElement( const QString &element, const QStringList &attributes );
 
 private slots:
   void treeWidgetItemChanged     ( QTreeWidgetItem *item, int column );
@@ -69,6 +67,8 @@ private slots:
   void removeDB();                                  // shows known DB form
   void removeDBConnection( const QString &dbName ); // receives signal from DB form
 
+  void importXMLToDatabase();
+
   /* DOM and DB. */
   void showNewElementForm();
 
@@ -81,6 +81,14 @@ private slots:
   /* Direct DOM edit. */
   void revertDirectEdit();
   void saveDirectEdit();
+
+  /* Receives new element information from "GCElementForm". */
+  void addNewElement( const QString &element, const QStringList &attributes );
+
+  /* Receives user preference regarding future displays of a specific message
+    from "GCMessageDialog". */
+  void rememberPreference( bool remember );
+  void forgetAllMessagePreferences();
   
 private:
   void addDBConnection    ( const QString &dbName );
@@ -100,6 +108,7 @@ private:
   GCDataBaseInterface *m_dbInterface;
   QSignalMapper       *m_signalMapper;
   QDomDocument        *m_domDoc;
+  QSettings           *m_settings;
   QWidget             *m_currentCombo;
   QTimer              *m_saveTimer;
   QString              m_currentXMLFileName;
@@ -109,9 +118,11 @@ private:
   bool                 m_rootElementSet;
   bool                 m_wasTreeItemActivated;
   bool                 m_newElementWasAdded;
+  bool                 m_rememberPreference;
 
   QMap< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
   QMap< QWidget*, int/* table row*/ >   m_comboBoxes;
+  QMap< QString /*setting name*/, QVariant /*message*/ > m_messages;
 
 };
 
