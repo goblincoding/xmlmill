@@ -80,6 +80,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_rootElementSet      ( false ),
   m_wasTreeItemActivated( false ),
   m_rememberPreference  ( false ),
+  m_busyImporting       ( false ),
   m_treeItemNodes       (),
   m_comboBoxes          (),
   m_messages            ()
@@ -145,7 +146,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 
   m_domDoc   = new QDomDocument;
   m_settings = new QSettings( "GoblinCoding", "XML Studio", this );
-  m_settings->setValue( "Messages", "Dialog messages.");
+  m_settings->setValue( "Messages", "Save dialog prompt user preferences.");
 
   /* If the interface was successfully initialised, prompt the user to choose a database
     connection for this session. */
@@ -256,66 +257,59 @@ void GCMainWindow::openXMLFile()
     }
     else if( m_superUserMode )
     {
-      /* Check if the user previously requested that his/her accept must be saved. */
-      bool remembered = m_settings->value( "Messages/Message01", false ).toBool();
-
-      if( !remembered )
+      /* If we're not already busy importing an XML file, check if the
+        user maybe wants to do so. */
+      if( !m_busyImporting )
       {
-        /* If the user is a super user, he/she might want to import the XML profile to the
-        current database. */
-        GCMessageDialog *dialog = new GCMessageDialog( "Import XML?",
-                                                       "Would you like to import the XML document to the active profile?",
-                                                       GCMessageDialog::YesNo,
-                                                       GCMessageDialog::No,
-                                                       GCMessageDialog::Question );
+        /* Check if the user previously requested that his/her accept must be saved. */
+        bool remembered = m_settings->value( "Messages/Message01", false ).toBool();
 
-        connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
-
-        QDialog::DialogCode accept = static_cast< QDialog::DialogCode >( dialog->exec() );
-
-        if( accept == QDialog::Accepted )
+        if( !remembered )
         {
-          /* Update the DB in one go. */
-          if( !m_dbInterface->batchProcessDOMDocument( m_domDoc ) )
+          /* If the user is a super user, he/she might want to import the XML profile to the
+            current database. */
+          GCMessageDialog *dialog = new GCMessageDialog( "Import XML?",
+                                                         "Would you like to import the XML document to the active profile?",
+                                                         GCMessageDialog::YesNo,
+                                                         GCMessageDialog::No,
+                                                         GCMessageDialog::Question );
+
+          connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
+
+          QDialog::DialogCode accept = static_cast< QDialog::DialogCode >( dialog->exec() );
+
+          if( accept == QDialog::Accepted )
           {
-            showErrorMessageBox( m_dbInterface->getLastError() );
+            importXMLToDatabase();
+            saveSetting( "Messages/Message01", true );
+            saveSetting( "Messages/Message01/Preference", true );
           }
           else
           {
-            processDOMDoc();
-          }
-
-          if( m_rememberPreference )
-          {
-            m_settings->setValue( "Messages/Message01", true );
-            m_settings->setValue( "Messages/Message01/Preference", true );
+            saveSetting( "Messages/Message01", true );
+            saveSetting( "Messages/Message01/Preference", false );
           }
         }
         else
         {
-          if( m_rememberPreference )
+          /* If we do have a remembered setting, act accordingly. */
+          bool batchProcess = m_settings->value( "Messages/Message01/Preference" ).toBool();
+
+          if( batchProcess )
           {
-            m_settings->setValue( "Messages/Message01", true );
-            m_settings->setValue( "Messages/Message01/Preference", false );
+            importXMLToDatabase();
           }
         }
       }
       else
       {
-        bool batchProcess = m_settings->value( "Messages/Message01/Preference" ).toBool();
-
-        if( batchProcess )
-        {
-          /* Update the DB in one go. */
-          if( !m_dbInterface->batchProcessDOMDocument( m_domDoc ) )
-          {
-            showErrorMessageBox( m_dbInterface->getLastError() );
-          }
-          else
-          {
-            processDOMDoc();
-          }
-        }
+        /* If we're already busy importing, it means the user explicitly requested
+          an XML import, didn't have a current document active and confirmed that he/she
+          wanted to open an XML file to import.  Furthermore, there is no risk of an
+          endless loop since the DOM document will have been populated by the time we
+          get to this point, which will ensure that only the first part of the following
+          function's logic will be executed..."openXMLFile" won't be called again. */
+        importXMLToDatabase();
       }
     }
     else
@@ -335,6 +329,7 @@ void GCMainWindow::newXMLFile()
 
   ui->addElementComboBox->clear();
   ui->addElementComboBox->addItems( m_dbInterface->knownRootElements() );
+
   toggleAddElementWidgets();
 
   ui->actionSave->setEnabled( true );
@@ -410,13 +405,12 @@ void GCMainWindow::startSaveTimer()
 
 void GCMainWindow::resetDOM()
 {
-  m_domDoc->clear();
-  ui->dockWidgetTextEdit->clear();
+  m_currentXMLFileName = "";
+  m_domDoc->clear();  
   m_treeItemNodes.clear();
   ui->treeWidget->clear();
-  resetTableWidget();
-
-  m_currentXMLFileName = "";
+  ui->dockWidgetTextEdit->clear();
+  resetTableWidget();  
 
   /* The timer will be reactivated as soon as work starts again on a legitimate
     document and the user saves it for the first time. */
@@ -1028,21 +1022,15 @@ void GCMainWindow::addDBConnection( const QString &dbName )
 
     if( accept == QDialog::Accepted )
     {
-      if( m_rememberPreference )
-      {
-        m_settings->setValue( "Messages/Message02", true );
-        m_settings->setValue( "Messages/Message02/Preference", true );
-      }
+      saveSetting( "Messages/Message02", true );
+      saveSetting( "Messages/Message02/Preference", true );
 
       setSessionDB( dbName );
     }
     else
     {
-      if( m_rememberPreference )
-      {
-        m_settings->setValue( "Messages/Message02", true );
-        m_settings->setValue( "Messages/Message02/Preference", false );
-      }
+      saveSetting( "Messages/Message02", true );
+      saveSetting( "Messages/Message02/Preference", false );
 
       if( !m_dbInterface->hasActiveSession() )
       {
@@ -1164,20 +1152,13 @@ void GCMainWindow::switchDBSession()
       if( accept == QDialog::Accepted )
       {
         resetDOM();
-
-        if( m_rememberPreference )
-        {
-          m_settings->setValue( "Messages/Message03", true );
-          m_settings->setValue( "Messages/Message03/Preference", true );
-        }
+        saveSetting( "Messages/Message03", true );
+        saveSetting( "Messages/Message03/Preference", true );
       }
       else
       {
-        if( m_rememberPreference )
-        {
-          m_settings->setValue( "Messages/Message03", true );
-          m_settings->setValue( "Messages/Message03/Preference", false );
-        }
+        saveSetting( "Messages/Message03", true );
+        saveSetting( "Messages/Message03/Preference", false );
 
         return;
       }
@@ -1204,6 +1185,8 @@ void GCMainWindow::switchDBSession()
 
 void GCMainWindow::importXMLToDatabase()
 {
+  m_busyImporting = true;
+
   /* This slot will only ever be called in Super User mode. */
   if (!m_domDoc->documentElement().isNull() )
   {
@@ -1212,11 +1195,52 @@ void GCMainWindow::importXMLToDatabase()
     {
       showErrorMessageBox( m_dbInterface->getLastError() );
     }
+    else
+    {
+      processDOMDoc();
+    }
   }
   else
   {
-    showErrorMessageBox( "No open document to import.");
+    bool remembered = m_settings->value( "Messages/Message06", false ).toBool();
+
+    if( !remembered )
+    {
+      GCMessageDialog *dialog = new GCMessageDialog( "No active document",
+                                                     "There is no document currently active, "
+                                                     "would you like to open a document from file?",
+                                                     GCMessageDialog::YesNo,
+                                                     GCMessageDialog::Yes,
+                                                     GCMessageDialog::Question );
+
+      connect( dialog, SIGNAL( rememberUserChoice( bool ) ), SLOT( rememberPreference( bool ) ) );
+
+      QDialog::DialogCode accept = static_cast< QDialog::DialogCode >( dialog->exec() );
+
+      if( accept )
+      {
+        saveSetting( "Messages/Message06", true );
+        saveSetting( "Messages/Message06/Preference", true );
+        openXMLFile();
+      }
+      else
+      {
+        saveSetting( "Messages/Message06", true );
+        saveSetting( "Messages/Message06/Preference", false );
+      }
+    }
+    else
+    {
+      bool openFile = m_settings->value( "Messages/Message06/Preference" ).toBool();
+
+      if( openFile )
+      {
+        openXMLFile();
+      }
+    }
   }
+
+  m_busyImporting = false;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1277,18 +1301,12 @@ void GCMainWindow::showNewElementForm()
       connect( form, SIGNAL( newElementDetails( QString,QStringList ) ), this, SLOT( addNewElement( QString,QStringList ) ) );
       form->show();
 
-      if( m_rememberPreference )
-      {
-        m_settings->setValue( "Messages/Message04", true );
-      }
+      saveSetting( "Messages/Message04", true );
     }
     else
     {
       /* We don't want to remember a \"Cancel\" option for this particular situation. */
-      if( m_rememberPreference )
-      {
-        m_settings->setValue( "Messages/Message04", false );
-      }
+      saveSetting( "Messages/Message04", false );
     }
   }
   else
@@ -1359,10 +1377,7 @@ void GCMainWindow::switchSuperUserMode( bool super )
 
       if( accept == QDialog::Accepted )
       {
-        if( m_rememberPreference )
-        {
-          m_settings->setValue( "Messages/Message05", true );
-        }
+        saveSetting( "Messages/Message05", true );
       }
     }
   }
@@ -1428,6 +1443,16 @@ void GCMainWindow::forgetAllMessagePreferences()
   m_settings->beginGroup( "Messages" );
   m_settings->remove( "" );
   m_settings->endGroup();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::saveSetting( const QString &key, const QVariant &value )
+{
+  if( m_rememberPreference )
+  {
+    m_settings->setValue( key, value );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/

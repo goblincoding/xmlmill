@@ -95,9 +95,9 @@ private:
   void showErrorMessageBox( const QString &errorMsg );
   void showKnownDBForm    ( GCKnownDBForm::Buttons buttons );
 
+  void saveSetting( const QString &key, const QVariant &value );
   void resetTableWidget();
   void startSaveTimer();
-
   void toggleAddElementWidgets();
 
   void processDOMDoc();
@@ -119,6 +119,7 @@ private:
   bool                 m_wasTreeItemActivated;
   bool                 m_newElementWasAdded;
   bool                 m_rememberPreference;
+  bool                 m_busyImporting;
 
   QMap< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
   QMap< QWidget*, int/* table row*/ >   m_comboBoxes;
