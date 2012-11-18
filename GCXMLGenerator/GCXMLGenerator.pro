@@ -6,7 +6,7 @@
 
 QT       += core gui xml sql
 
-TARGET = GCXMLGenerator
+TARGET = XMLStudio
 TEMPLATE = app
 
 
