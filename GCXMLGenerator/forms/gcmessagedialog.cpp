@@ -5,8 +5,7 @@
 
 GCMessageDialog::GCMessageDialog(const QString &title, const QString &text, ButtonCombo buttons, Buttons defaultButton, Icon icon, QWidget *parent ) :
   QDialog( parent ),
-  ui     ( new Ui::GCMessageDialog ),
-  m_rememberUserChoice( false )
+  ui     ( new Ui::GCMessageDialog )
 {
   ui->setupUi(this);
   ui->plainTextEdit->setPlainText( text );
@@ -57,7 +56,7 @@ GCMessageDialog::GCMessageDialog(const QString &title, const QString &text, Butt
 
   connect( ui->acceptButton, SIGNAL( clicked() ),       this, SLOT( accept() ) );
   connect( ui->rejectButton, SIGNAL( clicked() ),       this, SLOT( reject() ) );
-  connect( ui->checkBox,     SIGNAL( toggled( bool ) ), this, SLOT( toggleForget( bool ) ) );
+  connect( ui->checkBox,     SIGNAL( toggled( bool ) ), this, SLOT( setRememberUserChoice( bool ) ) );
 
   setAttribute( Qt::WA_DeleteOnClose );
   setWindowTitle( title );
@@ -67,15 +66,14 @@ GCMessageDialog::GCMessageDialog(const QString &title, const QString &text, Butt
 
 GCMessageDialog::~GCMessageDialog()
 {
-  emit rememberUserChoice( m_rememberUserChoice );
   delete ui;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMessageDialog::setRememberUserChoice( bool forget )
+void GCMessageDialog::setRememberUserChoice( bool remember )
 {
-  m_rememberUserChoice = forget;
+  emit rememberUserChoice( remember );
 }
 
 /*--------------------------------------------------------------------------------------*/

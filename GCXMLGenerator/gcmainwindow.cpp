@@ -121,6 +121,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->expandAllCheckBox,           SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
   connect( ui->actionExit,                  SIGNAL( triggered() ),     this, SLOT( close() ) );
   connect( ui->addNewElementPushButton,     SIGNAL( clicked() ),       this, SLOT( showNewElementForm() ) );
+  connect( ui->actionForgetPreferences,     SIGNAL( triggered() ),     this, SLOT( forgetAllMessagePreferences() ) );
 
   /* Everything tree widget related ("itemChanged" will only ever be emitted in Super User mode
     since tree widget items aren't editable otherwise). */
@@ -144,6 +145,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 
   m_domDoc   = new QDomDocument;
   m_settings = new QSettings( "GoblinCoding", "XML Studio", this );
+  m_settings->setValue( "Messages", "Dialog messages.");
 
   /* If the interface was successfully initialised, prompt the user to choose a database
     connection for this session. */
@@ -266,6 +268,8 @@ void GCMainWindow::openXMLFile()
                                                        GCMessageDialog::YesNo,
                                                        GCMessageDialog::No,
                                                        GCMessageDialog::Question );
+
+        connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
 
         QDialog::DialogCode accept = static_cast< QDialog::DialogCode >( dialog->exec() );
 
@@ -1018,6 +1022,8 @@ void GCMainWindow::addDBConnection( const QString &dbName )
                                                    GCMessageDialog::Yes,
                                                    GCMessageDialog::Question );
 
+    connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
+
     QDialog::DialogCode accept = static_cast< QDialog::DialogCode >( dialog->exec() );
 
     if( accept == QDialog::Accepted )
@@ -1151,6 +1157,8 @@ void GCMainWindow::switchDBSession()
                                                      GCMessageDialog::Cancel,
                                                      GCMessageDialog::Warning );
 
+      connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
+
       QDialog::DialogCode accept = static_cast< QDialog::DialogCode >( dialog->exec() );
 
       if( accept == QDialog::Accepted )
@@ -1253,6 +1261,8 @@ void GCMainWindow::showNewElementForm()
                                                    GCMessageDialog::OK,
                                                    GCMessageDialog::Warning );
 
+    connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
+
     QDialog::DialogCode accept = static_cast< QDialog::DialogCode >( dialog->exec() );
 
     if( accept == QDialog::Accepted )
@@ -1331,12 +1341,14 @@ void GCMainWindow::switchSuperUserMode( bool super )
     if( !remembered )
     {
       GCMessageDialog *dialog = new GCMessageDialog( "Super User Mode!",
-                                                     "Absolutely everything you do in this mode is persisted to the\n"
+                                                     "Absolutely everything you do in this mode is persisted to the "
                                                      "active profile and cannot be undone.\n\n"
                                                      "In other words, if anything goes wrong, it's all your fault...",
                                                      GCMessageDialog::OKOnly,
                                                      GCMessageDialog::OK,
                                                      GCMessageDialog::Warning );
+
+      connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
 
       QDialog::DialogCode accept = static_cast< QDialog::DialogCode >( dialog->exec() );
 
@@ -1408,7 +1420,9 @@ void GCMainWindow::rememberPreference( bool remember )
 
 void GCMainWindow::forgetAllMessagePreferences()
 {
-  m_settings->remove( "Messages" );
+  m_settings->beginGroup( "Messages" );
+  m_settings->remove( "" );
+  m_settings->endGroup();
 }
 
 /*--------------------------------------------------------------------------------------*/

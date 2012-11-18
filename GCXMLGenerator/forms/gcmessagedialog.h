@@ -53,7 +53,6 @@ private slots:
   
 private:
   Ui::GCMessageDialog *ui;
-  bool m_rememberUserChoice;
 };
 
 #endif // GCMESSAGEDIALOG_H

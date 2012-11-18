@@ -710,7 +710,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
      <string>Options</string>
     </property>
     <addaction name="actionSuperUserMode"/>
-    <addaction name="actionForgetSavedPreferences"/>
+    <addaction name="actionForgetPreferences"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuDatabase"/>
@@ -927,7 +927,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
     <string>Ctrl+X</string>
    </property>
   </action>
-  <action name="actionForgetSavedPreferences">
+  <action name="actionForgetPreferences">
    <property name="text">
     <string>Forget Saved Preferences</string>
    </property>
