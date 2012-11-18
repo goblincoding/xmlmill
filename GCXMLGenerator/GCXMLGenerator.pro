@@ -17,22 +17,24 @@ SOURCES += main.cpp\
     xml/xmlsyntaxhighlighter.cpp \
     forms/gcnewelementform.cpp \
     forms/gcknowndbform.cpp \
-    utils/gccombobox.cpp
+    utils/gccombobox.cpp \
+    forms/gcmessagedialog.cpp
 
 HEADERS  += \
     db/gcdatabaseinterface.h \
     gcmainwindow.h \
     db/gcbatchprocessorhelper.h \
-    utils/gcglobals.h \
     xml/xmlsyntaxhighlighter.h \
     forms/gcnewelementform.h \
     forms/gcknowndbform.h \
     utils/gccombobox.h \
+    forms/gcmessagedialog.h
 
 FORMS    += \
     gcmainwindow.ui \
     forms/gcnewelementform.ui \
-    forms/gcknowndbform.ui
+    forms/gcknowndbform.ui \
+    forms/gcmessagedialog.ui
 
 RESOURCES += \
     resources/gcresources.qrc
