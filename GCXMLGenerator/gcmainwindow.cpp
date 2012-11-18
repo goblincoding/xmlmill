@@ -94,6 +94,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   ui->addNewElementPushButton->setVisible( false );
   ui->textSaveButton->setVisible( false );
   ui->textRevertButton->setVisible( false );
+  ui->dockWidgetTextEdit->setReadOnly( true );
 
   /* The user must see these actions exist, but shouldn't be able to access
     them except in super user mode. */
@@ -463,6 +464,8 @@ void GCMainWindow::processDOMDoc()
     treeWidgetItemActivated( item, 0 );
     m_rootElementSet = true;
   }
+
+  collapseOrExpandTreeWidget( ui->expandAllCheckBox->isChecked() );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1415,6 +1418,7 @@ void GCMainWindow::switchSuperUserMode( bool super )
   ui->addAttributeLineEdit->setVisible( m_superUserMode );
   ui->textSaveButton->setVisible( m_superUserMode );
   ui->textRevertButton->setVisible( m_superUserMode );
+  ui->dockWidgetTextEdit->setReadOnly( !m_superUserMode );
 
   /* The user must see these actions exist, but shouldn't be able to access
     them except when in "Super User" mode. */
