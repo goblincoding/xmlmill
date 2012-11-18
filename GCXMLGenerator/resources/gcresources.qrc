@@ -16,5 +16,12 @@
         <file>checkbox.png</file>
         <file>checkon.png</file>
         <file>helpcursor.png</file>
+        <file>adddatabase.png</file>
+        <file>forget.png</file>
+        <file>opendatabase.png</file>
+        <file>removedatabase.png</file>
+        <file>superuser.png</file>
+        <file>switch.png</file>
+        <file>importxml.png</file>
     </qresource>
 </RCC>

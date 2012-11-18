@@ -1204,6 +1204,7 @@ void GCMainWindow::switchDBSession()
 
 void GCMainWindow::importXMLToDatabase()
 {
+  /* This slot will only ever be called in Super User mode. */
   if (!m_domDoc->documentElement().isNull() )
   {
     /* Update the DB in one go. */

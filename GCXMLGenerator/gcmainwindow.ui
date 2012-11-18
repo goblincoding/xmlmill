@@ -778,6 +778,10 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    </widget>
   </widget>
   <action name="actionAddNewDatabase">
+   <property name="icon">
+    <iconset resource="resources/gcresources.qrc">
+     <normaloff>:/resources/adddatabase.png</normaloff>:/resources/adddatabase.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Add New Profile</string>
    </property>
@@ -792,8 +796,12 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    </property>
   </action>
   <action name="actionAddExistingDatabase">
+   <property name="icon">
+    <iconset resource="resources/gcresources.qrc">
+     <normaloff>:/resources/opendatabase.png</normaloff>:/resources/opendatabase.png</iconset>
+   </property>
    <property name="text">
-    <string>Add &amp;Existing Profile</string>
+    <string>Open &amp;Existing Profile</string>
    </property>
    <property name="toolTip">
     <string>Add an existing database to the list of known databases.</string>
@@ -842,6 +850,10 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    </property>
   </action>
   <action name="actionRemoveDatabase">
+   <property name="icon">
+    <iconset resource="resources/gcresources.qrc">
+     <normaloff>:/resources/removedatabase.png</normaloff>:/resources/removedatabase.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Remove Profile</string>
    </property>
@@ -856,6 +868,10 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    </property>
   </action>
   <action name="actionSwitchSessionDatabase">
+   <property name="icon">
+    <iconset resource="resources/gcresources.qrc">
+     <normaloff>:/resources/switch.png</normaloff>:/resources/switch.png</iconset>
+   </property>
    <property name="text">
     <string>S&amp;witch Profile</string>
    </property>
@@ -899,6 +915,10 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset resource="resources/gcresources.qrc">
+     <normaloff>:/resources/superuser.png</normaloff>:/resources/superuser.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Super User Mode</string>
    </property>
@@ -928,6 +948,10 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    </property>
   </action>
   <action name="actionForgetPreferences">
+   <property name="icon">
+    <iconset resource="resources/gcresources.qrc">
+     <normaloff>:/resources/helpcursor.png</normaloff>:/resources/helpcursor.png</iconset>
+   </property>
    <property name="text">
     <string>Forget Saved Preferences</string>
    </property>
@@ -936,11 +960,18 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    </property>
   </action>
   <action name="actionImportXMLToDatabase">
+   <property name="icon">
+    <iconset resource="resources/gcresources.qrc">
+     <normaloff>:/resources/importxml.png</normaloff>:/resources/importxml.png</iconset>
+   </property>
    <property name="text">
     <string>Import XML to Profile</string>
    </property>
    <property name="whatsThis">
     <string>Import the current XML document to the active profile.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
    </property>
   </action>
  </widget>
