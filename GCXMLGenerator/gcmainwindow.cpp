@@ -1213,6 +1213,10 @@ void GCMainWindow::importXMLToDatabase()
       showErrorMessageBox( m_dbInterface->getLastError() );
     }
   }
+  else
+  {
+    showErrorMessageBox( "No open document to import.");
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
