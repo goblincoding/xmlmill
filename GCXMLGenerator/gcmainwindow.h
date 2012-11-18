@@ -96,6 +96,7 @@ private:
   void showKnownDBForm    ( GCKnownDBForm::Buttons buttons );
 
   void saveSetting( const QString &key, const QVariant &value );
+  void setTextEditXML( const QDomElement &element );
   void resetTableWidget();
   void startSaveTimer();
   void toggleAddElementWidgets();
@@ -120,6 +121,7 @@ private:
   bool                 m_newElementWasAdded;
   bool                 m_rememberPreference;
   bool                 m_busyImporting;
+  bool                 m_DOMTooLarge;
 
   QMap< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
   QMap< QWidget*, int/* table row*/ >   m_comboBoxes;

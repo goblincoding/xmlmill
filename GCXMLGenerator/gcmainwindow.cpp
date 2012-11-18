@@ -19,6 +19,8 @@
 /*--------------------------------------------------------------------------------------*/
 
 const QString EMPTY( "---" );
+const qint64  DOMLIMIT( 3145728 );    // 3MB
+
 
 /*--------------------------- NON-MEMBER UTILITY FUNCTIONS ----------------------------*/
 
@@ -81,6 +83,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_wasTreeItemActivated( false ),
   m_rememberPreference  ( false ),
   m_busyImporting       ( false ),
+  m_DOMTooLarge         ( false ),
   m_treeItemNodes       (),
   m_comboBoxes          (),
   m_messages            ()
@@ -206,7 +209,29 @@ void GCMainWindow::openXMLFile()
 
     QTextStream inStream( &file );
     QString fileContent( inStream.readAll() );
+    m_DOMTooLarge = file.size() > DOMLIMIT;
     file.close();
+
+    if( m_DOMTooLarge )
+    {
+      bool remembered = m_settings->value( "Messages/Message07", false ).toBool();
+
+      if( !remembered )
+      {
+        GCMessageDialog *dialog = new GCMessageDialog( "Large file!",
+                                                       "The file you just opened is a bit too large for us "
+                                                       "to handle comfortably.  Feel free to try working on it, but "
+                                                       "you definitely won't be able to see your changes "
+                                                       "in the text edit and things may also become impossibly slow.",
+                                                       GCMessageDialog::OKOnly,
+                                                       GCMessageDialog::OK,
+                                                       GCMessageDialog::Information );
+
+        connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
+        dialog->exec();
+        saveSetting( "Messages/Message07", true );
+      }
+    }
 
     QString xmlErr( "" );
     int     line  ( -1 );
@@ -454,7 +479,7 @@ void GCMainWindow::processDOMDoc()
   ui->actionSaveAs->setEnabled( true );
 
   /* Display the DOM content in the text edit. */
-  ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
+  setTextEditXML( QDomElement() );
 
   /* If the user just added the root element, we need to make sure that they don't
     try to add it again...it happens. */
@@ -547,9 +572,7 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
           showErrorMessageBox( m_dbInterface->getLastError() );
         }
 
-        ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
-        ui->dockWidgetTextEdit->find( getScrollAnchorText( m_treeItemNodes.value( item ).toElement() ) );
-        ui->dockWidgetTextEdit->ensureCursorVisible();
+        setTextEditXML( m_treeItemNodes.value( item ).toElement() );
       }
     }
   }
@@ -762,9 +785,7 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
         }
       }
 
-      ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
-      ui->dockWidgetTextEdit->find( getScrollAnchorText( currentElement ) );
-      ui->dockWidgetTextEdit->ensureCursorVisible();
+      setTextEditXML( currentElement );
 
       /* If the user added a new attribute, we wish to insert another new
         "empty" row so that he/she may add even more attributes if he/she
@@ -823,9 +844,7 @@ void GCMainWindow::attributeValueChanged( const QString &value )
     }
   }
 
-  ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
-  ui->dockWidgetTextEdit->find( getScrollAnchorText( currentElement ) );
-  ui->dockWidgetTextEdit->ensureCursorVisible();
+  setTextEditXML( currentElement );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -862,9 +881,7 @@ void GCMainWindow::deleteElementFromDOM()
   QTreeWidgetItem *parentItem = currentItem->parent();
   parentItem->removeChild( currentItem );
 
-  ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
-  ui->dockWidgetTextEdit->find( getScrollAnchorText( parentNode.toElement() ) );
-  ui->dockWidgetTextEdit->ensureCursorVisible();
+  setTextEditXML( parentNode.toElement() );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -944,9 +961,7 @@ void GCMainWindow::addChildElementToDOM()
       showErrorMessageBox( m_dbInterface->getLastError() );
     }
 
-    ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
-    ui->dockWidgetTextEdit->find( getScrollAnchorText( newElement ) );
-    ui->dockWidgetTextEdit->ensureCursorVisible();
+    setTextEditXML( newElement );
 
     /* If the user just added the root element, we need to make sure that they don't
     try to add it again...it happens. */
@@ -1267,7 +1282,7 @@ void GCMainWindow::deleteAttributeValuesFromDB()
 
 void GCMainWindow::revertDirectEdit()
 {
-  ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
+  setTextEditXML( QDomElement() );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1479,6 +1494,22 @@ void GCMainWindow::saveSetting( const QString &key, const QVariant &value )
   if( m_rememberPreference )
   {
     m_settings->setValue( key, value );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::setTextEditXML( const QDomElement &element )
+{
+  if( !m_DOMTooLarge )
+  {
+    ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
+
+    if( !element.isNull() )
+    {
+      ui->dockWidgetTextEdit->find( getScrollAnchorText( element ) );
+      ui->dockWidgetTextEdit->ensureCursorVisible();
+    }
   }
 }
 
