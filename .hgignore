@@ -135,3 +135,7 @@ GCXMLGenerator-build-desktop-Qt_4_8_1_for_Desktop_-_MSVC2008__Qt_SDK__Debug/debu
 GCXMLGenerator-build-desktop-Qt_4_8_1_for_Desktop_-_MinGW__Qt_SDK__Debug/debug/gccombobox.o
 GCXMLGenerator-build-desktop-Qt_4_8_1_for_Desktop_-_MinGW__Qt_SDK__Debug/debug/moc_gccombobox.cpp
 GCXMLGenerator-build-desktop-Qt_4_8_1_for_Desktop_-_MinGW__Qt_SDK__Debug/debug/moc_gccombobox.o
+GCXMLGenerator-build-desktop-Qt_4_8_1_for_Desktop_-_MinGW__Qt_SDK__Debug/debug/gcmessagedialog.o
+GCXMLGenerator-build-desktop-Qt_4_8_1_for_Desktop_-_MinGW__Qt_SDK__Debug/debug/moc_gcmessagedialog.cpp
+GCXMLGenerator-build-desktop-Qt_4_8_1_for_Desktop_-_MinGW__Qt_SDK__Debug/debug/moc_gcmessagedialog.o
+GCXMLGenerator-build-desktop-Qt_4_8_1_for_Desktop_-_MinGW__Qt_SDK__Debug/ui_gcmessagedialog.h

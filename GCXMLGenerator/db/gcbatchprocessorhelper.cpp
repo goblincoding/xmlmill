@@ -1,9 +1,9 @@
 #include "gcbatchprocessorhelper.h"
-#include "utils/gcglobals.h"
 
 /*--------------------------------- MEMBER FUNCTIONS ----------------------------------*/
 
-GCBatchProcessorHelper::GCBatchProcessorHelper( const QDomDocument *domDoc ) :
+GCBatchProcessorHelper::GCBatchProcessorHelper( const QDomDocument *domDoc, const QString &stringListSeparator ) :
+  m_stringListSeparator       ( stringListSeparator ),
   m_knownElements             (),
   m_knownAttributeKeys        (),
   m_newElementsToAdd          (),
@@ -169,7 +169,7 @@ void GCBatchProcessorHelper::createVariantLists()
     /* Do we have first level children? */
     if( !m_records.value( element ).children.isEmpty() )
     {
-      m_newElementChildrenToAdd << m_records.value( element ).children.join( SEPARATOR );
+      m_newElementChildrenToAdd << m_records.value( element ).children.join( m_stringListSeparator );
     }
     else
     {
@@ -185,7 +185,7 @@ void GCBatchProcessorHelper::createVariantLists()
     if( !m_records.value( element ).attributes.keys().isEmpty() )
     {
       QStringList attributeNames = m_records.value( element ).attributes.keys();
-      m_newElementAttributesToAdd << attributeNames.join( SEPARATOR );
+      m_newElementAttributesToAdd << attributeNames.join( m_stringListSeparator );
     }
     else
     {
@@ -201,7 +201,7 @@ void GCBatchProcessorHelper::createVariantLists()
     /* Do we have first level children? */
     if( !m_records.value( element ).children.isEmpty() )
     {
-      m_elementChildrenToUpdate << m_records.value( element ).children.join( SEPARATOR );
+      m_elementChildrenToUpdate << m_records.value( element ).children.join( m_stringListSeparator );
     }
     else
     {
@@ -212,7 +212,7 @@ void GCBatchProcessorHelper::createVariantLists()
     if( !m_records.value( element ).attributes.keys().isEmpty() )
     {
       QStringList attributeNames = m_records.value( element ).attributes.keys();
-      m_elementAttributesToUpdate << attributeNames.join( SEPARATOR );
+      m_elementAttributesToUpdate << attributeNames.join( m_stringListSeparator );
     }
     else
     {
@@ -244,7 +244,7 @@ void GCBatchProcessorHelper::createVariantLists()
 
         if( !attributeValues.isEmpty() )
         {
-          m_newAttributeValuesToAdd << attributeValues.join( SEPARATOR );
+          m_newAttributeValuesToAdd << attributeValues.join( m_stringListSeparator );
         }
         else
         {
@@ -258,7 +258,7 @@ void GCBatchProcessorHelper::createVariantLists()
 
         if( !attributeValues.isEmpty() )
         {
-          m_attributeValuesToUpdate << attributeValues.join( SEPARATOR );
+          m_attributeValuesToUpdate << attributeValues.join( m_stringListSeparator );
         }
         else
         {

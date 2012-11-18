@@ -30,7 +30,9 @@
 class GCBatchProcessorHelper
 {
 public:
-  GCBatchProcessorHelper ( const QDomDocument *domDoc );
+  /*--------------------------------------------------------------------------------------*/
+
+  GCBatchProcessorHelper ( const QDomDocument *domDoc, const QString &stringSeparator );
   void setKnownElements  ( const QStringList &elements );
   void setKnownAttributes( const QStringList &attributeKeys );
 
@@ -59,6 +61,8 @@ private:
   void processElement( const QDomElement &parentElement );
   void createRecord  ( const QDomElement &element );
   void sortRecords();
+
+  QString      m_stringListSeparator;
 
   QStringList  m_knownElements;
   QStringList  m_knownAttributeKeys;
