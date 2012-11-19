@@ -684,10 +684,11 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     ui->tableWidget->setItem( lastRow, 0, label );
 
     /* Create the combo box, but deactivate it until we have an associated attribute name. */
-    GCComboBox *attributeCombo = new GCComboBox;
-    connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged  ( QString ) ) );
+    GCComboBox *attributeCombo = new GCComboBox;    
     attributeCombo->insertItem( 0, EMPTY );
     attributeCombo->setEnabled( false );
+
+    connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged  ( QString ) ) );
 
     ui->tableWidget->setCellWidget( lastRow, 1, attributeCombo );
     m_comboBoxes.insert( attributeCombo, lastRow );
@@ -813,46 +814,52 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
 
 void GCMainWindow::attributeValueChanged( const QString &value )
 {
-  QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
-  QDomElement currentElement = m_treeItemNodes.value( currentItem );
+  /* Don't execute the logic if a tree widget item's activation is triggering
+    a re-population of the table widget, resulting in this slot being called. */
+  if( !m_wasTreeItemActivated )
+  {
+    QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
+    QDomElement currentElement = m_treeItemNodes.value( currentItem );
 
-  /* The current attribute will be displayed in the first column (next to the
+    /* The current attribute will be displayed in the first column (next to the
     combo box which will be the actual current item). */
-  QString currentAttributeName = ui->tableWidget->item( m_comboBoxes.value( m_currentCombo ), 0 )->text();
+    int row = m_comboBoxes.value( m_currentCombo );
+    QString currentAttributeName = ui->tableWidget->item( m_comboBoxes.value( m_currentCombo ), 0 )->text();
 
     /* If the user sets the attribute value to EMPTY, the attribute is removed from
     the current document. */
-  if( value == EMPTY )
-  {
-    currentElement.removeAttribute( currentAttributeName );
-  }
-  else
-  {
-    currentElement.setAttribute( currentAttributeName, value );
-
-    /* If we don't know about this value, we need to add it to the DB. */
-    bool success( false );
-    QStringList attributeValues = m_dbInterface->attributeValues( currentElement.tagName(), currentAttributeName, success );
-
-    if( success )
+    if( value == EMPTY )
     {
-      if( !attributeValues.contains( value ) )
-      {
-        if( !m_dbInterface->updateAttributeValues( currentElement.tagName(),
-                                                   currentAttributeName,
-                                                   QStringList( value ) ) )
-        {
-          showErrorMessageBox( m_dbInterface->getLastError() );
-        }
-      }
+      currentElement.removeAttribute( currentAttributeName );
     }
     else
     {
-      showErrorMessageBox( m_dbInterface->getLastError() );
-    }
-  }
+      currentElement.setAttribute( currentAttributeName, value );
 
-  setTextEditXML( currentElement );
+      /* If we don't know about this value, we need to add it to the DB. */
+      bool success( false );
+      QStringList attributeValues = m_dbInterface->attributeValues( currentElement.tagName(), currentAttributeName, success );
+
+      if( success )
+      {
+        if( !attributeValues.contains( value ) )
+        {
+          if( !m_dbInterface->updateAttributeValues( currentElement.tagName(),
+                                                     currentAttributeName,
+                                                     QStringList( value ) ) )
+          {
+            showErrorMessageBox( m_dbInterface->getLastError() );
+          }
+        }
+      }
+      else
+      {
+        showErrorMessageBox( m_dbInterface->getLastError() );
+      }
+    }
+
+    setTextEditXML( currentElement );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
