@@ -81,6 +81,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_superUserMode       ( false ),
   m_rootElementSet      ( false ),
   m_wasTreeItemActivated( false ),
+  m_newElementWasAdded  ( false ),
   m_rememberPreference  ( false ),
   m_busyImporting       ( false ),
   m_DOMTooLarge         ( false ),
@@ -975,7 +976,20 @@ void GCMainWindow::addChildElementToDOM()
       showErrorMessageBox( m_dbInterface->getLastError() );
     }
 
-    ui->treeWidget->setCurrentItem( newItem, 0 );
+    /* If we've just added a new element in Super User mode, we wish to set the current
+      active tree item as the parent of the new element and not the new element itself.
+      Failing to do so will cause a cascading effect where each new element added through
+      the form will be the child of the previously added element.  We don't want this to
+      happen as all newly added elements must be siblings. */
+    if( !m_newElementWasAdded )
+    {
+      ui->treeWidget->setCurrentItem( newItem, 0 );
+    }
+    else
+    {
+      ui->treeWidget->setCurrentItem( newItem->parent(), 0 );
+    }
+
     setTextEditXML( newElement );    
 
     /* If the user just added the root element, we need to make sure that they don't
@@ -997,10 +1011,14 @@ void GCMainWindow::addNewElement( const QString &element, const QStringList &att
     /* Add the new element and associated attributes to the database. */
     m_dbInterface->addElement( element, QStringList(), attributes );
 
-    /* The new element is added as a first level child Now we can update the DOM doc as well. */
+    /* The new element is added as a first level child of the current element (represented
+      by the highlighted item in the tree view) so now we can update the DOM doc as well. */
     ui->addElementComboBox->insertItem( 0, element );
     ui->addElementComboBox->setCurrentIndex( 0 );
+
+    m_newElementWasAdded = true;
     addChildElementToDOM();
+    m_newElementWasAdded = false;
   }
 }
 

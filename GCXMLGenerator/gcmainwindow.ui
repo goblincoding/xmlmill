@@ -922,6 +922,9 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="resources/gcresources.qrc">
      <normaloff>:/resources/superuser.png</normaloff>:/resources/superuser.png</iconset>
