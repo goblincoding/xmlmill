@@ -823,7 +823,6 @@ void GCMainWindow::attributeValueChanged( const QString &value )
 
     /* The current attribute will be displayed in the first column (next to the
     combo box which will be the actual current item). */
-    int row = m_comboBoxes.value( m_currentCombo );
     QString currentAttributeName = ui->tableWidget->item( m_comboBoxes.value( m_currentCombo ), 0 )->text();
 
     /* If the user sets the attribute value to EMPTY, the attribute is removed from
