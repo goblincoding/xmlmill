@@ -975,13 +975,13 @@ void GCMainWindow::addChildElementToDOM()
       showErrorMessageBox( m_dbInterface->getLastError() );
     }
 
-    setTextEditXML( newElement );
+    ui->treeWidget->setCurrentItem( newItem, 0 );
+    setTextEditXML( newElement );    
 
     /* If the user just added the root element, we need to make sure that they don't
     try to add it again...it happens. */
     if( !m_rootElementSet )
-    {
-      ui->treeWidget->setCurrentItem( newItem, 0 );
+    {      
       treeWidgetItemActivated( newItem, 0 );
       m_rootElementSet = true;
     }
