@@ -1261,7 +1261,7 @@ void GCMainWindow::importXMLToDatabase()
     {
       GCMessageDialog *dialog = new GCMessageDialog( "No active document",
                                                      "There is no document currently active, "
-                                                     "would you like to open a document from file?",
+                                                     "would you like to import the XML from file?",
                                                      GCMessageDialog::YesNo,
                                                      GCMessageDialog::Yes,
                                                      GCMessageDialog::Question );
