@@ -274,9 +274,9 @@ QCheckBox::indicator:checked
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="plainTextLayout">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <layout class="QVBoxLayout" name="iconSpacerLayout">
        <item>
         <widget class="QToolButton" name="iconButton">
          <property name="enabled">
@@ -336,7 +336,7 @@ QCheckBox::indicator:checked
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <layout class="QHBoxLayout" name="buttonLayout">
      <item>
       <widget class="QCheckBox" name="checkBox">
        <property name="text">
