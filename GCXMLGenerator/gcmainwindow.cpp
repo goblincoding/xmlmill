@@ -1337,7 +1337,7 @@ void GCMainWindow::showNewElementForm()
                                                    "All the new elements you add will be added as first level "
                                                    "children of the element highlighted in the tree view (in "
                                                    "other words it will become a sibling to the elements currently "
-                                                   "in the dropdown menu).\nn"
+                                                   "in the dropdown menu).\n\n"
                                                    "If this is not what you intended, I suggest you \"Cancel\".",
                                                    GCMessageDialog::OKCancel,
                                                    GCMessageDialog::OK,

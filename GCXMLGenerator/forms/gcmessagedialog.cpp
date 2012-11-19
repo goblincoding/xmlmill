@@ -19,6 +19,7 @@ GCMessageDialog::GCMessageDialog(const QString &title, const QString &text, Butt
     case OKCancel:
       ui->acceptButton->setText( "OK" );
       ui->rejectButton->setText( "Cancel" );
+      break;
     case OKOnly:
       ui->acceptButton->setText( "OK" );
       ui->rejectButton->setVisible( false );
