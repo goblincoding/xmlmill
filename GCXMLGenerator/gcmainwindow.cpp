@@ -190,7 +190,7 @@ void GCMainWindow::openXMLFile()
 
   QString fileName = QFileDialog::getOpenFileName( this, "Open File", QDir::homePath(), "XML Files (*.*)" );
 
-  /* If the user clicked "OK". */
+  /* If the user clicked "OK", continue (a cancellation will result in an empty file name). */
   if( !fileName.isEmpty() )
   {
     m_currentXMLFileName = fileName;
@@ -205,6 +205,7 @@ void GCMainWindow::openXMLFile()
       return;
     }
 
+    /* Reset the DOM only after we've successfully opened the file. */
     resetDOM();
 
     QTextStream inStream( &file );
@@ -212,6 +213,11 @@ void GCMainWindow::openXMLFile()
     m_DOMTooLarge = file.size() > DOMLIMIT;
     file.close();
 
+    /* This application isn't optimised for dealing with very large XML files (the entire point is that
+      this suite should provide the functionality necessary for the manual manipulation of, e.g. XML config
+      files normally set up by hand via copy and paste exercises), if this file is too large to be handled
+      comfortably, we need to let the user know and also make sure that we don't try to set the DOM content
+      as text in the QTextEdit (QTextEdit is optimised for paragraphs). */
     if( m_DOMTooLarge )
     {
       bool remembered = m_settings->value( "Messages/Message07", false ).toBool();
@@ -249,84 +255,86 @@ void GCMainWindow::openXMLFile()
     }
 
     /* If the user is opening an XML file of a kind that isn't supported by the current active session,
-      we need to warn him/her of this fact and let them either switch to the DB that they need, or
-      create a new DB connection for the new XML profile. */
-    if( !m_dbInterface->knownRootElements().contains( m_domDoc->documentElement().tagName() ) &&
-        !m_superUserMode )
+      we need to warn him/her of this fact and provide them with a couple of options (depending on which
+      privileges the current user mode has). */
+    if( !m_dbInterface->knownRootElements().contains( m_domDoc->documentElement().tagName() ) )
     {
-      do
+      if( !m_superUserMode )
       {
-        /* This message must always be shown (i.e. we don't have to show the custom
-          dialog box that provides the \"Don't show this again\" option). */
-        QMessageBox::warning( this,
-                              "Unknown XML Style",
-                              "The current active profile has no knowledge of the\n"
-                              "specific XML style (the elements, attributes, attribute values and\n"
-                              "all the associations between them) of the document you are trying to open.\n\n"
-                              "You can either:\n\n"
-                              "1. Select an existing profile that describes this type of XML, or\n"
-                              "2. Switch to \"Super User\" mode and open the file again to import it to the profile." );
-
-        showKnownDBForm( GCKnownDBForm::SelectAndExisting );
-
-      } while( !m_dbInterface->knownRootElements().contains( m_domDoc->documentElement().tagName() ) &&
-               !m_userCancelled );
-
-      /* If the user selected a database that fits, continue. */
-      if( !m_userCancelled )
-      {
-        processDOMDoc();
-      }
-      else
-      {
-        resetDOM();
-      }
-
-      m_userCancelled = false;
-    }
-    else if( m_superUserMode )
-    {
-      /* If we're not already busy importing an XML file, check if the
-        user maybe wants to do so. */
-      if( !m_busyImporting )
-      {
-        /* Check if the user previously requested that his/her accept must be saved. */
-        bool remembered = m_settings->value( "Messages/Message01", false ).toBool();
-
-        if( !remembered )
+        do
         {
-          /* If the user is a super user, he/she might want to import the XML profile to the
-            current database. */
-          GCMessageDialog *dialog = new GCMessageDialog( "Import XML?",
-                                                         "Would you like to import the XML document to the active profile?",
-                                                         GCMessageDialog::YesNo,
-                                                         GCMessageDialog::No,
-                                                         GCMessageDialog::Question );
+          /* This message must always be shown (i.e. we don't have to show the custom
+          dialog box that provides the \"Don't show this again\" option). */
+          QMessageBox::warning( this,
+                                "Unknown XML Style",
+                                "The current active profile has no knowledge of the\n"
+                                "specific XML style (the elements, attributes, attribute values and\n"
+                                "all the associations between them) of the document you are trying to open.\n\n"
+                                "You can either:\n\n"
+                                "1. Select an existing profile that describes this type of XML, or\n"
+                                "2. Switch to \"Super User\" mode and open the file again to import it to the profile." );
 
-          connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
+          showKnownDBForm( GCKnownDBForm::SelectAndExisting );
 
-          QDialog::DialogCode accept = static_cast< QDialog::DialogCode >( dialog->exec() );
+        } while( !m_dbInterface->knownRootElements().contains( m_domDoc->documentElement().tagName() ) &&
+                 !m_userCancelled );
 
-          if( accept == QDialog::Accepted )
-          {
-            importXMLToDatabase();
-            saveSetting( "Messages/Message01", true );
-            saveSetting( "Messages/Message01/Preference", true );
-          }
-          else
-          {
-            saveSetting( "Messages/Message01", true );
-            saveSetting( "Messages/Message01/Preference", false );
-          }
+        /* If the user selected a database that fits, process the DOM, otherwise reset everything. */
+        if( !m_userCancelled )
+        {
+          processDOMDoc();
         }
         else
         {
-          /* If we do have a remembered setting, act accordingly. */
-          bool batchProcess = m_settings->value( "Messages/Message01/Preference" ).toBool();
+          resetDOM();
+        }
 
-          if( batchProcess )
+        m_userCancelled = false;
+      }
+      else
+      {
+        /* If we're not already busy importing an XML file, check if the
+        user maybe wants to do so. */
+        if( !m_busyImporting )
+        {
+          /* Check if the user previously requested that his/her accept must be saved. */
+          bool remembered = m_settings->value( "Messages/Message01", false ).toBool();
+
+          if( !remembered )
           {
-            importXMLToDatabase();
+            /* If the user is a super user, he/she might want to import the XML profile to the
+            current database. */
+            GCMessageDialog *dialog = new GCMessageDialog( "Import XML?",
+                                                           "Would you like to import the XML document to the active profile?",
+                                                           GCMessageDialog::YesNo,
+                                                           GCMessageDialog::No,
+                                                           GCMessageDialog::Question );
+
+            connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
+
+            QDialog::DialogCode accept = static_cast< QDialog::DialogCode >( dialog->exec() );
+
+            if( accept == QDialog::Accepted )
+            {
+              importXMLToDatabase();
+              saveSetting( "Messages/Message01", true );
+              saveSetting( "Messages/Message01/Preference", true );
+            }
+            else
+            {
+              saveSetting( "Messages/Message01", true );
+              saveSetting( "Messages/Message01/Preference", false );
+            }
+          }
+          else
+          {
+            /* If we do have a remembered setting, act accordingly. */
+            bool batchProcess = m_settings->value( "Messages/Message01/Preference" ).toBool();
+
+            if( batchProcess )
+            {
+              importXMLToDatabase();
+            }
           }
         }
       }
@@ -343,7 +351,7 @@ void GCMainWindow::openXMLFile()
     }
     else
     {
-      /* Finally, if the user selected a database that knows of this particular XML profile,
+      /* If the user selected a database that knows of this particular XML profile,
         simply process the document. */
       processDOMDoc();
     }
