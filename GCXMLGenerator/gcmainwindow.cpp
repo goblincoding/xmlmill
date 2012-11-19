@@ -337,16 +337,16 @@ void GCMainWindow::openXMLFile()
             }
           }
         }
-      }
-      else
-      {
-        /* If we're already busy importing, it means the user explicitly requested
+        else
+        {
+          /* If we're already busy importing, it means the user explicitly requested
           an XML import, didn't have a current document active and confirmed that he/she
           wanted to open an XML file to import.  Furthermore, there is no risk of an
           endless loop since the DOM document will have been populated by the time we
           get to this point, which will ensure that only the first part of the following
           function's logic will be executed..."openXMLFile" won't be called again. */
-        importXMLToDatabase();
+          importXMLToDatabase();
+        }
       }
     }
     else
