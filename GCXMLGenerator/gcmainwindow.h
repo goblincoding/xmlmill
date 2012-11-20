@@ -2,7 +2,7 @@
 #define GCMAINWINDOW_H
 
 #include <QMainWindow>
-#include <QMap>
+#include <QHash>
 #include "forms/gcknowndbform.h"
 
 /*--------------------------------------------------------------------------------------*/
@@ -124,9 +124,9 @@ private:
   bool                 m_DOMTooLarge;
   bool                 m_showDocContent;
 
-  QMap< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
-  QMap< QWidget*, int/* table row*/ >   m_comboBoxes;
-  QMap< QString /*setting name*/, QVariant /*message*/ > m_messages;
+  QHash< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
+  QHash< QWidget*, int/* table row*/ >   m_comboBoxes;
+  QHash< QString /*setting name*/, QVariant /*message*/ > m_messages;
 
 };
 
