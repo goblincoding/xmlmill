@@ -48,13 +48,13 @@ XmlSyntaxHighlighter::XmlSyntaxHighlighter(QTextEdit *parent)
     // tag format
     tagFormat.setForeground(QColor(70,70,110));
     //tagFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("(<[a-zA-Z:]+\\b|<\\?[a-zA-Z:]+\\b|\\?>|>|/>|</[a-zA-Z:]+>)");
+    rule.pattern = QRegExp("(<[a-zA-Z0-9:]+\\b|<\\?[a-zA-Z0-9:]+\\b|\\?>|>|/>|</[a-zA-Z0-9:]+>)");
     rule.format = tagFormat;
     highlightingRules.append(rule);
 
     // attribute format
     attributeFormat.setForeground(QColor(160,10,10));
-    rule.pattern = QRegExp("[a-zA-Z:]+=");
+    rule.pattern = QRegExp("[a-zA-Z0-9:]+=");
     rule.format = attributeFormat;
     highlightingRules.append(rule);
 
