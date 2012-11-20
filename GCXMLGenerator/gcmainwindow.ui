@@ -535,14 +535,14 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
           </widget>
          </item>
          <item row="1" column="2">
-          <widget class="QPushButton" name="addElementButton">
+          <widget class="QPushButton" name="addChildElementButton">
            <property name="text">
             <string>Add</string>
            </property>
           </widget>
          </item>
          <item row="1" column="3">
-          <widget class="QPushButton" name="addNewElementPushButton">
+          <widget class="QPushButton" name="addNewElementButton">
            <property name="text">
             <string>New Element</string>
            </property>

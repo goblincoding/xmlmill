@@ -95,7 +95,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   ui->setupUi( this );
 
   /* Hide super user options. */
-  ui->addNewElementPushButton->setVisible( false );
+  ui->addNewElementButton->setVisible( false );
   ui->textSaveButton->setVisible( false );
   ui->textRevertButton->setVisible( false );
   ui->superUserLabel->setVisible( false );
@@ -122,7 +122,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 
   /* Build XML/Edit DOM. */
   connect( ui->deleteElementButton,         SIGNAL( clicked() ),       this, SLOT( deleteElementFromDOM() ) );
-  connect( ui->addElementButton,            SIGNAL( clicked() ),       this, SLOT( addChildElementToDOM() ) );
+  connect( ui->addChildElementButton,       SIGNAL( clicked() ),       this, SLOT( addChildElementToDOM() ) );
   connect( ui->textSaveButton,              SIGNAL( clicked() ),       this, SLOT( saveDirectEdit() ) );
   connect( ui->textRevertButton,            SIGNAL( clicked() ),       this, SLOT( revertDirectEdit() ) );
 
@@ -130,7 +130,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionSuperUserMode,         SIGNAL( toggled( bool ) ), this, SLOT( switchSuperUserMode( bool ) ) );
   connect( ui->expandAllCheckBox,           SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
   connect( ui->actionExit,                  SIGNAL( triggered() ),     this, SLOT( close() ) );
-  connect( ui->addNewElementPushButton,     SIGNAL( clicked() ),       this, SLOT( showNewElementForm() ) );
+  connect( ui->addNewElementButton,         SIGNAL( clicked() ),       this, SLOT( showNewElementForm() ) );
   connect( ui->actionForgetPreferences,     SIGNAL( triggered() ),     this, SLOT( forgetAllMessagePreferences() ) );
 
   /* Everything tree widget related ("itemChanged" will only ever be emitted in Super User mode
@@ -879,17 +879,24 @@ void GCMainWindow::deleteElementFromDOM()
   QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
   QDomElement currentElement = m_treeItemNodes.value( currentItem );
 
-  /* Remove the element from the DOM first. */
-  QDomNode parentNode = currentElement.parentNode();
-  parentNode.removeChild( currentElement );
+  if( currentElement == m_domDoc->documentElement() )
+  {
+    resetDOM();
+  }
+  else
+  {
+    /* Remove the element from the DOM first. */
+    QDomNode parentNode = currentElement.parentNode();
+    parentNode.removeChild( currentElement );
 
-  /* Now we can whack it from the tree widget and map. */
-  m_treeItemNodes.remove( currentItem );
+    /* Now we can whack it from the tree widget and map. */
+    m_treeItemNodes.remove( currentItem );
 
-  QTreeWidgetItem *parentItem = currentItem->parent();
-  parentItem->removeChild( currentItem );
+    QTreeWidgetItem *parentItem = currentItem->parent();
+    parentItem->removeChild( currentItem );
 
-  setTextEditXML( parentNode.toElement() );
+    setTextEditXML( parentNode.toElement() );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1445,7 +1452,7 @@ void GCMainWindow::switchSuperUserMode( bool super )
   }
 
   /* Set the new element and attribute options' visibility. */
-  ui->addNewElementPushButton->setVisible( m_superUserMode );
+  ui->addNewElementButton->setVisible( m_superUserMode );
   ui->textSaveButton->setVisible( m_superUserMode );
   ui->textRevertButton->setVisible( m_superUserMode );
   ui->superUserLabel->setVisible( m_superUserMode );
@@ -1551,12 +1558,12 @@ void GCMainWindow::toggleAddElementWidgets()
   if( ui->addElementComboBox->count() < 1 )
   {
     ui->addElementComboBox->setEnabled( false );
-    ui->addElementButton->setEnabled( false );
+    ui->addChildElementButton->setEnabled( false );
   }
   else
   {
     ui->addElementComboBox->setEnabled( true );
-    ui->addElementButton->setEnabled( true );
+    ui->addChildElementButton->setEnabled( true );
   }
 }
 
