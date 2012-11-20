@@ -21,6 +21,10 @@
 const QString EMPTY( "---" );
 const qint64  DOMLIMIT( 3145728 );    // 3MB
 
+/* Notes re DOMLIMIT - 2.5 MB file (approx 75 000 lines of XML) works, but with delays in response.
+                       1.5 MB (50 000 lines of XML) still slow response...perhaps introduce "Don't show in
+                       text edit"? */
+
 
 /*--------------------------- NON-MEMBER UTILITY FUNCTIONS ----------------------------*/
 
@@ -79,7 +83,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_activeAttributeName ( "" ),
   m_userCancelled       ( false ),
   m_superUserMode       ( false ),
-  m_rootElementSet      ( false ),
   m_wasTreeItemActivated( false ),
   m_newElementWasAdded  ( false ),
   m_rememberPreference  ( false ),
@@ -370,8 +373,6 @@ void GCMainWindow::newXMLFile()
 
   ui->actionSave->setEnabled( true );
   ui->actionSaveAs->setEnabled( true );
-
-  m_rootElementSet = false;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -488,14 +489,8 @@ void GCMainWindow::processDOMDoc()
   /* Display the DOM content in the text edit. */
   setTextEditXML( QDomElement() );
 
-  /* If the user just added the root element, we need to make sure that they don't
-    try to add it again...it happens. */
-  if( !m_rootElementSet )
-  {
-    ui->treeWidget->setCurrentItem( item, 0 );
-    treeWidgetItemActivated( item, 0 );
-    m_rootElementSet = true;
-  }
+  ui->treeWidget->setCurrentItem( item, 0 );
+  treeWidgetItemActivated( item, 0 );
 
   collapseOrExpandTreeWidget( ui->expandAllCheckBox->isChecked() );
 }
@@ -974,6 +969,8 @@ void GCMainWindow::addChildElementToDOM()
       showErrorMessageBox( m_dbInterface->getLastError() );
     }
 
+    setTextEditXML( newElement );
+
     /* If we've just added a new element in Super User mode, we wish to set the current
       active tree item as the parent of the new element and not the new element itself.
       Failing to do so will cause a cascading effect where each new element added through
@@ -982,20 +979,12 @@ void GCMainWindow::addChildElementToDOM()
     if( !m_newElementWasAdded )
     {
       ui->treeWidget->setCurrentItem( newItem, 0 );
+      treeWidgetItemActivated( newItem, 0 );
     }
     else
     {
       ui->treeWidget->setCurrentItem( newItem->parent(), 0 );
-    }
-
-    setTextEditXML( newElement );    
-
-    /* If the user just added the root element, we need to make sure that they don't
-    try to add it again...it happens. */
-    if( !m_rootElementSet )
-    {      
-      treeWidgetItemActivated( newItem, 0 );
-      m_rootElementSet = true;
+      treeWidgetItemActivated( newItem->parent(), 0 );
     }
   }
 }
@@ -1139,7 +1128,6 @@ void GCMainWindow::setSessionDB( const QString &dbName )
       ui->addElementComboBox->clear();
       ui->addElementComboBox->addItems( m_dbInterface->knownRootElements() );
       toggleAddElementWidgets();
-      m_rootElementSet = false;
     }
   }
 }

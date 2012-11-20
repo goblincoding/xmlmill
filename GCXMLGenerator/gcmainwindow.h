@@ -116,7 +116,6 @@ private:
   QString              m_activeAttributeName;
   bool                 m_userCancelled;
   bool                 m_superUserMode;
-  bool                 m_rootElementSet;
   bool                 m_wasTreeItemActivated;
   bool                 m_newElementWasAdded;
   bool                 m_rememberPreference;
