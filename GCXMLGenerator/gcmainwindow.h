@@ -98,6 +98,7 @@ private:
 
   void saveSetting( const QString &key, const QVariant &value );
   void setTextEditXML( const QDomElement &element );
+  void showLargeFileWarnings( qint64 fileSize );
   void resetTableWidget();
   void startSaveTimer();
   void toggleAddElementWidgets();

@@ -19,18 +19,8 @@
 /*--------------------------------------------------------------------------------------*/
 
 const QString EMPTY( "---" );
-const qint64  DOMLIMIT( 2097152 );    // 2MB or ~
-
-/* Notes re DOMLIMIT - 2.5 MB file (approx 75 000 lines of XML) works, but with delays in response.
-                       1.5 MB (50 000 lines of XML) still slow response...perhaps introduce "Don't show in
-                       text edit"?
-
-1MB ~30725 -> slow load time, mostly fast response, could be better.
-2MB ~58740
-3MB ~88752
-
-*/
-
+const qint64  DOMWARNING( 262144 );  // 0.25MB or ~7 500 lines
+const qint64  DOMLIMIT( 524288 );    // 0.5MB  or ~15 000 lines
 
 /*--------------------------- NON-MEMBER UTILITY FUNCTIONS ----------------------------*/
 
@@ -220,34 +210,10 @@ void GCMainWindow::openXMLFile()
 
     QTextStream inStream( &file );
     QString fileContent( inStream.readAll() );
-    m_DOMTooLarge = file.size() > DOMLIMIT;
+    qint64 fileSize = file.size();
     file.close();
 
-    /* This application isn't optimised for dealing with very large XML files (the entire point is that
-      this suite should provide the functionality necessary for the manual manipulation of, e.g. XML config
-      files normally set up by hand via copy and paste exercises), if this file is too large to be handled
-      comfortably, we need to let the user know and also make sure that we don't try to set the DOM content
-      as text in the QTextEdit (QTextEdit is optimised for paragraphs). */
-    if( m_DOMTooLarge )
-    {
-      bool remembered = m_settings->value( "Messages/Message07", false ).toBool();
-
-      if( !remembered )
-      {
-        GCMessageDialog *dialog = new GCMessageDialog( "Large file!",
-                                                       "The file you just opened is a bit too large for us "
-                                                       "to handle comfortably.  Feel free to try working on it, but "
-                                                       "you definitely won't be able to see your changes "
-                                                       "in the text edit and things may also become impossibly slow.",
-                                                       GCMessageDialog::OKOnly,
-                                                       GCMessageDialog::OK,
-                                                       GCMessageDialog::Information );
-
-        connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
-        dialog->exec();
-        saveSetting( "Messages/Message07", true );
-      }
-    }
+    showLargeFileWarnings( fileSize );
 
     QString xmlErr( "" );
     int     line  ( -1 );
@@ -715,8 +681,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
   }
 
   ui->dockWidgetTextEdit->moveCursor( QTextCursor::Start );
-  ui->dockWidgetTextEdit->find( getScrollAnchorText( element ) );
-  ui->dockWidgetTextEdit->ensureCursorVisible();
+  setTextEditXML( element );
 
   /* Unset flag. */
   m_wasTreeItemActivated = false;
@@ -1553,6 +1518,64 @@ void GCMainWindow::setTextEditXML( const QDomElement &element )
   else if( !m_showDocContent )
   {
     ui->dockWidgetTextEdit->clear();
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::showLargeFileWarnings( qint64 fileSize )
+{
+  /* This application isn't optimised for dealing with very large XML files (the entire point is that
+    this suite should provide the functionality necessary for the manual manipulation of, e.g. XML config
+    files normally set up by hand via copy and paste exercises), if this file is too large to be handled
+    comfortably, we need to let the user know and also make sure that we don't try to set the DOM content
+    as text in the QTextEdit (QTextEdit is optimised for paragraphs). */
+  if( fileSize > DOMWARNING &&
+      fileSize < DOMLIMIT )
+  {
+    bool remembered = m_settings->value( "Messages/Message07", false ).toBool();
+
+    if( !remembered )
+    {
+      GCMessageDialog *dialog = new GCMessageDialog( "Large file!",
+                                                     "The file you just opened is slightly on the large side of "
+                                                     "what we can handle comfortably (ideally you don't want to "
+                                                     "go for files that have more than ~7 500 lines).\n\n "
+                                                     "Feel free to try working on it, however, but "
+                                                     "be aware that response times may not be ideal.",
+                                                     GCMessageDialog::OKOnly,
+                                                     GCMessageDialog::OK,
+                                                     GCMessageDialog::Information );
+
+      connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
+      dialog->exec();
+      saveSetting( "Messages/Message07", true );
+    }
+  }
+  else if( fileSize > DOMLIMIT )
+  {
+    m_DOMTooLarge = true;
+
+    bool remembered = m_settings->value( "Messages/Message08", false ).toBool();
+
+    if( !remembered )
+    {
+      GCMessageDialog *dialog = new GCMessageDialog( "Very Large file!",
+                                                     "The file you just opened is too large for us "
+                                                     "to handle comfortably (ideally you don't want to "
+                                                     "go for files that have more than ~7 500 lines).\n\n "
+                                                     "Feel free to try working on it, however, but "
+                                                     "you definitely won't be able to see your changes "
+                                                     "in the text edit and depending on how large your file really "
+                                                     "is, things may also become impossibly slow.",
+                                                     GCMessageDialog::OKOnly,
+                                                     GCMessageDialog::OK,
+                                                     GCMessageDialog::Information );
+
+      connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
+      dialog->exec();
+      saveSetting( "Messages/Message08", true );
+    }
   }
 }
 
