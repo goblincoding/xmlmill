@@ -48,6 +48,7 @@ private slots:
   void setCurrentComboBox        ( QWidget *combo );
   void collapseOrExpandTreeWidget( bool checked );
   void switchSuperUserMode       ( bool super );
+  void toggleShowDocContent      ( bool show );
 
   void userCancelledKnownDBForm();
 
@@ -121,6 +122,7 @@ private:
   bool                 m_rememberPreference;
   bool                 m_busyImporting;
   bool                 m_DOMTooLarge;
+  bool                 m_showDocContent;
 
   QMap< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
   QMap< QWidget*, int/* table row*/ >   m_comboBoxes;

@@ -19,11 +19,17 @@
 /*--------------------------------------------------------------------------------------*/
 
 const QString EMPTY( "---" );
-const qint64  DOMLIMIT( 3145728 );    // 3MB
+const qint64  DOMLIMIT( 2097152 );    // 2MB or ~
 
 /* Notes re DOMLIMIT - 2.5 MB file (approx 75 000 lines of XML) works, but with delays in response.
                        1.5 MB (50 000 lines of XML) still slow response...perhaps introduce "Don't show in
-                       text edit"? */
+                       text edit"?
+
+1MB ~30725 -> slow load time, mostly fast response, could be better.
+2MB ~58740
+3MB ~88752
+
+*/
 
 
 /*--------------------------- NON-MEMBER UTILITY FUNCTIONS ----------------------------*/
@@ -88,6 +94,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_rememberPreference  ( false ),
   m_busyImporting       ( false ),
   m_DOMTooLarge         ( false ),
+  m_showDocContent      ( true ),
   m_treeItemNodes       (),
   m_comboBoxes          (),
   m_messages            ()
@@ -132,6 +139,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionExit,                  SIGNAL( triggered() ),     this, SLOT( close() ) );
   connect( ui->addNewElementButton,         SIGNAL( clicked() ),       this, SLOT( showNewElementForm() ) );
   connect( ui->actionForgetPreferences,     SIGNAL( triggered() ),     this, SLOT( forgetAllMessagePreferences() ) );
+  connect( ui->dontShowContentCheckBox,     SIGNAL( toggled( bool ) ), this, SLOT( toggleShowDocContent( bool ) ) );
 
   /* Everything tree widget related ("itemChanged" will only ever be emitted in Super User mode
     since tree widget items aren't editable otherwise). */
@@ -1496,6 +1504,14 @@ void GCMainWindow::switchSuperUserMode( bool super )
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCMainWindow::toggleShowDocContent( bool show )
+{
+  m_showDocContent = !show;
+  setTextEditXML( QDomElement() );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCMainWindow::rememberPreference( bool remember )
 {
   m_rememberPreference = remember;
@@ -1524,7 +1540,7 @@ void GCMainWindow::saveSetting( const QString &key, const QVariant &value )
 
 void GCMainWindow::setTextEditXML( const QDomElement &element )
 {
-  if( !m_DOMTooLarge )
+  if( !m_DOMTooLarge && m_showDocContent )
   {
     ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
 
@@ -1533,6 +1549,10 @@ void GCMainWindow::setTextEditXML( const QDomElement &element )
       ui->dockWidgetTextEdit->find( getScrollAnchorText( element ) );
       ui->dockWidgetTextEdit->ensureCursorVisible();
     }
+  }
+  else if( !m_showDocContent )
+  {
+    ui->dockWidgetTextEdit->clear();
   }
 }
 
