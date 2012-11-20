@@ -95,6 +95,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   ui->addNewElementPushButton->setVisible( false );
   ui->textSaveButton->setVisible( false );
   ui->textRevertButton->setVisible( false );
+  ui->superUserLabel->setVisible( false );
   ui->dockWidgetTextEdit->setReadOnly( true );
 
   /* The user must see these actions exist, but shouldn't be able to access
@@ -1459,6 +1460,7 @@ void GCMainWindow::switchSuperUserMode( bool super )
   ui->addNewElementPushButton->setVisible( m_superUserMode );
   ui->textSaveButton->setVisible( m_superUserMode );
   ui->textRevertButton->setVisible( m_superUserMode );
+  ui->superUserLabel->setVisible( m_superUserMode );
   ui->dockWidgetTextEdit->setReadOnly( !m_superUserMode );
 
   /* The user must see these actions exist, but shouldn't be able to access
