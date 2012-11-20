@@ -92,9 +92,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   ui->setupUi( this );
 
   /* Hide super user options. */
-  ui->addAttributeButton->setVisible( false );
-  ui->addAttributeLabel->setVisible( false );
-  ui->addAttributeLineEdit->setVisible( false );
   ui->addNewElementPushButton->setVisible( false );
   ui->textSaveButton->setVisible( false );
   ui->textRevertButton->setVisible( false );
@@ -1460,9 +1457,6 @@ void GCMainWindow::switchSuperUserMode( bool super )
 
   /* Set the new element and attribute options' visibility. */
   ui->addNewElementPushButton->setVisible( m_superUserMode );
-  ui->addAttributeButton->setVisible( m_superUserMode );
-  ui->addAttributeLabel->setVisible( m_superUserMode );
-  ui->addAttributeLineEdit->setVisible( m_superUserMode );
   ui->textSaveButton->setVisible( m_superUserMode );
   ui->textRevertButton->setVisible( m_superUserMode );
   ui->dockWidgetTextEdit->setReadOnly( !m_superUserMode );
