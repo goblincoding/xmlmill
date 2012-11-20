@@ -74,6 +74,13 @@ QPushButton:default
    background-color: qlineargradient(spread:reflect, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0 rgba(110, 110, 110, 255), stop:1 rgba(190, 190, 190, 255));
  }
 
+QPushButton:disabled
+{
+  color: rgb(0, 0, 0);
+  background-color:rgba(110, 110, 110, 255);
+  border-style: flat;
+}
+
 QToolButton
 {
   background-color: qlineargradient(spread:reflect, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0 rgba(110, 110, 110, 255), stop:1 rgba(150, 150, 160, 255));
@@ -128,6 +135,12 @@ QComboBox QAbstractItemView
    selection-color: rgb(20, 20, 20);
    color: rgb(200, 200, 200);
    selection-background-color: rgba(110, 110, 110, 255);
+}
+
+QComboBox:disabled
+{
+  color: rgb(0, 0, 0);
+  background-color:rgba(110, 110, 110, 255);
 }
 
 QListView
@@ -243,6 +256,12 @@ QLineEdit
    selection-background-color: rgb(98, 96, 122);
    font: 12px;
  }
+
+QLineEdit:disabled
+{
+  color: rgb(0, 0, 0);
+  background-color:rgba(110, 110, 110, 255);
+}
 
 QTableView
 {
