@@ -52,6 +52,7 @@ const QString EMPTY( "---" );
 const qint64  DOMWARNING( 262144 );  // 0.25MB or ~7 500 lines
 const qint64  DOMLIMIT( 524288 );    // 0.5MB  or ~15 000 lines
 
+
 /*--------------------------- NON-MEMBER UTILITY FUNCTIONS ----------------------------*/
 
 QString getScrollAnchorText( const QDomElement &element )
@@ -116,8 +117,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_DOMTooLarge         ( false ),
   m_showDocContent      ( true ),
   m_treeItemNodes       (),
-  m_comboBoxes          (),
-  m_messages            ()
+  m_comboBoxes          ()
 {
   ui->setupUi( this );
 
@@ -175,7 +175,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( m_dbSessionManager,              SIGNAL( reset() ),     this,                SLOT( resetDOM() ) );
   connect( m_dbSessionManager,              SIGNAL( userCancelledKnownDBForm() ),      this, SLOT( userCancelledKnownDBForm() ) );
   connect( m_dbSessionManager,              SIGNAL( rememberPreference( bool ) ),      this, SLOT( rememberPreference( bool ) ) );
-  connect( m_dbSessionManager,              SIGNAL( saveSetting( QString,QVariant ) ), this, SLOT( saveSetting( QString,QVariant ) ) );
+  connect( m_dbSessionManager,              SIGNAL( savePreference( QString,QVariant ) ), this, SLOT( savePreference( QString,QVariant ) ) );
 
 
   /* Initialise the database interface and retrieve the list of database names (this will
@@ -328,13 +328,13 @@ void GCMainWindow::openXMLFile()
             if( accept == QDialog::Accepted )
             {
               importXMLToDatabase();
-              saveSetting( "Messages/Message01", true );
-              saveSetting( "Messages/Message01/Preference", true );
+              savePreference( "Messages/Message01", true );
+              savePreference( "Messages/Message01/Preference", true );
             }
             else
             {
-              saveSetting( "Messages/Message01", true );
-              saveSetting( "Messages/Message01/Preference", false );
+              savePreference( "Messages/Message01", true );
+              savePreference( "Messages/Message01/Preference", false );
             }
           }
           else
@@ -1067,14 +1067,14 @@ void GCMainWindow::importXMLToDatabase()
 
       if( accept )
       {
-        saveSetting( "Messages/Message06", true );
-        saveSetting( "Messages/Message06/Preference", true );
+        savePreference( "Messages/Message06", true );
+        savePreference( "Messages/Message06/Preference", true );
         openXMLFile();
       }
       else
       {
-        saveSetting( "Messages/Message06", true );
-        saveSetting( "Messages/Message06/Preference", false );
+        savePreference( "Messages/Message06", true );
+        savePreference( "Messages/Message06/Preference", false );
       }
     }
     else
@@ -1167,12 +1167,12 @@ void GCMainWindow::showNewElementForm()
       connect( form, SIGNAL( newElementDetails( QString,QStringList ) ), this, SLOT( addNewElement( QString,QStringList ) ) );
       form->show();
 
-      saveSetting( "Messages/Message04", true );
+      savePreference( "Messages/Message04", true );
     }
     else
     {
       /* We don't want to remember a \"Cancel\" option for this particular situation. */
-      saveSetting( "Messages/Message04", false );
+      savePreference( "Messages/Message04", false );
     }
   }
   else
@@ -1211,7 +1211,7 @@ void GCMainWindow::switchSuperUserMode( bool super )
 
       if( accept == QDialog::Accepted )
       {
-        saveSetting( "Messages/Message05", true );
+        savePreference( "Messages/Message05", true );
       }
     }
   }
@@ -1311,7 +1311,7 @@ void GCMainWindow::forgetAllMessagePreferences()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::saveSetting( const QString &key, const QVariant &value )
+void GCMainWindow::savePreference( const QString &key, const QVariant &value )
 {
   if( m_rememberPreference )
   {
@@ -1367,7 +1367,7 @@ void GCMainWindow::showLargeFileWarnings( qint64 fileSize )
 
       connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
       dialog->exec();
-      saveSetting( "Messages/Message07", true );
+      savePreference( "Messages/Message07", true );
     }
   }
   else if( fileSize > DOMLIMIT )
@@ -1392,7 +1392,7 @@ void GCMainWindow::showLargeFileWarnings( qint64 fileSize )
 
       connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
       dialog->exec();
-      saveSetting( "Messages/Message08", true );
+      savePreference( "Messages/Message08", true );
     }
   }
 }

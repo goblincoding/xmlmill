@@ -66,18 +66,51 @@ public:
   ~GCMainWindow();
 
 private slots:
-  void treeWidgetItemChanged     ( QTreeWidgetItem *item, int column );
-  void treeWidgetItemActivated   ( QTreeWidgetItem *item, int column );
+  /* Called only in "Super User" mode when a user edits the name of an
+    existing tree widget item (i.e. element). An element with the new name
+    will be added to the DB (if it doesn't yet exist) with the same associated
+    attributes and attribute values as the element name it is replacing (the
+    "old" element will not be removed from the DB). All occurrences of the old
+    name throughout the current DOM will be replaced with the new name and the
+    tree widget will be updated accordingly. */
+  void treeWidgetItemChanged( QTreeWidgetItem *item, int column );
 
-  void setActiveAttributeName    ( QTableWidgetItem *item );
-  void attributeNameChanged      ( QTableWidgetItem *item );
-  void attributeValueChanged     ( const QString &value );
+  /* Triggered by clicking on a tree widget item, the trigger will populate
+    the table widget with the names of the attributes associated with the
+    highlighted item's element as well as combo boxes containing their known
+    values.  In "Super User" mode, this function will also create "empty" cells
+    and combo boxes so that the user may add new attribute names to the selected
+    element.  The addition of new attributes and values will automatically be
+    persisted to the database. */
+  void treeWidgetItemActivated( QTreeWidgetItem *item, int column );
 
-  void setCurrentComboBox        ( QWidget *combo );
+  /* Called when a user clicks on/enters an attribute name cell in the table widget
+    and sets the name of the current active attribute to that represented by the cell. */
+  void setActiveAttributeName( QTableWidgetItem *item );
+
+  /* This function is only called in "Super User" mode when the user changes the name
+    of an existing attribute via the table widget.  The new attribute name will be
+    persisted to the database (with the same known values of the "old" attribute) and
+    associated with the current highlighted element.  The current DOM will be updated to
+    reflect the new attribute name instead of the one that's been replaced. */
+  void attributeNameChanged( QTableWidgetItem *item );
+
+  /* Triggered whenever the current value of a combo box changes or when the user edits
+    the content of a combo box.  In the first scenario, the DOM will be updated to reflect
+    the new value for the specific element and associated attribute, in the latter case,
+    the edited/provided value will be persisted to the database as a known value against
+    the current element and associated attribute if it was previously unknown. */
+  void attributeValueChanged( const QString &value );
+
+  /* Called whenever the user enters or otherwise activates a combo box. */
+  void setCurrentComboBox( QWidget *combo );
+
+  /* These do exactly what you would expect. */
   void collapseOrExpandTreeWidget( bool checked );
   void switchSuperUserMode       ( bool super );
   void toggleShowDocContent      ( bool show );
 
+  /* These slots are called by the corresponding signals from GCDBSessionManager. */
   void userCancelledKnownDBForm();
   void dbSessionChanged();
 
@@ -111,14 +144,19 @@ private slots:
   /* Receives user preference regarding future displays of a specific message
     from "GCMessageDialog". */
   void rememberPreference( bool remember );
+
+  /* Resets all user preferences to the initial default (to show all prompts). */
   void forgetAllMessagePreferences();
-  void saveSetting( const QString &key, const QVariant &value );
+
+  /* Uses QSettings to save the user preference to the registry (Windows) or
+    relevant XML files (Mac) or ini (Unix). */
+  void savePreference( const QString &key, const QVariant &value );
   
 private:
-  void showErrorMessageBox( const QString &errorMsg );
-
-  void setTextEditXML( const QDomElement &element );
+  void showErrorMessageBox  ( const QString &errorMsg );
   void showLargeFileWarnings( qint64 fileSize );
+  void setTextEditXML( const QDomElement &element );
+
   void resetTableWidget();
   void startSaveTimer();
   void toggleAddElementWidgets();
@@ -146,8 +184,6 @@ private:
 
   QHash< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
   QHash< QWidget*, int/* table row*/ >   m_comboBoxes;
-  QHash< QString /*setting name*/, QVariant /*message*/ > m_messages;
-
 };
 
 #endif // GCMAINWINDOW_H

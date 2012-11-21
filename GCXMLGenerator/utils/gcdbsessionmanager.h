@@ -44,7 +44,7 @@ public:
   void switchDBSession( bool docEmpty );
 
 signals:
-  void saveSetting( const QString &key, const QVariant &value );
+  void savePreference( const QString &key, const QVariant &value );
   void rememberPreference( bool remember );
   void dbSessionChanged();
   void userCancelledKnownDBForm();

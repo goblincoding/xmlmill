@@ -101,15 +101,15 @@ void GCDBSessionManager::addDBConnection( const QString &dbName )
 
     if( accept == QDialog::Accepted )
     {
-      emit saveSetting( "Messages/DBSessionManager/Message01", true );
-      emit saveSetting( "Messages/DBSessionManager/Message01/Preference", true );
+      emit savePreference( "Messages/DBSessionManager/Message01", true );
+      emit savePreference( "Messages/DBSessionManager/Message01/Preference", true );
 
       setSessionDB( dbName );
     }
     else
     {
-      emit saveSetting( "Messages/DBSessionManager/Message01", true );
-      emit saveSetting( "Messages/DBSessionManager/Message01/Preference", false );
+      emit savePreference( "Messages/DBSessionManager/Message01", true );
+      emit savePreference( "Messages/DBSessionManager/Message01/Preference", false );
 
       if( !GCDataBaseInterface::instance()->hasActiveSession() )
       {
@@ -223,13 +223,13 @@ void GCDBSessionManager::switchDBSession( bool docEmpty )
       if( accept == QDialog::Accepted )
       {
         emit reset();
-        emit saveSetting( "Messages/DBSessionManager/Message02", true );
-        emit saveSetting( "Messages/DBSessionManager/Message02/Preference", true );
+        emit savePreference( "Messages/DBSessionManager/Message02", true );
+        emit savePreference( "Messages/DBSessionManager/Message02/Preference", true );
       }
       else
       {
-        emit saveSetting( "Messages/DBSessionManager/Message02", true );
-        emit saveSetting( "Messages/DBSessionManager/Message02/Preference", false );
+        emit savePreference( "Messages/DBSessionManager/Message02", true );
+        emit savePreference( "Messages/DBSessionManager/Message02/Preference", false );
 
         return;
       }
