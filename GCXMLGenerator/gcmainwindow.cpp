@@ -171,7 +171,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionAddExistingDatabase,   SIGNAL( triggered() ), m_dbSessionManager,  SLOT( addExistingDB() ) );
   connect( ui->actionRemoveDatabase,        SIGNAL( triggered() ), m_dbSessionManager,  SLOT( removeDB() ) );
   connect( m_dbSessionManager,              SIGNAL( reset() ),     this,                SLOT( resetDOM() ) );
-  connect( m_dbSessionManager,              SIGNAL( userCancelledKnownDBForm() ),      this, SLOT( userCancelledKnownDBForm() ) );
+  connect( m_dbSessionManager,              SIGNAL( userCancelledKnownDBForm() ), this, SLOT( userCancelledKnownDBForm() ) );
 
   /* Initialise the database interface and retrieve the list of database names (this will
     include the path references to the ".db" files). */
@@ -542,12 +542,7 @@ void GCMainWindow::attributeValueChanged( const QString &value )
 void GCMainWindow::newXMLFile()
 {
   resetDOM();
-
-  ui->addElementComboBox->clear();
-  ui->addElementComboBox->addItems( GCDataBaseInterface::instance()->knownRootElements() );
-
-  toggleAddElementWidgets();
-
+  m_currentXMLFileName = "";
   ui->actionSave->setEnabled( true );
   ui->actionSaveAs->setEnabled( true );
 }
@@ -578,6 +573,7 @@ void GCMainWindow::openXMLFile()
           .arg( fileName )
           .arg( file.errorString() );
       showErrorMessageBox( errorMsg );
+      m_currentXMLFileName = "";
       return;
     }
 
@@ -603,6 +599,7 @@ void GCMainWindow::openXMLFile()
           .arg( col );
       showErrorMessageBox( errorMsg );
       resetDOM();
+      m_currentXMLFileName = "";
       return;
     }
 
@@ -639,6 +636,7 @@ void GCMainWindow::openXMLFile()
         else
         {
           resetDOM();
+          m_currentXMLFileName = "";
         }
 
         m_userCancelled = false;
@@ -794,6 +792,10 @@ void GCMainWindow::deleteElementFromDOM()
     QTreeWidgetItem *parentItem = currentItem->parent();
     parentItem->removeChild( currentItem );
 
+    /* Repopulate the table widget with values from whichever
+      element is highlighted after the removal. */
+    treeWidgetItemActivated( ui->treeWidget->currentItem(), 0 );
+
     setTextEditXML( parentNode.toElement() );
   }
 }
@@ -899,12 +901,15 @@ void GCMainWindow::addChildElementToDOM()
 
 void GCMainWindow::resetDOM()
 {
-  m_currentXMLFileName = "";
   m_domDoc->clear();
   m_treeItemNodes.clear();
   ui->treeWidget->clear();
   ui->dockWidgetTextEdit->clear();
   resetTableWidget();
+
+  ui->addElementComboBox->clear();
+  ui->addElementComboBox->addItems( GCDataBaseInterface::instance()->knownRootElements() );
+  toggleAddElementWidgets();
 
   /* The timer will be reactivated as soon as work starts again on a legitimate
     document and the user saves it for the first time. */
@@ -1118,9 +1123,7 @@ void GCMainWindow::dbSessionChanged()
     to start the document building process. */
   if( m_domDoc->documentElement().isNull() )
   {
-    ui->addElementComboBox->clear();
-    ui->addElementComboBox->addItems( GCDataBaseInterface::instance()->knownRootElements() );
-    toggleAddElementWidgets();
+    resetDOM();
   }
 }
 

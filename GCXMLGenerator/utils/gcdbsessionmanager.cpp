@@ -122,7 +122,7 @@ void GCDBSessionManager::setSessionDB( const QString &dbName )
     {
       QMessageBox::warning( m_parentWidget,
                             "Empty Profile",
-                            "The current active profile is completely empty (aka \"entirely useless\").\n"
+                            "The current active profile is completely empty (aka \"entirely useless\").\n\n"
                             "You can either:\n"
                             "1. Select a different (populated) profile and continue working, or\n"
                             "2. Switch to \"Super User\" mode and start populating this one." );
