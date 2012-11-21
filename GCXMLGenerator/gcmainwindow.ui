@@ -524,7 +524,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
   </string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
     <item>
      <widget class="QFrame" name="frame">
       <property name="frameShape">
@@ -567,7 +567,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
            </property>
           </widget>
          </item>
-         <item row="0" column="0" colspan="4">
+         <item row="0" column="0" colspan="5">
           <widget class="QLabel" name="superUserLabel">
            <property name="autoFillBackground">
             <bool>false</bool>
@@ -589,6 +589,17 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="4">
+          <widget class="QToolButton" name="mainHelpButton">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="resources/gcresources.qrc">
+             <normaloff>:/resources/helpcursor.png</normaloff>:/resources/helpcursor.png</iconset>
            </property>
           </widget>
          </item>
@@ -765,13 +776,28 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
     <number>2</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
-    <layout class="QVBoxLayout" name="dockWidgetVerticalLayout">
+    <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
-      <widget class="QCheckBox" name="dontShowContentCheckBox">
-       <property name="text">
-        <string>Don't Show Document Content</string>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QCheckBox" name="dontShowContentCheckBox">
+         <property name="text">
+          <string>Don't Show Document Content</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="domContentHelpButton">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="resources/gcresources.qrc">
+           <normaloff>:/resources/helpcursor.png</normaloff>:/resources/helpcursor.png</iconset>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="QTextEdit" name="dockWidgetTextEdit">

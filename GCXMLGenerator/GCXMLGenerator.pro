@@ -18,7 +18,8 @@ SOURCES += main.cpp\
     forms/gcnewelementform.cpp \
     forms/gcknowndbform.cpp \
     utils/gccombobox.cpp \
-    forms/gcmessagedialog.cpp
+    forms/gcmessagedialog.cpp \
+    utils/gchelp.cpp
 
 HEADERS  += \
     db/gcdatabaseinterface.h \
@@ -28,7 +29,8 @@ HEADERS  += \
     forms/gcnewelementform.h \
     forms/gcknowndbform.h \
     utils/gccombobox.h \
-    forms/gcmessagedialog.h
+    forms/gcmessagedialog.h \
+    utils/gchelp.h
 
 FORMS    += \
     gcmainwindow.ui \
