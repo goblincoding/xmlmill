@@ -29,7 +29,7 @@
 
 #include "gcdbsessionmanager.h"
 #include "db/gcdatabaseinterface.h"
-#include "forms/gcmessagedialog.h"
+#include "utils/gcmessagespace.h"
 
 #include <QFileDialog>
 #include <QSettings>
@@ -39,10 +39,8 @@
 
 GCDBSessionManager::GCDBSessionManager( QWidget *parent ) :
   QObject       ( parent ),
-  m_settings    ( NULL ),
   m_parentWidget( parent )
 {
-  m_settings = new QSettings( "GoblinCoding", "XML Studio", this );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -85,52 +83,22 @@ void GCDBSessionManager::addDBConnection( const QString &dbName )
     all keys have to start with "Messages" otherwise the main window won't be able to reset
     the user preferences to the defaults.  An alternative would be to implement a function here
     that does DB Session Manager specific setting resets, but I don't see the need for that. */
-  bool remembered = m_settings->value( "Messages/DBSessionManager/Message01", false ).toBool();
+  bool accepted = GCMessageSpace::userAccepted( "SetSessionActive",
+                                                "Set Session",
+                                                "Would you like to set the new profile as active?",
+                                                GCMessageDialog::YesNo,
+                                                GCMessageDialog::Yes,
+                                                GCMessageDialog::Question );
 
-  if( !remembered )
+  if( accepted )
   {
-    GCMessageDialog *dialog = new GCMessageDialog( "Set Session",
-                                                   "Would you like to set the new profile as active?",
-                                                   GCMessageDialog::YesNo,
-                                                   GCMessageDialog::Yes,
-                                                   GCMessageDialog::Question );
-
-    connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SIGNAL( rememberPreference( bool ) ) );
-
-    QDialog::DialogCode accept = static_cast< QDialog::DialogCode >( dialog->exec() );
-
-    if( accept == QDialog::Accepted )
-    {
-      emit savePreference( "Messages/DBSessionManager/Message01", true );
-      emit savePreference( "Messages/DBSessionManager/Message01/Preference", true );
-
-      setSessionDB( dbName );
-    }
-    else
-    {
-      emit savePreference( "Messages/DBSessionManager/Message01", true );
-      emit savePreference( "Messages/DBSessionManager/Message01/Preference", false );
-
-      if( !GCDataBaseInterface::instance()->hasActiveSession() )
-      {
-        showKnownDBForm( GCKnownDBForm::ShowAll );
-      }
-    }
+    setSessionDB( dbName );
   }
   else
   {
-    bool setSession = m_settings->value( "Messages/DBSessionManager/Message01/Preference" ).toBool();
-
-    if( setSession )
+    if( !GCDataBaseInterface::instance()->hasActiveSession() )
     {
-      setSessionDB( dbName );
-    }
-    else
-    {
-      if( !GCDataBaseInterface::instance()->hasActiveSession() )
-      {
-        showKnownDBForm( GCKnownDBForm::ShowAll );
-      }
+      showKnownDBForm( GCKnownDBForm::ShowAll );
     }
   }
 }
@@ -201,51 +169,24 @@ void GCDBSessionManager::switchDBSession( bool docEmpty )
     since the items known to the current session may not be known to the next. */
   if( !docEmpty )
   {
-    /* Check if we have a previously saved user preference. */
-    bool remembered = m_settings->value( "Messages/DBSessionManager/Message02", false ).toBool();
+    bool accepted = GCMessageSpace::userAccepted( "SwitchingSessionsWarning",
+                                                  "Warning!",
+                                                  "Switching profile sessions while building an XML document "
+                                                  "will cause the document to be reset and your work will be lost. "
+                                                  "If this is fine, proceed with \"OK\".\n\n"
+                                                  "On the other hand, if you wish to keep your work, please hit \"Cancel\" and "
+                                                  "save the document first before coming back here.",
+                                                  GCMessageDialog::OKCancel,
+                                                  GCMessageDialog::Cancel,
+                                                  GCMessageDialog::Warning );
 
-    if( !remembered )
+    if( accepted )
     {
-      GCMessageDialog *dialog = new GCMessageDialog( "Warning!",
-                                                     "Switching profile sessions while building an XML document "
-                                                     "will cause the document to be reset and your work will be lost. "
-                                                     "If this is fine, proceed with \"OK\".\n\n"
-                                                     "On the other hand, if you wish to keep your work, please hit \"Cancel\" and "
-                                                     "save the document first before coming back here.",
-                                                     GCMessageDialog::OKCancel,
-                                                     GCMessageDialog::Cancel,
-                                                     GCMessageDialog::Warning );
-
-      connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SIGNAL( rememberPreference( bool ) ) );
-
-      QDialog::DialogCode accept = static_cast< QDialog::DialogCode >( dialog->exec() );
-
-      if( accept == QDialog::Accepted )
-      {
-        emit reset();
-        emit savePreference( "Messages/DBSessionManager/Message02", true );
-        emit savePreference( "Messages/DBSessionManager/Message02/Preference", true );
-      }
-      else
-      {
-        emit savePreference( "Messages/DBSessionManager/Message02", true );
-        emit savePreference( "Messages/DBSessionManager/Message02/Preference", false );
-
-        return;
-      }
+      emit reset();
     }
     else
     {
-      bool mustReset = m_settings->value( "Messages/DBSessionManager/Message02/Preference" ).toBool();
-
-      if( mustReset )
-      {
-        emit reset();
-      }
-      else
-      {
-        return;
-      }
+      return;
     }
   }
 

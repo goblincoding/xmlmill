@@ -53,7 +53,6 @@ class QTreeWidgetItem;
 class QTableWidgetItem;
 class QComboBox;
 class QDomDocument;
-class QSettings;
 class QDomElement;
 class QTimer;
 
@@ -141,16 +140,8 @@ private slots:
   /* Receives new element information from "GCElementForm". */
   void addNewElement( const QString &element, const QStringList &attributes );
 
-  /* Receives user preference regarding future displays of a specific message
-    from "GCMessageDialog". */
-  void rememberPreference( bool remember );
-
   /* Resets all user preferences to the initial default (to show all prompts). */
   void forgetAllMessagePreferences();
-
-  /* Uses QSettings to save the user preference to the registry (Windows) or
-    relevant XML files (Mac) or ini (Unix). */
-  void savePreference( const QString &key, const QVariant &value );
   
 private:
   void showErrorMessageBox  ( const QString &errorMsg );
@@ -168,7 +159,6 @@ private:
   GCDBSessionManager  *m_dbSessionManager;
   QSignalMapper       *m_signalMapper;
   QDomDocument        *m_domDoc;
-  QSettings           *m_settings;
   QWidget             *m_currentCombo;
   QTimer              *m_saveTimer;
   QString              m_currentXMLFileName;

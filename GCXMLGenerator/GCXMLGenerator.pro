@@ -49,7 +49,8 @@ SOURCES += main.cpp\
     utils/gccombobox.cpp \
     forms/gcmessagedialog.cpp \
     utils/gchelp.cpp \
-    utils/gcdbsessionmanager.cpp
+    utils/gcdbsessionmanager.cpp \
+    utils/gcmessagespace.cpp
 
 HEADERS  += \
     db/gcdatabaseinterface.h \
@@ -61,7 +62,8 @@ HEADERS  += \
     utils/gccombobox.h \
     forms/gcmessagedialog.h \
     utils/gchelp.h \
-    utils/gcdbsessionmanager.h
+    utils/gcdbsessionmanager.h \
+    utils/gcmessagespace.h
 
 FORMS    += \
     gcmainwindow.ui \

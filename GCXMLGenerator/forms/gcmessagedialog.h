@@ -32,7 +32,8 @@
 
 #include <QDialog>
 
-namespace Ui {
+namespace Ui
+{
   class GCMessageDialog;
 }
 
@@ -66,22 +67,20 @@ public:
     Cancel
   };
 
-  explicit GCMessageDialog( const QString &heading,
+  explicit GCMessageDialog( bool *remember,
+                            const QString &heading,
                             const QString &text,
                             ButtonCombo    buttons,
                             Buttons        defaultButton,
-                            Icon           icon = NoIcon,
-                            QWidget       *parent = 0 );
+                            Icon           icon = NoIcon );
   ~GCMessageDialog();
-
-signals:
-  void rememberUserChoice( bool remember );
 
 private slots:
   void setRememberUserChoice( bool remember );
   
 private:
   Ui::GCMessageDialog *ui;
+  bool *m_remember;
 };
 
 #endif // GCMESSAGEDIALOG_H

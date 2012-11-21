@@ -27,40 +27,25 @@
  *                    <http://www.gnu.org/licenses/>
  */
 
-#ifndef GCDBSESSIONMANAGER_H
-#define GCDBSESSIONMANAGER_H
+#ifndef GCMESSAGESPACE_H
+#define GCMESSAGESPACE_H
 
-#include <QObject>
-#include "forms/gcknowndbform.h"
+#include "forms/gcmessagedialog.h"
+#include <QVariant>
 
-class GCDBSessionManager : public QObject
+namespace GCMessageSpace
 {
-  Q_OBJECT
-public:
-  explicit GCDBSessionManager( QWidget *parent = 0 );
-  void showKnownDBForm( GCKnownDBForm::Buttons buttons );
-  void switchDBSession( bool docEmpty );
+  /* This function will return the saved user preference (if there is one),
+    or prompt the user for a decision. */
+  bool userAccepted( const QString &uniqueMessageKey,
+                     const QString &heading,
+                     const QString &text,
+                     GCMessageDialog::ButtonCombo buttons,
+                     GCMessageDialog::Buttons defaultButton,
+                     GCMessageDialog::Icon icon = GCMessageDialog::NoIcon,
+                     bool saveCancel = true );
 
-signals:
-  void dbSessionChanged();
-  void userCancelledKnownDBForm();
-  void reset();
-  
-private slots:
-  void addNewDB();      // calls addDBConnection
-  void addExistingDB(); // calls addDBConnection
+  void forgetAllPreferences();
+}
 
-  void setSessionDB( const QString &dbName ); // receives signal from DB form
-
-  void removeDB();                                  // shows known DB form
-  void removeDBConnection( const QString &dbName ); // receives signal from DB form
-
-private:
-  void showErrorMessageBox( const QString &errorMsg );
-  void addDBConnection    ( const QString &dbName );
-
-  QWidget   *m_parentWidget;
-  
-};
-
-#endif // GCDBSESSIONMANAGER_H
+#endif // GCMESSAGESPACE_H

@@ -32,9 +32,9 @@
 #include "db/gcdatabaseinterface.h"
 #include "xml/xmlsyntaxhighlighter.h"
 #include "forms/gcnewelementform.h"
-#include "forms/gcmessagedialog.h"
 #include "utils/gccombobox.h"
 #include "utils/gcdbsessionmanager.h"
+#include "utils/gcmessagespace.h"
 
 #include <QSignalMapper>
 #include <QDomDocument>
@@ -103,7 +103,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_dbSessionManager    ( new GCDBSessionManager( this ) ),
   m_signalMapper        ( new QSignalMapper( this ) ),
   m_domDoc              ( NULL ),
-  m_settings            ( NULL ),
   m_currentCombo        ( NULL ),
   m_saveTimer           ( NULL ),
   m_currentXMLFileName  ( "" ),
@@ -174,9 +173,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionRemoveDatabase,        SIGNAL( triggered() ), m_dbSessionManager,  SLOT( removeDB() ) );
   connect( m_dbSessionManager,              SIGNAL( reset() ),     this,                SLOT( resetDOM() ) );
   connect( m_dbSessionManager,              SIGNAL( userCancelledKnownDBForm() ),      this, SLOT( userCancelledKnownDBForm() ) );
-  connect( m_dbSessionManager,              SIGNAL( rememberPreference( bool ) ),      this, SLOT( rememberPreference( bool ) ) );
-  connect( m_dbSessionManager,              SIGNAL( savePreference( QString,QVariant ) ), this, SLOT( savePreference( QString,QVariant ) ) );
-
 
   /* Initialise the database interface and retrieve the list of database names (this will
     include the path references to the ".db" files). */
@@ -187,8 +183,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   }
 
   m_domDoc   = new QDomDocument;
-  m_settings = new QSettings( "William Hallatt", "GoblinCoding's XML Studio", this );
-  m_settings->setValue( "Messages", "Save dialog prompt user preferences.");
 
   /* If the interface was successfully initialised, prompt the user to choose a database
     connection for this session. */
@@ -308,44 +302,16 @@ void GCMainWindow::openXMLFile()
         user maybe wants to do so. */
         if( !m_busyImporting )
         {
-          /* Check if the user previously requested that his/her accept must be saved. */
-          bool remembered = m_settings->value( "Messages/Message01", false ).toBool();
+          bool accepted = GCMessageSpace::userAccepted( "QueryImportXML",
+                                                        "Import XML?",
+                                                        "Would you like to import the XML document to the active profile?",
+                                                        GCMessageDialog::YesNo,
+                                                        GCMessageDialog::No,
+                                                        GCMessageDialog::Question );
 
-          if( !remembered )
+          if( accepted )
           {
-            /* If the user is a super user, he/she might want to import the XML profile to the
-            current database. */
-            GCMessageDialog *dialog = new GCMessageDialog( "Import XML?",
-                                                           "Would you like to import the XML document to the active profile?",
-                                                           GCMessageDialog::YesNo,
-                                                           GCMessageDialog::No,
-                                                           GCMessageDialog::Question );
-
-            connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
-
-            QDialog::DialogCode accept = static_cast< QDialog::DialogCode >( dialog->exec() );
-
-            if( accept == QDialog::Accepted )
-            {
-              importXMLToDatabase();
-              savePreference( "Messages/Message01", true );
-              savePreference( "Messages/Message01/Preference", true );
-            }
-            else
-            {
-              savePreference( "Messages/Message01", true );
-              savePreference( "Messages/Message01/Preference", false );
-            }
-          }
-          else
-          {
-            /* If we do have a remembered setting, act accordingly. */
-            bool batchProcess = m_settings->value( "Messages/Message01/Preference" ).toBool();
-
-            if( batchProcess )
-            {
-              importXMLToDatabase();
-            }
+            importXMLToDatabase();
           }
         }
         else
@@ -1050,41 +1016,16 @@ void GCMainWindow::importXMLToDatabase()
   }
   else
   {
-    bool remembered = m_settings->value( "Messages/Message06", false ).toBool();
-
-    if( !remembered )
+    bool accepted = GCMessageSpace::userAccepted( "QueryImportXMLFromFile",
+                                                  "No active document",
+                                                  "There is no document currently active, "
+                                                  "would you like to import the XML from file?",
+                                                  GCMessageDialog::YesNo,
+                                                  GCMessageDialog::Yes,
+                                                  GCMessageDialog::Question );
+    if( accepted )
     {
-      GCMessageDialog *dialog = new GCMessageDialog( "No active document",
-                                                     "There is no document currently active, "
-                                                     "would you like to import the XML from file?",
-                                                     GCMessageDialog::YesNo,
-                                                     GCMessageDialog::Yes,
-                                                     GCMessageDialog::Question );
-
-      connect( dialog, SIGNAL( rememberUserChoice( bool ) ), SLOT( rememberPreference( bool ) ) );
-
-      QDialog::DialogCode accept = static_cast< QDialog::DialogCode >( dialog->exec() );
-
-      if( accept )
-      {
-        savePreference( "Messages/Message06", true );
-        savePreference( "Messages/Message06/Preference", true );
-        openXMLFile();
-      }
-      else
-      {
-        savePreference( "Messages/Message06", true );
-        savePreference( "Messages/Message06/Preference", false );
-      }
-    }
-    else
-    {
-      bool openFile = m_settings->value( "Messages/Message06/Preference" ).toBool();
-
-      if( openFile )
-      {
-        openXMLFile();
-      }
+      openXMLFile();
     }
   }
 
@@ -1141,41 +1082,21 @@ void GCMainWindow::saveDirectEdit()
 
 void GCMainWindow::showNewElementForm()
 {
-  /* Check if there is a previously saved user preference for this action. */
-  bool remembered = m_settings->value( "Messages/Message04", false ).toBool();
+  /* Check if there is a previously saved user preference for this action. We
+    don't want to remember a \"Cancel\" option for this particular situation. */
+  bool accepted = GCMessageSpace::userAccepted( "WarnNewElementsAsFirstLevelChildren",
+                                                "Careful!",
+                                                "All the new elements you add will be added as first level "
+                                                "children of the element highlighted in the tree view (in "
+                                                "other words it will become a sibling to the elements currently "
+                                                "in the dropdown menu).\n\n"
+                                                "If this is not what you intended, I suggest you \"Cancel\".",
+                                                GCMessageDialog::OKCancel,
+                                                GCMessageDialog::OK,
+                                                GCMessageDialog::Warning,
+                                                false );
 
-  if( !remembered )
-  {
-    GCMessageDialog *dialog = new GCMessageDialog( "Careful!",
-                                                   "All the new elements you add will be added as first level "
-                                                   "children of the element highlighted in the tree view (in "
-                                                   "other words it will become a sibling to the elements currently "
-                                                   "in the dropdown menu).\n\n"
-                                                   "If this is not what you intended, I suggest you \"Cancel\".",
-                                                   GCMessageDialog::OKCancel,
-                                                   GCMessageDialog::OK,
-                                                   GCMessageDialog::Warning );
-
-    connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
-
-    QDialog::DialogCode accept = static_cast< QDialog::DialogCode >( dialog->exec() );
-
-    if( accept == QDialog::Accepted )
-    {
-      GCNewElementForm *form = new GCNewElementForm;
-      form->setWindowModality( Qt::ApplicationModal );
-      connect( form, SIGNAL( newElementDetails( QString,QStringList ) ), this, SLOT( addNewElement( QString,QStringList ) ) );
-      form->show();
-
-      savePreference( "Messages/Message04", true );
-    }
-    else
-    {
-      /* We don't want to remember a \"Cancel\" option for this particular situation. */
-      savePreference( "Messages/Message04", false );
-    }
-  }
-  else
+  if( accepted )
   {
     GCNewElementForm *form = new GCNewElementForm;
     form->setWindowModality( Qt::ApplicationModal );
@@ -1192,28 +1113,15 @@ void GCMainWindow::switchSuperUserMode( bool super )
 
   if( m_superUserMode )
   {
-    /* See if the user wants to see this message again. */
-    bool remembered = m_settings->value( "Messages/Message05", false ).toBool();
-
-    if( !remembered )
-    {
-      GCMessageDialog *dialog = new GCMessageDialog( "Super User Mode!",
-                                                     "Absolutely everything you do in this mode is persisted to the "
-                                                     "active profile and cannot be undone.\n\n"
-                                                     "In other words, if anything goes wrong, it's all your fault...",
-                                                     GCMessageDialog::OKOnly,
-                                                     GCMessageDialog::OK,
-                                                     GCMessageDialog::Warning );
-
-      connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
-
-      QDialog::DialogCode accept = static_cast< QDialog::DialogCode >( dialog->exec() );
-
-      if( accept == QDialog::Accepted )
-      {
-        savePreference( "Messages/Message05", true );
-      }
-    }
+    /* There is nothing to be acted upon for this particular message. */
+    GCMessageSpace::userAccepted( "SuperUserMode",
+                                  "Super User Mode!",
+                                  "Absolutely everything you do in this mode is persisted to the "
+                                  "active profile and cannot be undone.\n\n"
+                                  "In other words, if anything goes wrong, it's all your fault...",
+                                  GCMessageDialog::OKOnly,
+                                  GCMessageDialog::OK,
+                                  GCMessageDialog::Warning );
   }
 
   if( !GCDataBaseInterface::instance()->hasActiveSession() )
@@ -1295,28 +1203,9 @@ void GCMainWindow::dbSessionChanged()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::rememberPreference( bool remember )
-{
-  m_rememberPreference = remember;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 void GCMainWindow::forgetAllMessagePreferences()
 {
-  m_settings->beginGroup( "Messages" );
-  m_settings->remove( "" );
-  m_settings->endGroup();
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::savePreference( const QString &key, const QVariant &value )
-{
-  if( m_rememberPreference )
-  {
-    m_settings->setValue( key, value );
-  }
+  GCMessageSpace::forgetAllPreferences();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1351,49 +1240,35 @@ void GCMainWindow::showLargeFileWarnings( qint64 fileSize )
   if( fileSize > DOMWARNING &&
       fileSize < DOMLIMIT )
   {
-    bool remembered = m_settings->value( "Messages/Message07", false ).toBool();
-
-    if( !remembered )
-    {
-      GCMessageDialog *dialog = new GCMessageDialog( "Large file!",
-                                                     "The file you just opened is slightly on the large side of "
-                                                     "what we can handle comfortably (ideally you don't want to "
-                                                     "go for files that have more than ~7 500 lines).\n\n "
-                                                     "Feel free to try working on it, however, but "
-                                                     "be aware that response times may not be ideal.",
-                                                     GCMessageDialog::OKOnly,
-                                                     GCMessageDialog::OK,
-                                                     GCMessageDialog::Warning );
-
-      connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
-      dialog->exec();
-      savePreference( "Messages/Message07", true );
-    }
+    /* There is nothing to be acted upon for this particlar message. */
+    GCMessageSpace::userAccepted( "LargeFileWarning",
+                                  "Large file!",
+                                  "The file you just opened is slightly on the large side of "
+                                  "what we can handle comfortably (ideally you don't want to "
+                                  "go for files that have more than ~7 500 lines).\n\n "
+                                  "Feel free to try working on it, however, but "
+                                  "be aware that response times may not be ideal.",
+                                  GCMessageDialog::OKOnly,
+                                  GCMessageDialog::OK,
+                                  GCMessageDialog::Warning );
   }
   else if( fileSize > DOMLIMIT )
   {
     m_DOMTooLarge = true;
 
-    bool remembered = m_settings->value( "Messages/Message08", false ).toBool();
-
-    if( !remembered )
-    {
-      GCMessageDialog *dialog = new GCMessageDialog( "Very Large file!",
-                                                     "The file you just opened is too large for us "
-                                                     "to handle comfortably (ideally you don't want to "
-                                                     "go for files that have more than ~7 500 lines).\n\n "
-                                                     "Feel free to try working on it, however, but "
-                                                     "you definitely won't be able to see your changes "
-                                                     "in the text edit and depending on how large your file really "
-                                                     "is, things may also become impossibly slow.",
-                                                     GCMessageDialog::OKOnly,
-                                                     GCMessageDialog::OK,
-                                                     GCMessageDialog::Warning );
-
-      connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
-      dialog->exec();
-      savePreference( "Messages/Message08", true );
-    }
+    /* There is nothing to be acted upon for this particlar message. */
+    GCMessageSpace::userAccepted( "VeryLargeFileWarning",
+                                  "Very Large file!",
+                                  "The file you just opened is too large for us "
+                                  "to handle comfortably (ideally you don't want to "
+                                  "go for files that have more than ~7 500 lines).\n\n "
+                                  "Feel free to try working on it, however, but "
+                                  "you definitely won't be able to see your changes "
+                                  "in the text edit and depending on how large your file really "
+                                  "is, things may also become impossibly slow.",
+                                  GCMessageDialog::OKOnly,
+                                  GCMessageDialog::OK,
+                                  GCMessageDialog::Warning );
   }
 }
 

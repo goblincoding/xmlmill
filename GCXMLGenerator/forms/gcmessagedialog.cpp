@@ -32,9 +32,14 @@
 
 /*--------------------------------------------------------------------------------------*/
 
-GCMessageDialog::GCMessageDialog(const QString &title, const QString &text, ButtonCombo buttons, Buttons defaultButton, Icon icon, QWidget *parent ) :
-  QDialog( parent ),
-  ui     ( new Ui::GCMessageDialog )
+GCMessageDialog::GCMessageDialog( bool *remember,
+                                  const QString &heading,
+                                  const QString &text,
+                                  ButtonCombo buttons,
+                                  Buttons defaultButton,
+                                  Icon icon ) :
+  ui        ( new Ui::GCMessageDialog ),
+  m_remember( remember )
 {
   ui->setupUi(this);
   ui->plainTextEdit->setPlainText( text );
@@ -88,14 +93,14 @@ GCMessageDialog::GCMessageDialog(const QString &title, const QString &text, Butt
   connect( ui->rejectButton, SIGNAL( clicked() ),       this, SLOT( reject() ) );
   connect( ui->checkBox,     SIGNAL( toggled( bool ) ), this, SLOT( setRememberUserChoice( bool ) ) );
 
-  setAttribute( Qt::WA_DeleteOnClose );
-  setWindowTitle( title );
+  setWindowTitle( heading );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 GCMessageDialog::~GCMessageDialog()
 {
+  /* The variable m_remember points to is owned externally. */
   delete ui;
 }
 
@@ -103,7 +108,7 @@ GCMessageDialog::~GCMessageDialog()
 
 void GCMessageDialog::setRememberUserChoice( bool remember )
 {
-  emit rememberUserChoice( remember );
+  *m_remember = remember;
 }
 
 /*--------------------------------------------------------------------------------------*/
