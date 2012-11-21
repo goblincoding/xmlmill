@@ -1334,7 +1334,7 @@ void GCMainWindow::showLargeFileWarnings( qint64 fileSize )
                                                      "be aware that response times may not be ideal.",
                                                      GCMessageDialog::OKOnly,
                                                      GCMessageDialog::OK,
-                                                     GCMessageDialog::Information );
+                                                     GCMessageDialog::Warning );
 
       connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
       dialog->exec();
@@ -1359,7 +1359,7 @@ void GCMainWindow::showLargeFileWarnings( qint64 fileSize )
                                                      "is, things may also become impossibly slow.",
                                                      GCMessageDialog::OKOnly,
                                                      GCMessageDialog::OK,
-                                                     GCMessageDialog::Information );
+                                                     GCMessageDialog::Warning );
 
       connect( dialog, SIGNAL( rememberUserChoice( bool ) ), this, SLOT( rememberPreference( bool ) ) );
       dialog->exec();

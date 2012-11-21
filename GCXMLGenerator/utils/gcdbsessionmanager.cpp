@@ -10,8 +10,10 @@
 
 GCDBSessionManager::GCDBSessionManager( QWidget *parent ) :
   QObject       ( parent ),
+  m_settings    ( NULL ),
   m_parentWidget( parent )
 {
+  m_settings = new QSettings( "GoblinCoding", "XML Studio", this );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -236,7 +238,7 @@ void GCDBSessionManager::showKnownDBForm( GCKnownDBForm::Buttons buttons )
     start-up and the user wishes to exit the application by clicking "Cancel". */
   if( !GCDataBaseInterface::instance()->hasActiveSession() )
   {
-    connect( knownDBForm, SIGNAL( userCancelled() ), this, SLOT( close() ) );
+    connect( knownDBForm, SIGNAL( userCancelled() ), m_parentWidget, SLOT( close() ) );
     knownDBForm->show();
   }
   else

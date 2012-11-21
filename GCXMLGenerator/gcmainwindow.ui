@@ -870,7 +870,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
      <normaloff>:/resources/opendatabase.png</normaloff>:/resources/opendatabase.png</iconset>
    </property>
    <property name="text">
-    <string>Open &amp;Existing Profile</string>
+    <string>Add &amp;Existing Profile</string>
    </property>
    <property name="toolTip">
     <string>Add an existing database to the list of known databases.</string>
