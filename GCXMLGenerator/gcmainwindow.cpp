@@ -111,7 +111,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_superUserMode       ( false ),
   m_wasTreeItemActivated( false ),
   m_newElementWasAdded  ( false ),
-  m_rememberPreference  ( false ),
   m_busyImporting       ( false ),
   m_DOMTooLarge         ( false ),
   m_showDocContent      ( true ),

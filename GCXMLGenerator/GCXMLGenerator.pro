@@ -48,7 +48,6 @@ SOURCES += main.cpp\
     forms/gcknowndbform.cpp \
     utils/gccombobox.cpp \
     forms/gcmessagedialog.cpp \
-    utils/gchelp.cpp \
     utils/gcdbsessionmanager.cpp \
     utils/gcmessagespace.cpp
 
@@ -61,7 +60,6 @@ HEADERS  += \
     forms/gcknowndbform.h \
     utils/gccombobox.h \
     forms/gcmessagedialog.h \
-    utils/gchelp.h \
     utils/gcdbsessionmanager.h \
     utils/gcmessagespace.h
 

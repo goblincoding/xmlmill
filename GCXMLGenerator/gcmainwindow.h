@@ -167,7 +167,6 @@ private:
   bool                 m_superUserMode;
   bool                 m_wasTreeItemActivated;
   bool                 m_newElementWasAdded;
-  bool                 m_rememberPreference;
   bool                 m_busyImporting;
   bool                 m_DOMTooLarge;
   bool                 m_showDocContent;
