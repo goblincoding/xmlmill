@@ -89,24 +89,35 @@ QString cleanAndJoinListElements( QStringList list )
 
 /*--------------------------------- MEMBER FUNCTIONS ----------------------------------*/
 
-GCDataBaseInterface::GCDataBaseInterface( QObject *parent ) :
-  QObject           ( parent ),
-  m_sessionDB       (),
-  m_lastErrorMsg    ( "" ),
-  m_hasActiveSession( false ),
-  m_dbMap           ()
+GCDataBaseInterface* GCDataBaseInterface::m_instance = NULL;
+
+GCDataBaseInterface* GCDataBaseInterface::instance()
 {
+  if( !m_instance )
+  {
+    m_instance = new GCDataBaseInterface;
+  }
+
+  return m_instance;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::initialise()
+GCDataBaseInterface::GCDataBaseInterface() :
+  m_sessionDB       (),
+  m_lastErrorMsg    ( "" ),
+  m_hasActiveSession( false ),
+  m_initialised     ( false ),
+  m_dbMap           ()
 {
   QFile flatFile( DB_FILE );
 
   /* ReadWrite mode is required to create the file if it doesn't exist. */
   if( flatFile.open( QIODevice::ReadWrite | QIODevice::Text ) )
   {
+    m_lastErrorMsg = "";
+    m_initialised = true;
+
     QTextStream inStream( &flatFile );
     QString fileContent = inStream.readAll();
     flatFile.close();
@@ -119,16 +130,22 @@ bool GCDataBaseInterface::initialise()
       if( !addDatabase( str ) )
       {
         m_lastErrorMsg = QString( "Failed to load existing connection: \n %1" ).arg( str );
-        return false;
+        m_initialised = false;
       }
     }
-
-    m_lastErrorMsg = "";
-    return true;
   }
+  else
+  {
+    m_lastErrorMsg = QString( "Failed to access list of databases, file open error: [%1]." ).arg( flatFile.errorString() );
+    m_initialised = false;
+  }
+}
 
-  m_lastErrorMsg = QString( "Failed to access list of databases, file open error: [%1]." ).arg( flatFile.errorString() );
-  return false;
+/*--------------------------------------------------------------------------------------*/
+
+bool GCDataBaseInterface::initialised()
+{
+  return m_initialised;
 }
 
 /*--------------------------------------------------------------------------------------*/

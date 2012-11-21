@@ -69,7 +69,6 @@ QString getScrollAnchorText( const QDomElement &element )
 GCMainWindow::GCMainWindow( QWidget *parent ) :
   QMainWindow           ( parent ),
   ui                    ( new Ui::GCMainWindow ),
-  m_dbInterface         ( new GCDataBaseInterface( this ) ),
   m_signalMapper        ( new QSignalMapper( this ) ),
   m_domDoc              ( NULL ),
   m_settings            ( NULL ),
@@ -145,9 +144,9 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 
   /* Initialise the database interface and retrieve the list of database names (this will
     include the path references to the ".db" files). */
-  if( !m_dbInterface->initialise() )
+  if( !GCDataBaseInterface::instance()->initialised() )
   {
-    showErrorMessageBox( m_dbInterface->getLastError() );
+    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
     this->close();
   }
 
@@ -180,7 +179,7 @@ GCMainWindow::~GCMainWindow()
 
 void GCMainWindow::openXMLFile()
 {
-  if( !m_dbInterface->hasActiveSession() )
+  if( !GCDataBaseInterface::instance()->hasActiveSession() )
   {
     QString errMsg( "No active profile set, please set one for this session." );
     showErrorMessageBox( errMsg );
@@ -233,7 +232,7 @@ void GCMainWindow::openXMLFile()
     /* If the user is opening an XML file of a kind that isn't supported by the current active session,
       we need to warn him/her of this fact and provide them with a couple of options (depending on which
       privileges the current user mode has). */
-    if( !m_dbInterface->knownRootElements().contains( m_domDoc->documentElement().tagName() ) )
+    if( !GCDataBaseInterface::instance()->knownRootElements().contains( m_domDoc->documentElement().tagName() ) )
     {
       if( !m_superUserMode )
       {
@@ -252,7 +251,7 @@ void GCMainWindow::openXMLFile()
 
           showKnownDBForm( GCKnownDBForm::SelectAndExisting );
 
-        } while( !m_dbInterface->knownRootElements().contains( m_domDoc->documentElement().tagName() ) &&
+        } while( !GCDataBaseInterface::instance()->knownRootElements().contains( m_domDoc->documentElement().tagName() ) &&
                  !m_userCancelled );
 
         /* If the user selected a database that fits, process the DOM, otherwise reset everything. */
@@ -341,7 +340,7 @@ void GCMainWindow::newXMLFile()
   resetDOM();
 
   ui->addElementComboBox->clear();
-  ui->addElementComboBox->addItems( m_dbInterface->knownRootElements() );
+  ui->addElementComboBox->addItems( GCDataBaseInterface::instance()->knownRootElements() );
 
   toggleAddElementWidgets();
 
@@ -530,22 +529,22 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
         /* The name change may introduce a new element name to the DB, we can safely call
           "addElement" below as it doesn't do anything if the element already exists in the database. */
         bool success( false );
-        QStringList attributes = m_dbInterface->attributes( previousName, success );
+        QStringList attributes = GCDataBaseInterface::instance()->attributes( previousName, success );
 
-        m_dbInterface->addElement( elementName,
-                                   m_dbInterface->children( previousName, success ),
-                                   attributes );
+        GCDataBaseInterface::instance()->addElement( elementName,
+                                                     GCDataBaseInterface::instance()->children( previousName, success ),
+                                                     attributes );
 
         foreach( QString attribute, attributes )
         {
-          m_dbInterface->updateAttributeValues( elementName,
-                                                attribute,
-                                                m_dbInterface->attributeValues( previousName, attribute, success ) );
+          GCDataBaseInterface::instance()->updateAttributeValues( elementName,
+                                                                  attribute,
+                                                                  GCDataBaseInterface::instance()->attributeValues( previousName, attribute, success ) );
         }
 
         if( !success )
         {
-          showErrorMessageBox( m_dbInterface->getLastError() );
+          showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
         }
 
         setTextEditXML( m_treeItemNodes.value( item ).toElement() );
@@ -573,12 +572,12 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     values for these attributes) and populate our table widget. */
   bool success( false );
   QDomElement element = m_treeItemNodes.value( item );
-  QStringList attributeNames = m_dbInterface->attributes( element.tagName(), success );
+  QStringList attributeNames = GCDataBaseInterface::instance()->attributes( element.tagName(), success );
 
   /* This is more for debugging than for end-user functionality. */
   if( !success )
   {
-    showErrorMessageBox( m_dbInterface->getLastError() );
+    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
   }
 
   /* Add all the known attribute names in the cells in the first column
@@ -602,14 +601,14 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     ui->tableWidget->setItem( i, 0, label );
 
     GCComboBox *attributeCombo = new GCComboBox;
-    attributeCombo->addItems( m_dbInterface->attributeValues( element.tagName(), attributeNames.at( i ), success ) );
+    attributeCombo->addItems( GCDataBaseInterface::instance()->attributeValues( element.tagName(), attributeNames.at( i ), success ) );
     attributeCombo->insertItem( 0, EMPTY );
     attributeCombo->setEditable( true );
 
     /* This is more for debugging than for end-user functionality. */
     if( !success )
     {
-      showErrorMessageBox( m_dbInterface->getLastError() );
+      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
     }
 
     /* If we are still in the process of building the document, the attribute value will
@@ -671,13 +670,13 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
   /* Populate the "add element" combo box with the known first level children of the
     highlighted element. */
   ui->addElementComboBox->clear();
-  ui->addElementComboBox->addItems( m_dbInterface->children( element.tagName(), success ) );
+  ui->addElementComboBox->addItems( GCDataBaseInterface::instance()->children( element.tagName(), success ) );
   toggleAddElementWidgets();
 
   /* This is more for debugging than for end-user functionality. */
   if( !success )
   {
-    showErrorMessageBox( m_dbInterface->getLastError() );
+    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
   }
 
   ui->dockWidgetTextEdit->moveCursor( QTextCursor::Start );
@@ -715,9 +714,9 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
     QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
     QDomElement currentElement = m_treeItemNodes.value( currentItem );
 
-    if( !m_dbInterface->updateElementAttributes( currentElement.tagName(), QStringList( item->text() ) ) )
+    if( !GCDataBaseInterface::instance()->updateElementAttributes( currentElement.tagName(), QStringList( item->text() ) ) )
     {
-      showErrorMessageBox( m_dbInterface->getLastError() );
+      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
     }
     else
     {
@@ -748,16 +747,14 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
         }
 
         bool success;
-        QStringList attributeValues = m_dbInterface->attributeValues( currentElement.tagName(),
-                                                                      m_activeAttributeName,
-                                                                      success );
+        QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( currentElement.tagName(),
+                                                                                        m_activeAttributeName,
+                                                                                        success );
 
-        if( !m_dbInterface->updateAttributeValues( currentElement.tagName(),
-                                                   item->text(),
-                                                   attributeValues ) ||
+        if( !GCDataBaseInterface::instance()->updateAttributeValues( currentElement.tagName(), item->text(), attributeValues ) ||
             !success)
         {
-          showErrorMessageBox( m_dbInterface->getLastError() );
+          showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
         }
       }
 
@@ -804,23 +801,23 @@ void GCMainWindow::attributeValueChanged( const QString &value )
 
       /* If we don't know about this value, we need to add it to the DB. */
       bool success( false );
-      QStringList attributeValues = m_dbInterface->attributeValues( currentElement.tagName(), currentAttributeName, success );
+      QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( currentElement.tagName(), currentAttributeName, success );
 
       if( success )
       {
         if( !attributeValues.contains( value ) )
         {
-          if( !m_dbInterface->updateAttributeValues( currentElement.tagName(),
-                                                     currentAttributeName,
-                                                     QStringList( value ) ) )
+          if( !GCDataBaseInterface::instance()->updateAttributeValues( currentElement.tagName(),
+                                                                       currentAttributeName,
+                                                                       QStringList( value ) ) )
           {
-            showErrorMessageBox( m_dbInterface->getLastError() );
+            showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
           }
         }
       }
       else
       {
-        showErrorMessageBox( m_dbInterface->getLastError() );
+        showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
       }
     }
 
@@ -907,7 +904,7 @@ void GCMainWindow::addChildElementToDOM()
         the new element name must be added as a child of the current element. */
       if( m_newElementWasAdded )
       {
-        m_dbInterface->updateElementChildren( currentItem->text( 0 ), QStringList( newElementName ) );
+        GCDataBaseInterface::instance()->updateElementChildren( currentItem->text( 0 ), QStringList( newElementName ) );
       }
     }
     else
@@ -926,7 +923,7 @@ void GCMainWindow::addChildElementToDOM()
         the new element name will be a new root element. */
       if( m_newElementWasAdded )
       {
-        m_dbInterface->addRootElement( newElementName );
+        GCDataBaseInterface::instance()->addRootElement( newElementName );
       }
     }
 
@@ -935,7 +932,7 @@ void GCMainWindow::addChildElementToDOM()
 
     /* Add the known attributes associated with this element. */
     bool success( false );
-    QStringList attributes = m_dbInterface->attributes( newElementName, success );
+    QStringList attributes = GCDataBaseInterface::instance()->attributes( newElementName, success );
 
     if( success )
     {
@@ -946,7 +943,7 @@ void GCMainWindow::addChildElementToDOM()
     }
     else
     {
-      showErrorMessageBox( m_dbInterface->getLastError() );
+      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
     }
 
     setTextEditXML( newElement );
@@ -976,7 +973,7 @@ void GCMainWindow::addNewElement( const QString &element, const QStringList &att
   if( !element.isEmpty() )
   {
     /* Add the new element and associated attributes to the database. */
-    m_dbInterface->addElement( element, QStringList(), attributes );
+    GCDataBaseInterface::instance()->addElement( element, QStringList(), attributes );
 
     /* The new element is added as a first level child of the current element (represented
       by the highlighted item in the tree view) so now we can update the DOM doc as well. */
@@ -1019,9 +1016,9 @@ void GCMainWindow::addExistingDB()
 
 void GCMainWindow::addDBConnection( const QString &dbName )
 {
-  if( !m_dbInterface->addDatabase( dbName ) )
+  if( !GCDataBaseInterface::instance()->addDatabase( dbName ) )
   {
-    showErrorMessageBox( m_dbInterface->getLastError() );
+    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
     return;
   }
 
@@ -1052,7 +1049,7 @@ void GCMainWindow::addDBConnection( const QString &dbName )
       saveSetting( "Messages/Message02", true );
       saveSetting( "Messages/Message02/Preference", false );
 
-      if( !m_dbInterface->hasActiveSession() )
+      if( !GCDataBaseInterface::instance()->hasActiveSession() )
       {
         showKnownDBForm( GCKnownDBForm::ShowAll );
       }
@@ -1068,7 +1065,7 @@ void GCMainWindow::addDBConnection( const QString &dbName )
     }
     else
     {
-      if( !m_dbInterface->hasActiveSession() )
+      if( !GCDataBaseInterface::instance()->hasActiveSession() )
       {
         showKnownDBForm( GCKnownDBForm::ShowAll );
       }
@@ -1080,10 +1077,10 @@ void GCMainWindow::addDBConnection( const QString &dbName )
 
 void GCMainWindow::setSessionDB( const QString &dbName )
 {
-  if( !m_dbInterface->setSessionDB( dbName ) )
+  if( !GCDataBaseInterface::instance()->setSessionDB( dbName ) )
   {
     QString error = QString( "Failed to set session \"%1\" as active - [%2]" ).arg( dbName )
-                    .arg( m_dbInterface->getLastError() );
+                    .arg( GCDataBaseInterface::instance()->getLastError() );
     showErrorMessageBox( error );
   }
   else
@@ -1091,7 +1088,7 @@ void GCMainWindow::setSessionDB( const QString &dbName )
     /* If the user set an empty database, prompt to populate it.  This message must
       always be shown (i.e. we don't have to show the custom dialog box that provides
       the \"Don't show this again\" option). */
-    if( m_dbInterface->knownElements().size() < 1 )
+    if( GCDataBaseInterface::instance()->knownElements().size() < 1 )
     {
       QMessageBox::warning( this,
                             "Empty Profile",
@@ -1106,7 +1103,7 @@ void GCMainWindow::setSessionDB( const QString &dbName )
     if( m_domDoc->documentElement().isNull() )
     {
       ui->addElementComboBox->clear();
-      ui->addElementComboBox->addItems( m_dbInterface->knownRootElements() );
+      ui->addElementComboBox->addItems( GCDataBaseInterface::instance()->knownRootElements() );
       toggleAddElementWidgets();
     }
   }
@@ -1124,16 +1121,16 @@ void GCMainWindow::removeDB()
 
 void GCMainWindow::removeDBConnection( const QString &dbName )
 {
-  if( !m_dbInterface->removeDatabase( dbName ) )
+  if( !GCDataBaseInterface::instance()->removeDatabase( dbName ) )
   {
     QString error = QString( "Failed to remove profile \"%1\": [%2]" ).arg( dbName )
-                    .arg( m_dbInterface->getLastError() );
+                    .arg( GCDataBaseInterface::instance()->getLastError() );
     showErrorMessageBox( error );
   }
 
   /* If the user removed the active DB for this session, we need to know
     what he/she intends to replace it with. */
-  if( !m_dbInterface->hasActiveSession() )
+  if( !GCDataBaseInterface::instance()->hasActiveSession() )
   {
     QString errMsg( "The active profile has been removed, please set another as active." );
     showErrorMessageBox( errMsg );
@@ -1210,9 +1207,9 @@ void GCMainWindow::importXMLToDatabase()
   if (!m_domDoc->documentElement().isNull() )
   {
     /* Update the DB in one go. */
-    if( !m_dbInterface->batchProcessDOMDocument( m_domDoc ) )
+    if( !GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc ) )
     {
-      showErrorMessageBox( m_dbInterface->getLastError() );
+      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
     }
     else
     {
@@ -1359,7 +1356,7 @@ void GCMainWindow::showNewElementForm()
 
 void GCMainWindow::showKnownDBForm( GCKnownDBForm::Buttons buttons )
 {
-  GCKnownDBForm *knownDBForm = new GCKnownDBForm( m_dbInterface->getDBList(), buttons, this );
+  GCKnownDBForm *knownDBForm = new GCKnownDBForm( GCDataBaseInterface::instance()->getDBList(), buttons, this );
 
   connect( knownDBForm,   SIGNAL( newConnection() ),       this, SLOT( addNewDB() ) );
   connect( knownDBForm,   SIGNAL( existingConnection() ),  this, SLOT( addExistingDB() ) );
@@ -1368,7 +1365,7 @@ void GCMainWindow::showKnownDBForm( GCKnownDBForm::Buttons buttons )
 
   /* If we don't have an active DB session, it's probably at program
     start-up and the user wishes to exit the application by clicking "Cancel". */
-  if( !m_dbInterface->hasActiveSession() )
+  if( !GCDataBaseInterface::instance()->hasActiveSession() )
   {
     connect( knownDBForm, SIGNAL( userCancelled() ), this, SLOT( close() ) );
     knownDBForm->show();
@@ -1419,7 +1416,7 @@ void GCMainWindow::switchSuperUserMode( bool super )
     }
   }
 
-  if( !m_dbInterface->hasActiveSession() )
+  if( !GCDataBaseInterface::instance()->hasActiveSession() )
   {
     showKnownDBForm( GCKnownDBForm::SelectAndExisting );
   }

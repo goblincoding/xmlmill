@@ -19,7 +19,6 @@ namespace Ui {
   class GCMainWindow;
 }
 
-class GCDataBaseInterface;
 class QSignalMapper;
 class QTreeWidgetItem;
 class QTableWidgetItem;
@@ -108,7 +107,6 @@ private:
   void resetDOM();
 
   Ui::GCMainWindow    *ui;
-  GCDataBaseInterface *m_dbInterface;
   QSignalMapper       *m_signalMapper;
   QDomDocument        *m_domDoc;
   QSettings           *m_settings;

@@ -40,11 +40,12 @@ class GCDataBaseInterface : public QObject
 {
   Q_OBJECT
 public:
-  explicit GCDataBaseInterface( QObject *parent = 0 );
+  /* Singleton. */
+  static GCDataBaseInterface* instance();
 
-  /* Read in the list of known DB connections and add them to the SQLite driver.  This
-    function must be called shortly after an instance of this object is created. */
-  bool initialise();
+  /* Call this function before using this interface for the first time to ensure that
+    the database was initialised successfully. */
+  bool initialised();
 
   /* Processes an entire DOM document, adding new or updating existing elements (with their
     corresponding first level children and associated attributes) and known attribute values. */
@@ -110,6 +111,9 @@ public slots:
   bool setSessionDB  ( const QString &dbName );
 
 private:
+  static GCDataBaseInterface *m_instance;
+  GCDataBaseInterface();
+
   QStringList knownAttributeKeys() const;
   QSqlQuery selectElement  ( const QString &element, bool &success ) const;
   QSqlQuery selectAttribute( const QString &attribute, const QString &associatedElement, bool &success ) const;
@@ -126,6 +130,7 @@ private:
   QSqlDatabase    m_sessionDB;
   mutable QString m_lastErrorMsg;
   bool            m_hasActiveSession;
+  bool            m_initialised;
   QMap< QString /*connection name*/, QString /*file name*/ > m_dbMap;
 };
 
