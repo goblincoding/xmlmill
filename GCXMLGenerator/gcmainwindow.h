@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include <QHash>
-#include "forms/gcknowndbform.h"
 
 /*--------------------------------------------------------------------------------------*/
 /*
@@ -19,6 +18,7 @@ namespace Ui {
   class GCMainWindow;
 }
 
+class GCDBSessionManager;
 class QSignalMapper;
 class QTreeWidgetItem;
 class QTableWidgetItem;
@@ -50,6 +50,7 @@ private slots:
   void toggleShowDocContent      ( bool show );
 
   void userCancelledKnownDBForm();
+  void dbSessionChanged();
 
   /* XML file related. */
   void newXMLFile();
@@ -58,18 +59,11 @@ private slots:
   void saveXMLFileAs();
 
   /* Database related. */
-  void addNewDB();      // calls addDBConnection
-  void addExistingDB(); // calls addDBConnection
-
-  void switchDBSession();                     // shows known DB form
-  void setSessionDB( const QString &dbName ); // receives signal from DB form
-
-  void removeDB();                                  // shows known DB form
-  void removeDBConnection( const QString &dbName ); // receives signal from DB form
-
+  void switchDBSession();
   void importXMLToDatabase();
 
   /* DOM and DB. */
+  void resetDOM();
   void showNewElementForm();
 
   void deleteElementFromDOM();
@@ -89,13 +83,11 @@ private slots:
     from "GCMessageDialog". */
   void rememberPreference( bool remember );
   void forgetAllMessagePreferences();
+  void saveSetting( const QString &key, const QVariant &value );
   
 private:
-  void addDBConnection    ( const QString &dbName );
   void showErrorMessageBox( const QString &errorMsg );
-  void showKnownDBForm    ( GCKnownDBForm::Buttons buttons );
 
-  void saveSetting( const QString &key, const QVariant &value );
   void setTextEditXML( const QDomElement &element );
   void showLargeFileWarnings( qint64 fileSize );
   void resetTableWidget();
@@ -104,9 +96,9 @@ private:
 
   void processDOMDoc();
   void populateTreeWidget( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
-  void resetDOM();
 
   Ui::GCMainWindow    *ui;
+  GCDBSessionManager  *m_dbSessionManager;
   QSignalMapper       *m_signalMapper;
   QDomDocument        *m_domDoc;
   QSettings           *m_settings;
