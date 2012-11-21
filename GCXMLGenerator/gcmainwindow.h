@@ -43,7 +43,8 @@
 
 /*--------------------------------------------------------------------------------------*/
 
-namespace Ui {
+namespace Ui
+{
   class GCMainWindow;
 }
 
@@ -94,6 +95,12 @@ private slots:
     reflect the new attribute name instead of the one that's been replaced. */
   void attributeNameChanged( QTableWidgetItem *item );
 
+  /* Called whenever the user enters or otherwise activates a combo box.  The active
+    combo box is used to determine the row of the associated attribute (in the table
+    widget), which in turn is required in order to determine which attribute must be
+    updated when an attribute value changes. */
+  void setCurrentComboBox( QWidget *combo );
+
   /* Triggered whenever the current value of a combo box changes or when the user edits
     the content of a combo box.  In the first scenario, the DOM will be updated to reflect
     the new value for the specific element and associated attribute, in the latter case,
@@ -101,59 +108,50 @@ private slots:
     the current element and associated attribute if it was previously unknown. */
   void attributeValueChanged( const QString &value );
 
-  /* Called whenever the user enters or otherwise activates a combo box. */
-  void setCurrentComboBox( QWidget *combo );
-
-  /* These do exactly what you would expect. */
-  void collapseOrExpandTreeWidget( bool checked );
-  void switchSuperUserMode       ( bool super );
-  void toggleShowDocContent      ( bool show );
-
-  /* These slots are called by the corresponding signals from GCDBSessionManager. */
-  void userCancelledKnownDBForm();
-  void dbSessionChanged();
-
   /* XML file related. */
   void newXMLFile();
   void openXMLFile();
   void saveXMLFile();
   void saveXMLFileAs();
 
-  /* Database related. */
+  /* DOM and DB. */
   void switchDBSession();
   void importXMLToDatabase();
 
-  /* DOM and DB. */
-  void resetDOM();
-  void showNewElementForm();
-
   void deleteElementFromDOM();
   void addChildElementToDOM();
+  void resetDOM();
 
   void deleteElementFromDB();
   void deleteAttributeValuesFromDB();
+
+  /* Receives new element information from "GCElementForm". */
+  void addNewElement( const QString &element, const QStringList &attributes );
+  void showNewElementForm();
 
   /* Direct DOM edit. */
   void revertDirectEdit();
   void saveDirectEdit();
 
-  /* Receives new element information from "GCElementForm". */
-  void addNewElement( const QString &element, const QStringList &attributes );
-
-  /* Resets all user preferences to the initial default (to show all prompts). */
+  /* These do exactly what you would expect. */
+  void collapseOrExpandTreeWidget( bool checked );
+  void switchSuperUserMode       ( bool super );
+  void toggleShowDocContent      ( bool show );
   void forgetAllMessagePreferences();
+  void userCancelledKnownDBForm();
+  void dbSessionChanged();
   
 private:
+  void processDOMDoc();
+  void populateTreeWidget   ( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
+
   void showErrorMessageBox  ( const QString &errorMsg );
+  void setTextEditXML       ( const QDomElement &element );
   void showLargeFileWarnings( qint64 fileSize );
-  void setTextEditXML( const QDomElement &element );
 
   void resetTableWidget();
   void startSaveTimer();
   void toggleAddElementWidgets();
-
-  void processDOMDoc();
-  void populateTreeWidget( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
 
   Ui::GCMainWindow    *ui;
   GCDBSessionManager  *m_dbSessionManager;

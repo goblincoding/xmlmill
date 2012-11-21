@@ -206,299 +206,10 @@ GCMainWindow::~GCMainWindow()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::openXMLFile()
-{
-  if( !GCDataBaseInterface::instance()->hasActiveSession() )
-  {
-    QString errMsg( "No active profile set, please set one for this session." );
-    showErrorMessageBox( errMsg );
-    m_dbSessionManager->showKnownDBForm( GCKnownDBForm::ShowAll );
-    return;
-  }
-
-  QString fileName = QFileDialog::getOpenFileName( this, "Open File", QDir::homePath(), "XML Files (*.*)" );
-
-  /* If the user clicked "OK", continue (a cancellation will result in an empty file name). */
-  if( !fileName.isEmpty() )
-  {
-    m_currentXMLFileName = fileName;
-    QFile file( m_currentXMLFileName );
-
-    if( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
-    {
-      QString errorMsg = QString( "Failed to open file \"%1\": [%2]" )
-          .arg( fileName )
-          .arg( file.errorString() );
-      showErrorMessageBox( errorMsg );
-      return;
-    }
-
-    /* Reset the DOM only after we've successfully opened the file. */
-    resetDOM();
-
-    QTextStream inStream( &file );
-    QString fileContent( inStream.readAll() );
-    qint64 fileSize = file.size();
-    file.close();
-
-    showLargeFileWarnings( fileSize );
-
-    QString xmlErr( "" );
-    int     line  ( -1 );
-    int     col   ( -1 );
-
-    if( !m_domDoc->setContent( fileContent, &xmlErr, &line, &col ) )
-    {
-      QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3]" )
-          .arg( xmlErr )
-          .arg( line )
-          .arg( col );
-      showErrorMessageBox( errorMsg );
-      resetDOM();
-      return;
-    }
-
-    /* If the user is opening an XML file of a kind that isn't supported by the current active session,
-      we need to warn him/her of this fact and provide them with a couple of options (depending on which
-      privileges the current user mode has). */
-    if( !GCDataBaseInterface::instance()->knownRootElements().contains( m_domDoc->documentElement().tagName() ) )
-    {
-      if( !m_superUserMode )
-      {
-        do
-        {
-          /* This message must always be shown (i.e. we don't have to show the custom
-          dialog box that provides the \"Don't show this again\" option). */
-          QMessageBox::warning( this,
-                                "Unknown XML Style",
-                                "The current active profile has no knowledge of the\n"
-                                "specific XML style (the elements, attributes, attribute values and\n"
-                                "all the associations between them) of the document you are trying to open.\n\n"
-                                "You can either:\n\n"
-                                "1. Select an existing profile that describes this type of XML, or\n"
-                                "2. Switch to \"Super User\" mode and open the file again to import it to the profile." );
-
-          m_dbSessionManager->showKnownDBForm( GCKnownDBForm::SelectAndExisting );
-
-        } while( !GCDataBaseInterface::instance()->knownRootElements().contains( m_domDoc->documentElement().tagName() ) &&
-                 !m_userCancelled );
-
-        /* If the user selected a database that fits, process the DOM, otherwise reset everything. */
-        if( !m_userCancelled )
-        {
-          processDOMDoc();
-        }
-        else
-        {
-          resetDOM();
-        }
-
-        m_userCancelled = false;
-      }
-      else
-      {
-        /* If we're not already busy importing an XML file, check if the
-        user maybe wants to do so. */
-        if( !m_busyImporting )
-        {
-          bool accepted = GCMessageSpace::userAccepted( "QueryImportXML",
-                                                        "Import XML?",
-                                                        "Would you like to import the XML document to the active profile?",
-                                                        GCMessageDialog::YesNo,
-                                                        GCMessageDialog::No,
-                                                        GCMessageDialog::Question );
-
-          if( accepted )
-          {
-            importXMLToDatabase();
-          }
-        }
-        else
-        {
-          /* If we're already busy importing, it means the user explicitly requested
-          an XML import, didn't have a current document active and confirmed that he/she
-          wanted to open an XML file to import.  Furthermore, there is no risk of an
-          endless loop since the DOM document will have been populated by the time we
-          get to this point, which will ensure that only the first part of the following
-          function's logic will be executed..."openXMLFile" won't be called again. */
-          importXMLToDatabase();
-        }
-      }
-    }
-    else
-    {
-      /* If the user selected a database that knows of this particular XML profile,
-        simply process the document. */
-      processDOMDoc();
-    }
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::newXMLFile()
-{
-  resetDOM();
-
-  ui->addElementComboBox->clear();
-  ui->addElementComboBox->addItems( GCDataBaseInterface::instance()->knownRootElements() );
-
-  toggleAddElementWidgets();
-
-  ui->actionSave->setEnabled( true );
-  ui->actionSaveAs->setEnabled( true );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::saveXMLFile()
-{
-  if( m_currentXMLFileName.isEmpty() )
-  {
-    saveXMLFileAs();
-  }
-  else
-  {
-    QFile file( m_currentXMLFileName );
-
-    if( !file.open( QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text ) )
-    {
-      QString errMsg = QString( "Failed to save file \"%1\": [%2]." )
-          .arg( m_currentXMLFileName )
-          .arg( file.errorString() );
-      showErrorMessageBox( errMsg );
-    }
-    else
-    {
-      QTextStream outStream( &file );
-      outStream << m_domDoc->toString( 2 );
-      file.close();
-
-      startSaveTimer();
-    }
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::saveXMLFileAs()
-{
-  QString file = QFileDialog::getSaveFileName( this, "Save As", QDir::homePath(), "XML Files (*.*)" );
-
-  /* If the user clicked "OK". */
-  if( !file.isEmpty() )
-  {
-    startSaveTimer();
-    m_currentXMLFileName = file;
-    saveXMLFile();
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::startSaveTimer()
-{
-  /* Automatically save the file at five minute intervals. */
-  if( !m_saveTimer )
-  {
-    m_saveTimer = new QTimer( this );
-    connect( m_saveTimer, SIGNAL( timeout() ), this, SLOT( saveXMLFile() ) );
-    m_saveTimer->start( 300000 );
-  }
-  else
-  {
-    /* If the timer was stopped due to a DOM reset, start it again. */
-    m_saveTimer->start( 300000 );
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::resetDOM()
-{
-  m_currentXMLFileName = "";
-  m_domDoc->clear();  
-  m_treeItemNodes.clear();
-  ui->treeWidget->clear();
-  ui->dockWidgetTextEdit->clear();
-  resetTableWidget();  
-
-  /* The timer will be reactivated as soon as work starts again on a legitimate
-    document and the user saves it for the first time. */
-  if( m_saveTimer )
-  {
-    m_saveTimer->stop();
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::processDOMDoc()
-{
-  ui->treeWidget->clear(); // also deletes current items
-  m_treeItemNodes.clear();
-  resetTableWidget();
-
-  QDomElement root = m_domDoc->documentElement();
-
-  /* We want to show the document's root element in the tree widget as well. */
-  QTreeWidgetItem *item = new QTreeWidgetItem;
-  item->setText( 0, root.tagName() );
-
-  if( m_superUserMode )
-  {
-    item->setFlags( item->flags() | Qt::ItemIsEditable );
-  }
-
-  ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
-  m_treeItemNodes.insert( item, root );
-
-  /* Now we can recursively stick the rest of the elements into the tree widget. */
-  populateTreeWidget( root, item );
-
-  /* Enable file save options. */
-  ui->actionSave->setEnabled( true );
-  ui->actionSaveAs->setEnabled( true );
-
-  /* Display the DOM content in the text edit. */
-  setTextEditXML( QDomElement() );
-
-  ui->treeWidget->setCurrentItem( item, 0 );
-  treeWidgetItemActivated( item, 0 );
-
-  collapseOrExpandTreeWidget( ui->expandAllCheckBox->isChecked() );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWidgetItem *parentItem )
-{
-  QDomElement element = parentElement.firstChildElement();
-
-  while( !element.isNull() )
-  {
-    QTreeWidgetItem *item = new QTreeWidgetItem();
-    item->setText( 0, element.tagName() );
-
-    if( m_superUserMode )
-    {
-      item->setFlags( item->flags() | Qt::ItemIsEditable );
-    }
-
-    parentItem->addChild( item );  // takes ownership
-    m_treeItemNodes.insert( item, element );
-
-    populateTreeWidget( element, item );
-    element = element.nextSiblingElement();
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
+/* This slot will only be called in Super User mode so we can safely keep the functionality
+  as it is (i.e. updating the database alongside the DOM) without any other explicit checks. */
 void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
 {
-  /* This slot will only be called in Super User mode so we can safely keep the functionality
-    as it is (i.e. updating the database alongside the DOM) without any other explicit checks. */
   if( m_treeItemNodes.contains( item ) )
   {
     QString elementName  = item->text( column );
@@ -652,7 +363,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     ui->tableWidget->setItem( lastRow, 0, label );
 
     /* Create the combo box, but deactivate it until we have an associated attribute name. */
-    GCComboBox *attributeCombo = new GCComboBox;    
+    GCComboBox *attributeCombo = new GCComboBox;
     attributeCombo->insertItem( 0, EMPTY );
     attributeCombo->setEnabled( false );
 
@@ -685,13 +396,6 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
 
   /* Unset flag. */
   m_wasTreeItemActivated = false;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::setCurrentComboBox( QWidget *combo )
-{
-  m_currentCombo = combo;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -733,7 +437,7 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
           currentElement.setAttribute( item->text(), attributeValueCombo->currentText() );
         }
         else
-        {          
+        {
           currentElement.setAttribute( item->text(), "" );
 
           /* If the attribute value was empty, we might have just started
@@ -769,10 +473,17 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
         by clicking on the table widget only). */
       if( m_activeAttributeName == EMPTY )
       {
-        treeWidgetItemActivated( ui->treeWidget->currentItem(), 0 );        
+        treeWidgetItemActivated( ui->treeWidget->currentItem(), 0 );
       }
     }
   }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::setCurrentComboBox( QWidget *combo )
+{
+  m_currentCombo = combo;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -828,19 +539,236 @@ void GCMainWindow::attributeValueChanged( const QString &value )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::resetTableWidget()
+void GCMainWindow::newXMLFile()
 {
-  /* Remove the currently visible/live combo boxes from the signal mapper's
-    mappings and the combo box map before we whack them all. */
-  for( int i = 0; i < m_comboBoxes.keys().size(); ++i )
+  resetDOM();
+
+  ui->addElementComboBox->clear();
+  ui->addElementComboBox->addItems( GCDataBaseInterface::instance()->knownRootElements() );
+
+  toggleAddElementWidgets();
+
+  ui->actionSave->setEnabled( true );
+  ui->actionSaveAs->setEnabled( true );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::openXMLFile()
+{
+  if( !GCDataBaseInterface::instance()->hasActiveSession() )
   {
-    m_signalMapper->removeMappings( m_comboBoxes.keys().at( i ) );
+    QString errMsg( "No active profile set, please set one for this session." );
+    showErrorMessageBox( errMsg );
+    m_dbSessionManager->showKnownDBForm( GCKnownDBForm::ShowAll );
+    return;
   }
 
-  m_comboBoxes.clear();
+  QString fileName = QFileDialog::getOpenFileName( this, "Open File", QDir::homePath(), "XML Files (*.*)" );
 
-  ui->tableWidget->clearContents();   // also deletes current items
-  ui->tableWidget->setRowCount( 0 );
+  /* If the user clicked "OK", continue (a cancellation will result in an empty file name). */
+  if( !fileName.isEmpty() )
+  {
+    m_currentXMLFileName = fileName;
+    QFile file( m_currentXMLFileName );
+
+    if( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
+    {
+      QString errorMsg = QString( "Failed to open file \"%1\": [%2]" )
+          .arg( fileName )
+          .arg( file.errorString() );
+      showErrorMessageBox( errorMsg );
+      return;
+    }
+
+    /* Reset the DOM only after we've successfully opened the file. */
+    resetDOM();
+
+    QTextStream inStream( &file );
+    QString fileContent( inStream.readAll() );
+    qint64 fileSize = file.size();
+    file.close();
+
+    showLargeFileWarnings( fileSize );
+
+    QString xmlErr( "" );
+    int     line  ( -1 );
+    int     col   ( -1 );
+
+    if( !m_domDoc->setContent( fileContent, &xmlErr, &line, &col ) )
+    {
+      QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3]" )
+          .arg( xmlErr )
+          .arg( line )
+          .arg( col );
+      showErrorMessageBox( errorMsg );
+      resetDOM();
+      return;
+    }
+
+    /* If the user is opening an XML file of a kind that isn't supported by the current active session,
+      we need to warn him/her of this fact and provide them with a couple of options (depending on which
+      privileges the current user mode has). */
+    if( !GCDataBaseInterface::instance()->knownRootElements().contains( m_domDoc->documentElement().tagName() ) )
+    {
+      if( !m_superUserMode )
+      {
+        do
+        {
+          /* This message must always be shown (i.e. we don't have to show the custom
+          dialog box that provides the \"Don't show this again\" option). */
+          QMessageBox::warning( this,
+                                "Unknown XML Style",
+                                "The current active profile has no knowledge of the\n"
+                                "specific XML style (the elements, attributes, attribute values and\n"
+                                "all the associations between them) of the document you are trying to open.\n\n"
+                                "You can either:\n\n"
+                                "1. Select an existing profile that describes this type of XML, or\n"
+                                "2. Switch to \"Super User\" mode and open the file again to import it to the profile." );
+
+          m_dbSessionManager->showKnownDBForm( GCKnownDBForm::SelectAndExisting );
+
+        } while( !GCDataBaseInterface::instance()->knownRootElements().contains( m_domDoc->documentElement().tagName() ) &&
+                 !m_userCancelled );
+
+        /* If the user selected a database that fits, process the DOM, otherwise reset everything. */
+        if( !m_userCancelled )
+        {
+          processDOMDoc();
+        }
+        else
+        {
+          resetDOM();
+        }
+
+        m_userCancelled = false;
+      }
+      else
+      {
+        /* If we're not already busy importing an XML file, check if the
+        user maybe wants to do so. */
+        if( !m_busyImporting )
+        {
+          bool accepted = GCMessageSpace::userAccepted( "QueryImportXML",
+                                                        "Import XML?",
+                                                        "Would you like to import the XML document to the active profile?",
+                                                        GCMessageDialog::YesNo,
+                                                        GCMessageDialog::No,
+                                                        GCMessageDialog::Question );
+
+          if( accepted )
+          {
+            importXMLToDatabase();
+          }
+        }
+        else
+        {
+          /* If we're already busy importing, it means the user explicitly requested
+          an XML import, didn't have a current document active and confirmed that he/she
+          wanted to open an XML file to import.  Furthermore, there is no risk of an
+          endless loop since the DOM document will have been populated by the time we
+          get to this point, which will ensure that only the first part of the following
+          function's logic will be executed..."openXMLFile" won't be called again. */
+          importXMLToDatabase();
+        }
+      }
+    }
+    else
+    {
+      /* If the user selected a database that knows of this particular XML profile,
+        simply process the document. */
+      processDOMDoc();
+    }
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::saveXMLFile()
+{
+  if( m_currentXMLFileName.isEmpty() )
+  {
+    saveXMLFileAs();
+  }
+  else
+  {
+    QFile file( m_currentXMLFileName );
+
+    if( !file.open( QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text ) )
+    {
+      QString errMsg = QString( "Failed to save file \"%1\": [%2]." )
+          .arg( m_currentXMLFileName )
+          .arg( file.errorString() );
+      showErrorMessageBox( errMsg );
+    }
+    else
+    {
+      QTextStream outStream( &file );
+      outStream << m_domDoc->toString( 2 );
+      file.close();
+
+      startSaveTimer();
+    }
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::saveXMLFileAs()
+{
+  QString file = QFileDialog::getSaveFileName( this, "Save As", QDir::homePath(), "XML Files (*.*)" );
+
+  /* If the user clicked "OK". */
+  if( !file.isEmpty() )
+  {
+    startSaveTimer();
+    m_currentXMLFileName = file;
+    saveXMLFile();
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::switchDBSession()
+{
+  m_dbSessionManager->switchDBSession( m_treeItemNodes.isEmpty() );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::importXMLToDatabase()
+{
+  m_busyImporting = true;
+
+  /* This slot will only ever be called in Super User mode. */
+  if (!m_domDoc->documentElement().isNull() )
+  {
+    /* Update the DB in one go. */
+    if( !GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc ) )
+    {
+      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    }
+    else
+    {
+      processDOMDoc();
+    }
+  }
+  else
+  {
+    bool accepted = GCMessageSpace::userAccepted( "QueryImportXMLFromFile",
+                                                  "No active document",
+                                                  "There is no document currently active, "
+                                                  "would you like to import the XML from file?",
+                                                  GCMessageDialog::YesNo,
+                                                  GCMessageDialog::Yes,
+                                                  GCMessageDialog::Question );
+    if( accepted )
+    {
+      openXMLFile();
+    }
+  }
+
+  m_busyImporting = false;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -969,6 +897,39 @@ void GCMainWindow::addChildElementToDOM()
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCMainWindow::resetDOM()
+{
+  m_currentXMLFileName = "";
+  m_domDoc->clear();
+  m_treeItemNodes.clear();
+  ui->treeWidget->clear();
+  ui->dockWidgetTextEdit->clear();
+  resetTableWidget();
+
+  /* The timer will be reactivated as soon as work starts again on a legitimate
+    document and the user saves it for the first time. */
+  if( m_saveTimer )
+  {
+    m_saveTimer->stop();
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::deleteElementFromDB()
+{
+
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::deleteAttributeValuesFromDB()
+{
+
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCMainWindow::addNewElement( const QString &element, const QStringList &attributes )
 {
   if( !element.isEmpty() )
@@ -989,60 +950,29 @@ void GCMainWindow::addNewElement( const QString &element, const QStringList &att
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::switchDBSession()
+void GCMainWindow::showNewElementForm()
 {
-  m_dbSessionManager->switchDBSession( m_treeItemNodes.isEmpty() );
-}
+  /* Check if there is a previously saved user preference for this action. We
+    don't want to remember a \"Cancel\" option for this particular situation. */
+  bool accepted = GCMessageSpace::userAccepted( "WarnNewElementsAsFirstLevelChildren",
+                                                "Careful!",
+                                                "All the new elements you add will be added as first level "
+                                                "children of the element highlighted in the tree view (in "
+                                                "other words it will become a sibling to the elements currently "
+                                                "in the dropdown menu).\n\n"
+                                                "If this is not what you intended, I suggest you \"Cancel\".",
+                                                GCMessageDialog::OKCancel,
+                                                GCMessageDialog::OK,
+                                                GCMessageDialog::Warning,
+                                                false );
 
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::importXMLToDatabase()
-{
-  m_busyImporting = true;
-
-  /* This slot will only ever be called in Super User mode. */
-  if (!m_domDoc->documentElement().isNull() )
+  if( accepted )
   {
-    /* Update the DB in one go. */
-    if( !GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc ) )
-    {
-      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
-    }
-    else
-    {
-      processDOMDoc();
-    }
+    GCNewElementForm *form = new GCNewElementForm;
+    form->setWindowModality( Qt::ApplicationModal );
+    connect( form, SIGNAL( newElementDetails( QString,QStringList ) ), this, SLOT( addNewElement( QString,QStringList ) ) );
+    form->show();
   }
-  else
-  {
-    bool accepted = GCMessageSpace::userAccepted( "QueryImportXMLFromFile",
-                                                  "No active document",
-                                                  "There is no document currently active, "
-                                                  "would you like to import the XML from file?",
-                                                  GCMessageDialog::YesNo,
-                                                  GCMessageDialog::Yes,
-                                                  GCMessageDialog::Question );
-    if( accepted )
-    {
-      openXMLFile();
-    }
-  }
-
-  m_busyImporting = false;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::deleteElementFromDB()
-{
-
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::deleteAttributeValuesFromDB()
-{
-
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1079,28 +1009,15 @@ void GCMainWindow::saveDirectEdit()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::showNewElementForm()
+void GCMainWindow::collapseOrExpandTreeWidget( bool checked )
 {
-  /* Check if there is a previously saved user preference for this action. We
-    don't want to remember a \"Cancel\" option for this particular situation. */
-  bool accepted = GCMessageSpace::userAccepted( "WarnNewElementsAsFirstLevelChildren",
-                                                "Careful!",
-                                                "All the new elements you add will be added as first level "
-                                                "children of the element highlighted in the tree view (in "
-                                                "other words it will become a sibling to the elements currently "
-                                                "in the dropdown menu).\n\n"
-                                                "If this is not what you intended, I suggest you \"Cancel\".",
-                                                GCMessageDialog::OKCancel,
-                                                GCMessageDialog::OK,
-                                                GCMessageDialog::Warning,
-                                                false );
-
-  if( accepted )
+  if( checked )
   {
-    GCNewElementForm *form = new GCNewElementForm;
-    form->setWindowModality( Qt::ApplicationModal );
-    connect( form, SIGNAL( newElementDetails( QString,QStringList ) ), this, SLOT( addNewElement( QString,QStringList ) ) );
-    form->show();
+    ui->treeWidget->expandAll();
+  }
+  else
+  {
+    ui->treeWidget->collapseAll();
   }
 }
 
@@ -1181,6 +1098,13 @@ void GCMainWindow::toggleShowDocContent( bool show )
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCMainWindow::forgetAllMessagePreferences()
+{
+  GCMessageSpace::forgetAllPreferences();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCMainWindow::userCancelledKnownDBForm()
 {
   m_userCancelled = true;
@@ -1202,9 +1126,71 @@ void GCMainWindow::dbSessionChanged()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::forgetAllMessagePreferences()
+void GCMainWindow::processDOMDoc()
 {
-  GCMessageSpace::forgetAllPreferences();
+  ui->treeWidget->clear(); // also deletes current items
+  m_treeItemNodes.clear();
+  resetTableWidget();
+
+  QDomElement root = m_domDoc->documentElement();
+
+  /* We want to show the document's root element in the tree widget as well. */
+  QTreeWidgetItem *item = new QTreeWidgetItem;
+  item->setText( 0, root.tagName() );
+
+  if( m_superUserMode )
+  {
+    item->setFlags( item->flags() | Qt::ItemIsEditable );
+  }
+
+  ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
+  m_treeItemNodes.insert( item, root );
+
+  /* Now we can recursively stick the rest of the elements into the tree widget. */
+  populateTreeWidget( root, item );
+
+  /* Enable file save options. */
+  ui->actionSave->setEnabled( true );
+  ui->actionSaveAs->setEnabled( true );
+
+  /* Display the DOM content in the text edit. */
+  setTextEditXML( QDomElement() );
+
+  ui->treeWidget->setCurrentItem( item, 0 );
+  treeWidgetItemActivated( item, 0 );
+
+  collapseOrExpandTreeWidget( ui->expandAllCheckBox->isChecked() );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWidgetItem *parentItem )
+{
+  QDomElement element = parentElement.firstChildElement();
+
+  while( !element.isNull() )
+  {
+    QTreeWidgetItem *item = new QTreeWidgetItem();
+    item->setText( 0, element.tagName() );
+
+    if( m_superUserMode )
+    {
+      item->setFlags( item->flags() | Qt::ItemIsEditable );
+    }
+
+    parentItem->addChild( item );  // takes ownership
+    m_treeItemNodes.insert( item, element );
+
+    populateTreeWidget( element, item );
+    element = element.nextSiblingElement();
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::showErrorMessageBox( const QString &errorMsg )
+{
+  QMessageBox::critical( this, "Error!", errorMsg );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1273,15 +1259,36 @@ void GCMainWindow::showLargeFileWarnings( qint64 fileSize )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::collapseOrExpandTreeWidget( bool checked )
+void GCMainWindow::resetTableWidget()
 {
-  if( checked )
+  /* Remove the currently visible/live combo boxes from the signal mapper's
+    mappings and the combo box map before we whack them all. */
+  for( int i = 0; i < m_comboBoxes.keys().size(); ++i )
   {
-    ui->treeWidget->expandAll();
+    m_signalMapper->removeMappings( m_comboBoxes.keys().at( i ) );
+  }
+
+  m_comboBoxes.clear();
+
+  ui->tableWidget->clearContents();   // also deletes current items
+  ui->tableWidget->setRowCount( 0 );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::startSaveTimer()
+{
+  /* Automatically save the file at five minute intervals. */
+  if( !m_saveTimer )
+  {
+    m_saveTimer = new QTimer( this );
+    connect( m_saveTimer, SIGNAL( timeout() ), this, SLOT( saveXMLFile() ) );
+    m_saveTimer->start( 300000 );
   }
   else
   {
-    ui->treeWidget->collapseAll();
+    /* If the timer was stopped due to a DOM reset, start it again. */
+    m_saveTimer->start( 300000 );
   }
 }
 
@@ -1300,13 +1307,6 @@ void GCMainWindow::toggleAddElementWidgets()
     ui->addElementComboBox->setEnabled( true );
     ui->addChildElementButton->setEnabled( true );
   }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::showErrorMessageBox( const QString &errorMsg )
-{
-  QMessageBox::critical( this, "Error!", errorMsg );
 }
 
 /*--------------------------------------------------------------------------------------*/
