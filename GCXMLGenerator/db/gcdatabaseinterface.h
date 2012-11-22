@@ -133,6 +133,9 @@ public:
   /* Returns a sorted (case sensitive, ascending) list of all the document root elements
     known to the the active database. */
   QStringList knownRootElements() const;
+
+  /* Returns true if the database named "dbName" knows about "root". */
+  bool containsKnownRootElement( const QString &dbName, const QString &root ) const;
   
 public slots:
   bool addDatabase   ( const QString &dbName );
@@ -142,6 +145,9 @@ public slots:
 private:
   static GCDataBaseInterface *m_instance;
   GCDataBaseInterface();
+
+  /* Overloaded for private use. */
+  QStringList knownRootElements( QSqlDatabase db ) const;
 
   QStringList knownAttributeKeys() const;
   QSqlQuery selectElement  ( const QString &element, bool &success ) const;

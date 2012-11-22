@@ -1044,7 +1044,14 @@ QStringList GCDataBaseInterface::knownAttributeKeys() const
 
 QStringList GCDataBaseInterface::knownRootElements() const
 {
-  QSqlQuery query( m_sessionDB );
+  return knownRootElements( m_sessionDB );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+QStringList GCDataBaseInterface::knownRootElements( QSqlDatabase db ) const
+{
+  QSqlQuery query( db );
 
   if( !query.exec( "SELECT * FROM rootelements" ) )
   {
@@ -1062,6 +1069,35 @@ QStringList GCDataBaseInterface::knownRootElements() const
 
   cleanList( rootElements );
   return rootElements;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCDataBaseInterface::containsKnownRootElement( const QString &dbName, const QString &root ) const
+{
+  /* The DB name passed in might consist of a path/to/file string. */
+  QString dbConName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
+
+  /* No error messages are logged for this specific query since we aren't necessarily concerned with
+    the session we're querying (it may not be the active session). */
+  if( QSqlDatabase::contains( dbConName ) )
+  {
+    QSqlDatabase db = QSqlDatabase::database( dbConName );
+
+    if( db.isValid() && db.open() )
+    {
+      if( knownRootElements( db ).contains( root ) )
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+    }
+  }
+
+  return false;
 }
 
 /*--------------------------------------------------------------------------------------*/
