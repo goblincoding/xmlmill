@@ -39,27 +39,60 @@
 
 GCDBSessionManager::GCDBSessionManager( QWidget *parent ) :
   QObject       ( parent ),
-  m_parentWidget( parent )
+  m_parentWidget( parent ),
+  m_currentRoot ( "" )
 {
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::addNewDB()
+void GCDBSessionManager::showKnownDBForm( GCKnownDBForm::Buttons buttons )
 {
-  QString file = QFileDialog::getSaveFileName( m_parentWidget, "Add New Profile", QDir::homePath(), "XML Profiles (*.db)" );
+  GCKnownDBForm *knownDBForm = new GCKnownDBForm( GCDataBaseInterface::instance()->getDBList(), buttons, m_parentWidget );
 
-  /* If the user clicked "OK". */
-  if( !file.isEmpty() )
+  connect( knownDBForm,   SIGNAL( newConnection() ),       this, SLOT( addNewDB() ) );
+  connect( knownDBForm,   SIGNAL( existingConnection() ),  this, SLOT( addExistingDB() ) );
+  connect( knownDBForm,   SIGNAL( dbSelected( QString ) ), this, SLOT( setSessionDB( QString ) ) );
+  connect( knownDBForm,   SIGNAL( dbRemoved ( QString ) ), this, SLOT( removeDBConnection( QString ) ) );
+
+  /* If we don't have an active DB session, it's probably at program
+    start-up and the user wishes to exit the application by clicking "Cancel". */
+  if( !GCDataBaseInterface::instance()->hasActiveSession() )
   {
-    addDBConnection( file );
+    connect( knownDBForm, SIGNAL( userCancelled() ), m_parentWidget, SLOT( close() ) );
+    knownDBForm->show();
+  }
+  else
+  {
+    connect( knownDBForm, SIGNAL( userCancelled() ), this, SIGNAL( userCancelledKnownDBForm() ) );
+    knownDBForm->exec();
   }
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::addExistingDB()
+void GCDBSessionManager::switchDBSession( const QString &currentRoot )
 {
+  /* Switching DB sessions while building an XML document could result in all kinds of trouble
+    since the items known to the current session may not be known to the next. */
+  m_currentRoot = currentRoot;
+  showKnownDBForm( GCKnownDBForm::ShowAll );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDBSessionManager::removeDB( const QString &currentRoot )
+{
+  m_currentRoot = currentRoot;
+  showKnownDBForm( GCKnownDBForm::ToRemove );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDBSessionManager::addExistingDB( const QString &currentRoot )
+{
+  m_currentRoot = currentRoot;
+
   QString file = QFileDialog::getOpenFileName( m_parentWidget, "Add Existing Profile", QDir::homePath(), "XML Profiles (*.db)" );
 
   /* If the user clicked "OK". */
@@ -71,35 +104,57 @@ void GCDBSessionManager::addExistingDB()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::addDBConnection( const QString &dbName )
+void GCDBSessionManager::addNewDB( const QString &currentRoot )
 {
-  if( !GCDataBaseInterface::instance()->addDatabase( dbName ) )
-  {
-    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
-    return;
-  }
+  m_currentRoot = currentRoot;
 
-  /* Check if we have a saved user preference for this situation. Regarding the session keys,
-    all keys have to start with "Messages" otherwise the main window won't be able to reset
-    the user preferences to the defaults.  An alternative would be to implement a function here
-    that does DB Session Manager specific setting resets, but I don't see the need for that. */
-  bool accepted = GCMessageSpace::userAccepted( "SetSessionActive",
-                                                "Set Session",
-                                                "Would you like to set the new profile as active?",
-                                                GCMessageDialog::YesNo,
-                                                GCMessageDialog::Yes,
-                                                GCMessageDialog::Question );
+  QString file = QFileDialog::getSaveFileName( m_parentWidget, "Add New Profile", QDir::homePath(), "XML Profiles (*.db)" );
 
-  if( accepted )
+  /* If the user clicked "OK". */
+  if( !file.isEmpty() )
   {
-    setSessionDB( dbName );
+    addDBConnection( file );
   }
-  else
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDBSessionManager::removeDBConnection( const QString &dbName )
+{
+  if( !m_currentRoot.isEmpty() )
   {
-    if( !GCDataBaseInterface::instance()->hasActiveSession() )
+    if( GCDataBaseInterface::instance()->knownRootElements().contains( m_currentRoot ) )
     {
-      showKnownDBForm( GCKnownDBForm::ShowAll );
+      GCMessageSpace::userAccepted( "RemoveActiveSessionWarning",
+                                    "Warning!",
+                                    "Removing an active session will cause the current "
+                                    "document to be reset and your work will be lost.\n\n "
+                                    "If you are not removing the current profile (it could be "
+                                    "that the profile you are removing just happens to know "
+                                    "of the same document style you're currently working on), "
+                                    "then you can safely ignore this message.",
+                                    GCMessageDialog::OKCancel,
+                                    GCMessageDialog::Cancel,
+                                    GCMessageDialog::Warning );
     }
+  }
+
+  if( !GCDataBaseInterface::instance()->removeDatabase( dbName ) )
+  {
+    QString error = QString( "Failed to remove profile \"%1\": [%2]" ).arg( dbName )
+                    .arg( GCDataBaseInterface::instance()->getLastError() );
+    showErrorMessageBox( error );
+  }
+
+  /* If the user removed the active DB for this session, we need to know
+    what he/she intends to replace it with. */
+  if( !GCDataBaseInterface::instance()->hasActiveSession() )
+  {
+    emit reset();
+    m_currentRoot = "";
+    QString errMsg( "The active profile has been removed, please set another as active." );
+    showErrorMessageBox( errMsg );
+    showKnownDBForm( GCKnownDBForm::ShowAll );
   }
 }
 
@@ -107,6 +162,24 @@ void GCDBSessionManager::addDBConnection( const QString &dbName )
 
 void GCDBSessionManager::setSessionDB( const QString &dbName )
 {
+  /* If the current root element is not known to the new session, the user must
+    confirm whether or not he/she wants the active document to be reset. */
+  if( !m_currentRoot.isEmpty() )
+  {
+    if( !GCDataBaseInterface::instance()->containsKnownRootElement( dbName, m_currentRoot ) )
+    {
+      if( !acceptSwitchReset() )
+      {
+        return;
+      }
+      else
+      {
+        emit reset();
+        m_currentRoot = "";
+      }
+    }
+  }
+
   if( !GCDataBaseInterface::instance()->setSessionDB( dbName ) )
   {
     QString error = QString( "Failed to set session \"%1\" as active - [%2]" ).arg( dbName )
@@ -134,88 +207,48 @@ void GCDBSessionManager::setSessionDB( const QString &dbName )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::removeDB()
+void GCDBSessionManager::addDBConnection( const QString &dbName )
 {
-  showKnownDBForm( GCKnownDBForm::ToRemove );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-
-void GCDBSessionManager::removeDBConnection( const QString &dbName )
-{
-  if( !GCDataBaseInterface::instance()->removeDatabase( dbName ) )
+  if( !GCDataBaseInterface::instance()->addDatabase( dbName ) )
   {
-    QString error = QString( "Failed to remove profile \"%1\": [%2]" ).arg( dbName )
-                    .arg( GCDataBaseInterface::instance()->getLastError() );
-    showErrorMessageBox( error );
+    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    return;
   }
 
-  /* If the user removed the active DB for this session, we need to know
-    what he/she intends to replace it with. */
-  if( !GCDataBaseInterface::instance()->hasActiveSession() )
+  bool accepted = GCMessageSpace::userAccepted( "SwitchActiveSession",
+                                                "Switch Session",
+                                                "Would you like to switch to the new profile?",
+                                                GCMessageDialog::YesNo,
+                                                GCMessageDialog::Yes,
+                                                GCMessageDialog::Question );
+
+  if( accepted )
   {
-    QString errMsg( "The active profile has been removed, please set another as active." );
-    showErrorMessageBox( errMsg );
-    showKnownDBForm( GCKnownDBForm::ShowAll );
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCDBSessionManager::switchDBSession( bool docEmpty )
-{
-  /* Switching DB sessions while building an XML document could result in all kinds of trouble
-    since the items known to the current session may not be known to the next. */
-  if( !docEmpty )
-  {
-    bool accepted = GCMessageSpace::userAccepted( "SwitchingSessionsWarning",
-                                                  "Warning!",
-                                                  "Switching profile sessions while building an XML document "
-                                                  "will cause the document to be reset and your work will be lost. "
-                                                  "If this is fine, proceed with \"OK\".\n\n"
-                                                  "On the other hand, if you wish to keep your work, please hit \"Cancel\" and "
-                                                  "save the document first before coming back here.",
-                                                  GCMessageDialog::OKCancel,
-                                                  GCMessageDialog::Cancel,
-                                                  GCMessageDialog::Warning );
-
-    if( accepted )
-    {
-      emit reset();
-    }
-    else
-    {
-      return;
-    }
-  }
-
-  showKnownDBForm( GCKnownDBForm::ShowAll );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCDBSessionManager::showKnownDBForm( GCKnownDBForm::Buttons buttons )
-{
-  GCKnownDBForm *knownDBForm = new GCKnownDBForm( GCDataBaseInterface::instance()->getDBList(), buttons, m_parentWidget );
-
-  connect( knownDBForm,   SIGNAL( newConnection() ),       this, SLOT( addNewDB() ) );
-  connect( knownDBForm,   SIGNAL( existingConnection() ),  this, SLOT( addExistingDB() ) );
-  connect( knownDBForm,   SIGNAL( dbSelected( QString ) ), this, SLOT( setSessionDB( QString ) ) );
-  connect( knownDBForm,   SIGNAL( dbRemoved ( QString ) ), this, SLOT( removeDBConnection( QString ) ) );
-
-  /* If we don't have an active DB session, it's probably at program
-    start-up and the user wishes to exit the application by clicking "Cancel". */
-  if( !GCDataBaseInterface::instance()->hasActiveSession() )
-  {
-    connect( knownDBForm, SIGNAL( userCancelled() ), m_parentWidget, SLOT( close() ) );
-    knownDBForm->show();
+    setSessionDB( dbName );
   }
   else
   {
-    connect( knownDBForm, SIGNAL( userCancelled() ), this, SIGNAL( userCancelledKnownDBForm() ) );
-    knownDBForm->exec();
+    if( !GCDataBaseInterface::instance()->hasActiveSession() )
+    {
+      showKnownDBForm( GCKnownDBForm::ShowAll );
+    }
   }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCDBSessionManager::acceptSwitchReset()
+{
+  return GCMessageSpace::userAccepted( "SwitchingSessionsWarning",
+                                       "Warning!",
+                                       "The new profile doesn't support your current document's content, switching "
+                                       "will cause the document to be reset and your work will be lost. "
+                                       "If this is fine, proceed with \"OK\".\n\n"
+                                       "On the other hand, if you wish to keep your work, please hit \"Cancel\" and "
+                                       "save the document first before coming back here.",
+                                       GCMessageDialog::OKCancel,
+                                       GCMessageDialog::Cancel,
+                                       GCMessageDialog::Warning );
 }
 
 /*--------------------------------------------------------------------------------------*/

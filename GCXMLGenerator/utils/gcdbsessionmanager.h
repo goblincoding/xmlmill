@@ -39,7 +39,13 @@ class GCDBSessionManager : public QObject
 public:
   explicit GCDBSessionManager( QWidget *parent = 0 );
   void showKnownDBForm( GCKnownDBForm::Buttons buttons );
-  void switchDBSession( bool docEmpty );
+
+  void switchDBSession( const QString &currentRoot = QString() );
+  void removeDB       ( const QString &currentRoot = QString() ); // shows known DB form
+
+public slots:
+  void addExistingDB( const QString &currentRoot = QString() ); // calls addDBConnection
+  void addNewDB     ( const QString &currentRoot = QString() ); // calls addDBConnection
 
 signals:
   void dbSessionChanged();
@@ -47,19 +53,16 @@ signals:
   void reset();
   
 private slots:
-  void addNewDB();      // calls addDBConnection
-  void addExistingDB(); // calls addDBConnection
-
-  void setSessionDB( const QString &dbName ); // receives signal from DB form
-
-  void removeDB();                                  // shows known DB form
-  void removeDBConnection( const QString &dbName ); // receives signal from DB form
+  void removeDBConnection( const QString &dbName );  // receives signal from DB form
+  void setSessionDB      ( const QString &dbName );  // receives signal from DB form
 
 private:
   void showErrorMessageBox( const QString &errorMsg );
   void addDBConnection    ( const QString &dbName );
+  bool acceptSwitchReset();
 
-  QWidget   *m_parentWidget;
+  QWidget *m_parentWidget;
+  QString  m_currentRoot;
   
 };
 
