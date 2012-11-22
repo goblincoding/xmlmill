@@ -33,15 +33,14 @@
 #include <QMainWindow>
 #include <QHash>
 
-/*--------------------------------------------------------------------------------------*/
-/*
-  All the code refers to "database" whereas all the user prompts reference "profiles". This
+/*------------------------------------------------------------------------------------------
+
+  All the code refers to "databases" whereas all the user prompts reference "profiles". This
   is deliberate.  In reality, everything is persisted to SQLite database files, but a friend
   suggested that end users may be intimidated by the use of the word "database" (especially
-  if they aren't necessarily technically inclined) and that "profiles" may be less scary :)
-*/
+  if they aren't necessarily technically inclined) and that "profile" may be less scary :)
 
-/*--------------------------------------------------------------------------------------*/
+------------------------------------------------------------------------------------------*/
 
 namespace Ui
 {
@@ -128,7 +127,8 @@ private slots:
   void deleteElementFromDB();
   void deleteAttributeValuesFromDB();
 
-  /* Receives new element information from "GCElementForm". */
+  /* Receives new element information from "GCNewElementForm" and adds the new element and 
+  associated attributes to the database. */
   void addNewElement( const QString &element, const QStringList &attributes );
   void showNewElementForm();
 

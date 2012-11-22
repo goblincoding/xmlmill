@@ -218,6 +218,7 @@ void GCBatchProcessorHelper::createVariantLists()
     }
     else
     {
+      /* See comment for "m_newElementChildrenToAdd" above.*/
       m_newElementAttributesToAdd << QVariant( QVariant::String );
     }
   }
@@ -234,6 +235,7 @@ void GCBatchProcessorHelper::createVariantLists()
     }
     else
     {
+      /* See comment for "m_newElementChildrenToAdd" above.*/
       m_elementChildrenToUpdate << QVariant( QVariant::String );
     }
 
@@ -245,6 +247,7 @@ void GCBatchProcessorHelper::createVariantLists()
     }
     else
     {
+      /* See comment for "m_newElementChildrenToAdd" above.*/
       m_elementAttributesToUpdate << QVariant( QVariant::String );
     }
   }
@@ -260,12 +263,9 @@ void GCBatchProcessorHelper::createVariantLists()
       attributeValues.removeDuplicates();
 
       /* Do we know about this attribute? (by the way, the "!" is a separator
-        used to create a unique key in the xmlattributes table for each element
-        and known associated attribute, i.e. element!attribute tells us that
-        "element" has "attribute" specifically associated with it and a list of
-        known values for "attribute" is stored against this unique key). I should
-        probably look into how to rather use secondary keys for the same end result,
-        but for now this will do. */
+        used to create a unique string name from the element and associated
+        attribute for ease of comparison with the attribute keys list we get
+        given...this is not ideal, but the only solution I have at the moment. */
       if( !m_knownAttributeKeys.contains( attribute + "!" + element ) )
       {
         m_newAttributeKeysToAdd << attribute;
@@ -277,6 +277,7 @@ void GCBatchProcessorHelper::createVariantLists()
         }
         else
         {
+          /* See comment for "m_newElementChildrenToAdd" above.*/
           m_newAttributeValuesToAdd << QVariant( QVariant::String );
         }
       }
@@ -291,6 +292,7 @@ void GCBatchProcessorHelper::createVariantLists()
         }
         else
         {
+          /* See comment for "m_newElementChildrenToAdd" above.*/
           m_attributeValuesToUpdate << QVariant( QVariant::String );
         }
       }

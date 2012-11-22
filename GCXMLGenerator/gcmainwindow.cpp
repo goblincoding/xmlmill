@@ -50,7 +50,7 @@
 
 const QString EMPTY( "---" );
 const qint64  DOMWARNING( 262144 );  // 0.25MB or ~7 500 lines
-const qint64  DOMLIMIT( 524288 );    // 0.5MB  or ~15 000 lines
+const qint64  DOMLIMIT  ( 524288 );  // 0.5MB  or ~15 000 lines
 
 
 /*--------------------------- NON-MEMBER UTILITY FUNCTIONS ----------------------------*/
@@ -62,7 +62,7 @@ QString getScrollAnchorText( const QDomElement &element )
 
   QDomNamedNodeMap attributes = element.attributes();
 
-  /* For elements with no children (e.g. <element/> */
+  /* For elements with no children (e.g. <element/>). */
   if( attributes.isEmpty() &&
       element.childNodes().isEmpty() )
   {
@@ -121,9 +121,9 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 
   /* Hide super user options. */
   ui->addNewElementButton->setVisible( false );
-  ui->textSaveButton->setVisible( false );
-  ui->textRevertButton->setVisible( false );
-  ui->superUserLabel->setVisible( false );
+  ui->textSaveButton->setVisible     ( false );
+  ui->textRevertButton->setVisible   ( false );
+  ui->superUserLabel->setVisible     ( false );
   ui->dockWidgetTextEdit->setReadOnly( true );
 
   /* The user must see these actions exist, but shouldn't be able to access
@@ -188,7 +188,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
     connection for this session. */
   m_dbSessionManager->showKnownDBForm( GCKnownDBForm::ShowAll );
 
-  /* Everything happens automagically. */
+  /* Everything happens automagically and the text edit takes ownership. */
   XmlSyntaxHighlighter *highLighter = new XmlSyntaxHighlighter( ui->dockWidgetTextEdit );
   Q_UNUSED( highLighter );
 
@@ -211,6 +211,7 @@ GCMainWindow::~GCMainWindow()
   as it is (i.e. updating the database alongside the DOM) without any other explicit checks. */
 void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
 {
+  /* This check is probably redundant, but rather safe than sorry... */
   if( m_treeItemNodes.contains( item ) )
   {
     QString elementName  = item->text( column );
@@ -229,12 +230,12 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
       {
         /* Update the element names in our active DOM doc (since "m_treeItemNodes"
           contains shallow copied QDomElements, the change will automatically
-          be available to the map as well) and the tree widget. */
-        QDomNodeList list = m_domDoc->elementsByTagName( previousName );
+          be applied to the map's nodes as well) and the tree widget. */
+        QDomNodeList elementList = m_domDoc->elementsByTagName( previousName );
 
-        for( int i = 0; i < list.count(); ++i )
+        for( int i = 0; i < elementList.count(); ++i )
         {
-          QDomElement element( list.at( i ).toElement() );
+          QDomElement element( elementList.at( i ).toElement() );
           element.setTagName( elementName );
           const_cast< QTreeWidgetItem* >( m_treeItemNodes.key( element ) )->setText( column, elementName );
         }
@@ -248,6 +249,8 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
                                                      GCDataBaseInterface::instance()->children( previousName, success ),
                                                      attributes );
 
+        /* Since the user only really changed the element name, we also want the "new" element to be automatically
+          associated with the attributes connected to the previous name (as well as the attributes' known values). */
         foreach( QString attribute, attributes )
         {
           GCDataBaseInterface::instance()->updateAttributeValues( elementName,
@@ -275,7 +278,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
   /* Because the table widget is re-populated with the attribute names and
     values associated with the activated tree widget item, this flag is set
     to prevent the functionality in "attributeNameChanged" (which is triggered
-    by the population of the table widget). */
+    by the population of the table widget) from being executed. */
   m_wasTreeItemActivated = true;
 
   resetTableWidget();
@@ -293,11 +296,11 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
   }
 
-  /* Add all the known attribute names in the cells in the first column
+  /* Add all the known attribute names to the cells in the first column
     of the table widget, create and populate combo boxes with the values
-    associated with the attribute in question and insert the combo boxes
-    into the second column of the table widget.  Attribute names are only
-    editable in Super User mode whereas attribute values can always be edited.
+    associated with the attributes in question and insert the combo boxes
+    into the second column of the table widget (attribute names are only
+    editable in Super User mode whereas attribute values can always be edited).
     Finally we insert an "empty" row when in Super User mode so that the user
     may add additional attributes and values to the current element. */
   for( int i = 0; i < attributeNames.count(); ++i )
@@ -325,8 +328,9 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     }
 
     /* If we are still in the process of building the document, the attribute value will
-      be empty since it has never been set before.  For this particular case,
-      calling "findText" will result in a null pointer exception. */
+      be empty since it has never been set before.  For this particular case, calling
+      "findText" will result in a null pointer exception being thrown so we need to
+      cater for this possibility here. */
     QString attributeValue = element.attribute( attributeNames.at( i ) );
 
     if( !attributeValue.isEmpty() )
@@ -338,10 +342,10 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
       attributeCombo->setCurrentIndex( 0 );
     }
 
-    /* Attempting the connection before we've set the current index causes the
-      "attributeValueChanged" slot to be called too early, resulting in a segmentation
-      fault due to value conflicts/missing values (i.e we can't do the connect before
-      we've set the current index). */
+    /* Attempting the connection before we've set the current index above causes the
+      "attributeValueChanged" slot to be called prematurely, resulting in a segmentation
+      fault due to value conflicts/missing values (in short, we can't do the connect
+      before we've set the current index). */
     connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged  ( QString ) ) );
 
     ui->tableWidget->setCellWidget( i, 1, attributeCombo );
@@ -368,6 +372,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     attributeCombo->insertItem( 0, EMPTY );
     attributeCombo->setEnabled( false );
 
+    /* Once again, only connect after inserting items or bad things will happen! */
     connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged  ( QString ) ) );
 
     ui->tableWidget->setCellWidget( lastRow, 1, attributeCombo );
@@ -381,7 +386,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
   }
 
   /* Populate the "add element" combo box with the known first level children of the
-    highlighted element. */
+    current highlighted element (highlighted in the tree widget, of course). */
   ui->addElementComboBox->clear();
   ui->addElementComboBox->addItems( GCDataBaseInterface::instance()->children( element.tagName(), success ) );
   toggleAddElementWidgets();
@@ -412,7 +417,7 @@ void GCMainWindow::setActiveAttributeName( QTableWidgetItem *item )
 void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
 {
   /* Don't execute the logic if a tree widget item's activation is triggering
-    a re-population of the table widget, resulting in this slot being called. */
+    a re-population of the table widget (which results in this slot being called). */
   if( !m_wasTreeItemActivated )
   {
     /* All attribute name changes will be assumed to be additions, removing an attribute
@@ -427,7 +432,8 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
     else
     {
       /* The current attribute value will be displayed in the second column (the
-        combo box next to the currently selected table widget item). */
+        combo box next to the currently selected table widget item which represents
+        the attribute itself). */
       GCComboBox *attributeValueCombo = dynamic_cast< GCComboBox* >( ui->tableWidget->cellWidget( ui->tableWidget->currentRow(), 1 ) );
 
       if( attributeValueCombo )
@@ -466,12 +472,11 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
 
       setTextEditXML( currentElement );
 
-      /* If the user added a new attribute, we wish to insert another new
-        "empty" row so that he/she may add even more attributes if he/she
-        wishes to do so. We also need to update the active attribute name
-        to the new attribute name (normally this is handled by a signal
-        that calls "setActiveAttributeName" but these signals are emitted
-        by clicking on the table widget only). */
+      /* If the user added a new attribute, we wish to insert another new "empty" row so that 
+        he/she may add even more attributes if he/she wishes to do so. We also need to update
+        the active attribute name to the new attribute name (normally this is handled by a signal
+        that calls "setActiveAttributeName" but these signals are emitted by clicking on the 
+        table widget only so we have to trigger it explicitly). */
       if( m_activeAttributeName == EMPTY )
       {
         treeWidgetItemActivated( ui->treeWidget->currentItem(), 0 );
@@ -492,7 +497,7 @@ void GCMainWindow::setCurrentComboBox( QWidget *combo )
 void GCMainWindow::attributeValueChanged( const QString &value )
 {
   /* Don't execute the logic if a tree widget item's activation is triggering
-    a re-population of the table widget, resulting in this slot being called. */
+    a re-population of the table widget (which results in this slot being called). */
   if( !m_wasTreeItemActivated )
   {
     QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
@@ -502,8 +507,7 @@ void GCMainWindow::attributeValueChanged( const QString &value )
     combo box which will be the actual current item). */
     QString currentAttributeName = ui->tableWidget->item( m_comboBoxes.value( m_currentCombo ), 0 )->text();
 
-    /* If the user sets the attribute value to EMPTY, the attribute is removed from
-    the current document. */
+    /* If the user sets the attribute value to EMPTY, the attribute is removed from the current document. */
     if( value == EMPTY )
     {
       currentElement.removeAttribute( currentAttributeName );
@@ -544,14 +548,15 @@ void GCMainWindow::newXMLFile()
 {
   resetDOM();
   m_currentXMLFileName = "";
-  ui->actionSave->setEnabled( true );
   ui->actionSaveAs->setEnabled( true );
+  ui->actionSave->setEnabled  ( true );  
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::openXMLFile()
 {
+  /* Can't open a file if there is no DB profile to describe it. */
   if( !GCDataBaseInterface::instance()->hasActiveSession() )
   {
     QString errMsg( "No active profile set, please set one for this session." );
@@ -629,13 +634,14 @@ void GCMainWindow::openXMLFile()
         } while( !GCDataBaseInterface::instance()->knownRootElements().contains( m_domDoc->documentElement().tagName() ) &&
                  !m_userCancelled );
 
-        /* If the user selected a database that fits, process the DOM, otherwise reset everything. */
+        /* If the user selected a database that fits, process the DOM. */
         if( !m_userCancelled )
         {
           processDOMDoc();
         }
         else
         {
+          /* If the user decided to rather abort the file opening process, reset everything. */
           resetDOM();
           m_currentXMLFileName = "";
         }
@@ -644,8 +650,7 @@ void GCMainWindow::openXMLFile()
       }
       else
       {
-        /* If we're not already busy importing an XML file, check if the
-        user maybe wants to do so. */
+        /* If we're not already busy importing an XML file, check if the user maybe wants to do so. */
         if( !m_busyImporting )
         {
           bool accepted = GCMessageSpace::userAccepted( "QueryImportXML",
@@ -663,11 +668,12 @@ void GCMainWindow::openXMLFile()
         else
         {
           /* If we're already busy importing, it means the user explicitly requested
-          an XML import, didn't have a current document active and confirmed that he/she
-          wanted to open an XML file to import.  Furthermore, there is no risk of an
-          endless loop since the DOM document will have been populated by the time we
-          get to this point, which will ensure that only the first part of the following
-          function's logic will be executed..."openXMLFile" won't be called again. */
+          an XML import (via the "Database" menu), didn't have a current document active
+          and confirmed that he/she wanted to open an XML file to import.  Furthermore, 
+          there is no risk of an endless loop since the DOM document will have been 
+          populated by the time we get to this point, which will ensure that only the 
+          first part of the following function's logic will be executed..."openXMLFile"
+          won't be called again. */
           importXMLToDatabase();
         }
       }
@@ -675,7 +681,7 @@ void GCMainWindow::openXMLFile()
     else
     {
       /* If the user selected a database that knows of this particular XML profile,
-        simply process the document. */
+      simply process the document. */
       processDOMDoc();
     }
   }
@@ -720,7 +726,6 @@ void GCMainWindow::saveXMLFileAs()
   /* If the user clicked "OK". */
   if( !file.isEmpty() )
   {
-    startSaveTimer();
     m_currentXMLFileName = file;
     saveXMLFile();
   }
@@ -730,6 +735,9 @@ void GCMainWindow::saveXMLFileAs()
 
 void GCMainWindow::addNewDB()
 {
+  /* If we have an active DOM document, we need to pass the name of the root
+    element through to the DB session manager which uses it to determine whether
+    or not a user is on the verge of messing something up... */
   if( m_domDoc->documentElement().isNull() )
   {
     m_dbSessionManager->addNewDB();
@@ -744,6 +752,9 @@ void GCMainWindow::addNewDB()
 
 void GCMainWindow::addExistingDB()
 {
+  /* If we have an active DOM document, we need to pass the name of the root
+    element through to the DB session manager which uses it to determine whether
+    or not a user is on the verge of messing something up... */
   if( m_domDoc->documentElement().isNull() )
   {
     m_dbSessionManager->addExistingDB();
@@ -758,6 +769,9 @@ void GCMainWindow::addExistingDB()
 
 void GCMainWindow::removeDB()
 {
+  /* If we have an active DOM document, we need to pass the name of the root
+    element through to the DB session manager which uses it to determine whether
+    or not a user is on the verge of messing something up... */
   if( m_domDoc->documentElement().isNull() )
   {
     m_dbSessionManager->removeDB();
@@ -772,6 +786,9 @@ void GCMainWindow::removeDB()
 
 void GCMainWindow::switchDBSession()
 {
+  /* If we have an active DOM document, we need to pass the name of the root
+    element through to the DB session manager which uses it to determine whether
+    or not a user is on the verge of messing something up... */
   if( m_domDoc->documentElement().isNull() )
   {
     m_dbSessionManager->switchDBSession();
@@ -784,14 +801,16 @@ void GCMainWindow::switchDBSession()
 
 /*--------------------------------------------------------------------------------------*/
 
+  /* This slot will only ever be called in Super User mode. */
 void GCMainWindow::importXMLToDatabase()
 {
+  /* Set this flag in case the user doesn't have an active DOM document to import
+    and wishes to open an XML file (the flag's status is used in "openXMLFile"). */
   m_busyImporting = true;
 
-  /* This slot will only ever be called in Super User mode. */
   if (!m_domDoc->documentElement().isNull() )
   {
-    /* Update the DB in one go. */
+    /* Update the DB with the contents of the current DOM document. */
     if( !GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc ) )
     {
       showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
@@ -816,6 +835,7 @@ void GCMainWindow::importXMLToDatabase()
     }
   }
 
+  /* Unset flag. */
   m_busyImporting = false;
 }
 
@@ -826,6 +846,7 @@ void GCMainWindow::deleteElementFromDOM()
   QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
   QDomElement currentElement = m_treeItemNodes.value( currentItem );
 
+  /* If all we have is a document root element, reset everything. */
   if( currentElement == m_domDoc->documentElement() )
   {
     resetDOM();
@@ -856,6 +877,7 @@ void GCMainWindow::addChildElementToDOM()
 {
   QString newElementName = ui->addElementComboBox->currentText();
 
+  /* There is probably no chance of this ever happening, but defensive programming FTW! */
   if( !newElementName.isEmpty() )
   {
     /* Update the tree widget. */
@@ -867,9 +889,11 @@ void GCMainWindow::addChildElementToDOM()
       newItem->setFlags( newItem->flags() | Qt::ItemIsEditable );
     }
 
-    /* Update the current DOM document. */
+    /* Update the current DOM document by creating and adding the new element. */
     QDomElement newElement = m_domDoc->createElement( newElementName );
 
+    /* If we already have mapped element nodes, add the new item to whichever
+      parent item is currently highlighted in the tree widget. */
     if( !m_treeItemNodes.isEmpty() )
     {
       QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
@@ -897,6 +921,8 @@ void GCMainWindow::addChildElementToDOM()
       ui->actionSave->setEnabled( true );
       ui->actionSaveAs->setEnabled( true );
 
+      /* Since we don't have any existing nodes if we get to this point, we need to initialise
+        the tree widget with its first item. */
       ui->treeWidget->invisibleRootItem()->addChild( newItem );  // takes ownership
       m_domDoc->appendChild( newElement );
 
@@ -933,7 +959,7 @@ void GCMainWindow::addChildElementToDOM()
       active tree item as the parent of the new element and not the new element itself.
       Failing to do so will cause a cascading effect where each new element added through
       the form will be the child of the previously added element.  We don't want this to
-      happen as all newly added elements must be siblings. */
+      happen as all newly added elements (at least via the form) must be siblings. */
     if( !m_newElementWasAdded )
     {
       ui->treeWidget->setCurrentItem( newItem, 0 );
@@ -985,15 +1011,17 @@ void GCMainWindow::deleteAttributeValuesFromDB()
 
 /*--------------------------------------------------------------------------------------*/
 
+/* Receives new element information from "GCNewElementForm" and adds the new element and 
+  associated attributes to the database. */
 void GCMainWindow::addNewElement( const QString &element, const QStringList &attributes )
 {
   if( !element.isEmpty() )
   {
-    /* Add the new element and associated attributes to the database. */
+    /* The new element is added as a first level child of the current element (represented
+      by the highlighted item in the tree view). */
     GCDataBaseInterface::instance()->addElement( element, QStringList(), attributes );
 
-    /* The new element is added as a first level child of the current element (represented
-      by the highlighted item in the tree view) so now we can update the DOM doc as well. */
+    /* Insert the new element at the top of the current element combo box. */
     ui->addElementComboBox->insertItem( 0, element );
     ui->addElementComboBox->setCurrentIndex( 0 );
 
@@ -1007,8 +1035,8 @@ void GCMainWindow::addNewElement( const QString &element, const QStringList &att
 
 void GCMainWindow::showNewElementForm()
 {
-  /* Check if there is a previously saved user preference for this action. We
-    don't want to remember a \"Cancel\" option for this particular situation. */
+  /* Check if there is a previously saved user preference for this action (we
+    don't want to remember a \"Cancel\" option for this particular situation). */
   bool accepted = GCMessageSpace::userAccepted( "WarnNewElementsAsFirstLevelChildren",
                                                 "Careful!",
                                                 "All the new elements you add will be added as first level "
@@ -1032,6 +1060,7 @@ void GCMainWindow::showNewElementForm()
 
 /*--------------------------------------------------------------------------------------*/
 
+/* This slot will only ever be called in Super User mode. */
 void GCMainWindow::revertDirectEdit()
 {
   setTextEditXML( QDomElement() );
@@ -1039,9 +1068,9 @@ void GCMainWindow::revertDirectEdit()
 
 /*--------------------------------------------------------------------------------------*/
 
+/* This slot will only ever be called in Super User mode. */
 void GCMainWindow::saveDirectEdit()
 {
-  /* This slot will only ever be called in Super User mode. */
   QString xmlErr( "" );
   int     line  ( -1 );
   int     col   ( -1 );
@@ -1084,7 +1113,8 @@ void GCMainWindow::switchSuperUserMode( bool super )
 
   if( m_superUserMode )
   {
-    /* There is nothing to be acted upon for this particular message. */
+    /* There is nothing to be acted upon for this particular message so no need
+      to check what value the form returns. */ 
     GCMessageSpace::userAccepted( "SuperUserMode",
                                   "Super User Mode!",
                                   "Absolutely everything you do in this mode is persisted to the "
@@ -1169,8 +1199,6 @@ void GCMainWindow::userCancelledKnownDBForm()
 
 void GCMainWindow::dbSessionChanged()
 {
-  /* If we have an empty DOM doc, load the list of known document root elements
-    to start the document building process. */
   if( m_domDoc->documentElement().isNull() )
   {
     resetDOM();
@@ -1187,7 +1215,7 @@ void GCMainWindow::processDOMDoc()
 
   QDomElement root = m_domDoc->documentElement();
 
-  /* We want to show the document's root element in the tree widget as well. */
+  /* Set the document root as the first item in the tree widget. */
   QTreeWidgetItem *item = new QTreeWidgetItem;
   item->setText( 0, root.tagName() );
 
@@ -1278,7 +1306,8 @@ void GCMainWindow::showLargeFileWarnings( qint64 fileSize )
   if( fileSize > DOMWARNING &&
       fileSize < DOMLIMIT )
   {
-    /* There is nothing to be acted upon for this particlar message. */
+    /* There is nothing to be acted upon for this particular message so no need
+      to check what value the form returns. */ 
     GCMessageSpace::userAccepted( "LargeFileWarning",
                                   "Large file!",
                                   "The file you just opened is slightly on the large side of "
@@ -1294,7 +1323,8 @@ void GCMainWindow::showLargeFileWarnings( qint64 fileSize )
   {
     m_DOMTooLarge = true;
 
-    /* There is nothing to be acted upon for this particlar message. */
+    /* There is nothing to be acted upon for this particular message so no need
+      to check what value the form returns. */ 
     GCMessageSpace::userAccepted( "VeryLargeFileWarning",
                                   "Very Large file!",
                                   "The file you just opened is too large for us "

@@ -36,16 +36,17 @@
 #include <QStringList>
 #include <QVariantList>
 
-/*--------------------------------------------------------------------------------------*/
-/*
+/*---------------------------------------------------------------------------------------------------
+
   The purpose of this class is to (1) extract all the elements and their associated attributes
   and attribute values from the DOM document passed in as parameter to the constructor and
   (2) to consolidate the lot into QVariantLists that can be used as bind variables for prepared
-  queries intended to be executed in batches (see "execBatch" in the Qt documentation for
-  more information on this topic). The idea is not really to have a long-lived instance of
-  this object in the calling object (i.e. it isn't intended to be used as a member variable,
-  although it isn't prevented either), but rather to create a scoped local variable that should be
-  created and set up as follows:
+  queries intended to be executed in batches (wow, that's a mouthful, see "execBatch" in the Qt
+  documentation for more information on this topic).
+
+  The idea is not really to have a long-lived instance of this object in the calling object (i.e.
+  it isn't intended to be used as a member variable, although it isn't prevented either), but rather
+  to create a scoped local variable that should be created and set up as follows:
     * Create an instance.
     * Call setKnownElements and setKnownAttributes so that this object may know which
        elements and attribute names are already known to the database (if these two
@@ -54,13 +55,12 @@
     * Call the getters to retrieve the bind variable lists.
 
   This class has also been specifically designed to be used in conjunction with GCDatabaseInterface.
-*/
+
+---------------------------------------------------------------------------------------------------*/
 
 class GCBatchProcessorHelper
 {
 public:
-  /*--------------------------------------------------------------------------------------*/
-
   GCBatchProcessorHelper ( const QDomDocument *domDoc, const QString &stringSeparator );
   void setKnownElements  ( const QStringList &elements );
   void setKnownAttributes( const QStringList &attributeKeys );

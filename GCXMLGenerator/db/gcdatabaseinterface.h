@@ -34,8 +34,8 @@
 #include <QMap>
 #include <QtSql/QSqlQuery>
 
-/*--------------------------------------------------------------------------------------*/
-/*
+/*---------------------------------------------------------------------------------------------------
+
   This class is designed to set up and manage embedded SQLite databases used to profile
   XML documents.  Databases created by this class will consist of three tables:
 
@@ -61,13 +61,14 @@
                         database in question, the database will have all their root elements listed
                         in this table.
 
-*/
+---------------------------------------------------------------------------------------------------*/
 
 class QDomDocument;
 
 class GCDataBaseInterface : public QObject
 {
   Q_OBJECT
+
 public:
   /* Singleton. */
   static GCDataBaseInterface* instance();
@@ -146,12 +147,12 @@ private:
   static GCDataBaseInterface *m_instance;
   GCDataBaseInterface();
 
-  /* Overloaded for private use. */
-  QStringList knownRootElements( QSqlDatabase db ) const;
-
   QStringList knownAttributeKeys() const;
   QSqlQuery selectElement  ( const QString &element, bool &success ) const;
   QSqlQuery selectAttribute( const QString &attribute, const QString &associatedElement, bool &success ) const;
+
+  /* Overloaded for private use. */
+  QStringList knownRootElements( QSqlDatabase db ) const;
 
   /* After batch processing a DOM document, we concatenate new values to existing values
     in the record fields.  This function removes all duplicates that may have been

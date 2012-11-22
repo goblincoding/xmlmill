@@ -33,11 +33,25 @@
 #include <QObject>
 #include "forms/gcknowndbform.h"
 
+/*----------------------------------------------------------------------------------
+
+   The name pretty much says it all.  This guy is responsible for managing database
+   connections and active database sessions and will prompt the user to confirm
+   actions or changes that may result in the current DOM doc being reset.
+
+----------------------------------------------------------------------------------*/
+
 class GCDBSessionManager : public QObject
 {
   Q_OBJECT
+
 public:
   explicit GCDBSessionManager( QWidget *parent = 0 );
+
+  /* Should only be called directly in cases where there isn't an active
+    DOM document (for those it's best to use the functions that take the
+    known document root name as parameter to ensure that there will be no
+    accidental deletion of a user's work). */
   void showKnownDBForm( GCKnownDBForm::Buttons buttons );
 
   void switchDBSession( const QString &currentRoot = QString() );

@@ -34,7 +34,7 @@
 
 namespace GCMessageSpace
 {
-  /* Unnamed namespace hides our "member" variables. */
+  /* Hides our "member" variables. */
   namespace
   {
     QSettings settings( "William Hallatt", "GoblinCoding's XML Studio" );
@@ -42,6 +42,7 @@ namespace GCMessageSpace
   }
 
   /*------------------------------------------------------------------------------------*/
+
   /* Uses QSettings to save the user preference to the registry (Windows) or
     relevant XML files (Mac) or ini (Unix). */
   bool userAccepted( const QString &uniqueMessageKey,
@@ -108,6 +109,7 @@ namespace GCMessageSpace
   }
 
   /*------------------------------------------------------------------------------------*/
+
   void forgetAllPreferences()
   {
     settings.beginGroup( "Messages" );

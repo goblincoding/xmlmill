@@ -33,10 +33,21 @@
 #include "forms/gcmessagedialog.h"
 #include <QVariant>
 
+/*----------------------------------------------------------------------------------------
+
+   GCMessageSpace is responsible for the display of messages that require user input
+   and may be subject to a saved user preference being viable.  In cases where a user
+   preference can be saved, GCMessageSpace will persist the changes to whatever medium
+   exists on the platform it's running on (Windows registry, Mac XML, Unix ini).
+
+   This space is not responsible for error messages or messages that must always be shown.
+
+----------------------------------------------------------------------------------------*/
+
 namespace GCMessageSpace
 {
   /* This function will return the saved user preference (if there is one),
-    or prompt the user for a decision. */
+    or prompt the user for a decision and return the user's choice. */
   bool userAccepted( const QString &uniqueMessageKey,
                      const QString &heading,
                      const QString &text,

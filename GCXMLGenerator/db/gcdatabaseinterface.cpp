@@ -179,209 +179,6 @@ bool GCDataBaseInterface::initialised()
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::addDatabase( const QString &dbName )
-{
-  if( !dbName.isEmpty() )
-  {
-    /* The DB name passed in will most probably consist of a path/to/file string. */
-    QString dbConName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
-
-    if( !m_dbMap.contains( dbConName ) )
-    {
-      QSqlDatabase db = QSqlDatabase::addDatabase( "QSQLITE", dbConName );
-
-      if( db.isValid() )
-      {
-        db.setDatabaseName( dbName );
-        m_dbMap.insert( dbConName, dbName );
-        saveDBFile();
-
-        m_lastErrorMsg = "";
-        return true;
-      }
-
-      m_lastErrorMsg = QString( "Failed to add database \"%1\": [%2]." ).arg( dbConName ).arg( db.lastError().text() );
-      return false;
-    }
-    else
-    {
-      m_lastErrorMsg = QString( "Connection \"%1\" already exists." ).arg( dbConName );
-      return false;
-    }
-  }
-
-  m_lastErrorMsg = QString( "Database name is empty." );
-  return false;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-bool GCDataBaseInterface::removeDatabase( const QString &dbName )
-{
-  if( !dbName.isEmpty() )
-  {
-    /* The DB name passed in will most probably consist of a path/to/file string. */
-    QString dbConName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
-
-    if( m_sessionDB.connectionName() == dbConName )
-    {
-      m_sessionDB.close();
-      m_hasActiveSession = false;
-    }
-
-    QFile file( m_dbMap.value( dbConName ) );
-
-    if( !file.remove() )
-    {
-      m_lastErrorMsg = QString( "Failed to remove database file: [%1]")
-          .arg( dbName );
-      return false;
-    }
-
-    /* If the DB connection being removed was also the active one, "removeDatabase" will output
-      a warning.  This is purely because we have a DB member variable and isn't cause for concern
-      as there seems to be no way around it with the current QtSQL modules. */
-    QSqlDatabase::removeDatabase( dbConName );
-    m_dbMap.remove( dbConName );
-    saveDBFile();
-
-    m_lastErrorMsg = "";
-    return true;
-  }
-
-  m_lastErrorMsg = QString( "Database name is empty." );
-  return false;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-bool GCDataBaseInterface::setSessionDB( const QString &dbName )
-{
-  /* The DB name passed in will most probably consist of a path/to/file string. */
-  QString dbConName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
-
-  if( QSqlDatabase::contains( dbConName ) )
-  {
-    if( openDBConnection( dbConName ) )
-    {
-      m_hasActiveSession = true;
-      return true;
-    }
-  }
-  else
-  {
-    /* If we set a DB for the session that doesn't exist (new, unknown),
-      then we'll automatically try to add it and set it as active. */
-    if( addDatabase( dbName ) )
-    {
-      if( openDBConnection( dbConName ) )
-      {
-        m_hasActiveSession = true;
-        return true;
-      }
-    }
-
-    m_hasActiveSession = false;
-    return false;
-  }
-
-  m_hasActiveSession = false;
-  return false;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-bool GCDataBaseInterface::openDBConnection( const QString &dbConName )
-{
-  /* If we have a previous connection open, close it. */
-  if( m_sessionDB.isValid() && m_sessionDB.isOpen() )
-  {
-    m_sessionDB.close();
-  }
-
-  /* Open the new connection. */
-  m_sessionDB = QSqlDatabase::database( dbConName );
-
-  if( m_sessionDB.isValid() )
-  {
-    if ( !m_sessionDB.open() )
-    {
-      m_lastErrorMsg = QString( "Failed to open database \"%1\": [%2]." )
-          .arg( m_dbMap.value( dbConName ) )
-          .arg( m_sessionDB.lastError().text() );
-      return false;
-    }
-
-    /* If the DB has not yet been initialised. */
-    QStringList tables = m_sessionDB.tables();
-
-    if ( !tables.contains( "xmlelements", Qt::CaseInsensitive ) )
-    {
-      return createDBTables();
-    }
-  }
-  else
-  {
-    m_lastErrorMsg = QString( "Failed to open a valid session connection \"%1\": [%2]" )
-        .arg( dbConName )
-        .arg( m_sessionDB.lastError().text() );
-    return false;
-  }
-
-  m_lastErrorMsg = "";
-  return true;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-bool GCDataBaseInterface::createDBTables() const
-{
-  /* DB connection will be open from openDBConnection() above so no need
-    to do any checks here. */
-  QSqlQuery query( m_sessionDB );
-
-  if( !query.exec( "CREATE TABLE xmlelements( element QString primary key, children QString, attributes QString )" ) )
-  {
-    m_lastErrorMsg = QString( "Failed to create elements table for \"%1\": [%2]." )
-        .arg( m_sessionDB.connectionName() )
-        .arg( query.lastError().text() );
-    return false;
-  }
-
-  if( !query.exec( "CREATE TABLE xmlattributes( attribute QString, associatedElement QString, attributeValues QString, "
-                   "UNIQUE(attribute, associatedElement), "
-                   "FOREIGN KEY(associatedElement) REFERENCES xmlelements(element) )" ) )
-  {
-    m_lastErrorMsg = QString( "Failed to create attribute values table for \"%1\": [%2]" )
-        .arg( m_sessionDB.connectionName() )
-        .arg( query.lastError().text() );
-    return false;
-  }
-  else
-  {
-    if( !query.exec( "CREATE UNIQUE INDEX attributeKey ON xmlattributes( attribute, associatedElement)") )
-    {
-      m_lastErrorMsg = QString( "Failed to create unique index for \"%1\": [%2]" )
-          .arg( m_sessionDB.connectionName() )
-          .arg( query.lastError().text() );
-      return false;
-    }
-  }
-
-  if( !query.exec( "CREATE TABLE rootelements( root QString primary key )" ) )
-  {
-    m_lastErrorMsg = QString( "Failed to create root elements table for \"%1\": [%2]" )
-        .arg( m_sessionDB.connectionName() )
-        .arg( query.lastError().text() );
-    return false;
-  }
-
-  m_lastErrorMsg = "";
-  return true;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument *domDoc ) const
 {
   GCBatchProcessorHelper helper( domDoc, SEPARATOR );
@@ -389,7 +186,6 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument *domDoc ) 
   helper.setKnownAttributes( knownAttributeKeys() );
   helper.createVariantLists();
 
-  /* Insert the document root element into the rootelements table. */
   if( !addRootElement( domDoc->documentElement().tagName() ) )
   {
     /* Last error message is set in "addRootElement". */
@@ -511,157 +307,6 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument *domDoc ) 
   }
 
   return removeDuplicatesFromFields();
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-bool GCDataBaseInterface::removeDuplicatesFromFields() const
-{
-  bool success( false );
-
-  /* Remove duplicates and update the element records. */
-  QStringList elementNames = knownElements();
-  QString element( "" );
-
-  for( int i = 0; i < elementNames.size(); ++i )
-  {
-    element = elementNames.at( i );
-    QSqlQuery query = selectElement( element, success );
-
-    /* Check that we are working with a valid query. */
-    if( success )
-    {
-      /* Does a record for this element exist? */
-      if( query.first() )
-      {
-        QStringList allChildren  ( query.record().field( "children" ).value().toString().split( SEPARATOR ) );
-        QStringList allAttributes( query.record().field( "attributes" ).value().toString().split( SEPARATOR ) );
-
-        if( !query.prepare( UPDATE_CHILDREN ) )
-        {
-          m_lastErrorMsg = QString( "Prepare UPDATE element children failed for element \"%1\": [%2]" )
-              .arg( element )
-              .arg( query.lastError().text() );
-          return false;
-        }
-
-        query.addBindValue( cleanAndJoinListElements( allChildren ) );
-        query.addBindValue( element );
-
-        if( !query.exec() )
-        {
-          m_lastErrorMsg = QString( "UPDATE children failed for element \"%1\": [%2]" )
-              .arg( element )
-              .arg( query.lastError().text() );
-          return false;
-        }
-
-        if( !query.prepare( UPDATE_ATTRIBUTES ) )
-        {
-          m_lastErrorMsg = QString( "Prepare UPDATE element attributes failed for element \"%1\": [%2]" )
-              .arg( element )
-              .arg( query.lastError().text() );
-          return false;
-        }
-
-        query.addBindValue( cleanAndJoinListElements( allAttributes ) );
-        query.addBindValue( element );
-
-        if( !query.exec() )
-        {
-          m_lastErrorMsg = QString( "UPDATE attributes failed for element \"%1\": [%2]" )
-              .arg( element )
-              .arg( query.lastError().text() );
-          return false;
-        }
-      }
-    }
-    else
-    {
-      /* Last error message set in selectElement(). */
-      return false;
-    }
-  }
-
-  /* Remove duplicates and update the attribute values records. */
-  QStringList attributeKeys = knownAttributeKeys();
-
-  for( int i = 0; i < attributeKeys.size(); ++i )
-  {
-    QString attribute         = attributeKeys.at( i ).split( "!" ).at( 0 );
-    QString associatedElement = attributeKeys.at( i ).split( "!" ).at( 1 );
-    QSqlQuery query = selectAttribute( attribute, associatedElement, success );
-
-    /* Check that we are working with a valid query. */
-    if( success )
-    {
-      /* Does a record for this attribute exist? */
-      if( query.first() )
-      {
-        QStringList allValues( query.record().field( "attributeValues" ).value().toString().split( SEPARATOR ) );
-
-        if( !query.prepare( UPDATE_ATTRIBUTEVALUES ) )
-        {
-          m_lastErrorMsg = QString( "Prepare UPDATE attribute values failed for element \"%1\" and attribute \"%2\": [%3]" )
-              .arg( associatedElement )
-              .arg( attribute )
-              .arg( query.lastError().text() );
-          return false;
-        }
-
-        query.addBindValue( cleanAndJoinListElements( allValues ) );
-        query.addBindValue( attribute );
-        query.addBindValue( associatedElement );
-
-        if( !query.exec() )
-        {
-          m_lastErrorMsg = QString( "UPDATE attribute values failed for element \"%1\" and attribute \"%2\": [%3]" )
-              .arg( associatedElement )
-              .arg( attribute )
-              .arg( query.lastError().text() );
-          return false;
-        }
-      }
-    }
-    else
-    {
-      /* Last error message set in selectElement(). */
-      return false;
-    }
-  }
-
-  m_lastErrorMsg = "";
-  return true;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-QSqlQuery GCDataBaseInterface::selectElement( const QString &element, bool &success ) const
-{
-  /* See if we already have this element in the DB. */
-  QSqlQuery query( m_sessionDB );
-
-  if( !query.prepare( "SELECT * FROM xmlelements WHERE element = ?" ) )
-  {
-    m_lastErrorMsg = QString( "Prepare SELECT failed for element \"%1\": [%2]" )
-        .arg( element )
-        .arg( query.lastError().text() );
-    success = false;
-  }
-
-  query.addBindValue( element );
-
-  if( !query.exec() )
-  {
-    m_lastErrorMsg = QString( "SELECT element failed for element \"%1\": [%2]" )
-        .arg( element )
-        .arg( query.lastError().text() );
-    success = false;
-  }
-
-  m_lastErrorMsg = "";
-  success = true;
-  return query;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -855,37 +500,6 @@ bool GCDataBaseInterface::updateElementAttributes( const QString &element, const
 
 /*--------------------------------------------------------------------------------------*/
 
-QSqlQuery GCDataBaseInterface::selectAttribute( const QString &attribute, const QString &associatedElement, bool &success ) const
-{
-  QSqlQuery query( m_sessionDB );
-
-  if( !query.prepare( "SELECT * FROM xmlattributes WHERE attribute = ? AND associatedElement = ?" ) )
-  {
-    m_lastErrorMsg = QString( "Prepare SELECT attribute failed for attribute \"%1\" and element \"%2\": [%3]" )
-        .arg( attribute )
-        .arg( associatedElement )
-        .arg( query.lastError().text() );
-    success = false;
-  }
-
-  query.addBindValue( attribute );
-  query.addBindValue( associatedElement );
-
-  if( !query.exec() )
-  {
-    m_lastErrorMsg = QString( "SELECT attribute failed for attribute \"%1\" and element \"%2\": [%3]" )
-        .arg( attribute )
-        .arg( associatedElement )
-        .arg( query.lastError().text() );
-    success = false;
-  }
-
-  success = true;
-  return query;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 bool GCDataBaseInterface::updateAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const
 {
   bool success( false );
@@ -989,6 +603,27 @@ bool GCDataBaseInterface::removeRootElement( const QString &element )
 
 /*--------------------------------------------------------------------------------------*/
 
+QStringList GCDataBaseInterface::getDBList() const
+{
+  return m_dbMap.keys();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+QString GCDataBaseInterface::getLastError() const
+{
+  return m_lastErrorMsg;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCDataBaseInterface::hasActiveSession() const
+{
+  return m_hasActiveSession;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 QStringList GCDataBaseInterface::knownElements() const
 {
   QSqlQuery query( m_sessionDB );
@@ -1010,94 +645,6 @@ QStringList GCDataBaseInterface::knownElements() const
   cleanList( elementNames );
   elementNames.sort();
   return elementNames;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-QStringList GCDataBaseInterface::knownAttributeKeys() const
-{
-  QSqlQuery query( m_sessionDB );
-
-  if( !query.exec( "SELECT * FROM xmlattributes" ) )
-  {
-    m_lastErrorMsg = QString( "SELECT all attribute values failed: [%1]" )
-        .arg( query.lastError().text() );
-    return QStringList();
-  }
-
-  QStringList attributeNames;
-
-  while( query.next() )
-  {
-    /* Concatenate the attribute name and associated element into a single string
-      so that it is easier to determine whether a record already exists for that
-      particular combination. */
-    attributeNames.append( query.record().field( "attribute" ).value().toString() +
-                           "!" +
-                           query.record().field( "associatedElement" ).value().toString());
-  }
-
-  return attributeNames;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-QStringList GCDataBaseInterface::knownRootElements() const
-{
-  return knownRootElements( m_sessionDB );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-QStringList GCDataBaseInterface::knownRootElements( QSqlDatabase db ) const
-{
-  QSqlQuery query( db );
-
-  if( !query.exec( "SELECT * FROM rootelements" ) )
-  {
-    m_lastErrorMsg = QString( "SELECT all root elements failed: [%1]" )
-        .arg( query.lastError().text() );
-    return QStringList();
-  }
-
-  QStringList rootElements;
-
-  while( query.next() )
-  {
-    rootElements.append( query.record().field( "root" ).value().toString() );
-  }
-
-  cleanList( rootElements );
-  return rootElements;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-bool GCDataBaseInterface::containsKnownRootElement( const QString &dbName, const QString &root ) const
-{
-  /* The DB name passed in might consist of a path/to/file string. */
-  QString dbConName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
-
-  /* No error messages are logged for this specific query since we aren't necessarily concerned with
-    the session we're querying (it may not be the active session). */
-  if( QSqlDatabase::contains( dbConName ) )
-  {
-    QSqlDatabase db = QSqlDatabase::database( dbConName );
-
-    if( db.isValid() && db.open() )
-    {
-      if( knownRootElements( db ).contains( root ) )
-      {
-        return true;
-      }
-      else
-      {
-        return false;
-      }
-    }
-  }
-
-  return false;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1161,6 +708,479 @@ QStringList GCDataBaseInterface::attributeValues( const QString &element, const 
 
 /*--------------------------------------------------------------------------------------*/
 
+QStringList GCDataBaseInterface::knownRootElements() const
+{
+  return knownRootElements( m_sessionDB );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+QStringList GCDataBaseInterface::knownRootElements( QSqlDatabase db ) const
+{
+  QSqlQuery query( db );
+
+  if( !query.exec( "SELECT * FROM rootelements" ) )
+  {
+    m_lastErrorMsg = QString( "SELECT all root elements failed: [%1]" )
+        .arg( query.lastError().text() );
+    return QStringList();
+  }
+
+  QStringList rootElements;
+
+  while( query.next() )
+  {
+    rootElements.append( query.record().field( "root" ).value().toString() );
+  }
+
+  cleanList( rootElements );
+  return rootElements;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCDataBaseInterface::containsKnownRootElement( const QString &dbName, const QString &root ) const
+{
+  /* In case the db name passed in consists of a path/to/file string. */
+  QString dbConName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
+
+  /* No error messages are logged for this specific query since we aren't necessarily concerned with
+    the session we're querying (it may not be the active session). */
+  if( QSqlDatabase::contains( dbConName ) )
+  {
+    QSqlDatabase db = QSqlDatabase::database( dbConName );
+
+    if( db.isValid() && db.open() )
+    {
+      if( knownRootElements( db ).contains( root ) )
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+    }
+  }
+
+  return false;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCDataBaseInterface::addDatabase( const QString &dbName )
+{
+  if( !dbName.isEmpty() )
+  {
+    /* In case the db name passed in consists of a path/to/file string. */
+    QString dbConName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
+
+    if( !m_dbMap.contains( dbConName ) )
+    {
+      QSqlDatabase db = QSqlDatabase::addDatabase( "QSQLITE", dbConName );
+
+      if( db.isValid() )
+      {
+        db.setDatabaseName( dbName );
+        m_dbMap.insert( dbConName, dbName );
+        saveDBFile();
+
+        m_lastErrorMsg = "";
+        return true;
+      }
+
+      m_lastErrorMsg = QString( "Failed to add database \"%1\": [%2]." ).arg( dbConName ).arg( db.lastError().text() );
+      return false;
+    }
+    else
+    {
+      m_lastErrorMsg = QString( "Connection \"%1\" already exists." ).arg( dbConName );
+      return false;
+    }
+  }
+
+  m_lastErrorMsg = QString( "Database name is empty." );
+  return false;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCDataBaseInterface::removeDatabase( const QString &dbName )
+{
+  if( !dbName.isEmpty() )
+  {
+    /* In case the db name passed in consists of a path/to/file string. */
+    QString dbConName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
+
+    if( m_sessionDB.connectionName() == dbConName )
+    {
+      m_sessionDB.close();
+      m_hasActiveSession = false;
+    }
+
+    QFile file( m_dbMap.value( dbConName ) );
+
+    if( !file.remove() )
+    {
+      m_lastErrorMsg = QString( "Failed to remove database file: [%1]")
+          .arg( dbName );
+      return false;
+    }
+
+    /* If the DB connection being removed was also the active one, "removeDatabase" will output
+      a warning (to the Qt IDE's "Application Output" window).  This is purely because we have a
+      DB member variable and isn't cause for concern as there seems to be no way around it with
+      the current QtSQL modules. */
+    QSqlDatabase::removeDatabase( dbConName );
+    m_dbMap.remove( dbConName );
+    saveDBFile();
+
+    m_lastErrorMsg = "";
+    return true;
+  }
+
+  m_lastErrorMsg = QString( "Database name is empty." );
+  return false;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCDataBaseInterface::setSessionDB( const QString &dbName )
+{
+  /* In case the db name passed in consists of a path/to/file string. */
+  QString dbConName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
+
+  if( QSqlDatabase::contains( dbConName ) )
+  {
+    if( openDBConnection( dbConName ) )
+    {
+      m_hasActiveSession = true;
+      return true;
+    }
+  }
+  else
+  {
+    /* If we set a DB for the session that doesn't exist (new, unknown),
+      then we'll automatically try to add it and set it as active. */
+    if( addDatabase( dbName ) )
+    {
+      if( openDBConnection( dbConName ) )
+      {
+        m_hasActiveSession = true;
+        return true;
+      }
+    }
+
+    m_hasActiveSession = false;
+    return false;
+  }
+
+  m_hasActiveSession = false;
+  return false;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+QStringList GCDataBaseInterface::knownAttributeKeys() const
+{
+  QSqlQuery query( m_sessionDB );
+
+  if( !query.exec( "SELECT * FROM xmlattributes" ) )
+  {
+    m_lastErrorMsg = QString( "SELECT all attribute values failed: [%1]" )
+        .arg( query.lastError().text() );
+    return QStringList();
+  }
+
+  QStringList attributeNames;
+
+  while( query.next() )
+  {
+    /* Concatenate the attribute name and associated element into a single string
+      so that it is easier to determine whether a record already exists for that
+      particular combination (this is used in GCBatchProcessorHelper). */
+    attributeNames.append( query.record().field( "attribute" ).value().toString() +
+                           "!" +
+                           query.record().field( "associatedElement" ).value().toString());
+  }
+
+  return attributeNames;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+QSqlQuery GCDataBaseInterface::selectElement( const QString &element, bool &success ) const
+{
+  /* See if we already have this element in the DB. */
+  QSqlQuery query( m_sessionDB );
+
+  if( !query.prepare( "SELECT * FROM xmlelements WHERE element = ?" ) )
+  {
+    m_lastErrorMsg = QString( "Prepare SELECT failed for element \"%1\": [%2]" )
+        .arg( element )
+        .arg( query.lastError().text() );
+    success = false;
+  }
+
+  query.addBindValue( element );
+
+  if( !query.exec() )
+  {
+    m_lastErrorMsg = QString( "SELECT element failed for element \"%1\": [%2]" )
+        .arg( element )
+        .arg( query.lastError().text() );
+    success = false;
+  }
+
+  m_lastErrorMsg = "";
+  success = true;
+  return query;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+QSqlQuery GCDataBaseInterface::selectAttribute( const QString &attribute, const QString &associatedElement, bool &success ) const
+{
+  QSqlQuery query( m_sessionDB );
+
+  if( !query.prepare( "SELECT * FROM xmlattributes WHERE attribute = ? AND associatedElement = ?" ) )
+  {
+    m_lastErrorMsg = QString( "Prepare SELECT attribute failed for attribute \"%1\" and element \"%2\": [%3]" )
+        .arg( attribute )
+        .arg( associatedElement )
+        .arg( query.lastError().text() );
+    success = false;
+  }
+
+  query.addBindValue( attribute );
+  query.addBindValue( associatedElement );
+
+  if( !query.exec() )
+  {
+    m_lastErrorMsg = QString( "SELECT attribute failed for attribute \"%1\" and element \"%2\": [%3]" )
+        .arg( attribute )
+        .arg( associatedElement )
+        .arg( query.lastError().text() );
+    success = false;
+  }
+
+  success = true;
+  return query;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCDataBaseInterface::removeDuplicatesFromFields() const
+{
+  bool success( false );
+
+  /* Remove duplicates and update the element records. */
+  QStringList elementNames = knownElements();
+  QString element( "" );
+
+  for( int i = 0; i < elementNames.size(); ++i )
+  {
+    element = elementNames.at( i );
+    QSqlQuery query = selectElement( element, success );
+
+    /* Check that we are working with a valid query. */
+    if( success )
+    {
+      /* Does a record for this element exist? */
+      if( query.first() )
+      {
+        QStringList allChildren  ( query.record().field( "children" ).value().toString().split( SEPARATOR ) );
+        QStringList allAttributes( query.record().field( "attributes" ).value().toString().split( SEPARATOR ) );
+
+        if( !query.prepare( UPDATE_CHILDREN ) )
+        {
+          m_lastErrorMsg = QString( "Prepare UPDATE element children failed for element \"%1\": [%2]" )
+              .arg( element )
+              .arg( query.lastError().text() );
+          return false;
+        }
+
+        query.addBindValue( cleanAndJoinListElements( allChildren ) );
+        query.addBindValue( element );
+
+        if( !query.exec() )
+        {
+          m_lastErrorMsg = QString( "UPDATE children failed for element \"%1\": [%2]" )
+              .arg( element )
+              .arg( query.lastError().text() );
+          return false;
+        }
+
+        if( !query.prepare( UPDATE_ATTRIBUTES ) )
+        {
+          m_lastErrorMsg = QString( "Prepare UPDATE element attributes failed for element \"%1\": [%2]" )
+              .arg( element )
+              .arg( query.lastError().text() );
+          return false;
+        }
+
+        query.addBindValue( cleanAndJoinListElements( allAttributes ) );
+        query.addBindValue( element );
+
+        if( !query.exec() )
+        {
+          m_lastErrorMsg = QString( "UPDATE attributes failed for element \"%1\": [%2]" )
+              .arg( element )
+              .arg( query.lastError().text() );
+          return false;
+        }
+      }
+    }
+    else
+    {
+      /* Last error message set in selectElement(). */
+      return false;
+    }
+  }
+
+  /* Remove duplicates and update the attribute values records. */
+  QStringList attributeKeys = knownAttributeKeys();
+
+  for( int i = 0; i < attributeKeys.size(); ++i )
+  {
+    QString attribute         = attributeKeys.at( i ).split( "!" ).at( 0 );
+    QString associatedElement = attributeKeys.at( i ).split( "!" ).at( 1 );
+    QSqlQuery query = selectAttribute( attribute, associatedElement, success );
+
+    /* Check that we are working with a valid query. */
+    if( success )
+    {
+      /* Does a record for this attribute exist? */
+      if( query.first() )
+      {
+        QStringList allValues( query.record().field( "attributeValues" ).value().toString().split( SEPARATOR ) );
+
+        if( !query.prepare( UPDATE_ATTRIBUTEVALUES ) )
+        {
+          m_lastErrorMsg = QString( "Prepare UPDATE attribute values failed for element \"%1\" and attribute \"%2\": [%3]" )
+              .arg( associatedElement )
+              .arg( attribute )
+              .arg( query.lastError().text() );
+          return false;
+        }
+
+        query.addBindValue( cleanAndJoinListElements( allValues ) );
+        query.addBindValue( attribute );
+        query.addBindValue( associatedElement );
+
+        if( !query.exec() )
+        {
+          m_lastErrorMsg = QString( "UPDATE attribute values failed for element \"%1\" and attribute \"%2\": [%3]" )
+              .arg( associatedElement )
+              .arg( attribute )
+              .arg( query.lastError().text() );
+          return false;
+        }
+      }
+    }
+    else
+    {
+      /* Last error message set in selectElement(). */
+      return false;
+    }
+  }
+
+  m_lastErrorMsg = "";
+  return true;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCDataBaseInterface::openDBConnection( const QString &dbConName )
+{
+  /* If we have a previous connection open, close it. */
+  if( m_sessionDB.isValid() && m_sessionDB.isOpen() )
+  {
+    m_sessionDB.close();
+  }
+
+  /* Open the new connection. */
+  m_sessionDB = QSqlDatabase::database( dbConName );
+
+  if( m_sessionDB.isValid() )
+  {
+    if ( !m_sessionDB.open() )
+    {
+      m_lastErrorMsg = QString( "Failed to open database \"%1\": [%2]." )
+          .arg( m_dbMap.value( dbConName ) )
+          .arg( m_sessionDB.lastError().text() );
+      return false;
+    }
+
+    /* If the DB has not yet been initialised. */
+    QStringList tables = m_sessionDB.tables();
+
+    if ( !tables.contains( "xmlelements", Qt::CaseInsensitive ) )
+    {
+      return createDBTables();
+    }
+  }
+  else
+  {
+    m_lastErrorMsg = QString( "Failed to open a valid session connection \"%1\": [%2]" )
+        .arg( dbConName )
+        .arg( m_sessionDB.lastError().text() );
+    return false;
+  }
+
+  m_lastErrorMsg = "";
+  return true;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCDataBaseInterface::createDBTables() const
+{
+  /* DB connection will be open from openDBConnection() above so no need to do any checks here. */
+  QSqlQuery query( m_sessionDB );
+
+  if( !query.exec( "CREATE TABLE xmlelements( element QString primary key, children QString, attributes QString )" ) )
+  {
+    m_lastErrorMsg = QString( "Failed to create elements table for \"%1\": [%2]." )
+        .arg( m_sessionDB.connectionName() )
+        .arg( query.lastError().text() );
+    return false;
+  }
+
+  if( !query.exec( "CREATE TABLE xmlattributes( attribute QString, associatedElement QString, attributeValues QString, "
+                   "UNIQUE(attribute, associatedElement), "
+                   "FOREIGN KEY(associatedElement) REFERENCES xmlelements(element) )" ) )
+  {
+    m_lastErrorMsg = QString( "Failed to create attribute values table for \"%1\": [%2]" )
+        .arg( m_sessionDB.connectionName() )
+        .arg( query.lastError().text() );
+    return false;
+  }
+  else
+  {
+    if( !query.exec( "CREATE UNIQUE INDEX attributeKey ON xmlattributes( attribute, associatedElement)") )
+    {
+      m_lastErrorMsg = QString( "Failed to create unique index for \"%1\": [%2]" )
+          .arg( m_sessionDB.connectionName() )
+          .arg( query.lastError().text() );
+      return false;
+    }
+  }
+
+  if( !query.exec( "CREATE TABLE rootelements( root QString primary key )" ) )
+  {
+    m_lastErrorMsg = QString( "Failed to create root elements table for \"%1\": [%2]" )
+        .arg( m_sessionDB.connectionName() )
+        .arg( query.lastError().text() );
+    return false;
+  }
+
+  m_lastErrorMsg = "";
+  return true;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCDataBaseInterface::saveDBFile() const
 {
   QFile flatFile( DB_FILE );
@@ -1176,27 +1196,6 @@ void GCDataBaseInterface::saveDBFile() const
 
     flatFile.close();
   }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-QStringList GCDataBaseInterface::getDBList() const
-{
-  return m_dbMap.keys();
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-QString GCDataBaseInterface::getLastError() const
-{
-  return m_lastErrorMsg;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-bool GCDataBaseInterface::hasActiveSession() const
-{
-  return m_hasActiveSession;
 }
 
 /*--------------------------------------------------------------------------------------*/

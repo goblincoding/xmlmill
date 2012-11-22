@@ -37,7 +37,8 @@ GCMessageDialog::GCMessageDialog( bool *remember,
                                   const QString &text,
                                   ButtonCombo buttons,
                                   Buttons defaultButton,
-                                  Icon icon ) :
+                                  Icon icon ) 
+    :
   ui        ( new Ui::GCMessageDialog ),
   m_remember( remember )
 {
@@ -100,7 +101,7 @@ GCMessageDialog::GCMessageDialog( bool *remember,
 
 GCMessageDialog::~GCMessageDialog()
 {
-  /* The variable m_remember points to is owned externally. */
+  /* The variable that "m_remember" points to is owned externally. */
   delete ui;
 }
 
