@@ -115,6 +115,9 @@ private slots:
   void saveXMLFileAs();
 
   /* DOM and DB. */
+  void addNewDB();
+  void addExistingDB();
+  void removeDB();
   void switchDBSession();
   void importXMLToDatabase();
 

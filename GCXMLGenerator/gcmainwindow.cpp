@@ -152,7 +152,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionForgetPreferences,     SIGNAL( triggered() ),     this, SLOT( forgetAllMessagePreferences() ) );
   connect( ui->dontShowContentCheckBox,     SIGNAL( toggled( bool ) ), this, SLOT( toggleShowDocContent( bool ) ) );
   connect( ui->actionImportXMLToDatabase,   SIGNAL( triggered() ),     this, SLOT( importXMLToDatabase() ) );
-  connect( ui->actionSwitchSessionDatabase, SIGNAL( triggered() ),     this, SLOT( switchDBSession() ) );
 
   /* Everything tree widget related ("itemChanged" will only ever be emitted in Super User mode
     since tree widget items aren't editable otherwise). */
@@ -167,10 +166,12 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->tableWidget,                 SIGNAL( itemActivated( QTableWidgetItem* ) ),     this, SLOT( setActiveAttributeName( QTableWidgetItem* ) ) );
 
   /* Database related. */
-  connect( ui->actionAddNewDatabase,        SIGNAL( triggered() ), m_dbSessionManager,  SLOT( addNewDB() ) );
-  connect( ui->actionAddExistingDatabase,   SIGNAL( triggered() ), m_dbSessionManager,  SLOT( addExistingDB() ) );
-  connect( ui->actionRemoveDatabase,        SIGNAL( triggered() ), m_dbSessionManager,  SLOT( removeDB() ) );
-  connect( m_dbSessionManager,              SIGNAL( reset() ),     this,                SLOT( resetDOM() ) );
+  connect( ui->actionSwitchSessionDatabase, SIGNAL( triggered() ), this, SLOT( switchDBSession() ) );
+  connect( ui->actionAddNewDatabase,        SIGNAL( triggered() ), this, SLOT( addNewDB() ) );
+  connect( ui->actionAddExistingDatabase,   SIGNAL( triggered() ), this, SLOT( addExistingDB() ) );
+  connect( ui->actionRemoveDatabase,        SIGNAL( triggered() ), this, SLOT( removeDB() ) );
+  connect( m_dbSessionManager,              SIGNAL( reset() ),     this, SLOT( resetDOM() ) );
+  connect( m_dbSessionManager,              SIGNAL( dbSessionChanged() ), this, SLOT( dbSessionChanged() ) );
   connect( m_dbSessionManager,              SIGNAL( userCancelledKnownDBForm() ), this, SLOT( userCancelledKnownDBForm() ) );
 
   /* Initialise the database interface and retrieve the list of database names (this will
@@ -727,9 +728,58 @@ void GCMainWindow::saveXMLFileAs()
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCMainWindow::addNewDB()
+{
+  if( m_domDoc->documentElement().isNull() )
+  {
+    m_dbSessionManager->addNewDB();
+  }
+  else
+  {
+    m_dbSessionManager->addNewDB( m_domDoc->documentElement().tagName() );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::addExistingDB()
+{
+  if( m_domDoc->documentElement().isNull() )
+  {
+    m_dbSessionManager->addExistingDB();
+  }
+  else
+  {
+    m_dbSessionManager->addExistingDB( m_domDoc->documentElement().tagName() );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::removeDB()
+{
+  if( m_domDoc->documentElement().isNull() )
+  {
+    m_dbSessionManager->removeDB();
+  }
+  else
+  {
+    m_dbSessionManager->removeDB( m_domDoc->documentElement().tagName() );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCMainWindow::switchDBSession()
 {
-  m_dbSessionManager->switchDBSession( m_treeItemNodes.isEmpty() );
+  if( m_domDoc->documentElement().isNull() )
+  {
+    m_dbSessionManager->switchDBSession();
+  }
+  else
+  {
+    m_dbSessionManager->switchDBSession( m_domDoc->documentElement().tagName() );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
