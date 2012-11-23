@@ -55,6 +55,7 @@ class QComboBox;
 class QDomDocument;
 class QDomElement;
 class QTimer;
+class QLabel;
 
 class GCMainWindow : public QMainWindow
 {
@@ -165,6 +166,7 @@ private:
   QDomDocument        *m_domDoc;
   QWidget             *m_currentCombo;
   QTimer              *m_saveTimer;
+  QLabel              *m_activeSessionLabel;
   QString              m_currentXMLFileName;
   QString              m_activeAttributeName;
   bool                 m_userCancelled;

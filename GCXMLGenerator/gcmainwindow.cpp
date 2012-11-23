@@ -106,6 +106,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_domDoc              ( NULL ),
   m_currentCombo        ( NULL ),
   m_saveTimer           ( NULL ),
+  m_activeSessionLabel  ( NULL ),
   m_currentXMLFileName  ( "" ),
   m_activeAttributeName ( "" ),
   m_userCancelled       ( false ),
@@ -1104,7 +1105,15 @@ void GCMainWindow::dbSessionChanged( QString dbName )
     resetDOM();
   }
 
-  statusBar()->showMessage( QString( "Active Session Name: %1" ).arg( dbName ) );
+  if( !m_activeSessionLabel )
+  {
+    m_activeSessionLabel = new QLabel( QString( "Active Session Name: %1" ).arg( dbName ) );
+    statusBar()->addWidget( m_activeSessionLabel );
+  }
+  else
+  {
+    m_activeSessionLabel->setText( QString( "Active Session Name: %1" ).arg( dbName ) );
+  }
 }
 
 
