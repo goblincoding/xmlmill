@@ -11,18 +11,17 @@
  *
  *                 <http://www.goblincoding.com/contact>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program (GNUGPL.txt).  If not, see
+ * You should have received a copy of the GNU General Public License along with
+ * this program (GNUGPL.txt).  If not, see
  *
  *                    <http://www.gnu.org/licenses/>
  */
@@ -32,6 +31,7 @@
 #include "db/gcdatabaseinterface.h"
 #include "xml/xmlsyntaxhighlighter.h"
 #include "forms/gcnewelementform.h"
+#include "forms/gchelpdialog.h"
 #include "utils/gccombobox.h"
 #include "utils/gcdbsessionmanager.h"
 #include "utils/gcmessagespace.h"
@@ -1226,11 +1226,11 @@ void GCMainWindow::userCancelledKnownDBForm()
 
 void GCMainWindow::showDOMEditHelp()
 {
-  QMessageBox::information( this,
-                            "Direct XML Edit",
-                            "Changes to manually edited XML can only be reverted before you hit \"Save\".\n"
-                            "In other words, it isn't an \"undo\" function so please make sure you don't \n "
-                            "save unless you're absolutely sure of your changes." );
+  /* Qt::WA_DeleteOnClose flag set...no cleanup required. */
+  GCHelpDialog *dialog = new GCHelpDialog( "Changes to manually edited XML can only be reverted before you hit \"Save\". "
+                                           "In other words, it isn't an \"undo\" function so please make sure you don't "
+                                           "save unless you're absolutely sure of your changes." );
+  dialog->show();
 }
 
 /*--------------------------------------------------------------------------------------*/

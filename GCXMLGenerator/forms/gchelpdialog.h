@@ -26,46 +26,31 @@
  *                    <http://www.gnu.org/licenses/>
  */
 
-#ifndef GCNEWELEMENTFORM_H
-#define GCNEWELEMENTFORM_H
+#ifndef GCHELPDIALOG_H
+#define GCHELPDIALOG_H
 
-#include <QWidget>
+#include <QDialog>
+
+namespace Ui {
+  class GCHelpDialog;
+}
 
 /*------------------------------------------------------------------------------------------
 
-  This form allows the user to add new elements and their associated attributes to the 
-  database.  Although only one element can be added at a time (with or without attributes), 
-  all an element's attributes can be provided in one go through simply ensuring that each 
-  attribute appears on its own line in the input text edit.  
-  
-  The user will also be allowed to continue adding elements until "Done" is selected.
+  This form simply displays help information.
 
 ------------------------------------------------------------------------------------------*/
 
-namespace Ui
-{
-  class GCNewElementForm;
-}
-
-class GCNewElementForm : public QWidget
+class GCHelpDialog : public QDialog
 {
   Q_OBJECT
   
 public:
-  explicit GCNewElementForm( QWidget *parent = 0 );
-  ~GCNewElementForm();
-
-signals:
-  /* Emits the name of the new element and the list of associated attributes
-    (or an empty list if the element doesn't have any attributes). */
-  void newElementDetails( const QString&, const QStringList& );
+  explicit GCHelpDialog( const QString &text, QWidget *parent = 0 );
+  ~GCHelpDialog();
   
-private slots:
-  void addElementAndAttributes();
-  void showHelp();
-
 private:
-  Ui::GCNewElementForm *ui;
+  Ui::GCHelpDialog *ui;
 };
 
-#endif // GCNEWELEMENTFORM_H
+#endif // GCHELPDIALOG_H

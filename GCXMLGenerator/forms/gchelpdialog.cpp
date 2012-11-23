@@ -26,31 +26,26 @@
  *                    <http://www.gnu.org/licenses/>
  */
 
-#ifndef GCCOMBOBOX_H
-#define GCCOMBOBOX_H
+#include "gchelpdialog.h"
+#include "ui_gchelpdialog.h"
 
-#include <QComboBox>
+/*--------------------------------------------------------------------------------------*/
 
-/*----------------------------------------------------------------------------------------
-
-  The only reason this class exists is so that we may know when a combo box is activated.
-  Initially I understood that the "activated" signal is emitted when a user clicks on
-  a QComboBox (e.g. when the dropdown is expanded), but it turns out that this is not the
-  case.
-
-----------------------------------------------------------------------------------------*/
-
-class GCComboBox : public QComboBox
+GCHelpDialog::GCHelpDialog(const QString &text, QWidget *parent) :
+  QDialog(parent),
+  ui(new Ui::GCHelpDialog)
 {
-  Q_OBJECT
+  ui->setupUi(this);
+  ui->textEdit->setText( text );
+  setAttribute( Qt::WA_DeleteOnClose );
+  connect( ui->closeButton, SIGNAL( clicked() ), this, SLOT( close() ) );
+}
 
-public:
-  explicit GCComboBox( QWidget *parent = 0 );
-  
-protected:
-  void mousePressEvent( QMouseEvent *e );
-  void focusInEvent( QFocusEvent *e );
-  
-};
+/*--------------------------------------------------------------------------------------*/
 
-#endif // GCCOMBOBOX_H
+GCHelpDialog::~GCHelpDialog()
+{
+  delete ui;
+}
+
+/*--------------------------------------------------------------------------------------*/
