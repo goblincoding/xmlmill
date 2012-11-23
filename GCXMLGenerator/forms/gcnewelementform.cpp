@@ -85,7 +85,7 @@ void GCNewElementForm::showHelp()
                             "element in one go: simply stick each of them on a separate line\n"
                             "in the text edit area and hit \"Add\" when you're done.\n\n"
                             "(oh, and if the element doesn't have associated attributes, just\n"
-                            "leave the text edit area empty)");
+                            "leave the text edit area empty)" );
 }
 
 /*--------------------------------------------------------------------------------------*/

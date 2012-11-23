@@ -62,7 +62,7 @@ public slots:
   void addNewDB     ( const QString &currentRoot = QString() ); // calls addDBConnection
 
 signals:
-  void dbSessionChanged();
+  void dbSessionChanged( QString );
   void userCancelledKnownDBForm();
   void reset();
   

@@ -137,17 +137,20 @@ private slots:
   void saveDirectEdit();
 
   /* These do exactly what you would expect. */
+  void dbSessionChanged          ( QString dbName );
   void collapseOrExpandTreeWidget( bool checked );
   void switchSuperUserMode       ( bool super );
   void toggleShowDocContent      ( bool show );
   void forgetAllMessagePreferences();
   void userCancelledKnownDBForm();
-  void dbSessionChanged();
+  void showDOMEditHelp();
+  void showMainHelp();
   
 private:
   void processDOMDoc();
   void populateTreeWidget   ( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
 
+  void setStatusBarMessage  ( const QString &message );
   void showErrorMessageBox  ( const QString &errorMsg );
   void setTextEditXML       ( const QDomElement &element );
   void showLargeFileWarnings( qint64 fileSize );

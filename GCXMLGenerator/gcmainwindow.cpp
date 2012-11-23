@@ -45,6 +45,7 @@
 #include <QComboBox>
 #include <QTimer>
 #include <QModelIndex>
+#include <QLabel>
 
 /*--------------------------------------------------------------------------------------*/
 
@@ -124,6 +125,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   ui->textSaveButton->setVisible     ( false );
   ui->textRevertButton->setVisible   ( false );
   ui->superUserLabel->setVisible     ( false );
+  ui->domEditHelpButton->setVisible  ( false );
   ui->dockWidgetTextEdit->setReadOnly( true );
 
   /* The user must see these actions exist, but shouldn't be able to access
@@ -143,6 +145,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->addChildElementButton,       SIGNAL( clicked() ),       this, SLOT( addChildElementToDOM() ) );
   connect( ui->textSaveButton,              SIGNAL( clicked() ),       this, SLOT( saveDirectEdit() ) );
   connect( ui->textRevertButton,            SIGNAL( clicked() ),       this, SLOT( revertDirectEdit() ) );
+  connect( ui->domEditHelpButton,           SIGNAL( clicked() ),       this, SLOT( showDOMEditHelp() ) );
 
   /* Various other actions. */
   connect( ui->actionSuperUserMode,         SIGNAL( toggled( bool ) ), this, SLOT( switchSuperUserMode( bool ) ) );
@@ -152,6 +155,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionForgetPreferences,     SIGNAL( triggered() ),     this, SLOT( forgetAllMessagePreferences() ) );
   connect( ui->dontShowContentCheckBox,     SIGNAL( toggled( bool ) ), this, SLOT( toggleShowDocContent( bool ) ) );
   connect( ui->actionImportXMLToDatabase,   SIGNAL( triggered() ),     this, SLOT( importXMLToDatabase() ) );
+  connect( ui->mainHelpButton,              SIGNAL( clicked() ),       this, SLOT( showMainHelp() ) );
 
   /* Everything tree widget related ("itemChanged" will only ever be emitted in Super User mode
     since tree widget items aren't editable otherwise). */
@@ -171,8 +175,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionAddExistingDatabase,   SIGNAL( triggered() ), this, SLOT( addExistingDB() ) );
   connect( ui->actionRemoveDatabase,        SIGNAL( triggered() ), this, SLOT( removeDB() ) );
   connect( m_dbSessionManager,              SIGNAL( reset() ),     this, SLOT( resetDOM() ) );
-  connect( m_dbSessionManager,              SIGNAL( dbSessionChanged() ), this, SLOT( dbSessionChanged() ) );
-  connect( m_dbSessionManager,              SIGNAL( userCancelledKnownDBForm() ), this, SLOT( userCancelledKnownDBForm() ) );
+  connect( m_dbSessionManager,              SIGNAL( userCancelledKnownDBForm() ),  this, SLOT( userCancelledKnownDBForm() ) );
+  connect( m_dbSessionManager,              SIGNAL( dbSessionChanged( QString ) ), this, SLOT( dbSessionChanged( QString ) ) );
 
   /* Initialise the database interface and retrieve the list of database names (this will
     include the path references to the ".db" files). */
@@ -1093,6 +1097,19 @@ void GCMainWindow::saveDirectEdit()
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCMainWindow::dbSessionChanged( QString dbName )
+{
+  if( m_domDoc->documentElement().isNull() )
+  {
+    resetDOM();
+  }
+
+  statusBar()->showMessage( QString( "Active Session Name: %1" ).arg( dbName ) );
+}
+
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCMainWindow::collapseOrExpandTreeWidget( bool checked )
 {
   if( checked )
@@ -1132,9 +1149,10 @@ void GCMainWindow::switchSuperUserMode( bool super )
 
   /* Set the new element and attribute options' visibility. */
   ui->addNewElementButton->setVisible( m_superUserMode );
-  ui->textSaveButton->setVisible( m_superUserMode );
-  ui->textRevertButton->setVisible( m_superUserMode );
-  ui->superUserLabel->setVisible( m_superUserMode );
+  ui->textSaveButton->setVisible     ( m_superUserMode );
+  ui->textRevertButton->setVisible   ( m_superUserMode );
+  ui->superUserLabel->setVisible     ( m_superUserMode );
+  ui->domEditHelpButton->setVisible  ( m_superUserMode );
   ui->dockWidgetTextEdit->setReadOnly( !m_superUserMode );
 
   /* The user must see these actions exist, but shouldn't be able to access
@@ -1197,12 +1215,20 @@ void GCMainWindow::userCancelledKnownDBForm()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::dbSessionChanged()
+void GCMainWindow::showDOMEditHelp()
 {
-  if( m_domDoc->documentElement().isNull() )
-  {
-    resetDOM();
-  }
+  QMessageBox::information( this,
+                            "Direct XML Edit",
+                            "Changes to manually edited XML can only be reverted before you hit \"Save\".\n"
+                            "In other words, it isn't an \"undo\" function so please make sure you don't \n "
+                            "save unless you're absolutely sure of your changes." );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::showMainHelp()
+{
+
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1265,6 +1291,13 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
     populateTreeWidget( element, item );
     element = element.nextSiblingElement();
   }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::setStatusBarMessage( const QString &message )
+{
+
 }
 
 /*--------------------------------------------------------------------------------------*/

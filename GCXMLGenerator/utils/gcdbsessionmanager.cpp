@@ -201,7 +201,7 @@ void GCDBSessionManager::setSessionDB( const QString &dbName )
                             "2. Switch to \"Super User\" mode and start populating this one." );
     }
 
-    emit dbSessionChanged();
+    emit dbSessionChanged( dbName );
   }
 }
 

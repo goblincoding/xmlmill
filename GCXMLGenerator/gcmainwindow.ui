@@ -786,17 +786,6 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QToolButton" name="domContentHelpButton">
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="resources/gcresources.qrc">
-           <normaloff>:/resources/helpcursor.png</normaloff>:/resources/helpcursor.png</iconset>
-         </property>
-        </widget>
-       </item>
       </layout>
      </item>
      <item>
@@ -838,6 +827,17 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
         <widget class="QPushButton" name="textRevertButton">
          <property name="text">
           <string>Revert</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="domEditHelpButton">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="resources/gcresources.qrc">
+           <normaloff>:/resources/helpcursor.png</normaloff>:/resources/helpcursor.png</iconset>
          </property>
         </widget>
        </item>
