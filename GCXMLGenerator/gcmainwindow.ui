@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>GoblinCoding's XML Studio</string>
+   <string>Goblin Coding's XML Mill</string>
   </property>
   <property name="windowIcon">
    <iconset resource="resources/gcresources.qrc">

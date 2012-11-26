@@ -1,6 +1,6 @@
 /* Copyright (c) 2012 by William Hallatt.
  *
- * This file forms part of "GoblinCoding's XML Studio".
+ * This file forms part of "XML Mill".
  *
  * The official website for this project is <http://www.goblincoding.com> and,
  * although not compulsory, it would be appreciated if all works of whatever
@@ -36,7 +36,7 @@ namespace GCMessageSpace
   /* Hides our "member" variables. */
   namespace
   {
-    QSettings settings( "William Hallatt", "GoblinCoding's XML Studio" );
+    QSettings settings( "William Hallatt", "XML Mill" );
     bool settingsInitialised( false );
   }
 

@@ -4,7 +4,8 @@
 	<li><a href="#ProfilesLink">Profiles</a></li>
 	<li><a href="#StandardLink">Standard Privileges</a></li>
 	<li><a href="#SuperLink">Super User Mode</a>
-		<li><a href="#ImportingLink">Importing XML to a Profile</a></li>
+		<li><a href="#ImportingLink">Importing XML to a Profile</a>
+	</li>
 </ol>
 
 <h2><a name="ProfilesLink">Profiles</a></h2>
