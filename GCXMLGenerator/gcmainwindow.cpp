@@ -36,6 +36,7 @@
 #include "utils/gcdbsessionmanager.h"
 #include "utils/gcmessagespace.h"
 
+#include <QDesktopServices>
 #include <QSignalMapper>
 #include <QDomDocument>
 #include <QSettings>
@@ -46,6 +47,7 @@
 #include <QTimer>
 #include <QModelIndex>
 #include <QLabel>
+#include <QUrl>
 
 /*--------------------------------------------------------------------------------------*/
 
@@ -156,7 +158,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionForgetPreferences,     SIGNAL( triggered() ),     this, SLOT( forgetAllMessagePreferences() ) );
   connect( ui->dontShowContentCheckBox,     SIGNAL( toggled( bool ) ), this, SLOT( toggleShowDocContent( bool ) ) );
   connect( ui->actionImportXMLToDatabase,   SIGNAL( triggered() ),     this, SLOT( importXMLToDatabase() ) );
-  connect( ui->mainHelpButton,              SIGNAL( clicked() ),       this, SLOT( showMainHelp() ) );
+  connect( ui->actionHelpContents,          SIGNAL( triggered() ),     this, SLOT( showMainHelp() ) );
+  connect( ui->actionVisitOfficialSite,     SIGNAL( triggered() ),     this, SLOT( goToSite() ) );
 
   /* Everything tree widget related ("itemChanged" will only ever be emitted in Super User mode
     since tree widget items aren't editable otherwise). */
@@ -1229,7 +1232,7 @@ void GCMainWindow::showDOMEditHelp()
   /* Qt::WA_DeleteOnClose flag set...no cleanup required. */
   GCHelpDialog *dialog = new GCHelpDialog( "Changes to manually edited XML can only be reverted before you hit \"Save\". "
                                            "In other words, it isn't an \"undo\" function so please make sure you don't "
-                                           "save unless you're absolutely sure of your changes." );
+                                           "save unless you're absolutely sure of your changes.", this );
   dialog->show();
 }
 
@@ -1237,7 +1240,18 @@ void GCMainWindow::showDOMEditHelp()
 
 void GCMainWindow::showMainHelp()
 {
+  /* Qt::WA_DeleteOnClose flag set...no cleanup required. */
+  GCHelpDialog *dialog = new GCHelpDialog( "<h4>How it all works</h4>"
+                                           "<h5><i></i></h5>", this );
 
+  dialog->show();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::goToSite()
+{
+  QDesktopServices::openUrl( QUrl( "http://goblincoding.com" ) );
 }
 
 /*--------------------------------------------------------------------------------------*/

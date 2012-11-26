@@ -145,6 +145,7 @@ private slots:
   void userCancelledKnownDBForm();
   void showDOMEditHelp();
   void showMainHelp();
+  void goToSite();
   
 private:
   void processDOMDoc();

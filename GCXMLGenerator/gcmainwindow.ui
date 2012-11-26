@@ -592,17 +592,6 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
            </property>
           </widget>
          </item>
-         <item row="1" column="4">
-          <widget class="QToolButton" name="mainHelpButton">
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="resources/gcresources.qrc">
-             <normaloff>:/resources/helpcursor.png</normaloff>:/resources/helpcursor.png</iconset>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
        <item>
@@ -726,7 +715,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    </property>
    <widget class="QMenu" name="menuDatabase">
     <property name="title">
-     <string>Profile</string>
+     <string>&amp;Profile</string>
     </property>
     <addaction name="actionAddNewDatabase"/>
     <addaction name="actionAddExistingDatabase"/>
@@ -745,16 +734,24 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
-   <widget class="QMenu" name="menu_Advanced">
+   <widget class="QMenu" name="menuAdvanced">
     <property name="title">
-     <string>Options</string>
+     <string>&amp;Options</string>
     </property>
     <addaction name="actionSuperUserMode"/>
     <addaction name="actionForgetPreferences"/>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionHelpContents"/>
+    <addaction name="actionVisitOfficialSite"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuDatabase"/>
-   <addaction name="menu_Advanced"/>
+   <addaction name="menuAdvanced"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -1025,7 +1022,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
      <normaloff>:/resources/helpcursor.png</normaloff>:/resources/helpcursor.png</iconset>
    </property>
    <property name="text">
-    <string>Forget Saved Preferences</string>
+    <string>&amp;Forget Saved Preferences</string>
    </property>
    <property name="whatsThis">
     <string>Forget all saved preferences regarding messages/warnings/queries.</string>
@@ -1037,13 +1034,23 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
      <normaloff>:/resources/importxml.png</normaloff>:/resources/importxml.png</iconset>
    </property>
    <property name="text">
-    <string>Import XML to Profile</string>
+    <string>&amp;Import XML to Profile</string>
    </property>
    <property name="whatsThis">
     <string>Import the current XML document to the active profile.</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="actionHelpContents">
+   <property name="text">
+    <string>Help &amp;Contents</string>
+   </property>
+  </action>
+  <action name="actionVisitOfficialSite">
+   <property name="text">
+    <string>&amp;Visit Official Website</string>
    </property>
   </action>
  </widget>

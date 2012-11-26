@@ -31,12 +31,12 @@
 
 /*--------------------------------------------------------------------------------------*/
 
-GCHelpDialog::GCHelpDialog(const QString &text, QWidget *parent) :
-  QDialog(parent),
-  ui(new Ui::GCHelpDialog)
+GCHelpDialog::GCHelpDialog( const QString &text, QWidget *parent ) :
+  QDialog( parent ),
+  ui     ( new Ui::GCHelpDialog )
 {
-  ui->setupUi(this);
-  ui->textEdit->setText( text );
+  ui->setupUi( this );
+  ui->textEdit->setHtml( text );
   setAttribute( Qt::WA_DeleteOnClose );
   connect( ui->closeButton, SIGNAL( clicked() ), this, SLOT( close() ) );
 }
