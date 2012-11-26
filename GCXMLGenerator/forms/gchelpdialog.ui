@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>663</width>
+    <width>572</width>
     <height>352</height>
    </rect>
   </property>
@@ -297,48 +297,6 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="QTreeWidget" name="treeWidget">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="editTriggers">
-       <set>QAbstractItemView::NoEditTriggers</set>
-      </property>
-      <property name="indentation">
-       <number>10</number>
-      </property>
-      <property name="animated">
-       <bool>true</bool>
-      </property>
-      <column>
-       <property name="text">
-        <string>Index</string>
-       </property>
-      </column>
-      <item>
-       <property name="text">
-        <string>Profiles</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Standard Privileges</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Super User Mode</string>
-       </property>
-       <item>
-        <property name="text">
-         <string>Importing XML</string>
-        </property>
-       </item>
-      </item>
-     </widget>
      <widget class="QTextBrowser" name="textBrowser">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">

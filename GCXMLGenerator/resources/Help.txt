@@ -1,11 +1,9 @@
 <h1>So how does it all work?</h1>
 
 <ol>
-	<li><a href="#ProfilesLink">Profiles</a></li>
-	<li><a href="#StandardLink">Standard Privileges</a></li>
+	<li><a href="#ProfilesLink">Profiles</a>
+	<li><a href="#StandardLink">Standard Privileges</a>
 	<li><a href="#SuperLink">Super User Mode</a>
-		<li><a href="#ImportingLink">Importing XML to a Profile</a>
-	</li>
 </ol>
 
 <h2><a name="ProfilesLink">Profiles</a></h2>
