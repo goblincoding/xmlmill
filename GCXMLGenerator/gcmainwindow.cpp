@@ -1229,22 +1229,34 @@ void GCMainWindow::userCancelledKnownDBForm()
 
 void GCMainWindow::showDOMEditHelp()
 {
-  /* Qt::WA_DeleteOnClose flag set...no cleanup required. */
-  GCHelpDialog *dialog = new GCHelpDialog( "Changes to manually edited XML can only be reverted before you hit \"Save\". "
-                                           "In other words, it isn't an \"undo\" function so please make sure you don't "
-                                           "save unless you're absolutely sure of your changes.", this );
-  dialog->show();
+  QMessageBox::information( this,
+                            "Direct Edits",
+                            "Changes to manually edited XML can only be reverted before you hit \"Save\". "
+                            "In other words, it isn't an \"undo\" function so please make sure you don't "
+                            "save unless you're absolutely sure of your changes." );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::showMainHelp()
 {
-  /* Qt::WA_DeleteOnClose flag set...no cleanup required. */
-  GCHelpDialog *dialog = new GCHelpDialog( "<h4>How it all works</h4>"
-                                           "<h5><i></i></h5>", this );
+  QFile file( ":/resources/Help.txt" );
 
-  dialog->show();
+  if( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
+  {
+    showErrorMessageBox( QString( "Failed to open \"Help\" file: [%1]" ).arg( file.errorString() ) );
+  }
+  else
+  {
+    QTextStream stream( &file );
+    QString fileContent = stream.readAll();
+    file.close();
+
+    /* Qt::WA_DeleteOnClose flag set...no cleanup required. */
+    GCHelpDialog *dialog = new GCHelpDialog( fileContent, this );
+
+    dialog->show();
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/

@@ -22,5 +22,6 @@
         <file>superuser.png</file>
         <file>switch.png</file>
         <file>importxml.png</file>
+        <file>Help.txt</file>
     </qresource>
 </RCC>
