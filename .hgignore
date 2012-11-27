@@ -225,3 +225,7 @@ Release/QtXml4.dll
 Release/XMLMill.exe
 Release/mingwm10.dll
 Setup/XMLMillSetup.exe
+GCXMLGenerator-build-desktop-Qt_4_8_1_for_Desktop_-_MinGW__Qt_SDK__Debug/debug/gcdestructiveeditdialog.o
+GCXMLGenerator-build-desktop-Qt_4_8_1_for_Desktop_-_MinGW__Qt_SDK__Debug/debug/moc_gcdestructiveeditdialog.cpp
+GCXMLGenerator-build-desktop-Qt_4_8_1_for_Desktop_-_MinGW__Qt_SDK__Debug/debug/moc_gcdestructiveeditdialog.o
+GCXMLGenerator-build-desktop-Qt_4_8_1_for_Desktop_-_MinGW__Qt_SDK__Debug/ui_gcdestructiveeditdialog.h

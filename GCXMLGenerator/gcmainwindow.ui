@@ -96,6 +96,19 @@ QToolButton:pressed
   border-style: inset;
 }
 
+QToolButton:default 
+{
+  border-color: gray;
+  border-width: 2px;   
+  background-color: qlineargradient(spread:reflect, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0 rgba(110, 110, 110, 255), stop:1 rgba(190, 190, 190, 255));
+}
+
+QToolButton:disabled
+{
+  background-color:rgba(110, 110, 110, 255);
+  border-style: flat;
+}
+
 QComboBox
 {
   color: rgb(250, 250, 250 );
@@ -607,10 +620,10 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
             <enum>QFrame::Raised</enum>
            </property>
            <property name="text">
-            <string/>
+            <string>&lt;h3 style=&quot;color:rgb(110,10,10)&quot;&gt;Super User Mode Active&lt;/h3&gt;</string>
            </property>
-           <property name="pixmap">
-            <pixmap resource="resources/gcresources.qrc">:/resources/superuser.png</pixmap>
+           <property name="textFormat">
+            <enum>Qt::RichText</enum>
            </property>
            <property name="scaledContents">
             <bool>false</bool>
@@ -745,11 +758,12 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
     <property name="title">
      <string>&amp;Profile</string>
     </property>
-    <addaction name="actionAddNewDatabase"/>
-    <addaction name="actionAddExistingDatabase"/>
-    <addaction name="actionRemoveDatabase"/>
     <addaction name="actionSwitchSessionDatabase"/>
+    <addaction name="actionAddExistingDatabase"/>
+    <addaction name="actionAddNewDatabase"/>
+    <addaction name="actionRemoveDatabase"/>
     <addaction name="actionImportXMLToDatabase"/>
+    <addaction name="actionRemoveFromProfile"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -782,12 +796,33 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>false</bool>
+    <bool>true</bool>
    </attribute>
+   <addaction name="actionNew"/>
+   <addaction name="actionOpen"/>
+   <addaction name="actionSave"/>
+   <addaction name="separator"/>
+   <addaction name="actionAddNewDatabase"/>
+   <addaction name="actionAddExistingDatabase"/>
+   <addaction name="actionRemoveDatabase"/>
+   <addaction name="actionSwitchSessionDatabase"/>
+   <addaction name="actionImportXMLToDatabase"/>
+   <addaction name="separator"/>
+   <addaction name="actionSuperUserMode"/>
+   <addaction name="actionForgetPreferences"/>
+   <addaction name="separator"/>
+   <addaction name="actionHelpContents"/>
+   <addaction name="actionVisitOfficialSite"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QDockWidget" name="dockWidget">
@@ -872,6 +907,9 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    </widget>
   </widget>
   <action name="actionAddNewDatabase">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="resources/gcresources.qrc">
      <normaloff>:/resources/adddatabase.png</normaloff>:/resources/adddatabase.png</iconset>
@@ -944,6 +982,9 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    </property>
   </action>
   <action name="actionRemoveDatabase">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="resources/gcresources.qrc">
      <normaloff>:/resources/removedatabase.png</normaloff>:/resources/removedatabase.png</iconset>
@@ -968,6 +1009,12 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    </property>
    <property name="text">
     <string>S&amp;witch Profile</string>
+   </property>
+   <property name="toolTip">
+    <string>Switch to a different profile.</string>
+   </property>
+   <property name="whatsThis">
+    <string>Switch to a different profile.</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+D</string>
@@ -1047,7 +1094,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
   <action name="actionForgetPreferences">
    <property name="icon">
     <iconset resource="resources/gcresources.qrc">
-     <normaloff>:/resources/helpcursor.png</normaloff>:/resources/helpcursor.png</iconset>
+     <normaloff>:/resources/clear.png</normaloff>:/resources/clear.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Forget Saved Preferences</string>
@@ -1057,6 +1104,9 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    </property>
   </action>
   <action name="actionImportXMLToDatabase">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="resources/gcresources.qrc">
      <normaloff>:/resources/importxml.png</normaloff>:/resources/importxml.png</iconset>
@@ -1072,13 +1122,44 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    </property>
   </action>
   <action name="actionHelpContents">
+   <property name="icon">
+    <iconset resource="resources/gcresources.qrc">
+     <normaloff>:/resources/helpcursor.png</normaloff>:/resources/helpcursor.png</iconset>
+   </property>
    <property name="text">
     <string>Help &amp;Contents</string>
    </property>
+   <property name="whatsThis">
+    <string>Displays the main &quot;Help&quot; contents.</string>
+   </property>
   </action>
   <action name="actionVisitOfficialSite">
+   <property name="icon">
+    <iconset resource="resources/gcresources.qrc">
+     <normaloff>:/resources/goblinicon.jpg</normaloff>:/resources/goblinicon.jpg</iconset>
+   </property>
    <property name="text">
     <string>&amp;Visit Official Website</string>
+   </property>
+   <property name="whatsThis">
+    <string>Visit the official website (will open in your browser).</string>
+   </property>
+  </action>
+  <action name="actionRemoveFromProfile">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Edit &amp;Profile</string>
+   </property>
+   <property name="toolTip">
+    <string>Select and remove content from the active profile.</string>
+   </property>
+   <property name="whatsThis">
+    <string>Select and remove content from the active profile.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+P</string>
    </property>
   </action>
  </widget>

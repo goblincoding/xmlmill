@@ -23,5 +23,6 @@
         <file>switch.png</file>
         <file>importxml.png</file>
         <file>Help.txt</file>
+        <file>clear.png</file>
     </qresource>
 </RCC>
