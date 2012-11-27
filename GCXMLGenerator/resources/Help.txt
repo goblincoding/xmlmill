@@ -2,8 +2,18 @@
 
 <ol>
 	<li><a href="#ProfilesLink">Profiles</a>
+		<ul>
+			<li><a href="#ElementNames">Unique Element Names</a>
+		</ul>
+	</li>
 	<li><a href="#StandardLink">Standard Privileges</a>
 	<li><a href="#SuperLink">Super User Mode</a>
+		<ul>
+			<li><a href="#ImportingLink">Importing XML</a>
+			<li><a href="#AddingLink">Adding Items to Profiles</a>
+			<li><a href="#DeletingLink">Deleting Items from Profiles</a>
+		</ul>
+	</li>
 </ol>
 
 <h2><a name="ProfilesLink">Profiles</a></h2>
@@ -15,6 +25,9 @@
 
 <p>A word of advice, however: Do not mix XML styles that are vastly different from each other.  Rather create a profile for each type (or closely related) type of XML document you generally work with, i.e. a "MyXmlProfile" for "MyXmlConfig" (and even maybe "MyXmlConfigSlightlyDifferent") is recommended.  Of course, you can do what you want, but this application was designed to work best under these conditions.</p>
 
+<h3><a name="#ElementNames">Unique Element Names</a></h3>
+<p>Profiles rely on unique element names to keep track of everything (pay attention, this is very important).  What this means is that, in order for everything to work as you would expect, you will have to make sure that you do not re-use element names in your XML in conflicting ways.  This of course does not mean that you cannot use an element name more than once in a document (that would just be daft) but rather that all elements of the same name should "do the same thing".  If you don't adhere to this advice, things will most probably not work out as well as it could.</p>
+
 <h2><a name="StandardLink">Standard Privileges</a></h2>
 <p>The vast majority of your work should be done with standard privileges: as a standard user you can build or edit new or existing XML documents using the currently active profile for your session and add new values to attributes (i.e. if the value you require for a specific attribute does not exist in the dropdown next to its name, simply enter it manually).  This will even persist the new value to the active profile and make it available for future reference...all done automagically.</p>
 
@@ -22,11 +35,16 @@
 
 <h2><a name="SuperLink">Super User Privileges</a></h2>
 
-<p>With super user privileges, you can do absolutely everything you like.  Not only can you do everything that you can normally do with <a href="#StandardLink">Standard Privileges</a>, but you can also create new profiles, import XML to existing profiles, add or remove elements and attributes to and from profiles and even edit a current document's XML directly via the text edit (probably not ideal, but hey, you're in Super User mode!).</p>
+<p>With super user privileges, you can do absolutely everything you like.  Not only can you do everything that you can normally do with <a href="#StandardLink">Standard Privileges</a>, but you can also create new profiles, <a href="#ImportingLink">import XML</a> to existing profiles, add or remove elements and attributes to and from profiles and even edit a current document's XML directly via the text edit (probably not ideal, but hey, you're in Super User mode!).</p>
 
 <p>Bear in mind, however, that all changes to a profile are <i>immediate</i> and <i>irreversible</i>, so be careful what you do or change in this mode.  For the nerds out there, remember, with great power comes great responsibility! (I'm sorry, but I just had to say that...)</p>
 
 <h3><a name="ImportingLink">Importing XML to a Profile</a></h3>
 <p>XML can only be imported to the <i>active</i> session whilst in <a href="#SuperLink">Super User Mode</a> but as long as you have the power, it's pretty easy to do.  You can either import the content of whatever document you have open or are building at the time of import via "Profile -> Import XML to Profile", or you can open an XML document from file (simply hit up the "Open XML" from the "XML" menu tab, if you're in Super User Mode, you'll automatically be asked if you wish to import the XML's content to the active profile).</p>
 
+<h3><a name="#AddingLink">Adding Items to Profiles</a></h3>
+<p>In order to add elements and attributes to the active profile, you simply replace the "---" values in the drop down boxes or table cells with the names of the elements, attributes or attribute values you want to add and hit "Enter" each time you are done.  Not only will the currently active document be updated, but all your changes will be persisted to the active profile (remember that that is always the case in Super User mode).  Note that there is no way to add new items without an active XML document present so if you do not want to edit an existing document, then you will have to create one for the purpose of the editing (even if you only provide a skeleton framework).</p>
+
+<h3><a name="#DeletingLink">Deleting Items from Profiles</a></h3>
+<p>Items (elements, attributes, attribute values) can only be deleted from the currently active profile.  Removing items from the active profile also requires that there are no active documents being built (this does sound like overkill, but deleting content from profiles is a very serious business and I thought it best to eliminate all possibilities for unwanted accidents).</p>
 
