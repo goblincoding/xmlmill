@@ -75,9 +75,9 @@ public:
   explicit GCMessageDialog( bool *remember,
                             const QString &heading,
                             const QString &text,
-                            ButtonCombo    buttons,
-                            Buttons        defaultButton,
-                            Icon           icon = NoIcon );
+                            ButtonCombo buttons,
+                            Buttons defaultButton,
+                            Icon icon = NoIcon );
   ~GCMessageDialog();
 
 private slots:

@@ -41,7 +41,7 @@ GCMessageDialog::GCMessageDialog( bool *remember,
   ui        ( new Ui::GCMessageDialog ),
   m_remember( remember )
 {
-  ui->setupUi(this);
+  ui->setupUi( this );
   ui->plainTextEdit->setPlainText( text );
 
   switch( buttons )

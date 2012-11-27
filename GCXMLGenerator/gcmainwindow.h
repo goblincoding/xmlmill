@@ -124,8 +124,7 @@ private slots:
   void addChildElementToDOM();
   void resetDOM();
 
-  void deleteElementFromDB();
-  void deleteAttributeValuesFromDB();
+  void showDBEditForm();
 
   /* Receives new element information from "GCNewElementForm" and adds the new element and 
   associated attributes to the database. */

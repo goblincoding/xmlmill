@@ -26,32 +26,32 @@
  *                    <http://www.gnu.org/licenses/>
  */
 
-#ifndef GCHELPDIALOG_H
-#define GCHELPDIALOG_H
+#ifndef GCDESTRUCTIVEEDITDIALOG_H
+#define GCDESTRUCTIVEEDITDIALOG_H
 
 #include <QDialog>
 
 namespace Ui
 {
-  class GCHelpDialog;
+  class GCDestructiveEditDialog;
 }
 
 /*------------------------------------------------------------------------------------------
 
-  This form simply displays help information.
+  This form allows the user to remove items from the active database.
 
 ------------------------------------------------------------------------------------------*/
 
-class GCHelpDialog : public QDialog
+class GCDestructiveEditDialog : public QDialog
 {
   Q_OBJECT
   
 public:
-  explicit GCHelpDialog( const QString &text, QWidget *parent = 0 );
-  ~GCHelpDialog();
+  explicit GCDestructiveEditDialog( QWidget *parent = 0 );
+  ~GCDestructiveEditDialog();
   
 private:
-  Ui::GCHelpDialog *ui;
+  Ui::GCDestructiveEditDialog *ui;
 };
 
-#endif // GCHELPDIALOG_H
+#endif // GCDESTRUCTIVEEDITDIALOG_H

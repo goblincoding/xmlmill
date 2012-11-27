@@ -32,6 +32,7 @@
 #include "xml/xmlsyntaxhighlighter.h"
 #include "forms/gcnewelementform.h"
 #include "forms/gchelpdialog.h"
+#include "forms/gcdestructiveeditdialog.h"
 #include "utils/gccombobox.h"
 #include "utils/gcdbsessionmanager.h"
 #include "utils/gcmessagespace.h"
@@ -131,12 +132,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   ui->domEditHelpButton->setVisible  ( false );
   ui->dockWidgetTextEdit->setReadOnly( true );
 
-  /* The user must see these actions exist, but shouldn't be able to access
-    them except in super user mode. */
-  ui->actionAddNewDatabase->setEnabled( false );
-  ui->actionRemoveDatabase->setEnabled( false );
-  ui->actionImportXMLToDatabase->setEnabled( false );
-
   /* XML File related. */
   connect( ui->actionNew,                   SIGNAL( triggered() ),     this, SLOT( newXMLFile() ) );
   connect( ui->actionOpen,                  SIGNAL( triggered() ),     this, SLOT( openXMLFile() ) );
@@ -160,6 +155,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionImportXMLToDatabase,   SIGNAL( triggered() ),     this, SLOT( importXMLToDatabase() ) );
   connect( ui->actionHelpContents,          SIGNAL( triggered() ),     this, SLOT( showMainHelp() ) );
   connect( ui->actionVisitOfficialSite,     SIGNAL( triggered() ),     this, SLOT( goToSite() ) );
+  connect( ui->actionRemoveFromProfile,     SIGNAL( triggered() ),     this, SLOT( showDBEditForm() ) );
 
   /* Everything tree widget related ("itemChanged" will only ever be emitted in Super User mode
     since tree widget items aren't editable otherwise). */
@@ -1005,16 +1001,11 @@ void GCMainWindow::resetDOM()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::deleteElementFromDB()
+void GCMainWindow::showDBEditForm()
 {
-
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::deleteAttributeValuesFromDB()
-{
-
+  /* Delete on close flag set. */
+  GCDestructiveEditDialog *dialog = new GCDestructiveEditDialog( this );
+  dialog->exec();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1171,6 +1162,7 @@ void GCMainWindow::switchSuperUserMode( bool super )
     them except when in "Super User" mode. */
   ui->actionAddNewDatabase->setEnabled( m_superUserMode );
   ui->actionRemoveDatabase->setEnabled( m_superUserMode );
+  ui->actionRemoveFromProfile->setEnabled  ( m_superUserMode );
   ui->actionImportXMLToDatabase->setEnabled( m_superUserMode );
 
   /* Needed to reset all the tree widget item's "editable" flags
@@ -1332,7 +1324,7 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
 
 void GCMainWindow::setStatusBarMessage( const QString &message )
 {
-
+  // TODO.
 }
 
 /*--------------------------------------------------------------------------------------*/

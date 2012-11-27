@@ -26,32 +26,25 @@
  *                    <http://www.gnu.org/licenses/>
  */
 
-#ifndef GCHELPDIALOG_H
-#define GCHELPDIALOG_H
+#include "gcdestructiveeditdialog.h"
+#include "ui_gcdestructiveeditdialog.h"
 
-#include <QDialog>
+/*--------------------------------------------------------------------------------------*/
 
-namespace Ui
+GCDestructiveEditDialog::GCDestructiveEditDialog( QWidget *parent ) :
+  QDialog( parent ),
+  ui     ( new Ui::GCDestructiveEditDialog )
 {
-  class GCHelpDialog;
+  ui->setupUi( this );
+
+  setAttribute( Qt::WA_DeleteOnClose );
 }
 
-/*------------------------------------------------------------------------------------------
+/*--------------------------------------------------------------------------------------*/
 
-  This form simply displays help information.
-
-------------------------------------------------------------------------------------------*/
-
-class GCHelpDialog : public QDialog
+GCDestructiveEditDialog::~GCDestructiveEditDialog()
 {
-  Q_OBJECT
-  
-public:
-  explicit GCHelpDialog( const QString &text, QWidget *parent = 0 );
-  ~GCHelpDialog();
-  
-private:
-  Ui::GCHelpDialog *ui;
-};
+  delete ui;
+}
 
-#endif // GCHELPDIALOG_H
+/*--------------------------------------------------------------------------------------*/
