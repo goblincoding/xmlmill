@@ -36,6 +36,8 @@ namespace Ui
   class GCDestructiveEditDialog;
 }
 
+class QTreeWidgetItem;
+
 /*------------------------------------------------------------------------------------------
 
   This form allows the user to remove items from the active database.
@@ -49,8 +51,14 @@ class GCDestructiveEditDialog : public QDialog
 public:
   explicit GCDestructiveEditDialog( QWidget *parent = 0 );
   ~GCDestructiveEditDialog();
+
+private slots:
+  void showElementHelp();
+  void showAttributeHelp();
   
 private:
+  void populateElementHierarchy( const QString &element, QTreeWidgetItem *parent );
+  void showErrorMessageBox( const QString &errorMsg );
   Ui::GCDestructiveEditDialog *ui;
 };
 

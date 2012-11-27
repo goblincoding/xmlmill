@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>559</width>
+    <width>609</width>
     <height>445</height>
    </rect>
   </property>
@@ -363,111 +363,146 @@ QScrollBar::right-arrow:horizontal:pressed
 QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal 
 {
   background: none;
-}</string>
+}
+
+QSplitter::handle
+{
+  background-color: darkgray
+}
+
+QSplitter::handle:vertical 
+{
+  height: 3px;
+}
+
+QSplitter::handle:pressed
+{
+  background-color: lightgray
+}
+</string>
   </property>
   <property name="modal">
    <bool>true</bool>
   </property>
-  <layout class="QVBoxLayout" name="mainLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <layout class="QVBoxLayout" name="elementVerticalLayout">
-     <item>
-      <widget class="QTreeWidget" name="treeWidget">
-       <column>
-        <property name="text">
-         <string>Element Hierarchy</string>
-        </property>
-       </column>
-      </widget>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="elementHorizontalLayout">
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QWidget" name="">
+      <layout class="QVBoxLayout" name="elementVerticalLayout">
        <item>
-        <spacer name="elementSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+        <widget class="QTreeWidget" name="treeWidget">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>1</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
          </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="deleteElementButton">
-         <property name="text">
-          <string>Delete Element</string>
+         <property name="indentation">
+          <number>10</number>
          </property>
+         <column>
+          <property name="text">
+           <string>Element Hierarchy</string>
+          </property>
+         </column>
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="elementHelpButton">
-         <property name="text">
-          <string>...</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources/gcresources.qrc">
-           <normaloff>:/resources/helpcursor.png</normaloff>:/resources/helpcursor.png</iconset>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="elementHorizontalLayout">
+         <item>
+          <spacer name="elementSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="deleteElementButton">
+           <property name="text">
+            <string>Delete Element</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="elementHelpButton">
+           <property name="text">
+            <string>...</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources/gcresources.qrc">
+             <normaloff>:/resources/helpcursor.png</normaloff>:/resources/helpcursor.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="QComboBox" name="comboBox">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPlainTextEdit" name="plainTextEdit"/>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="attributeHorizontalLayout">
+     </widget>
+     <widget class="QWidget" name="">
+      <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <spacer name="attributeSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="deleteAttributeButton">
-         <property name="text">
-          <string>Delete Attribute</string>
+        <widget class="QComboBox" name="comboBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="attributeHelpButton">
-         <property name="text">
-          <string>...</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources/gcresources.qrc">
-           <normaloff>:/resources/helpcursor.png</normaloff>:/resources/helpcursor.png</iconset>
-         </property>
-        </widget>
+        <widget class="QPlainTextEdit" name="plainTextEdit"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="attributeHorizontalLayout">
+         <item>
+          <spacer name="attributeSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="deleteAttributeButton">
+           <property name="text">
+            <string>Delete Attribute</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="attributeHelpButton">
+           <property name="text">
+            <string>...</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources/gcresources.qrc">
+             <normaloff>:/resources/helpcursor.png</normaloff>:/resources/helpcursor.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
-     </item>
-    </layout>
+     </widget>
+    </widget>
    </item>
   </layout>
  </widget>

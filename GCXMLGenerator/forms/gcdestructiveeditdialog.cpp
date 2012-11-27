@@ -28,6 +28,8 @@
 
 #include "gcdestructiveeditdialog.h"
 #include "ui_gcdestructiveeditdialog.h"
+#include "db/gcdatabaseinterface.h"
+#include <QMessageBox>
 
 /*--------------------------------------------------------------------------------------*/
 
@@ -37,6 +39,18 @@ GCDestructiveEditDialog::GCDestructiveEditDialog( QWidget *parent ) :
 {
   ui->setupUi( this );
 
+  connect( ui->elementHelpButton,   SIGNAL( clicked() ), this, SLOT( showElementHelp() ) );
+  connect( ui->attributeHelpButton, SIGNAL( clicked() ), this, SLOT( showAttributeHelp() ) );
+
+  foreach( QString element, GCDataBaseInterface::instance()->knownRootElements() )
+  {
+    QTreeWidgetItem *item = new QTreeWidgetItem;
+    item->setText( 0, element );
+
+    ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
+    populateElementHierarchy( element, item );
+  }
+
   setAttribute( Qt::WA_DeleteOnClose );
 }
 
@@ -45,6 +59,63 @@ GCDestructiveEditDialog::GCDestructiveEditDialog( QWidget *parent ) :
 GCDestructiveEditDialog::~GCDestructiveEditDialog()
 {
   delete ui;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDestructiveEditDialog::showElementHelp()
+{
+  QMessageBox::information( this,
+                            "How this works...",
+                            "Deleting an element will also delete its children, associated\n"
+                            "attributes, the associated attributes of its children and all\n"
+                            "the known values for all the attributes thus deleted.\n\n"
+                            "I suggest you tread lightly :)\n" );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDestructiveEditDialog::showAttributeHelp()
+{
+  QMessageBox::information( this,
+                            "How this works...",
+                            "1. Deleting an attribute will also delete all its known values.\n"
+                            "2. Only those values remaining in the text edit below will be\n"
+                            "   saved against the attribute shown in the drop down (this\n"
+                            "   effectively means that you could also add new values to the\n"
+                            "   attribute).  Just make sure that all the values you want to\n"
+                            "   associate with the attribute appear on their own lines." );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDestructiveEditDialog::populateElementHierarchy( const QString &element, QTreeWidgetItem *parent )
+{
+  bool success( false );
+  QStringList children = GCDataBaseInterface::instance()->children( element, success );
+
+  if( success )
+  {
+    foreach( QString element, children )
+    {
+      QTreeWidgetItem *item = new QTreeWidgetItem;
+      item->setText( 0, element );
+
+      parent->addChild( item );  // takes ownership
+      populateElementHierarchy( element, item );
+    }
+  }
+  else
+  {
+    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDestructiveEditDialog::showErrorMessageBox( const QString &errorMsg )
+{
+  QMessageBox::critical( this, "Error!", errorMsg );
 }
 
 /*--------------------------------------------------------------------------------------*/
