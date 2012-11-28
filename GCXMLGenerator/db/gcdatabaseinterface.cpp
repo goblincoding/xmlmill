@@ -52,27 +52,8 @@ static const QString SEPARATOR( "~!@" );
 static const QLatin1String INSERT_ELEMENT(
     "INSERT INTO xmlelements( element, children, attributes ) VALUES( ?, ?, ? )" );
 
-static const QLatin1String DELETE_ELEMENT(
-    "DELETE FROM xmlelements WHERE element = ?" );
-
 static const QLatin1String INSERT_ATTRIBUTEVALUES(
     "INSERT INTO xmlattributes( attribute, associatedElement, attributeValues ) VALUES( ?, ?, ? )" );
-
-static const QLatin1String DELETE_ATTRIBUTEVALUES(
-    "DELETE FROM xmlattributes WHERE attribute = ? AND associatedElement = ?" );
-
-static const QLatin1String DELETE_ROOTELEMENT(
-    "DELETE FROM rootelements WHERE root = ?" );
-
-/* Concatenate the new values to the existing values. The first '?' represents our string SEPARATOR. */
-static const QLatin1String UPDATE_CHILDREN_CONCAT(
-    "UPDATE xmlelements SET children   = ( children || ? || ? )   WHERE element = ?" );
-
-static const QLatin1String UPDATE_ATTRIBUTES_CONCAT(
-    "UPDATE xmlelements SET attributes = ( attributes || ? || ? ) WHERE element = ?" );
-
-static const QLatin1String UPDATE_ATTRIBUTEVALUES_CONCAT(
-    "UPDATE xmlattributes SET attributeValues = ( attributeValues || ? || ? ) WHERE attribute = ? AND associatedElement = ?" );
 
 static const QLatin1String UPDATE_CHILDREN(
     "UPDATE xmlelements SET children   = ? WHERE element = ?" );
@@ -215,8 +196,11 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument *domDoc ) 
     return false;
   }
 
-  /* Batch update all the existing elements. */
-  if( !query.prepare( UPDATE_CHILDREN_CONCAT ) )
+  /* Batch update all the existing elements by concatenating the new values to the
+    existing values. The first '?' represents our string SEPARATOR. */
+  if( !query.prepare( "UPDATE xmlelements "
+                      "SET children = ( children || ? || ? ) "
+                      "WHERE element = ?" ) )
   {
     m_lastErrorMsg = QString( "Prepare batch UPDATE element children failed: [%1]" )
         .arg( query.lastError().text() );
@@ -244,7 +228,9 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument *domDoc ) 
     return false;
   }
 
-  if( !query.prepare( UPDATE_ATTRIBUTES_CONCAT ) )
+  if( !query.prepare( "UPDATE xmlelements "
+                      "SET attributes = ( attributes || ? || ? ) "
+                      "WHERE element = ?" ) )
   {
     m_lastErrorMsg = QString( "Prepare batch UPDATE element attributes failed: [%1]" )
         .arg( query.lastError().text() );
@@ -282,7 +268,10 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument *domDoc ) 
   }
 
   /* Batch update all the existing attribute values. */
-  if( !query.prepare( UPDATE_ATTRIBUTEVALUES_CONCAT ) )
+  if( !query.prepare( "UPDATE xmlattributes "
+                      "SET attributeValues = ( attributeValues || ? || ? ) "
+                      "WHERE attribute = ? "
+                      "AND associatedElement = ?" ) )
   {
     m_lastErrorMsg = QString( "Prepare batch UPDATE attribute values failed: [%1]" )
         .arg( query.lastError().text() );
@@ -541,7 +530,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
     QStringList existingValues( query.record().field( "attributeValues" ).value().toString().split( SEPARATOR ) );
     existingValues.append( attributeValues );
 
-    /* The reason for not using UPDATE_ATTRIBUTEVALUES_CONCAT here is that we don't simply want to add
+    /* The reason for not using concatenating values here is that we don't simply want to add
       all the supposed new values, we want to make sure they are all unique by removing all duplicates
       before sticking it all back into the DB. */
     if( !query.prepare( UPDATE_ATTRIBUTEVALUES ) )
@@ -633,7 +622,7 @@ bool GCDataBaseInterface::removeElement( const QString &element ) const
   /* Only continue if we have an existing record. */
   if( query.first() )
   {
-    if( !query.prepare( DELETE_ELEMENT ) )
+    if( !query.prepare( "DELETE FROM xmlelements WHERE element = ?" ) )
     {
       m_lastErrorMsg = QString( "Prepare DELETE element failed for element \"%1\": [%3]" )
                        .arg( element )
@@ -658,7 +647,7 @@ bool GCDataBaseInterface::removeElement( const QString &element ) const
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::removeElementChild( const QString &element, const QString &child ) const
+bool GCDataBaseInterface::removeChildElement( const QString &element, const QString &child ) const
 {
   bool success( false );
   QSqlQuery query = selectElement( element, success );
@@ -689,7 +678,7 @@ bool GCDataBaseInterface::removeElementChild( const QString &element, const QStr
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::removeElementAttribute( const QString &element, const QString &attribute ) const
+bool GCDataBaseInterface::removeAttribute( const QString &element, const QString &attribute ) const
 {    
   bool success( false );
   QSqlQuery query = selectAttribute( attribute, element, success );
@@ -703,9 +692,11 @@ bool GCDataBaseInterface::removeElementAttribute( const QString &element, const 
   /* Only continue if we have an existing record. */
   if( query.first() )
   {
-    if( !query.prepare( DELETE_ATTRIBUTEVALUES ) )
+    if( !query.prepare( "DELETE FROM xmlattributes "
+                        "WHERE attribute = ? "
+                        "AND associatedElement = ?" ) )
     {
-      m_lastErrorMsg = QString( "Prepare DELETE attribute values failed for element \"%1\" and attribute \"%2\": [%3]" )
+      m_lastErrorMsg = QString( "Prepare DELETE attribute failed for element \"%1\" and attribute \"%2\": [%3]" )
                        .arg( element )
                        .arg( attribute )
                        .arg( query.lastError().text() );
@@ -717,7 +708,7 @@ bool GCDataBaseInterface::removeElementAttribute( const QString &element, const 
 
     if( !query.exec() )
     {
-      m_lastErrorMsg = QString( "DELETE attribute values failed for element \"%1\" and attribute [%2]: [%3]" )
+      m_lastErrorMsg = QString( "DELETE attribute failed for element \"%1\" and attribute [%2]: [%3]" )
                        .arg( element )
                        .arg( attribute )
                        .arg( query.lastError().text() );
@@ -731,11 +722,11 @@ bool GCDataBaseInterface::removeElementAttribute( const QString &element, const 
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::removeRootElement( const QString &element )
+bool GCDataBaseInterface::removeRootElement( const QString &element ) const
 {
   QSqlQuery query( m_sessionDB );
 
-  if( !query.prepare( DELETE_ROOTELEMENT ) )
+  if( !query.prepare( "DELETE FROM rootelements WHERE root = ?" ) )
   {
     m_lastErrorMsg = QString( "Prepare DELETE failed for root \"%1\": [%2]" )
         .arg( element )
@@ -1099,7 +1090,9 @@ QSqlQuery GCDataBaseInterface::selectAttribute( const QString &attribute, const 
 {
   QSqlQuery query( m_sessionDB );
 
-  if( !query.prepare( "SELECT * FROM xmlattributes WHERE attribute = ? AND associatedElement = ?" ) )
+  if( !query.prepare( "SELECT * FROM xmlattributes "
+                      "WHERE attribute = ? "
+                      "AND associatedElement = ?" ) )
   {
     m_lastErrorMsg = QString( "Prepare SELECT attribute failed for attribute \"%1\" and element \"%2\": [%3]" )
         .arg( attribute )

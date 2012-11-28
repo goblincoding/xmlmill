@@ -147,7 +147,7 @@ void GCDestructiveEditDialog::deleteElement( const QString &element, const QStri
       {
         foreach( QString attribute, attributes )
         {
-          if( !GCDataBaseInterface::instance()->removeElementAttribute( currentElement, attribute ) )
+          if( !GCDataBaseInterface::instance()->removeAttribute( currentElement, attribute ) )
           {
             showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
           }
@@ -160,7 +160,7 @@ void GCDestructiveEditDialog::deleteElement( const QString &element, const QStri
         }
 
         /* And we also need to remove it from its parent's child list. */
-        if( !GCDataBaseInterface::instance()->removeElementChild( parent, currentElement ) )
+        if( !GCDataBaseInterface::instance()->removeChildElement( parent, currentElement ) )
         {
           showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
         }
@@ -222,7 +222,7 @@ void GCDestructiveEditDialog::updateAttributeValues()
 
 void GCDestructiveEditDialog::deleteAttribute()
 {
-  if( !GCDataBaseInterface::instance()->removeElementAttribute( m_currentElement, m_currentAttribute ) )
+  if( !GCDataBaseInterface::instance()->removeAttribute( m_currentElement, m_currentAttribute ) )
   {
     showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
   }

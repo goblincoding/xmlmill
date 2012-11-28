@@ -106,11 +106,10 @@ public:
   bool replaceAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const;
 
   /* Remove single entries/values from the database. */
-  bool removeElement         ( const QString &element ) const;
-  bool removeElementChild    ( const QString &element, const QString &child ) const;
-  bool removeElementAttribute( const QString &element, const QString &attribute ) const;
-  bool removeAttributeValue  ( const QString &element, const QString &attribute, const QString &attributeValue ) const;
-  bool removeRootElement     ( const QString &element );
+  bool removeElement     ( const QString &element ) const;
+  bool removeRootElement ( const QString &element ) const;
+  bool removeChildElement( const QString &element, const QString &child ) const;
+  bool removeAttribute   ( const QString &element, const QString &attribute ) const;
 
   /* Getters. */
   QStringList getDBList() const;    // returns a list of known DB connections
