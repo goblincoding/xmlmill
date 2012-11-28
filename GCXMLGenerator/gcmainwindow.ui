@@ -83,11 +83,11 @@ QPushButton:disabled
 
 QToolButton
 {
-  background-color: qlineargradient(spread:reflect, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0 rgba(110, 110, 110, 255), stop:1 rgba(150, 150, 160, 255));
+  background-color: qlineargradient(spread:reflect, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0 rgba(90, 90, 90, 255), stop:1 rgba(90, 90, 90, 255));
   border-width: 1px;
   border-radius: 5px;
   border-color: rgb(40, 40, 40);
-  border-style: outset;
+  border-style: flat;
 }
 
 QToolButton:pressed
@@ -760,10 +760,13 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
     </property>
     <addaction name="actionSwitchSessionDatabase"/>
     <addaction name="actionAddExistingDatabase"/>
+    <addaction name="separator"/>
     <addaction name="actionAddNewDatabase"/>
     <addaction name="actionRemoveDatabase"/>
     <addaction name="actionImportXMLToDatabase"/>
+    <addaction name="separator"/>
     <addaction name="actionRemoveFromProfile"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -773,6 +776,8 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
+    <addaction name="separator"/>
+    <addaction name="actionCloseFile"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -806,7 +811,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
     <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>true</bool>
+    <bool>false</bool>
    </attribute>
    <addaction name="actionNew"/>
    <addaction name="actionOpen"/>
@@ -1160,6 +1165,23 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+P</string>
+   </property>
+  </action>
+  <action name="actionCloseFile">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Close File</string>
+   </property>
+   <property name="toolTip">
+    <string>Close the current file without saving.</string>
+   </property>
+   <property name="whatsThis">
+    <string>Close the current file without saving.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
    </property>
   </action>
  </widget>

@@ -137,6 +137,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionOpen,                  SIGNAL( triggered() ),     this, SLOT( openXMLFile() ) );
   connect( ui->actionSave,                  SIGNAL( triggered() ),     this, SLOT( saveXMLFile() ) );
   connect( ui->actionSaveAs,                SIGNAL( triggered() ),     this, SLOT( saveXMLFileAs() ) );
+  connect( ui->actionCloseFile,             SIGNAL( triggered() ),     this, SLOT( resetDOM() ) );
 
   /* Build XML/Edit DOM. */
   connect( ui->deleteElementButton,         SIGNAL( clicked() ),       this, SLOT( deleteElementFromDOM() ) );
@@ -152,10 +153,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->addNewElementButton,         SIGNAL( clicked() ),       this, SLOT( showNewElementForm() ) );
   connect( ui->actionForgetPreferences,     SIGNAL( triggered() ),     this, SLOT( forgetAllMessagePreferences() ) );
   connect( ui->dontShowContentCheckBox,     SIGNAL( toggled( bool ) ), this, SLOT( toggleShowDocContent( bool ) ) );
-  connect( ui->actionImportXMLToDatabase,   SIGNAL( triggered() ),     this, SLOT( importXMLToDatabase() ) );
   connect( ui->actionHelpContents,          SIGNAL( triggered() ),     this, SLOT( showMainHelp() ) );
   connect( ui->actionVisitOfficialSite,     SIGNAL( triggered() ),     this, SLOT( goToSite() ) );
-  connect( ui->actionRemoveFromProfile,     SIGNAL( triggered() ),     this, SLOT( showDBEditForm() ) );
 
   /* Everything tree widget related ("itemChanged" will only ever be emitted in Super User mode
     since tree widget items aren't editable otherwise). */
@@ -170,6 +169,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->tableWidget,                 SIGNAL( itemActivated( QTableWidgetItem* ) ),     this, SLOT( setActiveAttributeName( QTableWidgetItem* ) ) );
 
   /* Database related. */
+  connect( ui->actionRemoveFromProfile,     SIGNAL( triggered() ), this, SLOT( showDBEditForm() ) );
+  connect( ui->actionImportXMLToDatabase,   SIGNAL( triggered() ), this, SLOT( importXMLToDatabase() ) );
   connect( ui->actionSwitchSessionDatabase, SIGNAL( triggered() ), this, SLOT( switchDBSession() ) );
   connect( ui->actionAddNewDatabase,        SIGNAL( triggered() ), this, SLOT( addNewDB() ) );
   connect( ui->actionAddExistingDatabase,   SIGNAL( triggered() ), this, SLOT( addExistingDB() ) );
@@ -552,8 +553,9 @@ void GCMainWindow::newXMLFile()
 {
   resetDOM();
   m_currentXMLFileName = "";
-  ui->actionSaveAs->setEnabled( true );
-  ui->actionSave->setEnabled  ( true );  
+  ui->actionCloseFile->setEnabled( true );
+  ui->actionSaveAs->setEnabled   ( true );
+  ui->actionSave->setEnabled     ( true );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -922,8 +924,9 @@ void GCMainWindow::addChildElementToDOM()
       a new file to be created, do it automatically (we can't call "newXMLFile here" since
       it resets the DOM document as well). */
       m_currentXMLFileName = "";
-      ui->actionSave->setEnabled( true );
-      ui->actionSaveAs->setEnabled( true );
+      ui->actionCloseFile->setEnabled( true );
+      ui->actionSave->setEnabled     ( true );
+      ui->actionSaveAs->setEnabled   ( true );
 
       /* Since we don't have any existing nodes if we get to this point, we need to initialise
         the tree widget with its first item. */
@@ -1003,6 +1006,18 @@ void GCMainWindow::resetDOM()
 
 void GCMainWindow::showDBEditForm()
 {
+  if( !GCDataBaseInterface::instance()->hasActiveSession() )
+  {
+    showErrorMessageBox( "No session currently active" );
+    return;
+  }
+
+  if( !m_domDoc->documentElement().isNull() )
+  {
+    showErrorMessageBox( "\"Save\" and/or \"Close\" the current document before continuing.");
+    return;
+  }
+
   /* Delete on close flag set. */
   GCDestructiveEditDialog *dialog = new GCDestructiveEditDialog( this );
   dialog->exec();
@@ -1284,8 +1299,9 @@ void GCMainWindow::processDOMDoc()
   populateTreeWidget( root, item );
 
   /* Enable file save options. */
-  ui->actionSave->setEnabled( true );
-  ui->actionSaveAs->setEnabled( true );
+  ui->actionCloseFile->setEnabled( true );
+  ui->actionSave->setEnabled     ( true );
+  ui->actionSaveAs->setEnabled   ( true );
 
   /* Display the DOM content in the text edit. */
   setTextEditXML( QDomElement() );

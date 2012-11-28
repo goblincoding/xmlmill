@@ -62,10 +62,12 @@ private slots:
   void showAttributeHelp();
   
 private:
-  void populateElementHierarchy( const QString &element, QTreeWidgetItem *parent );
-  void showErrorMessageBox     ( const QString &errorMsg );
+  void populateTreeWidget();
+  void processNextElement ( const QString &element, QTreeWidgetItem *parent );
+  void showErrorMessageBox( const QString &errorMsg );
   Ui::GCDestructiveEditDialog *ui;
   QString m_currentElement;
+  QString m_currentElementParent;
   QString m_currentAttribute;
 };
 

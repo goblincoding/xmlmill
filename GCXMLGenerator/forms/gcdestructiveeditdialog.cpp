@@ -36,10 +36,11 @@
 /*--------------------------------------------------------------------------------------*/
 
 GCDestructiveEditDialog::GCDestructiveEditDialog( QWidget *parent ) :
-  QDialog           ( parent ),
-  ui                ( new Ui::GCDestructiveEditDialog ),
-  m_currentElement  ( "" ),
-  m_currentAttribute( "" )
+  QDialog               ( parent ),
+  ui                    ( new Ui::GCDestructiveEditDialog ),
+  m_currentElement      ( "" ),
+  m_currentElementParent( "" ),
+  m_currentAttribute    ( "" )
 {
   ui->setupUi( this );
 
@@ -52,14 +53,7 @@ GCDestructiveEditDialog::GCDestructiveEditDialog( QWidget *parent ) :
   connect( ui->comboBox,   SIGNAL( currentIndexChanged( QString ) ),      this, SLOT( attributeActivated( QString ) ) );
   connect( ui->treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ), this, SLOT( treeWidgetItemActivated( QTreeWidgetItem*,int ) ) );
 
-  foreach( QString element, GCDataBaseInterface::instance()->knownRootElements() )
-  {
-    QTreeWidgetItem *item = new QTreeWidgetItem;
-    item->setText( 0, element );
-
-    ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
-    populateElementHierarchy( element, item );
-  }
+  populateTreeWidget();
 
   setAttribute( Qt::WA_DeleteOnClose );
 }
@@ -75,6 +69,11 @@ GCDestructiveEditDialog::~GCDestructiveEditDialog()
 
 void GCDestructiveEditDialog::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
 {
+  if( item->parent() )
+  {
+    m_currentElementParent = item->parent()->text( column );
+  }
+
   m_currentElement = item->text( column );
 
   bool success( false );
@@ -122,6 +121,7 @@ void GCDestructiveEditDialog::deleteElement( const QString &element, const QStri
     the slot has been called after the user clicked the relevant push button), in that
     case, the first element to be removed is the current one. */
   QString currentElement = ( element.isEmpty() ) ? m_currentElement : element;
+  QString parentElement  = ( parent.isEmpty()  ) ? m_currentElementParent : parent;
 
   bool success( false );
   QStringList children = GCDataBaseInterface::instance()->children( currentElement, success );
@@ -160,12 +160,13 @@ void GCDestructiveEditDialog::deleteElement( const QString &element, const QStri
         }
 
         /* And we also need to remove it from its parent's child list. */
-        if( !GCDataBaseInterface::instance()->removeChildElement( parent, currentElement ) )
+        if( !GCDataBaseInterface::instance()->removeChildElement( parentElement, currentElement ) )
         {
           showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
         }
 
         /* Finally, check if the user removed a root element. */
+        QStringList knownRoots = GCDataBaseInterface::instance()->knownRootElements();
         if( GCDataBaseInterface::instance()->knownRootElements().contains( currentElement ) )
         {
           if( !GCDataBaseInterface::instance()->removeRootElement( currentElement ) )
@@ -179,6 +180,10 @@ void GCDestructiveEditDialog::deleteElement( const QString &element, const QStri
         showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
       }
     }
+
+    ui->comboBox->clear();
+    ui->plainTextEdit->clear();
+    populateTreeWidget();
   }
   else
   {
@@ -226,6 +231,10 @@ void GCDestructiveEditDialog::deleteAttribute()
   {
     showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
   }
+  else
+  {
+    ui->comboBox->removeItem( ui->comboBox->findText( m_currentAttribute ) );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -256,7 +265,21 @@ void GCDestructiveEditDialog::showAttributeHelp()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDestructiveEditDialog::populateElementHierarchy( const QString &element, QTreeWidgetItem *parent )
+void GCDestructiveEditDialog::populateTreeWidget()
+{
+  foreach( QString element, GCDataBaseInterface::instance()->knownRootElements() )
+  {
+    QTreeWidgetItem *item = new QTreeWidgetItem;
+    item->setText( 0, element );
+
+    ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
+    processNextElement( element, item );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDestructiveEditDialog::processNextElement( const QString &element, QTreeWidgetItem *parent )
 {
   bool success( false );
   QStringList children = GCDataBaseInterface::instance()->children( element, success );
@@ -269,7 +292,7 @@ void GCDestructiveEditDialog::populateElementHierarchy( const QString &element, 
       item->setText( 0, child );
 
       parent->addChild( item );  // takes ownership
-      populateElementHierarchy( child, item );
+      processNextElement( child, item );
     }
   }
   else
