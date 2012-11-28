@@ -570,7 +570,7 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDataBaseInterface::replaceAttributeValues(const QString &element, const QString &attribute, const QStringList &attributeValues) const
+bool GCDataBaseInterface::replaceAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const
 {
   bool success( false );
   QSqlQuery query = selectAttribute( attribute, element, success );
@@ -631,7 +631,42 @@ bool GCDataBaseInterface::removeElementChild( const QString &element, const QStr
 /*--------------------------------------------------------------------------------------*/
 
 bool GCDataBaseInterface::removeElementAttribute( const QString &element, const QString &attribute ) const
-{
+{    
+  bool success( false );
+  QSqlQuery query = selectAttribute( attribute, element, success );
+
+  if( !success )
+  {
+    /* The last error message has been set in selectElement. */
+    return false;
+  }
+
+  /* Only continue if we have an existing record. */
+  if( query.first() )
+  {
+    if( !query.prepare( DELETE_ATTRIBUTEVALUES ) )
+    {
+      m_lastErrorMsg = QString( "Prepare DELETE attribute values failed for element \"%1\" and attribute \"%2\": [%3]" )
+                       .arg( element )
+                       .arg( attribute )
+                       .arg( query.lastError().text() );
+      return false;
+    }
+
+    query.addBindValue( attribute );
+    query.addBindValue( element );
+
+    if( !query.exec() )
+    {
+      m_lastErrorMsg = QString( "DELETE attribute values failed for element \"%1\" and attribute [%2]: [%3]" )
+                       .arg( element )
+                       .arg( attribute )
+                       .arg( query.lastError().text() );
+      return false;
+    }
+  }
+
+  m_lastErrorMsg = "";
   return true;
 }
 
