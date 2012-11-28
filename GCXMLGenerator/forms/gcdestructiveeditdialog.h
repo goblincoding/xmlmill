@@ -55,6 +55,8 @@ public:
 private slots:
   void treeWidgetItemActivated( QTreeWidgetItem *item, int column );
   void attributeActivated( const QString &attribute );
+  void updateAttributeValues();
+  void deleteAttribute();
   void showElementHelp();
   void showAttributeHelp();
   
@@ -63,6 +65,7 @@ private:
   void showErrorMessageBox( const QString &errorMsg );
   Ui::GCDestructiveEditDialog *ui;
   QString m_currentElement;
+  QString m_currentAttribute;
 };
 
 #endif // GCDESTRUCTIVEEDITDIALOG_H

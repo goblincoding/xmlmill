@@ -29,23 +29,27 @@
 #include "gcdestructiveeditdialog.h"
 #include "ui_gcdestructiveeditdialog.h"
 #include "db/gcdatabaseinterface.h"
+#include "utils/gcmessagespace.h"
 #include <QMessageBox>
 #include <QTreeWidgetItem>
 
 /*--------------------------------------------------------------------------------------*/
 
 GCDestructiveEditDialog::GCDestructiveEditDialog( QWidget *parent ) :
-  QDialog         ( parent ),
-  ui              ( new Ui::GCDestructiveEditDialog ),
-  m_currentElement( "" )
+  QDialog           ( parent ),
+  ui                ( new Ui::GCDestructiveEditDialog ),
+  m_currentElement  ( "" ),
+  m_currentAttribute( "" )
 {
   ui->setupUi( this );
 
-  connect( ui->elementHelpButton,   SIGNAL( clicked() ), this, SLOT( showElementHelp() ) );
-  connect( ui->attributeHelpButton, SIGNAL( clicked() ), this, SLOT( showAttributeHelp() ) );
+  connect( ui->elementHelpButton,     SIGNAL( clicked() ), this, SLOT( showElementHelp() ) );
+  connect( ui->attributeHelpButton,   SIGNAL( clicked() ), this, SLOT( showAttributeHelp() ) );
+  connect( ui->updateValuesButton,    SIGNAL( clicked() ), this, SLOT( updateAttributeValues() ) );
+  connect( ui->deleteAttributeButton, SIGNAL( clicked() ), this, SLOT( deleteAttribute() ) );
 
-  connect( ui->treeWidget,          SIGNAL( itemClicked( QTreeWidgetItem*,int ) ), this, SLOT( treeWidgetItemActivated( QTreeWidgetItem*,int ) ) );
-  connect( ui->comboBox,            SIGNAL( currentIndexChanged( QString ) ),        this, SLOT( attributeActivated( QString ) ) );
+  connect( ui->comboBox,   SIGNAL( currentIndexChanged( QString ) ),      this, SLOT( attributeActivated( QString ) ) );
+  connect( ui->treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ), this, SLOT( treeWidgetItemActivated( QTreeWidgetItem*,int ) ) );
 
   foreach( QString element, GCDataBaseInterface::instance()->knownRootElements() )
   {
@@ -91,7 +95,8 @@ void GCDestructiveEditDialog::treeWidgetItemActivated( QTreeWidgetItem *item, in
 void GCDestructiveEditDialog::attributeActivated( const QString &attribute )
 {
   bool success( false );
-  QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( m_currentElement, attribute, success );
+  m_currentAttribute = attribute;
+  QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( m_currentElement, m_currentAttribute, success );
 
   if( success )
   {
@@ -103,6 +108,48 @@ void GCDestructiveEditDialog::attributeActivated( const QString &attribute )
     }
   }
   else
+  {
+    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDestructiveEditDialog::updateAttributeValues()
+{
+  QStringList attributes = ui->plainTextEdit->toPlainText().split( "\n" );
+
+  if( attributes.isEmpty() )
+  {
+    bool accepted = GCMessageSpace::userAccepted( "UpdateEmptyAttributeValues",
+                                                  "Update with empty attribute values?",
+                                                  "Since you have removed all the known values from this attribute, "
+                                                  "would you perhaps like to remove it in its entirety?",
+                                                  GCMessageDialog::YesNo,
+                                                  GCMessageDialog::No,
+                                                  GCMessageDialog::Question );
+
+    if( accepted )
+    {
+      deleteAttribute();
+    }
+  }
+  else
+  {
+    /* All existing values will be replaced with whatever remained in the text edit by the time the
+      user was done. */
+    if( !GCDataBaseInterface::instance()->replaceAttributeValues( m_currentElement, m_currentAttribute, attributes ) )
+    {
+      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    }
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDestructiveEditDialog::deleteAttribute()
+{
+  if( !GCDataBaseInterface::instance()->removeElementAttribute( m_currentElement, m_currentAttribute ) )
   {
     showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
   }
