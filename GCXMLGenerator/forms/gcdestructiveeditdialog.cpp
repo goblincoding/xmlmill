@@ -47,6 +47,7 @@ GCDestructiveEditDialog::GCDestructiveEditDialog( QWidget *parent ) :
   connect( ui->attributeHelpButton,   SIGNAL( clicked() ), this, SLOT( showAttributeHelp() ) );
   connect( ui->updateValuesButton,    SIGNAL( clicked() ), this, SLOT( updateAttributeValues() ) );
   connect( ui->deleteAttributeButton, SIGNAL( clicked() ), this, SLOT( deleteAttribute() ) );
+  connect( ui->deleteElementButton,   SIGNAL( clicked() ), this, SLOT( deleteElement() ) );
 
   connect( ui->comboBox,   SIGNAL( currentIndexChanged( QString ) ),      this, SLOT( attributeActivated( QString ) ) );
   connect( ui->treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ), this, SLOT( treeWidgetItemActivated( QTreeWidgetItem*,int ) ) );
@@ -105,6 +106,78 @@ void GCDestructiveEditDialog::attributeActivated( const QString &attribute )
     foreach( QString value, attributeValues )
     {
       ui->plainTextEdit->insertPlainText( QString( "%1\n" ).arg( value ) );
+    }
+  }
+  else
+  {
+    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDestructiveEditDialog::deleteElement( const QString &element, const QString &parent )
+{
+  /* If the element name is empty, then this is the first call to this function (i.e
+    the slot has been called after the user clicked the relevant push button), in that
+    case, the first element to be removed is the current one. */
+  QString currentElement = ( element.isEmpty() ) ? m_currentElement : element;
+
+  bool success( false );
+  QStringList children = GCDataBaseInterface::instance()->children( currentElement, success );
+
+  if( success )
+  {
+    /* Attributes and values must be removed before we can remove elements and we must also
+      ensure that children are removed before their parents.  To achieve this, we need to ensure
+      that we clean the element tree from the "bottom up". */
+    if( !children.isEmpty() )
+    {
+      foreach( QString child, children )
+      {
+        deleteElement( child, currentElement );
+      }
+    }
+    else
+    {
+      /* Remove all the attributes (and their known values) associated with this element. */
+      QStringList attributes = GCDataBaseInterface::instance()->attributes( currentElement, success );
+
+      if( success )
+      {
+        foreach( QString attribute, attributes )
+        {
+          if( !GCDataBaseInterface::instance()->removeElementAttribute( currentElement, attribute ) )
+          {
+            showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+          }
+        }
+
+        /* Now we can remove the element itself. */
+        if( !GCDataBaseInterface::instance()->removeElement( currentElement ) )
+        {
+          showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+        }
+
+        /* And we also need to remove it from its parent's child list. */
+        if( !GCDataBaseInterface::instance()->removeElementChild( parent, currentElement ) )
+        {
+          showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+        }
+
+        /* Finally, check if the user removed a root element. */
+        if( GCDataBaseInterface::instance()->knownRootElements().contains( currentElement ) )
+        {
+          if( !GCDataBaseInterface::instance()->removeRootElement( currentElement ) )
+          {
+            showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+          }
+        }
+      }
+      else
+      {
+        showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+      }
     }
   }
   else
@@ -190,13 +263,13 @@ void GCDestructiveEditDialog::populateElementHierarchy( const QString &element, 
 
   if( success )
   {
-    foreach( QString element, children )
+    foreach( QString child, children )
     {
       QTreeWidgetItem *item = new QTreeWidgetItem;
-      item->setText( 0, element );
+      item->setText( 0, child );
 
       parent->addChild( item );  // takes ownership
-      populateElementHierarchy( element, item );
+      populateElementHierarchy( child, item );
     }
   }
   else

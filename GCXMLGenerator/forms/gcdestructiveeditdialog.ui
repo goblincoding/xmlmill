@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Remove from Profile</string>
+   <string>Remove Items from Profile</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../resources/gcresources.qrc">
@@ -45,6 +45,13 @@ QPushButton:pressed
   color: rgb(190, 190, 190);
   background-color: qlineargradient(spread:reflect, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0 rgba(150, 150, 160, 240), stop:1 rgba(110, 110, 125, 255));
   border-style: inset;
+}
+
+QPushButton:default 
+{
+  border-color: gray;
+  border-width: 2px;   
+  background-color: qlineargradient(spread:reflect, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0 rgba(110, 110, 110, 255), stop:1 rgba(190, 190, 190, 255));
 }
 
 QToolButton
@@ -479,6 +486,16 @@ QSplitter::handle:pressed
             </size>
            </property>
           </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="updateValuesButton">
+           <property name="text">
+            <string>Update Values</string>
+           </property>
+           <property name="default">
+            <bool>true</bool>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QPushButton" name="deleteAttributeButton">
