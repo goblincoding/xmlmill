@@ -350,7 +350,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
       "attributeValueChanged" slot to be called prematurely, resulting in a segmentation
       fault due to value conflicts/missing values (in short, we can't do the connect
       before we've set the current index). */
-    connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged  ( QString ) ) );
+    connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged( QString ) ) );
 
     ui->tableWidget->setCellWidget( i, 1, attributeCombo );
     m_comboBoxes.insert( attributeCombo, i );
@@ -377,7 +377,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     attributeCombo->setEnabled( false );
 
     /* Once again, only connect after inserting items or bad things will happen! */
-    connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged  ( QString ) ) );
+    connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged( QString ) ) );
 
     ui->tableWidget->setCellWidget( lastRow, 1, attributeCombo );
     m_comboBoxes.insert( attributeCombo, lastRow );

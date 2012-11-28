@@ -30,17 +30,22 @@
 #include "ui_gcdestructiveeditdialog.h"
 #include "db/gcdatabaseinterface.h"
 #include <QMessageBox>
+#include <QTreeWidgetItem>
 
 /*--------------------------------------------------------------------------------------*/
 
 GCDestructiveEditDialog::GCDestructiveEditDialog( QWidget *parent ) :
-  QDialog( parent ),
-  ui     ( new Ui::GCDestructiveEditDialog )
+  QDialog         ( parent ),
+  ui              ( new Ui::GCDestructiveEditDialog ),
+  m_currentElement( "" )
 {
   ui->setupUi( this );
 
   connect( ui->elementHelpButton,   SIGNAL( clicked() ), this, SLOT( showElementHelp() ) );
   connect( ui->attributeHelpButton, SIGNAL( clicked() ), this, SLOT( showAttributeHelp() ) );
+
+  connect( ui->treeWidget,          SIGNAL( itemClicked( QTreeWidgetItem*,int ) ), this, SLOT( treeWidgetItemActivated( QTreeWidgetItem*,int ) ) );
+  connect( ui->comboBox,            SIGNAL( currentIndexChanged( QString ) ),        this, SLOT( attributeActivated( QString ) ) );
 
   foreach( QString element, GCDataBaseInterface::instance()->knownRootElements() )
   {
@@ -59,6 +64,48 @@ GCDestructiveEditDialog::GCDestructiveEditDialog( QWidget *parent ) :
 GCDestructiveEditDialog::~GCDestructiveEditDialog()
 {
   delete ui;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDestructiveEditDialog::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
+{
+  m_currentElement = item->text( column );
+
+  bool success( false );
+  QStringList attributes = GCDataBaseInterface::instance()->attributes( m_currentElement, success );
+
+  if( success )
+  {
+    ui->comboBox->clear();
+    ui->comboBox->addItems( attributes );
+  }
+  else
+  {
+    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDestructiveEditDialog::attributeActivated( const QString &attribute )
+{
+  bool success( false );
+  QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( m_currentElement, attribute, success );
+
+  if( success )
+  {
+    ui->plainTextEdit->clear();
+
+    foreach( QString value, attributeValues )
+    {
+      ui->plainTextEdit->insertPlainText( QString( "%1\n" ).arg( value ) );
+    }
+  }
+  else
+  {
+    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/

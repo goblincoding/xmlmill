@@ -53,6 +53,8 @@ public:
   ~GCDestructiveEditDialog();
 
 private slots:
+  void treeWidgetItemActivated( QTreeWidgetItem *item, int column );
+  void attributeActivated( const QString &attribute );
   void showElementHelp();
   void showAttributeHelp();
   
@@ -60,6 +62,7 @@ private:
   void populateElementHierarchy( const QString &element, QTreeWidgetItem *parent );
   void showErrorMessageBox( const QString &errorMsg );
   Ui::GCDestructiveEditDialog *ui;
+  QString m_currentElement;
 };
 
 #endif // GCDESTRUCTIVEEDITDIALOG_H

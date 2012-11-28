@@ -384,14 +384,14 @@ QSplitter::handle:pressed
   <property name="modal">
    <bool>true</bool>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QSplitter" name="splitter">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="QWidget" name="">
-      <layout class="QVBoxLayout" name="elementVerticalLayout">
+     <widget class="QWidget" name="layoutWidget">
+      <layout class="QVBoxLayout" name="elementLayout">
        <item>
         <widget class="QTreeWidget" name="treeWidget">
          <property name="sizePolicy">
@@ -414,7 +414,7 @@ QSplitter::handle:pressed
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="elementHorizontalLayout">
+        <layout class="QHBoxLayout" name="deleteElementLayout">
          <item>
           <spacer name="elementSpacer">
            <property name="orientation">
@@ -450,8 +450,8 @@ QSplitter::handle:pressed
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="">
-      <layout class="QVBoxLayout" name="verticalLayout">
+     <widget class="QWidget" name="layoutWidget">
+      <layout class="QVBoxLayout" name="attributeLayout">
        <item>
         <widget class="QComboBox" name="comboBox">
          <property name="sizePolicy">
@@ -466,7 +466,7 @@ QSplitter::handle:pressed
         <widget class="QPlainTextEdit" name="plainTextEdit"/>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="attributeHorizontalLayout">
+        <layout class="QHBoxLayout" name="deleteAttributeLayout">
          <item>
           <spacer name="attributeSpacer">
            <property name="orientation">
