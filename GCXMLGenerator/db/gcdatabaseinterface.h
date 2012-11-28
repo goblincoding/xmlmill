@@ -107,7 +107,7 @@ public:
 
   /* Remove single entries/values from the database. */
   bool removeElement         ( const QString &element ) const;
-  bool removeElementChild    ( const QString &element, const QString &children ) const;
+  bool removeElementChild    ( const QString &element, const QString &child ) const;
   bool removeElementAttribute( const QString &element, const QString &attribute ) const;
   bool removeAttributeValue  ( const QString &element, const QString &attribute, const QString &attributeValue ) const;
   bool removeRootElement     ( const QString &element );

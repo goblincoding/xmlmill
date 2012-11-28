@@ -618,12 +618,44 @@ bool GCDataBaseInterface::replaceAttributeValues( const QString &element, const 
 
 bool GCDataBaseInterface::removeElement( const QString &element ) const
 {
+  bool success( false );
+  QSqlQuery query = selectElement( element, success );
+
+  if( !success )
+  {
+    /* The last error message has been set in selectElement. */
+    return false;
+  }
+
+  /* Only continue if we have an existing record. */
+  if( query.first() )
+  {
+    if( !query.prepare( DELETE_ELEMENT ) )
+    {
+      m_lastErrorMsg = QString( "Prepare DELETE element failed for element \"%1\": [%3]" )
+                       .arg( element )
+                       .arg( query.lastError().text() );
+      return false;
+    }
+
+    query.addBindValue( element );
+
+    if( !query.exec() )
+    {
+      m_lastErrorMsg = QString( "DELETE element failed for element \"%1\": [%3]" )
+                       .arg( element )
+                       .arg( query.lastError().text() );
+      return false;
+    }
+  }
+
+  m_lastErrorMsg = "";
   return true;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::removeElementChild( const QString &element, const QString &children ) const
+bool GCDataBaseInterface::removeElementChild( const QString &element, const QString &child ) const
 {
   return true;
 }
