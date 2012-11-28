@@ -101,6 +101,10 @@ public:
     (nothing is deleted). */
   bool updateAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const;
 
+  /* Updates the list of known attribute values that is associated with "element" and its
+    corresponding "attribute" by replacing all the existing values with those from the new list. */
+  bool replaceAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const;
+
   /* Remove single entries/values from the database. */
   bool removeElement         ( const QString &element ) const;
   bool removeElementChild    ( const QString &element, const QString &children ) const;

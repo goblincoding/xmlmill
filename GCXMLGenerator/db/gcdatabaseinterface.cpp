@@ -538,6 +538,9 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
     QStringList existingValues( query.record().field( "attributeValues" ).value().toString().split( SEPARATOR ) );
     existingValues.append( attributeValues );
 
+    /* The reason for not using UPDATE_ATTRIBUTEVALUES_CONCAT here is that we don't simply want to add
+      all the supposed new values, we want to make sure they are all unique by removing all duplicates
+      before sticking it all back into the DB. */
     if( !query.prepare( UPDATE_ATTRIBUTEVALUES ) )
     {
       m_lastErrorMsg = QString( "Prepare UPDATE attribute values failed for element \"%1\" and attribute \"%2\": [%3]" )
@@ -548,6 +551,52 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
     }
 
     query.addBindValue( cleanAndJoinListElements( existingValues ) );
+    query.addBindValue( attribute );
+    query.addBindValue( element );
+
+    if( !query.exec() )
+    {
+      m_lastErrorMsg = QString( "UPDATE attribute values failed for element \"%1\" and attribute [%2]: [%3]" )
+          .arg( element )
+          .arg( attribute )
+          .arg( query.lastError().text() );
+      return false;
+    }
+  }
+
+  m_lastErrorMsg = "";
+  return true;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDataBaseInterface::replaceAttributeValues(const QString &element, const QString &attribute, const QStringList &attributeValues) const
+{
+  bool success( false );
+  QSqlQuery query = selectAttribute( attribute, element, success );
+
+  if( !success )
+  {
+    /* The last error message has been set in selectElement. */
+    return false;
+  }
+
+  /* Only continue if we have an existing record. */
+  if( query.first() )
+  {
+    /* Create a duplicate list that we can safely manipulate locally. */
+    QStringList attributeValuesToClean( attributeValues );
+
+    if( !query.prepare( UPDATE_ATTRIBUTEVALUES ) )
+    {
+      m_lastErrorMsg = QString( "Prepare UPDATE attribute values failed for element \"%1\" and attribute \"%2\": [%3]" )
+          .arg( element )
+          .arg( attribute )
+          .arg( query.lastError().text() );
+      return false;
+    }
+
+    query.addBindValue( cleanAndJoinListElements( attributeValuesToClean ) );
     query.addBindValue( attribute );
     query.addBindValue( element );
 
