@@ -61,6 +61,9 @@ static const QLatin1String INSERT_ATTRIBUTEVALUES(
 static const QLatin1String DELETE_ATTRIBUTEVALUES(
     "DELETE FROM xmlattributes WHERE attribute = ? AND associatedElement = ?" );
 
+static const QLatin1String DELETE_ROOTELEMENT(
+    "DELETE FROM rootelements WHERE root = ?" );
+
 /* Concatenate the new values to the existing values. The first '?' represents our string SEPARATOR. */
 static const QLatin1String UPDATE_CHILDREN_CONCAT(
     "UPDATE xmlelements SET children   = ( children || ? || ? )   WHERE element = ?" );
@@ -657,6 +660,30 @@ bool GCDataBaseInterface::removeElement( const QString &element ) const
 
 bool GCDataBaseInterface::removeElementChild( const QString &element, const QString &child ) const
 {
+  bool success( false );
+  QSqlQuery query = selectElement( element, success );
+
+  if( !success )
+  {
+    /* The last error message has been set in selectElement. */
+    return false;
+  }
+
+  /* Remove the child from the list and update the DB with the new list. */
+  if( query.first() )
+  {
+    QStringList allChildren( query.record().field( "children" ).value().toString().split( SEPARATOR ) );
+    allChildren.removeAll( child );
+    updateElementChildren( element, allChildren );
+  }
+  else
+  {
+    m_lastErrorMsg = QString( "No knowledge of element \"%1\", add it first." )
+        .arg( element );
+    return false;
+  }
+
+  m_lastErrorMsg = "";
   return true;
 }
 
@@ -704,15 +731,29 @@ bool GCDataBaseInterface::removeElementAttribute( const QString &element, const 
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::removeAttributeValue( const QString &element, const QString &attribute, const QString &attributeValue ) const
-{
-  return true;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 bool GCDataBaseInterface::removeRootElement( const QString &element )
 {
+  QSqlQuery query( m_sessionDB );
+
+  if( !query.prepare( DELETE_ROOTELEMENT ) )
+  {
+    m_lastErrorMsg = QString( "Prepare DELETE failed for root \"%1\": [%2]" )
+        .arg( element )
+        .arg( query.lastError().text() );
+    return false;
+  }
+
+  query.addBindValue( element );
+
+  if( !query.exec() )
+  {
+    m_lastErrorMsg = QString( "DELETE root element failed for root \"%1\": [%2]" )
+        .arg( element )
+        .arg( query.lastError().text() );
+    return false;
+  }
+
+  m_lastErrorMsg = "";
   return true;
 }
 
