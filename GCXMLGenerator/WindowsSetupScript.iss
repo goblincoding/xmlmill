@@ -5,7 +5,7 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{C8AB46A3-EC8B-4542-8635-5ED566DF3474}
+AppId={{715CAF88-E083-430C-94F7-6492628A05E4}
 AppName=XML Mill
 AppVersion=1.0
 ;AppVerName=XML Mill 1.0
@@ -15,9 +15,10 @@ AppSupportURL=http://www.goblincoding.com/xmlmill
 AppUpdatesURL=http://www.goblincoding.com/xmlmill
 DefaultDirName={pf}\XML Mill
 DefaultGroupName=XML Mill
-LicenseFile=C:\QtDev\GCXmlGenerator\GCXMLGenerator\GNUGPL.txt
-OutputDir=C:\QtDev\GCXmlGenerator\Setup
-OutputBaseFilename=XMLMillSetup
+AllowNoIcons=yes
+LicenseFile=C:\Users\williamh\Desktop\XML Mill Test\GNUGPL.txt
+OutputDir=C:\Users\williamh\Desktop\XML Mill Test\Setup
+OutputBaseFilename=SetupXMLMill
 Compression=lzma
 SolidCompression=yes
 
@@ -28,17 +29,24 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
+[Dirs]
+Name: "{app}\sqldrivers"
+
 [Files]
-Source: "C:\QtDev\GCXmlGenerator\Release\XMLMill.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\QtDev\GCXmlGenerator\Release\mingwm10.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\QtDev\GCXmlGenerator\Release\QtCore4.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\QtDev\GCXmlGenerator\Release\QtGui4.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\QtDev\GCXmlGenerator\Release\QtSql4.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\QtDev\GCXmlGenerator\Release\QtXml4.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\williamh\Desktop\XML Mill Test\XMLMill.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\williamh\Desktop\XML Mill Test\GNUGPL.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\williamh\Desktop\XML Mill Test\libgcc_s_dw2-1.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\williamh\Desktop\XML Mill Test\mingwm10.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\williamh\Desktop\XML Mill Test\QtCore4.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\williamh\Desktop\XML Mill Test\QtGui4.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\williamh\Desktop\XML Mill Test\QtSql4.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\williamh\Desktop\XML Mill Test\QtXml4.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\williamh\Desktop\XML Mill Test\sqldrivers\*"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
 Name: "{group}\XML Mill"; Filename: "{app}\XMLMill.exe"
+Name: "{group}\{cm:ProgramOnTheWeb,XML Mill}"; Filename: "http://www.goblincoding.com/xmlmill"
 Name: "{group}\{cm:UninstallProgram,XML Mill}"; Filename: "{uninstallexe}"
 Name: "{commondesktop}\XML Mill"; Filename: "{app}\XMLMill.exe"; Tasks: desktopicon
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\XML Mill"; Filename: "{app}\XMLMill.exe"; Tasks: quicklaunchicon
