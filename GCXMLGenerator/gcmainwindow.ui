@@ -770,7 +770,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>X&amp;ML</string>
+     <string>&amp;File</string>
     </property>
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
