@@ -43,7 +43,7 @@ GCKnownDBForm::GCKnownDBForm( const QStringList &dbList, Buttons buttons, QWidge
   if( dbList.empty() )
   {
     ui->okButton->setVisible( false );
-    ui->comboBox->addItem( "Let there be databases! (i.e. you'll have to add some)" );
+    ui->comboBox->addItem( "Let there be profiles! (i.e. you'll have to add some)" );
   }
   else
   {

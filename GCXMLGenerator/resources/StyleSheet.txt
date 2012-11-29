@@ -16,6 +16,11 @@ QMainWindow::separator:hover
   background-color: rgb(190, 196, 209);
 }
 
+QWidget
+{
+  background-color: rgba(100, 100, 105, 255);
+}
+
 QDialog
 {
   background-color: rgba(150, 150, 150, 255);

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GCNewDBWizard</class>
+ <widget class="QWizard" name="GCNewDBWizard">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>459</width>
+    <height>287</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>New Profile Wizard</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../resources/gcresources.qrc">
+    <normaloff>:/resources/goblinicon.jpg</normaloff>:/resources/goblinicon.jpg</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QLabel
+{
+  /* Override QLabel settings from application. */
+  background-color: rgba(100, 100, 105, 255);
+}</string>
+  </property>
+  <property name="wizardStyle">
+   <enum>QWizard::ModernStyle</enum>
+  </property>
+  <property name="options">
+   <set>QWizard::ExtendedWatermarkPixmap|QWizard::HelpButtonOnRight</set>
+  </property>
+  <widget class="QWizardPage" name="introPage">
+   <property name="title">
+    <string>Create a New Profile</string>
+   </property>
+   <property name="subTitle">
+    <string>This Wizard will help you set up and populate a new XML profile.</string>
+   </property>
+   <layout class="QVBoxLayout" name="introPageLayout">
+    <item>
+     <widget class="QPlainTextEdit" name="createFileTextEdit">
+      <property name="plainText">
+       <string>Profiles are used to store information about the relationships that exist between elements, attributes and attribute values of specific kinds of XML documents.
+
+To get started, enter the new profile's name below (we suggest you choose something with a logical association with the XML documents it is going to represent).</string>
+      </property>
+      <property name="textInteractionFlags">
+       <set>Qt::NoTextInteraction</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="newDBLayout">
+      <item>
+       <widget class="QLabel" name="newDBLabel">
+        <property name="text">
+         <string>Profile:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="newDBLineEdit"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="newDBButton">
+        <property name="text">
+         <string>Browse</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWizardPage" name="importFilePage">
+   <property name="title">
+    <string>Import Files</string>
+   </property>
+   <property name="subTitle">
+    <string>Populate the new profile by importing existing XML files.</string>
+   </property>
+   <layout class="QVBoxLayout" name="importFileLayout">
+    <item>
+     <widget class="QPlainTextEdit" name="importFileTextEdit">
+      <property name="plainText">
+       <string>The new profile is still empty and needs to be populated.  
+
+The only way to do this is by importing an existing XML file of the type you wish this profile to represent.
+
+&quot;XML Mill&quot; will extract the information it needs from the file you specify below (you can import more files later should you wish to).</string>
+      </property>
+      <property name="textInteractionFlags">
+       <set>Qt::NoTextInteraction</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="importPageLayout">
+      <item>
+       <widget class="QLabel" name="importFileLabel">
+        <property name="text">
+         <string>File:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="importFileLineEdit"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="importFileButton">
+        <property name="text">
+         <string>Browse</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../resources/gcresources.qrc"/>
+ </resources>
+ <connections/>
+</ui>
