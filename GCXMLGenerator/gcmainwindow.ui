@@ -385,9 +385,9 @@ QTreeView
   border: 1px solid black;
   color: rgba(10, 10, 10, 255);
   background-color: rgba(140, 140, 140, 255);
-  alternate-background-color: rgba(90, 90, 100, 255);
-  selection-background-color: rgba(120, 120, 130, 200);
-  font: 12px;
+  alternate-background-color: rgba(120, 120, 130, 255);
+  selection-background-color: rgba(130, 130, 140, 200);
+  font: 13px;
 }
 
 QTreeView::branch:has-children:!has-siblings:closed, QTreeView::branch:closed:has-children:has-siblings
@@ -657,7 +657,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
            <number>2</number>
           </property>
           <property name="indentation">
-           <number>10</number>
+           <number>12</number>
           </property>
           <property name="animated">
            <bool>true</bool>
