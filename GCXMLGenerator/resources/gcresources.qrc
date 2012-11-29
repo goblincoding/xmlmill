@@ -24,5 +24,6 @@
         <file>importxml.png</file>
         <file>Help.txt</file>
         <file>clear.png</file>
+        <file>StyleSheet.txt</file>
     </qresource>
 </RCC>

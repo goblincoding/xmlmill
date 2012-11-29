@@ -27,13 +27,33 @@
  */
 
 #include <QtGui/QApplication>
+#include <QFile>
+#include <QTextStream>
 #include "gcmainwindow.h"
+
+/*--------------------------------------------------------------------------------------*/
+
+QString styleSheet()
+{
+  QFile file( ":resources/StyleSheet.txt" );
+
+  file.open( QIODevice::ReadOnly | QIODevice::Text );
+
+  QTextStream stream( &file );
+  return stream.readAll();
+}
+
+/*--------------------------------------------------------------------------------------*/
 
 int main(int argc, char *argv[])
 {
   QApplication a(argc, argv);
+  a.setStyleSheet( styleSheet() );
+
   GCMainWindow w;
   w.show();
   
   return a.exec();
 }
+
+/*--------------------------------------------------------------------------------------*/
