@@ -436,6 +436,16 @@ QSplitter::handle:pressed
           </spacer>
          </item>
          <item>
+          <widget class="QPushButton" name="removeChildButton">
+           <property name="text">
+            <string>Remove Child</string>
+           </property>
+           <property name="default">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="deleteElementButton">
            <property name="text">
             <string>Delete Element</string>

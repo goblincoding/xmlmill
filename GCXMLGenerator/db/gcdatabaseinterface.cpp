@@ -412,7 +412,7 @@ bool GCDataBaseInterface::updateElementChildren( const QString &element, const Q
 
     if( !query.prepare( UPDATE_CHILDREN ) )
     {
-      m_lastErrorMsg = QString( "Prepare UPDATE element comment failed for element \"%1\": [%2]" )
+      m_lastErrorMsg = QString( "Prepare UPDATE element children failed for element \"%1\": [%2]" )
           .arg( element )
           .arg( query.lastError().text() );
       return false;
@@ -423,7 +423,7 @@ bool GCDataBaseInterface::updateElementChildren( const QString &element, const Q
 
     if( !query.exec() )
     {
-      m_lastErrorMsg = QString( "UPDATE comment failed for element \"%1\": [%2]" )
+      m_lastErrorMsg = QString( "UPDATE children failed for element \"%1\": [%2]" )
           .arg( element )
           .arg( query.lastError().text() );
       return false;
@@ -649,6 +649,10 @@ bool GCDataBaseInterface::removeElement( const QString &element ) const
 
 bool GCDataBaseInterface::removeChildElement( const QString &element, const QString &child ) const
 {
+  /* This function is virtually exactly the same as "updateElementChildren" with the only
+    exception being that we do not append the child to the known children, but remove it from
+    the list and replace the previous DB entry with the updated one...I'll have to rethink
+    this approach and see if I can't refactor these functions somehow. */
   bool success( false );
   QSqlQuery query = selectElement( element, success );
 
@@ -658,18 +662,30 @@ bool GCDataBaseInterface::removeChildElement( const QString &element, const QStr
     return false;
   }
 
-  /* Remove the child from the list and update the DB with the new list. */
+  /* Update the existing record (if we have one). */
   if( query.first() )
   {
     QStringList allChildren( query.record().field( "children" ).value().toString().split( SEPARATOR ) );
     allChildren.removeAll( child );
-    updateElementChildren( element, allChildren );
-  }
-  else
-  {
-    m_lastErrorMsg = QString( "No knowledge of element \"%1\", add it first." )
-        .arg( element );
-    return false;
+
+    if( !query.prepare( UPDATE_CHILDREN ) )
+    {
+      m_lastErrorMsg = QString( "Prepare REMOVE element child failed for element \"%1\": [%2]" )
+          .arg( element )
+          .arg( query.lastError().text() );
+      return false;
+    }
+
+    query.addBindValue( cleanAndJoinListElements( allChildren ) );
+    query.addBindValue( element );
+
+    if( !query.exec() )
+    {
+      m_lastErrorMsg = QString( "REMOVE child failed for element \"%1\": [%2]" )
+          .arg( element )
+          .arg( query.lastError().text() );
+      return false;
+    }
   }
 
   m_lastErrorMsg = "";

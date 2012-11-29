@@ -40,7 +40,8 @@ GCDestructiveEditDialog::GCDestructiveEditDialog( QWidget *parent ) :
   ui                    ( new Ui::GCDestructiveEditDialog ),
   m_currentElement      ( "" ),
   m_currentElementParent( "" ),
-  m_currentAttribute    ( "" )
+  m_currentAttribute    ( "" ),
+  m_deletedElements     ()
 {
   ui->setupUi( this );
 
@@ -115,16 +116,16 @@ void GCDestructiveEditDialog::attributeActivated( const QString &attribute )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDestructiveEditDialog::deleteElement( const QString &element, const QString &parent )
+void GCDestructiveEditDialog::deleteElement( const QString &element )
 {
   /* If the element name is empty, then this is the first call to this function (i.e
     the slot has been called after the user clicked the relevant push button), in that
     case, the first element to be removed is the current one. */
   QString currentElement = ( element.isEmpty() ) ? m_currentElement : element;
-  QString parentElement  = ( parent.isEmpty()  ) ? m_currentElementParent : parent;
 
   bool success( false );
   QStringList children = GCDataBaseInterface::instance()->children( currentElement, success );
+  m_deletedElements.clear();
 
   if( success )
   {
@@ -135,51 +136,49 @@ void GCDestructiveEditDialog::deleteElement( const QString &element, const QStri
     {
       foreach( QString child, children )
       {
-        deleteElement( child, currentElement );
+        deleteElement( child );
+      }
+    }
+
+    /* Remove all the attributes (and their known values) associated with this element. */
+    QStringList attributes = GCDataBaseInterface::instance()->attributes( currentElement, success );
+
+    if( success )
+    {
+      foreach( QString attribute, attributes )
+      {
+        if( !GCDataBaseInterface::instance()->removeAttribute( currentElement, attribute ) )
+        {
+          showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+        }
+      }
+
+      /* Now we can remove the element itself. */
+      if( !GCDataBaseInterface::instance()->removeElement( currentElement ) )
+      {
+        showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+      }
+      else
+      {
+        m_deletedElements.append( currentElement );
+      }
+
+      /* Check if the user removed a root element. */
+      if( GCDataBaseInterface::instance()->knownRootElements().contains( currentElement ) )
+      {
+        if( !GCDataBaseInterface::instance()->removeRootElement( currentElement ) )
+        {
+          showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+        }
       }
     }
     else
     {
-      /* Remove all the attributes (and their known values) associated with this element. */
-      QStringList attributes = GCDataBaseInterface::instance()->attributes( currentElement, success );
-
-      if( success )
-      {
-        foreach( QString attribute, attributes )
-        {
-          if( !GCDataBaseInterface::instance()->removeAttribute( currentElement, attribute ) )
-          {
-            showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
-          }
-        }
-
-        /* Now we can remove the element itself. */
-        if( !GCDataBaseInterface::instance()->removeElement( currentElement ) )
-        {
-          showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
-        }
-
-        /* And we also need to remove it from its parent's child list. */
-        if( !GCDataBaseInterface::instance()->removeChildElement( parentElement, currentElement ) )
-        {
-          showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
-        }
-
-        /* Finally, check if the user removed a root element. */
-        QStringList knownRoots = GCDataBaseInterface::instance()->knownRootElements();
-        if( GCDataBaseInterface::instance()->knownRootElements().contains( currentElement ) )
-        {
-          if( !GCDataBaseInterface::instance()->removeRootElement( currentElement ) )
-          {
-            showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
-          }
-        }
-      }
-      else
-      {
-        showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
-      }
+      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
     }
+
+    /* Remove the element from all its parents' first level child lists. */
+    updateChildLists();
 
     ui->comboBox->clear();
     ui->plainTextEdit->clear();
@@ -188,6 +187,25 @@ void GCDestructiveEditDialog::deleteElement( const QString &element, const QStri
   else
   {
     showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDestructiveEditDialog::removeChildElement()
+{
+  if( !m_currentElementParent.isEmpty() )
+  {
+    if( !GCDataBaseInterface::instance()->removeChildElement( m_currentElementParent, m_currentElement ) )
+    {
+      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    }
+    else
+    {
+      ui->comboBox->clear();
+      ui->plainTextEdit->clear();
+      populateTreeWidget();
+    }
   }
 }
 
@@ -243,9 +261,15 @@ void GCDestructiveEditDialog::showElementHelp()
 {
   QMessageBox::information( this,
                             "How this works...",
+                            "Removing a child will remove the currently highlighted element\n"
+                            "from the list of children associated with its parent, i.e. it will\n"
+                            "only affect the relationship between the two elements, the element\n"
+                            "itself is not deleted in the process.\n\n"
                             "Deleting an element will also delete its children, associated\n"
-                            "attributes, the associated attributes of its children and all\n"
-                            "the known values for all the attributes thus deleted.\n\n"
+                            "attributes, the associated attributes of its children all\n"
+                            "the known values for all the attributes thus deleted and remove the\n"
+                            "element as child from absolutely every element that had it listed as\n"
+                            "a first level child element.\n\n"
                             "I suggest you tread lightly :)\n" );
 }
 
@@ -265,8 +289,41 @@ void GCDestructiveEditDialog::showAttributeHelp()
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCDestructiveEditDialog::updateChildLists()
+{
+  bool success( false );
+  QStringList knownElements = GCDataBaseInterface::instance()->knownElements();
+
+  foreach( QString element, knownElements )
+  {
+    QStringList children = GCDataBaseInterface::instance()->children( element, success );
+
+    if( success && !children.isEmpty() )
+    {
+      foreach( QString deletedElement, m_deletedElements )
+      {
+        if( children.contains( deletedElement ) )
+        {
+          if( !GCDataBaseInterface::instance()->removeChildElement( element, deletedElement ) )
+          {
+            showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+          }
+        }
+      }
+    }
+    else
+    {
+      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    }
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCDestructiveEditDialog::populateTreeWidget()
 {
+  ui->treeWidget->clear();
+
   foreach( QString element, GCDataBaseInterface::instance()->knownRootElements() )
   {
     QTreeWidgetItem *item = new QTreeWidgetItem;

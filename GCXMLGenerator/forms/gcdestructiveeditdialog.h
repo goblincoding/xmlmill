@@ -30,6 +30,7 @@
 #define GCDESTRUCTIVEEDITDIALOG_H
 
 #include <QDialog>
+#include <QList>
 
 namespace Ui
 {
@@ -55,13 +56,15 @@ public:
 private slots:
   void treeWidgetItemActivated( QTreeWidgetItem *item, int column );
   void attributeActivated     ( const QString &attribute );
-  void deleteElement          ( const QString &element = QString(), const QString &parent = QString() );
-  void updateAttributeValues();
-  void deleteAttribute();
-  void showElementHelp();
-  void showAttributeHelp();
+  void deleteElement          ( const QString &element = QString() );
+  void removeChildElement     ();
+  void updateAttributeValues  ();
+  void deleteAttribute        ();
+  void showElementHelp        ();
+  void showAttributeHelp      ();
   
 private:
+  void updateChildLists();
   void populateTreeWidget();
   void processNextElement ( const QString &element, QTreeWidgetItem *parent );
   void showErrorMessageBox( const QString &errorMsg );
@@ -69,6 +72,7 @@ private:
   QString m_currentElement;
   QString m_currentElementParent;
   QString m_currentAttribute;
+  QList< QString > m_deletedElements;
 };
 
 #endif // GCDESTRUCTIVEEDITDIALOG_H

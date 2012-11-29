@@ -1181,7 +1181,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
     <string>Close the current file without saving.</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+S</string>
+    <string>Ctrl+Shift+C</string>
    </property>
   </action>
  </widget>
