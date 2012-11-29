@@ -44,6 +44,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QTextStream>
+#include <QTextCursor>
 #include <QComboBox>
 #include <QTimer>
 #include <QModelIndex>
@@ -1085,25 +1086,47 @@ void GCMainWindow::revertDirectEdit()
 /* This slot will only ever be called in Super User mode. */
 void GCMainWindow::saveDirectEdit()
 {
-  QDomDocument backup = m_domDoc->cloneNode().toDocument();
-
   QString xmlErr( "" );
   int     line  ( -1 );
   int     col   ( -1 );
 
-  if( !m_domDoc->setContent( ui->dockWidgetTextEdit->toPlainText(), &xmlErr, &line, &col ) )
+  /* The reason for creating a temporary document is so that we do not mess with the contents
+    of the tree item node map.  Breaking the content of the DOM member has an adverse effect
+    on the map and the reason is as follows - the mapped nodes are shallow copies of the nodes
+    in the DOM, when the DOM gets broken, the map isn't updated to reflect the changes which means
+    that, when the map is destructed, it attempts to call destructors on nodes that no longer exist
+    and bad things happen. */
+  QDomDocument doc;
+  if( !doc.setContent( ui->dockWidgetTextEdit->toPlainText(), &xmlErr, &line, &col ) )
   {
-    QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3]. Reverting changes." )
+    QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3]." )
         .arg( xmlErr )
         .arg( line )
         .arg( col );
     showErrorMessageBox( errorMsg );
 
-    *m_domDoc = backup.cloneNode().toDocument();
-    revertDirectEdit();
+    /* Unfortunate that the line number returned by the DOM doc doesn't match up with what's
+      visible in the QTextEdit.  It seems as if it's mostly off by two lines.  For now it's a
+      fix, but will have to figure out how to make sure that we highlight the correct lines.
+      Ultimately this finds the broken XML and highlights it in red...what a mission... */
+    QTextBlock textBlock = ui->dockWidgetTextEdit->document()->findBlockByLineNumber( line - 2 );
+    QTextCursor cursor( textBlock );
+    cursor.movePosition( QTextCursor::NextWord );
+    cursor.movePosition( QTextCursor::EndOfBlock, QTextCursor::KeepAnchor );
+
+    QTextEdit::ExtraSelection highlight;
+    highlight.cursor = cursor;
+    highlight.format.setProperty( QTextFormat::FullWidthSelection, true );
+    highlight.format.setBackground( QColor( 220, 150, 220 ) );
+
+    QList<QTextEdit::ExtraSelection> extras;
+    extras << highlight;
+    ui->dockWidgetTextEdit->setExtraSelections( extras );
+    ui->dockWidgetTextEdit->ensureCursorVisible();
   }
   else
   {
+    m_domDoc->setContent( ui->dockWidgetTextEdit->toPlainText() );
     importXMLToDatabase();
   }
 }

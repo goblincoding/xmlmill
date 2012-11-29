@@ -4,3 +4,4 @@ Don't make "Import XML" message optional.  Always show.
 Dumb down use - don't choose where to put db's.
 Shorten messages and prompts (ppl don't read).
 Especially need to pay attention to initial start-up.  Make them fly through using it.
+Settings should remember size of GUI, etc etc
