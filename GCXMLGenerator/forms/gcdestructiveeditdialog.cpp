@@ -50,6 +50,7 @@ GCDestructiveEditDialog::GCDestructiveEditDialog( QWidget *parent ) :
   connect( ui->updateValuesButton,    SIGNAL( clicked() ), this, SLOT( updateAttributeValues() ) );
   connect( ui->deleteAttributeButton, SIGNAL( clicked() ), this, SLOT( deleteAttribute() ) );
   connect( ui->deleteElementButton,   SIGNAL( clicked() ), this, SLOT( deleteElement() ) );
+  connect( ui->removeChildButton,     SIGNAL( clicked() ), this, SLOT( removeChildElement() ) );
 
   connect( ui->comboBox,   SIGNAL( currentIndexChanged( QString ) ),      this, SLOT( attributeActivated( QString ) ) );
   connect( ui->treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ), this, SLOT( treeWidgetItemActivated( QTreeWidgetItem*,int ) ) );
