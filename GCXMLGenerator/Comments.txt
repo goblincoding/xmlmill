@@ -1,8 +1,6 @@
-Dark text.
 Highlight broken XML in red/line numbers.
 App breaks when directly editing xml and breaking it in the process before trying to save the changes.
 Don't make "Import XML" message optional.  Always show.
-Collapse/expand arrows larger.
 Dumb down use - don't choose where to put db's.
 Shorten messages and prompts (ppl don't read).
 Especially need to pay attention to initial start-up.  Make them fly through using it.

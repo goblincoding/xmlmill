@@ -1085,19 +1085,22 @@ void GCMainWindow::revertDirectEdit()
 /* This slot will only ever be called in Super User mode. */
 void GCMainWindow::saveDirectEdit()
 {
+  QDomDocument backup = m_domDoc->cloneNode().toDocument();
+
   QString xmlErr( "" );
   int     line  ( -1 );
   int     col   ( -1 );
 
   if( !m_domDoc->setContent( ui->dockWidgetTextEdit->toPlainText(), &xmlErr, &line, &col ) )
   {
-    QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3]" )
+    QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3]. Reverting changes." )
         .arg( xmlErr )
         .arg( line )
         .arg( col );
     showErrorMessageBox( errorMsg );
-    resetDOM();
-    return;
+
+    *m_domDoc = backup.cloneNode().toDocument();
+    revertDirectEdit();
   }
   else
   {
