@@ -35,7 +35,7 @@
 /*--------------------------------------------------------------------------------------*/
 
 GCSearchForm::GCSearchForm( const QList< QDomElement > &elements, QWidget *parent ) :
-  QWidget    ( parent ),
+  QDialog    ( parent ),
   ui         ( new Ui::GCSearchForm ),
   m_lastIndex( 0 ),
   m_elements ( elements )

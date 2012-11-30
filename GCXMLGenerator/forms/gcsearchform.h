@@ -29,7 +29,7 @@
 #ifndef GCSEARCHFORM_H
 #define GCSEARCHFORM_H
 
-#include <QWidget>
+#include <QDialog>
 
 namespace Ui
 {
@@ -38,7 +38,7 @@ namespace Ui
 
 class QDomElement;
 
-class GCSearchForm : public QWidget
+class GCSearchForm : public QDialog
 {
   Q_OBJECT
   
