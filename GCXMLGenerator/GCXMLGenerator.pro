@@ -51,7 +51,8 @@ SOURCES += main.cpp\
     utils/gcmessagespace.cpp \
     forms/gchelpdialog.cpp \
     forms/gcdestructiveeditdialog.cpp \
-    forms/gcnewdbwizard.cpp
+    forms/gcnewdbwizard.cpp \
+    forms/gcsearchform.cpp
 
 HEADERS  += \
     db/gcdatabaseinterface.h \
@@ -66,7 +67,8 @@ HEADERS  += \
     utils/gcmessagespace.h \
     forms/gchelpdialog.h \
     forms/gcdestructiveeditdialog.h \
-    forms/gcnewdbwizard.h
+    forms/gcnewdbwizard.h \
+    forms/gcsearchform.h
 
 FORMS    += \
     gcmainwindow.ui \
@@ -75,7 +77,8 @@ FORMS    += \
     forms/gcmessagedialog.ui \
     forms/gchelpdialog.ui \
     forms/gcdestructiveeditdialog.ui \
-    forms/gcnewdbwizard.ui
+    forms/gcnewdbwizard.ui \
+    forms/gcsearchform.ui
 
 RESOURCES += \
     resources/gcresources.qrc

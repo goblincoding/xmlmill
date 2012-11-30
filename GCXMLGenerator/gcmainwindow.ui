@@ -212,7 +212,7 @@
    </property>
    <widget class="QMenu" name="menuDatabase">
     <property name="title">
-     <string>&amp;Profile</string>
+     <string>&amp;Edit</string>
     </property>
     <addaction name="actionSwitchSessionDatabase"/>
     <addaction name="actionAddExistingDatabase"/>
@@ -223,6 +223,7 @@
     <addaction name="separator"/>
     <addaction name="actionRemoveFromProfile"/>
     <addaction name="separator"/>
+    <addaction name="actionFind"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -627,6 +628,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+C</string>
+   </property>
+  </action>
+  <action name="actionFind">
+   <property name="text">
+    <string>&amp;Find</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
    </property>
   </action>
  </widget>

@@ -33,6 +33,7 @@
 #include "forms/gcnewelementform.h"
 #include "forms/gchelpdialog.h"
 #include "forms/gcdestructiveeditdialog.h"
+#include "forms/gcsearchform.h"
 #include "utils/gccombobox.h"
 #include "utils/gcdbsessionmanager.h"
 #include "utils/gcmessagespace.h"
@@ -150,6 +151,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionSuperUserMode,         SIGNAL( toggled( bool ) ), this, SLOT( switchSuperUserMode( bool ) ) );
   connect( ui->expandAllCheckBox,           SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
   connect( ui->actionExit,                  SIGNAL( triggered() ),     this, SLOT( close() ) );
+  connect( ui->actionFind,                  SIGNAL( triggered() ),     this, SLOT( searchDocument() ) );
   connect( ui->addNewElementButton,         SIGNAL( clicked() ),       this, SLOT( showNewElementForm() ) );
   connect( ui->actionForgetPreferences,     SIGNAL( triggered() ),     this, SLOT( forgetAllMessagePreferences() ) );
   connect( ui->actionHelpContents,          SIGNAL( triggered() ),     this, SLOT( showMainHelp() ) );
@@ -1072,6 +1074,15 @@ void GCMainWindow::saveDirectEdit()
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCMainWindow::elementFound( const QDomElement &element )
+{
+  QTreeWidgetItem *item = m_treeItemNodes.key( element );
+  ui->treeWidget->setCurrentItem( item );
+  ui->treeWidget->expandItem( item );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCMainWindow::activeDatabaseChanged( QString dbName )
 {
   if( m_domDoc->documentElement().isNull() )
@@ -1173,6 +1184,15 @@ void GCMainWindow::switchSuperUserMode( bool super )
   {
     treeWidgetItemSelected( ui->treeWidget->currentItem(), 0 );
   }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::searchDocument()
+{
+  /* Delete on close flag set. */
+  GCSearchForm *form = new GCSearchForm( m_treeItemNodes.values() );
+  form->show();
 }
 
 /*--------------------------------------------------------------------------------------*/

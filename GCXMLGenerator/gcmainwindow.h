@@ -136,9 +136,11 @@ private slots:
   void saveDirectEdit();
 
   /* These do exactly what you would expect. */
+  void elementFound              ( const QDomElement &element );
   void activeDatabaseChanged     ( QString dbName );
   void collapseOrExpandTreeWidget( bool checked );
   void switchSuperUserMode       ( bool super );
+  void searchDocument();
   void forgetAllMessagePreferences();
   void userCancelledKnownDBForm();
   void showDOMEditHelp();
