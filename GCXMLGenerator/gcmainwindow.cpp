@@ -119,7 +119,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_newElementWasAdded  ( false ),
   m_busyImporting       ( false ),
   m_DOMTooLarge         ( false ),
-  m_showDocContent      ( true ),
   m_treeItemNodes       (),
   m_comboBoxes          ()
 {
@@ -153,7 +152,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionExit,                  SIGNAL( triggered() ),     this, SLOT( close() ) );
   connect( ui->addNewElementButton,         SIGNAL( clicked() ),       this, SLOT( showNewElementForm() ) );
   connect( ui->actionForgetPreferences,     SIGNAL( triggered() ),     this, SLOT( forgetAllMessagePreferences() ) );
-  connect( ui->dontShowContentCheckBox,     SIGNAL( toggled( bool ) ), this, SLOT( toggleShowDocContent( bool ) ) );
   connect( ui->actionHelpContents,          SIGNAL( triggered() ),     this, SLOT( showMainHelp() ) );
   connect( ui->actionVisitOfficialSite,     SIGNAL( triggered() ),     this, SLOT( goToSite() ) );
 
@@ -1244,14 +1242,6 @@ void GCMainWindow::switchSuperUserMode( bool super )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::toggleShowDocContent( bool show )
-{
-  m_showDocContent = !show;
-  setTextEditXML( QDomElement() );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 void GCMainWindow::forgetAllMessagePreferences()
 {
   GCMessageSpace::forgetAllPreferences();
@@ -1386,7 +1376,7 @@ void GCMainWindow::showErrorMessageBox( const QString &errorMsg )
 
 void GCMainWindow::setTextEditXML( const QDomElement &element )
 {
-  if( !m_DOMTooLarge && m_showDocContent )
+  if( !m_DOMTooLarge )
   {
     ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
 
@@ -1395,10 +1385,6 @@ void GCMainWindow::setTextEditXML( const QDomElement &element )
       ui->dockWidgetTextEdit->find( getScrollAnchorText( element ) );
       ui->dockWidgetTextEdit->ensureCursorVisible();
     }
-  }
-  else if( !m_showDocContent )
-  {
-    ui->dockWidgetTextEdit->clear();
   }
 }
 
