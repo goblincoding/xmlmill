@@ -95,11 +95,11 @@ void GCKnownDBForm::select()
 {
   if( m_remove )
   {
-    emit dbRemoved( ui->comboBox->currentText() );
+    emit databaseRemoved( ui->comboBox->currentText() );
   }
   else
   {
-    emit dbSelected( ui->comboBox->currentText() );
+    emit selectedDatabase( ui->comboBox->currentText() );
   }
 
   this->close();

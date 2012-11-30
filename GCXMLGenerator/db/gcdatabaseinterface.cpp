@@ -48,7 +48,7 @@ static const QString SEPARATOR( "~!@" );
 
 /*--------------------------------------------------------------------------------------*/
 
-/* Have a look at "createDBTables" to see how the DB is set up. */
+/* Have a look at "createTables" to see how the DB is set up. */
 static const QLatin1String INSERT_ELEMENT(
     "INSERT INTO xmlelements( element, children, attributes ) VALUES( ?, ?, ? )" );
 
@@ -946,7 +946,7 @@ bool GCDataBaseInterface::addDatabase( const QString &dbName )
       {
         db.setDatabaseName( dbName );
         m_dbMap.insert( dbConName, dbName );
-        saveDBFile();
+        saveDatabaseFile();
 
         m_lastErrorMsg = "";
         return true;
@@ -996,7 +996,7 @@ bool GCDataBaseInterface::removeDatabase( const QString &dbName )
       the current QtSQL modules. */
     QSqlDatabase::removeDatabase( dbConName );
     m_dbMap.remove( dbConName );
-    saveDBFile();
+    saveDatabaseFile();
 
     m_lastErrorMsg = "";
     return true;
@@ -1008,14 +1008,14 @@ bool GCDataBaseInterface::removeDatabase( const QString &dbName )
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::setSessionDB( const QString &dbName )
+bool GCDataBaseInterface::setActiveDatabase( const QString &dbName )
 {
   /* In case the db name passed in consists of a path/to/file string. */
   QString dbConName = dbName.split( QRegExp( REGEXP_SLASHES ), QString::SkipEmptyParts ).last();
 
   if( QSqlDatabase::contains( dbConName ) )
   {
-    if( openDBConnection( dbConName ) )
+    if( openConnection( dbConName ) )
     {
       m_hasActiveSession = true;
       return true;
@@ -1027,7 +1027,7 @@ bool GCDataBaseInterface::setSessionDB( const QString &dbName )
       then we'll automatically try to add it and set it as active. */
     if( addDatabase( dbName ) )
     {
-      if( openDBConnection( dbConName ) )
+      if( openConnection( dbConName ) )
       {
         m_hasActiveSession = true;
         return true;
@@ -1256,7 +1256,7 @@ bool GCDataBaseInterface::removeDuplicatesFromFields() const
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::openDBConnection( const QString &dbConName )
+bool GCDataBaseInterface::openConnection( const QString &dbConName )
 {
   /* If we have a previous connection open, close it. */
   if( m_sessionDB.isValid() && m_sessionDB.isOpen() )
@@ -1282,7 +1282,7 @@ bool GCDataBaseInterface::openDBConnection( const QString &dbConName )
 
     if ( !tables.contains( "xmlelements", Qt::CaseInsensitive ) )
     {
-      return createDBTables();
+      return createTables();
     }
   }
   else
@@ -1299,9 +1299,9 @@ bool GCDataBaseInterface::openDBConnection( const QString &dbConName )
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::createDBTables() const
+bool GCDataBaseInterface::createTables() const
 {
-  /* DB connection will be open from openDBConnection() above so no need to do any checks here. */
+  /* DB connection will be open from openConnection() above so no need to do any checks here. */
   QSqlQuery query( m_sessionDB );
 
   if( !query.exec( "CREATE TABLE xmlelements( element QString primary key, children QString, attributes QString )" ) )
@@ -1346,7 +1346,7 @@ bool GCDataBaseInterface::createDBTables() const
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDataBaseInterface::saveDBFile() const
+void GCDataBaseInterface::saveDatabaseFile() const
 {
   QFile flatFile( DB_FILE );
 

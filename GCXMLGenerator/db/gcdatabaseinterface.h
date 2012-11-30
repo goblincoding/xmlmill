@@ -141,9 +141,9 @@ public:
   bool containsKnownRootElement( const QString &dbName, const QString &root ) const;
   
 public slots:
-  bool addDatabase   ( const QString &dbName );
-  bool removeDatabase( const QString &dbName );
-  bool setSessionDB  ( const QString &dbName );
+  bool setActiveDatabase( const QString &dbName );
+  bool addDatabase      ( const QString &dbName );
+  bool removeDatabase   ( const QString &dbName );
 
 private:
   static GCDataBaseInterface *m_instance;
@@ -161,9 +161,9 @@ private:
     introduced in this way by consolidating the values and updating the records. */
   bool removeDuplicatesFromFields() const;
 
-  bool openDBConnection( const QString &dbConName );
-  bool createDBTables() const;
-  void saveDBFile() const;
+  bool openConnection( const QString &dbConName );
+  bool createTables() const;
+  void saveDatabaseFile() const;
 
   QSqlDatabase    m_sessionDB;
   mutable QString m_lastErrorMsg;

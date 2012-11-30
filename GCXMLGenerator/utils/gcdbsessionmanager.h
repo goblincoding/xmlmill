@@ -67,7 +67,7 @@ signals:
   
 private slots:
   void removeDBConnection( const QString &dbName );  // receives signal from DB form
-  void setSessionDB      ( const QString &dbName );  // receives signal from DB form
+  void setActiveDatabase      ( const QString &dbName );  // receives signal from DB form
 
 private:
   void showErrorMessageBox( const QString &errorMsg );

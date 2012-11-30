@@ -51,8 +51,8 @@ void GCDBSessionManager::showKnownDBForm( GCKnownDBForm::Buttons buttons )
 
   connect( knownDBForm,   SIGNAL( newConnection() ),       this, SLOT( addNewDatabase() ) );
   connect( knownDBForm,   SIGNAL( existingConnection() ),  this, SLOT( addExistingDatabase() ) );
-  connect( knownDBForm,   SIGNAL( dbSelected( QString ) ), this, SLOT( setSessionDB( QString ) ) );
-  connect( knownDBForm,   SIGNAL( dbRemoved ( QString ) ), this, SLOT( removeDBConnection( QString ) ) );
+  connect( knownDBForm,   SIGNAL( selectedDatabase( QString ) ), this, SLOT( setActiveDatabase( QString ) ) );
+  connect( knownDBForm,   SIGNAL( databaseRemoved ( QString ) ), this, SLOT( removeDBConnection( QString ) ) );
 
   /* If we don't have an active DB session, it's probably at program
     start-up and the user wishes to exit the application by clicking "Cancel". */
@@ -159,7 +159,7 @@ void GCDBSessionManager::removeDBConnection( const QString &dbName )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::setSessionDB( const QString &dbName )
+void GCDBSessionManager::setActiveDatabase( const QString &dbName )
 {
   /* If the current root element is not known to the new session, the user must
     confirm whether or not he/she wants the active document to be reset. */
@@ -179,7 +179,7 @@ void GCDBSessionManager::setSessionDB( const QString &dbName )
     }
   }
 
-  if( !GCDataBaseInterface::instance()->setSessionDB( dbName ) )
+  if( !GCDataBaseInterface::instance()->setActiveDatabase( dbName ) )
   {
     QString error = QString( "Failed to set session \"%1\" as active - [%2]" ).arg( dbName )
                     .arg( GCDataBaseInterface::instance()->getLastError() );
@@ -223,7 +223,7 @@ void GCDBSessionManager::addDBConnection( const QString &dbName )
 
   if( accepted )
   {
-    setSessionDB( dbName );
+    setActiveDatabase( dbName );
   }
   else
   {
