@@ -141,7 +141,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 
   /* Build XML/Edit DOM. */
   connect( ui->deleteElementButton,         SIGNAL( clicked() ),       this, SLOT( deleteElementFromDOM() ) );
-  connect( ui->addChildElementButton,       SIGNAL( clicked() ),       this, SLOT( addChildElementToDOM() ) );
+  connect( ui->addChildElementButton,       SIGNAL( clicked() ),       this, SLOT( addElementToDOM() ) );
   connect( ui->textSaveButton,              SIGNAL( clicked() ),       this, SLOT( saveDirectEdit() ) );
   connect( ui->textRevertButton,            SIGNAL( clicked() ),       this, SLOT( revertDirectEdit() ) );
   connect( ui->domEditHelpButton,           SIGNAL( clicked() ),       this, SLOT( showDOMEditHelp() ) );
@@ -155,11 +155,12 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionHelpContents,          SIGNAL( triggered() ),     this, SLOT( showMainHelp() ) );
   connect( ui->actionVisitOfficialSite,     SIGNAL( triggered() ),     this, SLOT( goToSite() ) );
 
-  /* Everything tree widget related ("itemChanged" will only ever be emitted in Super User mode
-    since tree widget items aren't editable otherwise). */
-  connect( ui->treeWidget,                  SIGNAL( itemChanged  ( QTreeWidgetItem*, int ) ), this, SLOT( treeWidgetItemChanged  ( QTreeWidgetItem*, int ) ) );
-  connect( ui->treeWidget,                  SIGNAL( itemClicked  ( QTreeWidgetItem*, int ) ), this, SLOT( treeWidgetItemActivated( QTreeWidgetItem*, int ) ) );
-  connect( ui->treeWidget,                  SIGNAL( itemActivated( QTreeWidgetItem*, int ) ), this, SLOT( treeWidgetItemActivated( QTreeWidgetItem*, int ) ) );
+  /* Everything tree widget related. */
+  connect( ui->treeWidget,                  SIGNAL( itemClicked  ( QTreeWidgetItem*, int ) ), this, SLOT( treeWidgetItemSelected( QTreeWidgetItem*, int ) ) );
+  connect( ui->treeWidget,                  SIGNAL( itemActivated( QTreeWidgetItem*, int ) ), this, SLOT( treeWidgetItemSelected( QTreeWidgetItem*, int ) ) );
+
+  /* "itemChanged" will only ever be emitted in Super User mode since tree widget items aren't editable otherwise. */
+  connect( ui->treeWidget,                  SIGNAL( itemChanged  ( QTreeWidgetItem*, int ) ), this, SLOT( treeWidgetItemNameChanged( QTreeWidgetItem*, int ) ) );
 
   /* Everything table widget related ("itemChanged" will only ever be emitted in Super User mode
     since table widget items aren't editable otherwise). */
@@ -168,15 +169,15 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->tableWidget,                 SIGNAL( itemActivated( QTableWidgetItem* ) ),     this, SLOT( setActiveAttributeName( QTableWidgetItem* ) ) );
 
   /* Database related. */
-  connect( ui->actionRemoveFromProfile,     SIGNAL( triggered() ), this, SLOT( showDBEditForm() ) );
+  connect( ui->actionRemoveFromProfile,     SIGNAL( triggered() ), this, SLOT( showDatabaseEditForm() ) );
   connect( ui->actionImportXMLToDatabase,   SIGNAL( triggered() ), this, SLOT( importXMLToDatabase() ) );
-  connect( ui->actionSwitchSessionDatabase, SIGNAL( triggered() ), this, SLOT( switchDBSession() ) );
-  connect( ui->actionAddNewDatabase,        SIGNAL( triggered() ), this, SLOT( addNewDB() ) );
-  connect( ui->actionAddExistingDatabase,   SIGNAL( triggered() ), this, SLOT( addExistingDB() ) );
-  connect( ui->actionRemoveDatabase,        SIGNAL( triggered() ), this, SLOT( removeDB() ) );
+  connect( ui->actionSwitchSessionDatabase, SIGNAL( triggered() ), this, SLOT( switchActiveDatabase() ) );
+  connect( ui->actionAddNewDatabase,        SIGNAL( triggered() ), this, SLOT( addNewDatabase() ) );
+  connect( ui->actionAddExistingDatabase,   SIGNAL( triggered() ), this, SLOT( addExistingDatabase() ) );
+  connect( ui->actionRemoveDatabase,        SIGNAL( triggered() ), this, SLOT( removeDatabase() ) );
   connect( m_dbSessionManager,              SIGNAL( reset() ),     this, SLOT( resetDOM() ) );
   connect( m_dbSessionManager,              SIGNAL( userCancelledKnownDBForm() ),  this, SLOT( userCancelledKnownDBForm() ) );
-  connect( m_dbSessionManager,              SIGNAL( dbSessionChanged( QString ) ), this, SLOT( dbSessionChanged( QString ) ) );
+  connect( m_dbSessionManager,              SIGNAL( activeDatabaseChanged( QString ) ), this, SLOT( activeDatabaseChanged( QString ) ) );
 
   /* Initialise the database interface and retrieve the list of database names (this will
     include the path references to the ".db" files). */
@@ -213,7 +214,7 @@ GCMainWindow::~GCMainWindow()
 
 /* This slot will only be called in Super User mode so we can safely keep the functionality
   as it is (i.e. updating the database alongside the DOM) without any other explicit checks. */
-void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
+void GCMainWindow::treeWidgetItemNameChanged( QTreeWidgetItem *item, int column )
 {
   /* This check is probably redundant, but rather safe than sorry... */
   if( m_treeItemNodes.contains( item ) )
@@ -267,7 +268,7 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
           showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
         }
 
-        setTextEditXML( m_treeItemNodes.value( item ).toElement() );
+        setTextEditContent( m_treeItemNodes.value( item ).toElement() );
       }
     }
   }
@@ -275,7 +276,7 @@ void GCMainWindow::treeWidgetItemChanged( QTreeWidgetItem *item, int column )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
+void GCMainWindow::treeWidgetItemSelected( QTreeWidgetItem *item, int column )
 {
   Q_UNUSED( column );
 
@@ -413,7 +414,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
   }
 
   ui->dockWidgetTextEdit->moveCursor( QTextCursor::Start );
-  setTextEditXML( element );
+  setTextEditContent( element );
 
   /* Unset flag. */
   m_wasTreeItemActivated = false;
@@ -485,7 +486,7 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
         }
       }
 
-      setTextEditXML( currentElement );
+      setTextEditContent( currentElement );
 
       /* If the user added a new attribute, we wish to insert another new "empty" row so that 
         he/she may add even more attributes if he/she wishes to do so. We also need to update
@@ -494,7 +495,7 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
         table widget only so we have to trigger it explicitly). */
       if( m_activeAttributeName == EMPTY )
       {
-        treeWidgetItemActivated( ui->treeWidget->currentItem(), 0 );
+        treeWidgetItemSelected( ui->treeWidget->currentItem(), 0 );
       }
     }
   }
@@ -553,7 +554,7 @@ void GCMainWindow::attributeValueChanged( const QString &value )
       }
     }
 
-    setTextEditXML( currentElement );
+    setTextEditContent( currentElement );
   }
 }
 
@@ -755,69 +756,69 @@ void GCMainWindow::saveXMLFileAs()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::addNewDB()
+void GCMainWindow::addNewDatabase()
 {
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
     or not a user is on the verge of messing something up... */
   if( m_domDoc->documentElement().isNull() )
   {
-    m_dbSessionManager->addNewDB();
+    m_dbSessionManager->addNewDatabase();
   }
   else
   {
-    m_dbSessionManager->addNewDB( m_domDoc->documentElement().tagName() );
+    m_dbSessionManager->addNewDatabase( m_domDoc->documentElement().tagName() );
   }
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::addExistingDB()
+void GCMainWindow::addExistingDatabase()
 {
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
     or not a user is on the verge of messing something up... */
   if( m_domDoc->documentElement().isNull() )
   {
-    m_dbSessionManager->addExistingDB();
+    m_dbSessionManager->addExistingDatabase();
   }
   else
   {
-    m_dbSessionManager->addExistingDB( m_domDoc->documentElement().tagName() );
+    m_dbSessionManager->addExistingDatabase( m_domDoc->documentElement().tagName() );
   }
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::removeDB()
+void GCMainWindow::removeDatabase()
 {
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
     or not a user is on the verge of messing something up... */
   if( m_domDoc->documentElement().isNull() )
   {
-    m_dbSessionManager->removeDB();
+    m_dbSessionManager->removeDatabase();
   }
   else
   {
-    m_dbSessionManager->removeDB( m_domDoc->documentElement().tagName() );
+    m_dbSessionManager->removeDatabase( m_domDoc->documentElement().tagName() );
   }
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::switchDBSession()
+void GCMainWindow::switchActiveDatabase()
 {
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
     or not a user is on the verge of messing something up... */
   if( m_domDoc->documentElement().isNull() )
   {
-    m_dbSessionManager->switchDBSession();
+    m_dbSessionManager->switchActiveDatabase();
   }
   else
   {
-    m_dbSessionManager->switchDBSession( m_domDoc->documentElement().tagName() );
+    m_dbSessionManager->switchActiveDatabase( m_domDoc->documentElement().tagName() );
   }
 }
 
@@ -887,15 +888,15 @@ void GCMainWindow::deleteElementFromDOM()
 
     /* Repopulate the table widget with values from whichever
       element is highlighted after the removal. */
-    treeWidgetItemActivated( ui->treeWidget->currentItem(), 0 );
+    treeWidgetItemSelected( ui->treeWidget->currentItem(), 0 );
 
-    setTextEditXML( parentNode.toElement() );
+    setTextEditContent( parentNode.toElement() );
   }
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::addChildElementToDOM()
+void GCMainWindow::addElementToDOM()
 {
   QString newElementName = ui->addElementComboBox->currentText();
 
@@ -943,7 +944,7 @@ void GCMainWindow::resetDOM()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::showDBEditForm()
+void GCMainWindow::showDatabaseEditForm()
 {
   if( !GCDataBaseInterface::instance()->hasActiveSession() )
   {
@@ -979,7 +980,7 @@ void GCMainWindow::addNewElement( const QString &element, const QStringList &att
     ui->addElementComboBox->setCurrentIndex( 0 );
 
     m_newElementWasAdded = true;
-    addChildElementToDOM();
+    addElementToDOM();
     m_newElementWasAdded = false;
   }
 }
@@ -1016,7 +1017,7 @@ void GCMainWindow::showNewElementForm()
 /* This slot will only ever be called in Super User mode. */
 void GCMainWindow::revertDirectEdit()
 {
-  setTextEditXML( QDomElement() );
+  setTextEditContent( QDomElement() );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1071,7 +1072,7 @@ void GCMainWindow::saveDirectEdit()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::dbSessionChanged( QString dbName )
+void GCMainWindow::activeDatabaseChanged( QString dbName )
 {
   if( m_domDoc->documentElement().isNull() )
   {
@@ -1170,7 +1171,7 @@ void GCMainWindow::switchSuperUserMode( bool super )
     editable (or otherwise) combo boxes and attribute cells. */
   if( ui->treeWidget->currentItem() )
   {
-    treeWidgetItemActivated( ui->treeWidget->currentItem(), 0 );
+    treeWidgetItemSelected( ui->treeWidget->currentItem(), 0 );
   }
 }
 
@@ -1260,10 +1261,10 @@ void GCMainWindow::processDOMDoc()
   ui->actionSaveAs->setEnabled   ( true );
 
   /* Display the DOM content in the text edit. */
-  setTextEditXML( QDomElement() );
+  setTextEditContent( QDomElement() );
 
   ui->treeWidget->setCurrentItem( item, 0 );
-  treeWidgetItemActivated( item, 0 );
+  treeWidgetItemSelected( item, 0 );
 
   collapseOrExpandTreeWidget( ui->expandAllCheckBox->isChecked() );
 }
@@ -1323,7 +1324,7 @@ void GCMainWindow::addElementToDOM( const QString &elementName, QTreeWidgetItem 
       QDomElement parent = m_treeItemNodes.value( parentItem );
       parent.appendChild( newElement );
 
-      /* If "addChildElementToDOM" was called from within "addNewElement", then
+      /* If "addElementToDOM" was called from within "addNewElement", then
         the new element name must be added as a child of the current element. */
       if( m_newElementWasAdded )
       {
@@ -1345,7 +1346,7 @@ void GCMainWindow::addElementToDOM( const QString &elementName, QTreeWidgetItem 
       ui->treeWidget->invisibleRootItem()->addChild( newItem );  // takes ownership
       m_domDoc->appendChild( newElement );
 
-      /* If "addChildElementToDOM" was called from within "addNewElement", then
+      /* If "addElementToDOM" was called from within "addNewElement", then
         the new element name will be a new root element. */
       if( m_newElementWasAdded )
       {
@@ -1372,7 +1373,7 @@ void GCMainWindow::addElementToDOM( const QString &elementName, QTreeWidgetItem 
       showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
     }
 
-    setTextEditXML( newElement );
+    setTextEditContent( newElement );
 
     /* If we've just added a new element in Super User mode, we wish to set the current
       active tree item as the parent of the new element and not the new element itself.
@@ -1382,12 +1383,12 @@ void GCMainWindow::addElementToDOM( const QString &elementName, QTreeWidgetItem 
     if( !m_newElementWasAdded )
     {
       ui->treeWidget->setCurrentItem( newItem, 0 );
-      treeWidgetItemActivated( newItem, 0 );
+      treeWidgetItemSelected( newItem, 0 );
     }
     else
     {
       ui->treeWidget->setCurrentItem( newItem->parent(), 0 );
-      treeWidgetItemActivated( newItem->parent(), 0 );
+      treeWidgetItemSelected( newItem->parent(), 0 );
     }
   }
 }
@@ -1408,7 +1409,7 @@ void GCMainWindow::showErrorMessageBox( const QString &errorMsg )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::setTextEditXML( const QDomElement &element )
+void GCMainWindow::setTextEditContent( const QDomElement &element )
 {
   if( !m_DOMTooLarge )
   {

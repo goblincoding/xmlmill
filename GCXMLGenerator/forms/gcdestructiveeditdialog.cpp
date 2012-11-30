@@ -53,7 +53,7 @@ GCDestructiveEditDialog::GCDestructiveEditDialog( QWidget *parent ) :
   connect( ui->removeChildButton,     SIGNAL( clicked() ), this, SLOT( removeChildElement() ) );
 
   connect( ui->comboBox,   SIGNAL( currentIndexChanged( QString ) ),      this, SLOT( attributeActivated( QString ) ) );
-  connect( ui->treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ), this, SLOT( treeWidgetItemActivated( QTreeWidgetItem*,int ) ) );
+  connect( ui->treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ), this, SLOT( treeWidgetItemSelected( QTreeWidgetItem*,int ) ) );
 
   populateTreeWidget();
 
@@ -69,7 +69,7 @@ GCDestructiveEditDialog::~GCDestructiveEditDialog()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDestructiveEditDialog::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
+void GCDestructiveEditDialog::treeWidgetItemSelected( QTreeWidgetItem *item, int column )
 {
   if( item->parent() )
   {

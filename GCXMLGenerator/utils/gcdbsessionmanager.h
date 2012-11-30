@@ -53,15 +53,15 @@ public:
     accidental deletion of a user's work). */
   void showKnownDBForm( GCKnownDBForm::Buttons buttons );
 
-  void switchDBSession( const QString &currentRoot = QString() );
-  void removeDB       ( const QString &currentRoot = QString() ); // shows known DB form
+  void switchActiveDatabase( const QString &currentRoot = QString() );
+  void removeDatabase       ( const QString &currentRoot = QString() ); // shows known DB form
 
 public slots:
-  void addExistingDB( const QString &currentRoot = QString() ); // calls addDBConnection
-  void addNewDB     ( const QString &currentRoot = QString() ); // calls addDBConnection
+  void addExistingDatabase( const QString &currentRoot = QString() ); // calls addDBConnection
+  void addNewDatabase     ( const QString &currentRoot = QString() ); // calls addDBConnection
 
 signals:
-  void dbSessionChanged( QString );
+  void activeDatabaseChanged( QString );
   void userCancelledKnownDBForm();
   void reset();
   

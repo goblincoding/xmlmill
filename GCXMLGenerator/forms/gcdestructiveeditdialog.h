@@ -54,7 +54,7 @@ public:
   ~GCDestructiveEditDialog();
 
 private slots:
-  void treeWidgetItemActivated( QTreeWidgetItem *item, int column );
+  void treeWidgetItemSelected( QTreeWidgetItem *item, int column );
   void attributeActivated     ( const QString &attribute );
   void deleteElement          ( const QString &element = QString() );
   void removeChildElement     ();

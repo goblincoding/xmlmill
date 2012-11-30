@@ -72,7 +72,7 @@ private slots:
     "old" element will not be removed from the DB). All occurrences of the old
     name throughout the current DOM will be replaced with the new name and the
     tree widget will be updated accordingly. */
-  void treeWidgetItemChanged( QTreeWidgetItem *item, int column );
+  void treeWidgetItemNameChanged( QTreeWidgetItem *item, int column );
 
   /* Triggered by clicking on a tree widget item, the trigger will populate
     the table widget with the names of the attributes associated with the
@@ -81,7 +81,7 @@ private slots:
     and combo boxes so that the user may add new attribute names to the selected
     element.  The addition of new attributes and values will automatically be
     persisted to the database. */
-  void treeWidgetItemActivated( QTreeWidgetItem *item, int column );
+  void treeWidgetItemSelected( QTreeWidgetItem *item, int column );
 
   /* Called when a user clicks on/enters an attribute name cell in the table widget
     and sets the name of the current active attribute to that represented by the cell. */
@@ -114,17 +114,17 @@ private slots:
   void saveXMLFileAs();
 
   /* DOM and DB. */
-  void addNewDB();
-  void addExistingDB();
-  void removeDB();
-  void switchDBSession();
+  void addNewDatabase();
+  void addExistingDatabase();
+  void removeDatabase();
+  void switchActiveDatabase();
   void importXMLToDatabase();
 
   void deleteElementFromDOM();
-  void addChildElementToDOM();
+  void addElementToDOM();
   void resetDOM();
 
-  void showDBEditForm();
+  void showDatabaseEditForm();
 
   /* Receives new element information from "GCNewElementForm" and adds the new element and 
   associated attributes to the database. */
@@ -136,7 +136,7 @@ private slots:
   void saveDirectEdit();
 
   /* These do exactly what you would expect. */
-  void dbSessionChanged          ( QString dbName );
+  void activeDatabaseChanged     ( QString dbName );
   void collapseOrExpandTreeWidget( bool checked );
   void switchSuperUserMode       ( bool super );
   void forgetAllMessagePreferences();
@@ -152,7 +152,7 @@ private:
 
   void setStatusBarMessage  ( const QString &message );
   void showErrorMessageBox  ( const QString &errorMsg );
-  void setTextEditXML       ( const QDomElement &element );
+  void setTextEditContent   ( const QDomElement &element );
   void showLargeFileWarnings( qint64 fileSize );
 
   void resetTableWidget();

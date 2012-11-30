@@ -49,8 +49,8 @@ void GCDBSessionManager::showKnownDBForm( GCKnownDBForm::Buttons buttons )
 {
   GCKnownDBForm *knownDBForm = new GCKnownDBForm( GCDataBaseInterface::instance()->getDBList(), buttons, m_parentWidget );
 
-  connect( knownDBForm,   SIGNAL( newConnection() ),       this, SLOT( addNewDB() ) );
-  connect( knownDBForm,   SIGNAL( existingConnection() ),  this, SLOT( addExistingDB() ) );
+  connect( knownDBForm,   SIGNAL( newConnection() ),       this, SLOT( addNewDatabase() ) );
+  connect( knownDBForm,   SIGNAL( existingConnection() ),  this, SLOT( addExistingDatabase() ) );
   connect( knownDBForm,   SIGNAL( dbSelected( QString ) ), this, SLOT( setSessionDB( QString ) ) );
   connect( knownDBForm,   SIGNAL( dbRemoved ( QString ) ), this, SLOT( removeDBConnection( QString ) ) );
 
@@ -70,7 +70,7 @@ void GCDBSessionManager::showKnownDBForm( GCKnownDBForm::Buttons buttons )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::switchDBSession( const QString &currentRoot )
+void GCDBSessionManager::switchActiveDatabase( const QString &currentRoot )
 {
   /* Switching DB sessions while building an XML document could result in all kinds of trouble
     since the items known to the current session may not be known to the next. */
@@ -80,7 +80,7 @@ void GCDBSessionManager::switchDBSession( const QString &currentRoot )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::removeDB( const QString &currentRoot )
+void GCDBSessionManager::removeDatabase( const QString &currentRoot )
 {
   m_currentRoot = currentRoot;
   showKnownDBForm( GCKnownDBForm::ToRemove );
@@ -88,7 +88,7 @@ void GCDBSessionManager::removeDB( const QString &currentRoot )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::addExistingDB( const QString &currentRoot )
+void GCDBSessionManager::addExistingDatabase( const QString &currentRoot )
 {
   m_currentRoot = currentRoot;
 
@@ -103,7 +103,7 @@ void GCDBSessionManager::addExistingDB( const QString &currentRoot )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::addNewDB( const QString &currentRoot )
+void GCDBSessionManager::addNewDatabase( const QString &currentRoot )
 {
   m_currentRoot = currentRoot;
 
@@ -200,7 +200,7 @@ void GCDBSessionManager::setSessionDB( const QString &dbName )
                             "2. Switch to \"Super User\" mode and start populating this one." );
     }
 
-    emit dbSessionChanged( dbName );
+    emit activeDatabaseChanged( dbName );
   }
 }
 
