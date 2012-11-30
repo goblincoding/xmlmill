@@ -78,6 +78,18 @@ void GCDestructiveEditDialog::treeWidgetItemSelected( QTreeWidgetItem *item, int
 
   m_currentElement = item->text( column );
 
+  /* Since it isn't illegal to have elements with children of the same name, we cannot
+    block it in the DB, however, if we DO have elements with children of the same name,
+    we don't want the user to delete the element since bad things will happen. */
+  if( m_currentElement == m_currentElementParent )
+  {
+    ui->deleteElementButton->setEnabled( false );
+  }
+  else
+  {
+    ui->deleteElementButton->setEnabled( true );
+  }
+
   bool success( false );
   QStringList attributes = GCDataBaseInterface::instance()->attributes( m_currentElement, success );
 
@@ -350,7 +362,15 @@ void GCDestructiveEditDialog::processNextElement( const QString &element, QTreeW
       item->setText( 0, child );
 
       parent->addChild( item );  // takes ownership
-      processNextElement( child, item );
+
+      /* Since it isn't illegal to have elements with children of the same name, we cannot
+        block it in the DB, however, if we DO have elements with children of the same name,
+        this recursive call enters an infinite loop, so we need to make sure that doesn't
+        happen. */
+      if( child != element )
+      {
+        processNextElement( child, item );
+      }
     }
   }
   else

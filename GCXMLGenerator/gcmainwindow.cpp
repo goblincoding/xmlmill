@@ -956,7 +956,7 @@ void GCMainWindow::showDatabaseEditForm()
 
   if( !m_domDoc->documentElement().isNull() )
   {
-    showErrorMessageBox( "\"Save\" and/or \"Close\" the current document before continuing.");
+    showErrorMessageBox( "\"Save\" and \"Close\" the current document before continuing.");
     return;
   }
 
@@ -1192,6 +1192,7 @@ void GCMainWindow::searchDocument()
 {
   /* Delete on close flag set. */
   GCSearchForm *form = new GCSearchForm( m_treeItemNodes.values() );
+  connect( form, SIGNAL( foundElement( QDomElement ) ), this, SLOT( elementFound( QDomElement ) ) );
   form->show();
 }
 
