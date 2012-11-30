@@ -1077,6 +1077,7 @@ void GCMainWindow::saveDirectEdit()
 void GCMainWindow::elementFound( const QDomElement &element )
 {
   QTreeWidgetItem *item = m_treeItemNodes.key( element );
+  treeWidgetItemSelected( item, 0 );
   ui->treeWidget->setCurrentItem( item );
   ui->treeWidget->expandItem( item );
 }

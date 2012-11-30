@@ -45,6 +45,7 @@ GCSearchForm::GCSearchForm( const QList< QDomElement > &elements, QWidget *paren
 
   connect( ui->searchButton, SIGNAL( clicked() ), this, SLOT( search() ) );
   connect( ui->closeButton,  SIGNAL( clicked() ), this, SLOT( close() ) );
+  connect( ui->lineEdit,     SIGNAL( returnPressed() ), this, SLOT( search() ) );
 
   setAttribute( Qt::WA_DeleteOnClose );
 }
@@ -61,6 +62,7 @@ GCSearchForm::~GCSearchForm()
 void GCSearchForm::search()
 {
   QString searchText = ui->lineEdit->text();
+  bool found = false;
 
   for( int i = m_lastIndex; i < m_elements.size(); ++i )
   {
@@ -69,14 +71,13 @@ void GCSearchForm::search()
       if( m_elements.at( i ).tagName() == searchText )
       {
         emit foundElement( m_elements.at( i ) );
-        m_lastIndex = i;
 
         if( ui->searchButton->text() == "Search" )
         {
           ui->searchButton->setText( "Next" );
         }
 
-        break;
+        found = true;
       }
 
       if( ui->attributeCheckBox->isChecked() || ui->valueCheckBox->isChecked() )
@@ -85,22 +86,29 @@ void GCSearchForm::search()
 
         for( int j = 0; j < attributes.size(); ++j )
         {
-          QDomAttr attribute = attributes.item( i ).toAttr();
+          QDomAttr attribute = attributes.item( j ).toAttr();
 
           if( attribute.name() == searchText || attribute.value() == searchText )
           {
             emit foundElement( m_elements.at( i ) );
-            m_lastIndex = i;
 
             if( ui->searchButton->text() == "Search" )
             {
               ui->searchButton->setText( "Next" );
             }
 
+            found = true;
             break;
           }
         }
       }
+    }
+
+    m_lastIndex = i + 1;
+
+    if( found )
+    {
+      break;
     }
   }
 

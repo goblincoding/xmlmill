@@ -43,7 +43,7 @@
      <item>
       <widget class="QCheckBox" name="valueCheckBox">
        <property name="text">
-        <string>Attribute Value</string>
+        <string>Value</string>
        </property>
        <property name="checked">
         <bool>true</bool>
@@ -76,6 +76,9 @@
         <widget class="QPushButton" name="searchButton">
          <property name="text">
           <string>Search</string>
+         </property>
+         <property name="default">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
