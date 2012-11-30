@@ -148,6 +148,7 @@ private slots:
 private:
   void processDOMDoc();
   void populateTreeWidget   ( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
+  void addElementToDOM      ( const QString &elementName, QTreeWidgetItem *parentItem );
 
   void setStatusBarMessage  ( const QString &message );
   void showErrorMessageBox  ( const QString &errorMsg );

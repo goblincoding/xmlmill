@@ -292,7 +292,8 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     values for these attributes) and populate our table widget. */
   bool success( false );
   QDomElement element = m_treeItemNodes.value( item );
-  QStringList attributeNames = GCDataBaseInterface::instance()->attributes( element.tagName(), success );
+  QString elementName = element.tagName();
+  QStringList attributeNames = GCDataBaseInterface::instance()->attributes( elementName, success );
 
   /* This is more for debugging than for end-user functionality. */
   if( !success )
@@ -321,7 +322,7 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
     ui->tableWidget->setItem( i, 0, label );
 
     GCComboBox *attributeCombo = new GCComboBox;
-    attributeCombo->addItems( GCDataBaseInterface::instance()->attributeValues( element.tagName(), attributeNames.at( i ), success ) );
+    attributeCombo->addItems( GCDataBaseInterface::instance()->attributeValues( elementName, attributeNames.at( i ), success ) );
     attributeCombo->insertItem( 0, EMPTY );
     attributeCombo->setEditable( true );
 
@@ -392,7 +393,17 @@ void GCMainWindow::treeWidgetItemActivated( QTreeWidgetItem *item, int column )
   /* Populate the "add element" combo box with the known first level children of the
     current highlighted element (highlighted in the tree widget, of course). */
   ui->addElementComboBox->clear();
-  ui->addElementComboBox->addItems( GCDataBaseInterface::instance()->children( element.tagName(), success ) );
+  ui->addElementComboBox->addItems( GCDataBaseInterface::instance()->children( elementName, success ) );
+
+  /* The following will be used to allow the user to add an element of the current type to
+    its parent (this should improve the user experience as they do not have to explicitly
+    navigate back up to a parent when adding multiple items of the same type).  We also don't
+    want the user to add a document root element to itself by accident, so exclude that case. */
+  if( elementName != m_domDoc->documentElement().tagName() )
+  {
+    ui->addElementComboBox->addItem( QString( "<%1>" ).arg( elementName) );
+  }
+
   toggleAddElementWidgets();
 
   /* This is more for debugging than for end-user functionality. */
@@ -888,101 +899,24 @@ void GCMainWindow::addChildElementToDOM()
 {
   QString newElementName = ui->addElementComboBox->currentText();
 
-  /* There is probably no chance of this ever happening, but defensive programming FTW! */
-  if( !newElementName.isEmpty() )
+  /* If we already have mapped element nodes, add the new item to whichever
+    parent item is currently highlighted in the tree widget. */
+  QTreeWidgetItem *item( NULL );
+
+  if( !m_treeItemNodes.isEmpty() )
   {
-    /* Update the tree widget. */
-    QTreeWidgetItem *newItem = new QTreeWidgetItem;
-    newItem->setText( 0, newElementName );
-
-    if( m_superUserMode )
-    {
-      newItem->setFlags( newItem->flags() | Qt::ItemIsEditable );
-    }
-
-    /* Update the current DOM document by creating and adding the new element. */
-    QDomElement newElement = m_domDoc->createElement( newElementName );
-
-    /* If we already have mapped element nodes, add the new item to whichever
-      parent item is currently highlighted in the tree widget. */
-    if( !m_treeItemNodes.isEmpty() )
-    {
-      QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
-      currentItem->addChild( newItem );
-
-      /* Expand the item's parent for convenience. */
-      ui->treeWidget->expandItem( currentItem );
-
-      QDomElement parent = m_treeItemNodes.value( currentItem );
-      parent.appendChild( newElement );
-
-      /* If "addChildElementToDOM" was called from within "addNewElement", then
-        the new element name must be added as a child of the current element. */
-      if( m_newElementWasAdded )
-      {
-        GCDataBaseInterface::instance()->updateElementChildren( currentItem->text( 0 ), QStringList( newElementName ) );
-      }
-    }
-    else
-    {
-      /* If the user starts creating a DOM document without having explicitly asked for
-      a new file to be created, do it automatically (we can't call "newXMLFile here" since
-      it resets the DOM document as well). */
-      m_currentXMLFileName = "";
-      ui->actionCloseFile->setEnabled( true );
-      ui->actionSave->setEnabled     ( true );
-      ui->actionSaveAs->setEnabled   ( true );
-
-      /* Since we don't have any existing nodes if we get to this point, we need to initialise
-        the tree widget with its first item. */
-      ui->treeWidget->invisibleRootItem()->addChild( newItem );  // takes ownership
-      m_domDoc->appendChild( newElement );
-
-      /* If "addChildElementToDOM" was called from within "addNewElement", then
-        the new element name will be a new root element. */
-      if( m_newElementWasAdded )
-      {
-        GCDataBaseInterface::instance()->addRootElement( newElementName );
-      }
-    }
-
-    /* Keep everything in sync in the map. */
-    m_treeItemNodes.insert( newItem, newElement );
-
-    /* Add the known attributes associated with this element. */
-    bool success( false );
-    QStringList attributes = GCDataBaseInterface::instance()->attributes( newElementName, success );
-
-    if( success )
-    {
-      for( int i = 0; i < attributes.size(); ++i )
-      {
-        newElement.setAttribute( attributes.at( i ), QString( "" ) );
-      }
-    }
-    else
-    {
-      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
-    }
-
-    setTextEditXML( newElement );
-
-    /* If we've just added a new element in Super User mode, we wish to set the current
-      active tree item as the parent of the new element and not the new element itself.
-      Failing to do so will cause a cascading effect where each new element added through
-      the form will be the child of the previously added element.  We don't want this to
-      happen as all newly added elements (at least via the form) must be siblings. */
-    if( !m_newElementWasAdded )
-    {
-      ui->treeWidget->setCurrentItem( newItem, 0 );
-      treeWidgetItemActivated( newItem, 0 );
-    }
-    else
-    {
-      ui->treeWidget->setCurrentItem( newItem->parent(), 0 );
-      treeWidgetItemActivated( newItem->parent(), 0 );
-    }
+    item = ui->treeWidget->currentItem();
   }
+
+  /* If the user selected the <element> option, we add a new sibling element
+    of the same name as the current element to the current element's parent. */
+  if( newElementName.contains( "<" ) )
+  {
+    newElementName = newElementName.remove( QRegExp( "<|>" ) );
+    item = item->parent();
+  }
+
+  addElementToDOM( newElementName, item );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1355,6 +1289,106 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
 
     populateTreeWidget( element, item );
     element = element.nextSiblingElement();
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::addElementToDOM( const QString &elementName, QTreeWidgetItem *parentItem )
+{
+  /* There is probably no chance of this ever happening, but defensive programming FTW! */
+  if( !elementName.isEmpty() )
+  {
+    /* Update the tree widget. */
+    QTreeWidgetItem *newItem = new QTreeWidgetItem;
+    newItem->setText( 0, elementName );
+
+    if( m_superUserMode )
+    {
+      newItem->setFlags( newItem->flags() | Qt::ItemIsEditable );
+    }
+
+    /* Update the current DOM document by creating and adding the new element. */
+    QDomElement newElement = m_domDoc->createElement( elementName );
+
+    /* If we already have mapped element nodes, add the new item to whichever
+      parent item is currently highlighted in the tree widget. */
+    if( parentItem )
+    {
+      parentItem->addChild( newItem );
+
+      /* Expand the item's parent for convenience. */
+      ui->treeWidget->expandItem( parentItem );
+
+      QDomElement parent = m_treeItemNodes.value( parentItem );
+      parent.appendChild( newElement );
+
+      /* If "addChildElementToDOM" was called from within "addNewElement", then
+        the new element name must be added as a child of the current element. */
+      if( m_newElementWasAdded )
+      {
+        GCDataBaseInterface::instance()->updateElementChildren( parentItem->text( 0 ), QStringList( elementName ) );
+      }
+    }
+    else
+    {
+      /* If the user starts creating a DOM document without having explicitly asked for
+      a new file to be created, do it automatically (we can't call "newXMLFile here" since
+      it resets the DOM document as well). */
+      m_currentXMLFileName = "";
+      ui->actionCloseFile->setEnabled( true );
+      ui->actionSave->setEnabled     ( true );
+      ui->actionSaveAs->setEnabled   ( true );
+
+      /* Since we don't have any existing nodes if we get to this point, we need to initialise
+        the tree widget with its first item. */
+      ui->treeWidget->invisibleRootItem()->addChild( newItem );  // takes ownership
+      m_domDoc->appendChild( newElement );
+
+      /* If "addChildElementToDOM" was called from within "addNewElement", then
+        the new element name will be a new root element. */
+      if( m_newElementWasAdded )
+      {
+        GCDataBaseInterface::instance()->addRootElement( elementName );
+      }
+    }
+
+    /* Keep everything in sync in the map. */
+    m_treeItemNodes.insert( newItem, newElement );
+
+    /* Add the known attributes associated with this element. */
+    bool success( false );
+    QStringList attributes = GCDataBaseInterface::instance()->attributes( elementName, success );
+
+    if( success )
+    {
+      for( int i = 0; i < attributes.size(); ++i )
+      {
+        newElement.setAttribute( attributes.at( i ), QString( "" ) );
+      }
+    }
+    else
+    {
+      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    }
+
+    setTextEditXML( newElement );
+
+    /* If we've just added a new element in Super User mode, we wish to set the current
+      active tree item as the parent of the new element and not the new element itself.
+      Failing to do so will cause a cascading effect where each new element added through
+      the form will be the child of the previously added element.  We don't want this to
+      happen as all newly added elements (at least via the form) must be siblings. */
+    if( !m_newElementWasAdded )
+    {
+      ui->treeWidget->setCurrentItem( newItem, 0 );
+      treeWidgetItemActivated( newItem, 0 );
+    }
+    else
+    {
+      ui->treeWidget->setCurrentItem( newItem->parent(), 0 );
+      treeWidgetItemActivated( newItem->parent(), 0 );
+    }
   }
 }
 
