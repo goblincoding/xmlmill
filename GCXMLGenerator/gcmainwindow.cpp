@@ -687,6 +687,12 @@ void GCMainWindow::openXMLFile()
     }
     else
     {
+      /* If the user is currently busy importing XML, batch process the new file. */
+      if( m_busyImporting )
+      {
+        importXMLToDatabase();
+      }
+
       /* If the user selected a database that knows of this particular XML profile,
       simply process the document. */
       processDOMDoc();
