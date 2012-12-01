@@ -30,6 +30,7 @@
 #include "ui_gcremoveitemsform.h"
 #include "db/gcdatabaseinterface.h"
 #include "utils/gcmessagespace.h"
+
 #include <QMessageBox>
 #include <QTreeWidgetItem>
 

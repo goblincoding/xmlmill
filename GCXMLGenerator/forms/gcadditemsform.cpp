@@ -27,7 +27,8 @@
  */
 
 #include "gcadditemsform.h"
-#include "ui_gcnewelementform.h"
+#include "ui_gcadditemsform.h"
+
 #include <QMessageBox>
 
 /*--------------------------------------------------------------------------------------*/

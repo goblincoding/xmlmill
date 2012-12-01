@@ -54,7 +54,7 @@ public:
   void showKnownDBForm( GCKnownDBForm::Buttons buttons );
 
   void switchActiveDatabase( const QString &currentRoot = QString() );
-  void removeDatabase       ( const QString &currentRoot = QString() ); // shows known DB form
+  void removeDatabase      ( const QString &currentRoot = QString() ); // shows known DB form
 
 public slots:
   void addExistingDatabase( const QString &currentRoot = QString() ); // calls addDBConnection
@@ -67,7 +67,7 @@ signals:
   
 private slots:
   void removeDBConnection( const QString &dbName );  // receives signal from DB form
-  void setActiveDatabase      ( const QString &dbName );  // receives signal from DB form
+  void setActiveDatabase ( const QString &dbName );  // receives signal from DB form
 
 private:
   void showErrorMessageBox( const QString &errorMsg );

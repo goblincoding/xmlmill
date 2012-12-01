@@ -55,19 +55,19 @@ public:
 
 private slots:
   void treeWidgetItemSelected( QTreeWidgetItem *item, int column );
-  void attributeActivated     ( const QString &attribute );
-  void deleteElement          ( const QString &element = QString() );
-  void removeChildElement     ();
-  void updateAttributeValues  ();
-  void deleteAttribute        ();
-  void showElementHelp        ();
-  void showAttributeHelp      ();
+  void attributeActivated    ( const QString &attribute );
+  void deleteElement         ( const QString &element = QString() );
+  void removeChildElement    ();
+  void updateAttributeValues ();
+  void deleteAttribute       ();
+  void showElementHelp       ();
+  void showAttributeHelp     ();
   
 private:
-  void updateChildLists();
-  void populateTreeWidget();
   void processNextElement ( const QString &element, QTreeWidgetItem *parent );
   void showErrorMessageBox( const QString &errorMsg );
+  void updateChildLists();
+  void populateTreeWidget();
 
   Ui::GCRemoveItemsForm *ui;
   QString m_currentElement;
