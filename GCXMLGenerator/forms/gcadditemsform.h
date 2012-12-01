@@ -29,7 +29,7 @@
 #ifndef GCADDITEMSFORM_H
 #define GCADDITEMSFORM_H
 
-#include <QWidget>
+#include <QDialog>
 
 /*------------------------------------------------------------------------------------------
 
@@ -47,7 +47,7 @@ namespace Ui
   class GCAddItemsForm;
 }
 
-class GCAddItemsForm : public QWidget
+class GCAddItemsForm : public QDialog
 {
   Q_OBJECT
   

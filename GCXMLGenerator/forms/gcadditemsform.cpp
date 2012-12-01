@@ -34,7 +34,7 @@
 /*--------------------------------------------------------------------------------------*/
 
 GCAddItemsForm::GCAddItemsForm( QWidget *parent ) :
-  QWidget( parent ),
+  QDialog( parent ),
   ui     ( new Ui::GCAddItemsForm )
 {
   ui->setupUi( this );
@@ -44,7 +44,6 @@ GCAddItemsForm::GCAddItemsForm( QWidget *parent ) :
   connect( ui->helpToolButton, SIGNAL( clicked() ), this, SLOT( showHelp() ) );
 
   setAttribute( Qt::WA_DeleteOnClose );
-  setWindowFlags( Qt::Dialog );
 }
 
 /*--------------------------------------------------------------------------------------*/

@@ -1006,10 +1006,9 @@ void GCMainWindow::showAddItemsForm()
 
   if( accepted )
   {
-    GCAddItemsForm *form = new GCAddItemsForm;
-    form->setWindowModality( Qt::ApplicationModal );
+    GCAddItemsForm *form = new GCAddItemsForm( this );
     connect( form, SIGNAL( newElementDetails( QString,QStringList ) ), this, SLOT( addNewElement( QString,QStringList ) ) );
-    form->show();
+    form->exec();
   }
 }
 
