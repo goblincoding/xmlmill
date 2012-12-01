@@ -200,16 +200,22 @@
     <property name="title">
      <string>&amp;Edit</string>
     </property>
-    <widget class="QMenu" name="menuEditProfile">
+    <widget class="QMenu" name="menuAddItems">
      <property name="enabled">
       <bool>true</bool>
+     </property>
+     <property name="toolTip">
+      <string>Add elements and attributes to the active profile.</string>
+     </property>
+     <property name="whatsThis">
+      <string>Add elements and attributes to the active profile.</string>
      </property>
      <property name="title">
       <string>Edit &amp;Profile</string>
      </property>
      <addaction name="actionAddItems"/>
-     <addaction name="actionRemoveItems"/>
      <addaction name="actionEditItems"/>
+     <addaction name="actionRemoveItems"/>
     </widget>
     <addaction name="actionSwitchSessionDatabase"/>
     <addaction name="separator"/>
@@ -218,7 +224,7 @@
     <addaction name="actionRemoveDatabase"/>
     <addaction name="actionImportXMLToDatabase"/>
     <addaction name="separator"/>
-    <addaction name="menuEditProfile"/>
+    <addaction name="menuAddItems"/>
     <addaction name="separator"/>
     <addaction name="actionFind"/>
     <addaction name="actionInsertSnippet"/>
@@ -365,10 +371,10 @@
     <string>&amp;Add New Profile</string>
    </property>
    <property name="toolTip">
-    <string>Add a new database to the list of known databases.</string>
+    <string>Add a new profile to the list of known profiles.</string>
    </property>
    <property name="whatsThis">
-    <string>Add a new database to the list of known databases.</string>
+    <string>Add a new profile to the list of known profiles.</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
@@ -383,10 +389,10 @@
     <string>Add E&amp;xisting Profile</string>
    </property>
    <property name="toolTip">
-    <string>Add an existing database to the list of known databases.</string>
+    <string>Add an existing profile to the list of known profiles.</string>
    </property>
    <property name="whatsThis">
-    <string>Add an existing database to the list of known databases.</string>
+    <string>Add an existing profile to the list of known profiles.</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+E</string>
@@ -440,10 +446,10 @@
     <string>&amp;Remove Profile</string>
    </property>
    <property name="toolTip">
-    <string>Remove a database from the list of known databases.</string>
+    <string>Remove a profile from the list of known profiles.</string>
    </property>
    <property name="whatsThis">
-    <string>Remove a database from the list of known databases.</string>
+    <string>Remove a profile from the list of known profiles.</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
@@ -621,10 +627,25 @@
    <property name="text">
     <string>Remove Items</string>
    </property>
+   <property name="toolTip">
+    <string>Remove elements, attributes and values from the active profile.</string>
+   </property>
+   <property name="whatsThis">
+    <string>Remove elements, attributes and values from the active profile.</string>
+   </property>
   </action>
   <action name="actionAddItems">
    <property name="text">
     <string>Add Items</string>
+   </property>
+   <property name="toolTip">
+    <string>Add elements and attributes to the active profile.</string>
+   </property>
+   <property name="statusTip">
+    <string/>
+   </property>
+   <property name="whatsThis">
+    <string>Add elements and attributes to the active profile.</string>
    </property>
   </action>
   <action name="actionInsertSnippet">
@@ -638,6 +659,12 @@
   <action name="actionEditItems">
    <property name="text">
     <string>Edit Items</string>
+   </property>
+   <property name="toolTip">
+    <string>Edit elements and attributes in the active profile.</string>
+   </property>
+   <property name="whatsThis">
+    <string>Edit elements and attributes in the active profile.</string>
    </property>
   </action>
  </widget>
