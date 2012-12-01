@@ -54,6 +54,12 @@
 
 /*--------------------------------------------------------------------------------------*/
 
+/* Not sure if I still think the Super User mode is a good idea.  For now, let's just
+  allow all users to do everything.  Perhaps release a new version later on. */
+#define SUPERUSERMODE
+
+/*--------------------------------------------------------------------------------------*/
+
 const QString EMPTY( "---" );
 const qint64  DOMWARNING( 262144 );  // 0.25MB or ~7 500 lines
 const qint64  DOMLIMIT  ( 524288 );  // 0.5MB  or ~15 000 lines
@@ -115,11 +121,17 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_currentXMLFileName  ( "" ),
   m_activeAttributeName ( "" ),
   m_userCancelled       ( false ),
-  m_superUserMode       ( false ),
   m_wasTreeItemActivated( false ),
   m_newElementWasAdded  ( false ),
   m_busyImporting       ( false ),
   m_DOMTooLarge         ( false ),
+
+  #ifdef SUPERUSERMODE
+    m_superUserMode     ( true ),
+  #else
+    m_superUserMode     ( false),
+  #endif
+
   m_treeItemNodes       (),
   m_comboBoxes          ()
 {
@@ -131,6 +143,12 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   ui->superUserLabel->setVisible     ( false );
   ui->domEditHelpButton->setVisible  ( false );
   ui->dockWidgetTextEdit->setReadOnly( true );
+
+  #ifdef SUPERUSERMODE
+    ui->actionSuperUserMode->setVisible( false );
+  #else
+    ui->actionSuperUserMode->setVisible( true );
+  #endif
 
   /* XML File related. */
   connect( ui->actionNew,                   SIGNAL( triggered() ),     this, SLOT( newXMLFile() ) );

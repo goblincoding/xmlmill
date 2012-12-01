@@ -171,11 +171,11 @@ private:
   QString              m_currentXMLFileName;
   QString              m_activeAttributeName;
   bool                 m_userCancelled;
-  bool                 m_superUserMode;
   bool                 m_wasTreeItemActivated;
   bool                 m_newElementWasAdded;
   bool                 m_busyImporting;
   bool                 m_DOMTooLarge;
+  bool                 m_superUserMode;
 
   QHash< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
   QHash< QWidget*, int/* table row*/ >   m_comboBoxes;

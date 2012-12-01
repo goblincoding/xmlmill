@@ -573,6 +573,9 @@
    <property name="whatsThis">
     <string>Displays the main &quot;Help&quot; contents.</string>
    </property>
+   <property name="shortcut">
+    <string>F1</string>
+   </property>
   </action>
   <action name="actionVisitOfficialSite">
    <property name="icon">
