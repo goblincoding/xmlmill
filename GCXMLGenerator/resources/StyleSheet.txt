@@ -572,3 +572,8 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
 {
   background: none;
 }
+
+QGroupBox
+{
+  background-color: rgba(150, 150, 150, 255);
+}
