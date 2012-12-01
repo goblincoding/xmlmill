@@ -138,16 +138,20 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   ui->setupUi( this );
 
   /* Hide super user options. */
-  ui->textSaveButton->setVisible     ( false );
-  ui->textRevertButton->setVisible   ( false );
   ui->superUserLabel->setVisible     ( false );
-  ui->domEditHelpButton->setVisible  ( false );
-  ui->dockWidgetTextEdit->setReadOnly( true );
 
   #ifdef SUPERUSERMODE
     ui->actionSuperUserMode->setVisible( false );
+    ui->textSaveButton->setVisible     ( true );
+    ui->textRevertButton->setVisible   ( true );
+    ui->domEditHelpButton->setVisible  ( true );
+    ui->dockWidgetTextEdit->setReadOnly( false );
   #else
     ui->actionSuperUserMode->setVisible( true );
+    ui->textSaveButton->setVisible     ( false );
+    ui->textRevertButton->setVisible   ( false );
+    ui->domEditHelpButton->setVisible  ( false );
+    ui->dockWidgetTextEdit->setReadOnly( true );
   #endif
 
   /* XML File related. */
@@ -1073,10 +1077,10 @@ void GCMainWindow::saveDirectEdit()
 
     QTextEdit::ExtraSelection highlight;
     highlight.cursor = cursor;
-    highlight.format.setProperty( QTextFormat::FullWidthSelection, true );
     highlight.format.setBackground( QColor( 220, 150, 220 ) );
+    highlight.format.setProperty  ( QTextFormat::FullWidthSelection, true );
 
-    QList<QTextEdit::ExtraSelection> extras;
+    QList< QTextEdit::ExtraSelection > extras;
     extras << highlight;
     ui->dockWidgetTextEdit->setExtraSelections( extras );
     ui->dockWidgetTextEdit->ensureCursorVisible();
@@ -1093,9 +1097,9 @@ void GCMainWindow::saveDirectEdit()
 void GCMainWindow::elementFound( const QDomElement &element )
 {
   QTreeWidgetItem *item = m_treeItemNodes.key( element );
-  treeWidgetItemSelected( item, 0 );
+  ui->treeWidget->expandAll();
   ui->treeWidget->setCurrentItem( item );
-  ui->treeWidget->expandItem( item );
+  treeWidgetItemSelected( item, 0 );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1208,9 +1212,9 @@ void GCMainWindow::switchSuperUserMode( bool super )
 void GCMainWindow::searchDocument()
 {
   /* Delete on close flag set. */
-  GCSearchForm *form = new GCSearchForm( m_treeItemNodes.values() );
+  GCSearchForm *form = new GCSearchForm( m_treeItemNodes.values(), m_domDoc->toString(), this );
   connect( form, SIGNAL( foundElement( QDomElement ) ), this, SLOT( elementFound( QDomElement ) ) );
-  form->show();
+  form->exec();
 }
 
 /*--------------------------------------------------------------------------------------*/

@@ -161,21 +161,21 @@ private:
   void startSaveTimer();
   void toggleAddElementWidgets();
 
-  Ui::GCMainWindow    *ui;
-  GCDBSessionManager  *m_dbSessionManager;
-  QSignalMapper       *m_signalMapper;
-  QDomDocument        *m_domDoc;
-  QWidget             *m_currentCombo;
-  QTimer              *m_saveTimer;
-  QLabel              *m_activeSessionLabel;
-  QString              m_currentXMLFileName;
-  QString              m_activeAttributeName;
-  bool                 m_userCancelled;
-  bool                 m_wasTreeItemActivated;
-  bool                 m_newElementWasAdded;
-  bool                 m_busyImporting;
-  bool                 m_DOMTooLarge;
-  bool                 m_superUserMode;
+  Ui::GCMainWindow   *ui;
+  GCDBSessionManager *m_dbSessionManager;
+  QSignalMapper      *m_signalMapper;
+  QDomDocument       *m_domDoc;
+  QWidget            *m_currentCombo;
+  QTimer             *m_saveTimer;
+  QLabel             *m_activeSessionLabel;
+  QString             m_currentXMLFileName;
+  QString             m_activeAttributeName;
+  bool                m_userCancelled;
+  bool                m_wasTreeItemActivated;
+  bool                m_newElementWasAdded;
+  bool                m_busyImporting;
+  bool                m_DOMTooLarge;
+  bool                m_superUserMode;
 
   QHash< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
   QHash< QWidget*, int/* table row*/ >   m_comboBoxes;

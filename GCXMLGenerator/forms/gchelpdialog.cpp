@@ -37,8 +37,10 @@ GCHelpDialog::GCHelpDialog( const QString &text, QWidget *parent ) :
 {
   ui->setupUi( this );
   ui->textBrowser->setHtml( text );
-  setAttribute( Qt::WA_DeleteOnClose );
+
   connect( ui->closeButton, SIGNAL( clicked() ), this, SLOT( close() ) );
+
+  setAttribute( Qt::WA_DeleteOnClose );
 }
 
 /*--------------------------------------------------------------------------------------*/

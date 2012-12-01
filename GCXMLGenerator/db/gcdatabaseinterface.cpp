@@ -38,16 +38,6 @@
 
 /*--------------------------------------------------------------------------------------*/
 
-/* The database tables have fields containing strings of strings. For example, the
-  "xmlelements" table maps a unique element against a list of all associated attribute
-  values.  Since these values have to be entered into a single record, the easiest way
-  is to insert a single (possibly massive) string containing all the associated attributes.
-  To ensure that we can later extract the individual attributes again, we separate them with
-  a sequence that should (theoretically) never be encountered.  This is that sequence. */
-static const QString SEPARATOR( "~!@" );
-
-/*--------------------------------------------------------------------------------------*/
-
 /* Have a look at "createTables" to see how the DB is set up. */
 static const QLatin1String INSERT_ELEMENT(
     "INSERT INTO xmlelements( element, children, attributes ) VALUES( ?, ?, ? )" );
@@ -81,6 +71,14 @@ static const QString DB_FILE( "dblist.txt" );
 
 /* Regular expression string to split "\" (Windows) or "/" (Unix) from file path. */
 static const QString REGEXP_SLASHES( "(\\\\|\\/)" );
+
+/* The database tables have fields containing strings of strings. For example, the
+  "xmlelements" table maps a unique element against a list of all associated attribute
+  values.  Since these values have to be entered into a single record, the easiest way
+  is to insert a single (possibly massive) string containing all the associated attributes.
+  To ensure that we can later extract the individual attributes again, we separate them with
+  a sequence that should (theoretically) never be encountered.  This is that sequence. */
+static const QString SEPARATOR( "~!@" );
 
 
 /*--------------------------- NON-MEMBER UTILITY FUNCTIONS ----------------------------*/
