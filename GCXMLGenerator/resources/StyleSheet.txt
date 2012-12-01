@@ -357,7 +357,7 @@ QHeaderView::section
   border-width: 1px;
   border-radius: 3px;
   border-color: darkgray;
-  border-style: inset;
+  border-style: flat;
   font: 11px;
   min-width: 5em;
   min-height: 1em;
