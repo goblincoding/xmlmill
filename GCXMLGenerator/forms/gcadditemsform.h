@@ -26,8 +26,8 @@
  *                    <http://www.gnu.org/licenses/>
  */
 
-#ifndef GCNEWELEMENTFORM_H
-#define GCNEWELEMENTFORM_H
+#ifndef GCADDITEMSFORM_H
+#define GCADDITEMSFORM_H
 
 #include <QWidget>
 
@@ -44,16 +44,16 @@
 
 namespace Ui
 {
-  class GCNewElementForm;
+  class GCAddItemsForm;
 }
 
-class GCNewElementForm : public QWidget
+class GCAddItemsForm : public QWidget
 {
   Q_OBJECT
   
 public:
-  explicit GCNewElementForm( QWidget *parent = 0 );
-  ~GCNewElementForm();
+  explicit GCAddItemsForm( QWidget *parent = 0 );
+  ~GCAddItemsForm();
 
 signals:
   /* Emits the name of the new element and the list of associated attributes
@@ -65,7 +65,7 @@ private slots:
   void showHelp();
 
 private:
-  Ui::GCNewElementForm *ui;
+  Ui::GCAddItemsForm *ui;
 };
 
-#endif // GCNEWELEMENTFORM_H
+#endif // GCADDITEMSFORM_H

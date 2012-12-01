@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>GCDestructiveEditDialog</class>
- <widget class="QDialog" name="GCDestructiveEditDialog">
+ <class>GCRemoveItemsForm</class>
+ <widget class="QDialog" name="GCRemoveItemsForm">
   <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>
   </property>

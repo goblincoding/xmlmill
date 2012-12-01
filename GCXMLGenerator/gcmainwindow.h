@@ -120,16 +120,16 @@ private slots:
   void switchActiveDatabase();
   void importXMLToDatabase();
 
-  void deleteElementFromDOM();
-  void addElementToDOM();
+  void deleteElementFromDocument();
+  void addElementToDocument();
   void resetDOM();
 
-  void showDatabaseEditForm();
+  void showRemoveItemsForm();
+  void showAddItemsForm();
 
-  /* Receives new element information from "GCNewElementForm" and adds the new element and 
+  /* Receives new element information from "GCAddItemsForm" and adds the new element and
   associated attributes to the database. */
   void addNewElement( const QString &element, const QStringList &attributes );
-  void showNewElementForm();
 
   /* Direct DOM edit. */
   void revertDirectEdit();
@@ -150,7 +150,7 @@ private slots:
 private:
   void processDOMDoc();
   void populateTreeWidget   ( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
-  void addElementToDOM      ( const QString &elementName, QTreeWidgetItem *parentItem );
+  void addElementToDocument ( const QString &elementName, QTreeWidgetItem *parentItem );
 
   void setStatusBarMessage  ( const QString &message );
   void showErrorMessageBox  ( const QString &errorMsg );

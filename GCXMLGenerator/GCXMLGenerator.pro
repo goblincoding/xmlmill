@@ -43,42 +43,42 @@ SOURCES += main.cpp\
     gcmainwindow.cpp \
     db/gcbatchprocessorhelper.cpp \    
     xml/xmlsyntaxhighlighter.cpp \
-    forms/gcnewelementform.cpp \
     forms/gcknowndbform.cpp \
     utils/gccombobox.cpp \
     forms/gcmessagedialog.cpp \
     utils/gcdbsessionmanager.cpp \
     utils/gcmessagespace.cpp \
     forms/gchelpdialog.cpp \
-    forms/gcdestructiveeditdialog.cpp \
     forms/gcnewdbwizard.cpp \
-    forms/gcsearchform.cpp
+    forms/gcsearchform.cpp \
+    forms/gcadditemsform.cpp \
+    forms/gcremoveitemsform.cpp
 
 HEADERS  += \
     db/gcdatabaseinterface.h \
     gcmainwindow.h \
     db/gcbatchprocessorhelper.h \
     xml/xmlsyntaxhighlighter.h \
-    forms/gcnewelementform.h \
     forms/gcknowndbform.h \
     utils/gccombobox.h \
     forms/gcmessagedialog.h \
     utils/gcdbsessionmanager.h \
     utils/gcmessagespace.h \
     forms/gchelpdialog.h \
-    forms/gcdestructiveeditdialog.h \
     forms/gcnewdbwizard.h \
-    forms/gcsearchform.h
+    forms/gcsearchform.h \
+    forms/gcadditemsform.h \
+    forms/gcremoveitemsform.h
 
 FORMS    += \
     gcmainwindow.ui \
-    forms/gcnewelementform.ui \
     forms/gcknowndbform.ui \
     forms/gcmessagedialog.ui \
     forms/gchelpdialog.ui \
-    forms/gcdestructiveeditdialog.ui \
     forms/gcnewdbwizard.ui \
-    forms/gcsearchform.ui
+    forms/gcsearchform.ui \
+    forms/gcremoveitemsform.ui \
+    forms/gcadditemsform.ui
 
 RESOURCES += \
     resources/gcresources.qrc

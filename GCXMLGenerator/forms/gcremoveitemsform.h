@@ -26,15 +26,15 @@
  *                    <http://www.gnu.org/licenses/>
  */
 
-#ifndef GCDESTRUCTIVEEDITDIALOG_H
-#define GCDESTRUCTIVEEDITDIALOG_H
+#ifndef GCREMOVEITEMSFORM_H
+#define GCREMOVEITEMSFORM_H
 
 #include <QDialog>
 #include <QList>
 
 namespace Ui
 {
-  class GCDestructiveEditDialog;
+  class GCRemoveItemsForm;
 }
 
 class QTreeWidgetItem;
@@ -45,13 +45,13 @@ class QTreeWidgetItem;
 
 ------------------------------------------------------------------------------------------*/
 
-class GCDestructiveEditDialog : public QDialog
+class GCRemoveItemsForm : public QDialog
 {
   Q_OBJECT
   
 public:
-  explicit GCDestructiveEditDialog( QWidget *parent = 0 );
-  ~GCDestructiveEditDialog();
+  explicit GCRemoveItemsForm( QWidget *parent = 0 );
+  ~GCRemoveItemsForm();
 
 private slots:
   void treeWidgetItemSelected( QTreeWidgetItem *item, int column );
@@ -68,11 +68,12 @@ private:
   void populateTreeWidget();
   void processNextElement ( const QString &element, QTreeWidgetItem *parent );
   void showErrorMessageBox( const QString &errorMsg );
-  Ui::GCDestructiveEditDialog *ui;
+
+  Ui::GCRemoveItemsForm *ui;
   QString m_currentElement;
   QString m_currentElementParent;
   QString m_currentAttribute;
   QList< QString > m_deletedElements;
 };
 
-#endif // GCDESTRUCTIVEEDITDIALOG_H
+#endif // GCREMOVEITEMSFORM_H

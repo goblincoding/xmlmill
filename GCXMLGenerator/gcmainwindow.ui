@@ -33,13 +33,6 @@
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <layout class="QGridLayout" name="gridLayout">
-         <item row="1" column="0">
-          <widget class="QLabel" name="addElementLabel">
-           <property name="text">
-            <string>Add Child Element:</string>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="1">
           <widget class="QComboBox" name="addElementComboBox">
            <property name="sizePolicy">
@@ -53,18 +46,11 @@
          <item row="1" column="2">
           <widget class="QPushButton" name="addChildElementButton">
            <property name="text">
-            <string>Add</string>
+            <string>Add Child Element</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="3">
-          <widget class="QPushButton" name="addNewElementButton">
-           <property name="text">
-            <string>New Element</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0" colspan="5">
+         <item row="0" column="0" colspan="4">
           <widget class="QLabel" name="superUserLabel">
            <property name="autoFillBackground">
             <bool>false</bool>
@@ -119,11 +105,11 @@
            <bool>true</bool>
           </property>
           <attribute name="headerVisible">
-           <bool>true</bool>
+           <bool>false</bool>
           </attribute>
           <column>
            <property name="text">
-            <string notr="true">Current Document Elements:</string>
+            <string notr="true">Document Elements:</string>
            </property>
           </column>
          </widget>
@@ -138,7 +124,7 @@
            <number>2</number>
           </property>
           <attribute name="horizontalHeaderVisible">
-           <bool>true</bool>
+           <bool>false</bool>
           </attribute>
           <attribute name="horizontalHeaderCascadingSectionResizes">
            <bool>true</bool>
@@ -214,6 +200,13 @@
     <property name="title">
      <string>&amp;Edit</string>
     </property>
+    <widget class="QMenu" name="menuEditProfile">
+     <property name="title">
+      <string>Edit &amp;Profile</string>
+     </property>
+     <addaction name="actionRemoveItems"/>
+     <addaction name="actionAddItems"/>
+    </widget>
     <addaction name="actionSwitchSessionDatabase"/>
     <addaction name="actionAddExistingDatabase"/>
     <addaction name="separator"/>
@@ -221,9 +214,10 @@
     <addaction name="actionRemoveDatabase"/>
     <addaction name="actionImportXMLToDatabase"/>
     <addaction name="separator"/>
-    <addaction name="actionRemoveFromProfile"/>
+    <addaction name="menuEditProfile"/>
     <addaction name="separator"/>
     <addaction name="actionFind"/>
+    <addaction name="actionInsertSnippet"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -281,10 +275,8 @@
    <addaction name="actionImportXMLToDatabase"/>
    <addaction name="separator"/>
    <addaction name="actionSuperUserMode"/>
-   <addaction name="actionForgetPreferences"/>
    <addaction name="separator"/>
    <addaction name="actionHelpContents"/>
-   <addaction name="actionVisitOfficialSite"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QDockWidget" name="dockWidget">
@@ -563,13 +555,10 @@
      <normaloff>:/resources/importxml.png</normaloff>:/resources/importxml.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Import XML to Profile</string>
+    <string>I&amp;mport XML to Profile</string>
    </property>
    <property name="whatsThis">
     <string>Import the current XML document to the active profile.</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+I</string>
    </property>
   </action>
   <action name="actionHelpContents">
@@ -596,23 +585,6 @@
     <string>Visit the official website (will open in your browser).</string>
    </property>
   </action>
-  <action name="actionRemoveFromProfile">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Edit &amp;Profile</string>
-   </property>
-   <property name="toolTip">
-    <string>Select and remove content from the active profile.</string>
-   </property>
-   <property name="whatsThis">
-    <string>Select and remove content from the active profile.</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+P</string>
-   </property>
-  </action>
   <action name="actionCloseFile">
    <property name="enabled">
     <bool>false</bool>
@@ -632,10 +604,28 @@
   </action>
   <action name="actionFind">
    <property name="text">
-    <string>&amp;Find</string>
+    <string>&amp;Find in Document</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionRemoveItems">
+   <property name="text">
+    <string>Remove Items</string>
+   </property>
+  </action>
+  <action name="actionAddItems">
+   <property name="text">
+    <string>Add Items</string>
+   </property>
+  </action>
+  <action name="actionInsertSnippet">
+   <property name="text">
+    <string>&amp;Insert Snippet</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
    </property>
   </action>
  </widget>

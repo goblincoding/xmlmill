@@ -26,15 +26,15 @@
  *                    <http://www.gnu.org/licenses/>
  */
 
-#include "gcnewelementform.h"
+#include "gcadditemsform.h"
 #include "ui_gcnewelementform.h"
 #include <QMessageBox>
 
 /*--------------------------------------------------------------------------------------*/
 
-GCNewElementForm::GCNewElementForm( QWidget *parent ) :
+GCAddItemsForm::GCAddItemsForm( QWidget *parent ) :
   QWidget( parent ),
-  ui     ( new Ui::GCNewElementForm )
+  ui     ( new Ui::GCAddItemsForm )
 {
   ui->setupUi( this );
 
@@ -48,14 +48,14 @@ GCNewElementForm::GCNewElementForm( QWidget *parent ) :
 
 /*--------------------------------------------------------------------------------------*/
 
-GCNewElementForm::~GCNewElementForm()
+GCAddItemsForm::~GCAddItemsForm()
 {
   delete ui;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCNewElementForm::addElementAndAttributes()
+void GCAddItemsForm::addElementAndAttributes()
 {
   QString element = ui->lineEdit->text();
 
@@ -71,7 +71,7 @@ void GCNewElementForm::addElementAndAttributes()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCNewElementForm::showHelp()
+void GCAddItemsForm::showHelp()
 {
   QMessageBox::information( this,
                             "How this works...",

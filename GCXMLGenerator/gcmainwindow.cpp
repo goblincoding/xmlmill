@@ -30,9 +30,9 @@
 #include "ui_gcmainwindow.h"
 #include "db/gcdatabaseinterface.h"
 #include "xml/xmlsyntaxhighlighter.h"
-#include "forms/gcnewelementform.h"
+#include "forms/gcadditemsform.h"
+#include "forms/gcremoveitemsform.h"
 #include "forms/gchelpdialog.h"
-#include "forms/gcdestructiveeditdialog.h"
 #include "forms/gcsearchform.h"
 #include "utils/gccombobox.h"
 #include "utils/gcdbsessionmanager.h"
@@ -126,7 +126,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   ui->setupUi( this );
 
   /* Hide super user options. */
-  ui->addNewElementButton->setVisible( false );
   ui->textSaveButton->setVisible     ( false );
   ui->textRevertButton->setVisible   ( false );
   ui->superUserLabel->setVisible     ( false );
@@ -140,9 +139,9 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionSaveAs,                SIGNAL( triggered() ),     this, SLOT( saveXMLFileAs() ) );
   connect( ui->actionCloseFile,             SIGNAL( triggered() ),     this, SLOT( resetDOM() ) );
 
-  /* Build XML/Edit DOM. */
-  connect( ui->deleteElementButton,         SIGNAL( clicked() ),       this, SLOT( deleteElementFromDOM() ) );
-  connect( ui->addChildElementButton,       SIGNAL( clicked() ),       this, SLOT( addElementToDOM() ) );
+  /* Build/Edit XML. */
+  connect( ui->deleteElementButton,         SIGNAL( clicked() ),       this, SLOT( deleteElementFromDocument() ) );
+  connect( ui->addChildElementButton,       SIGNAL( clicked() ),       this, SLOT( addElementToDocument() ) );
   connect( ui->textSaveButton,              SIGNAL( clicked() ),       this, SLOT( saveDirectEdit() ) );
   connect( ui->textRevertButton,            SIGNAL( clicked() ),       this, SLOT( revertDirectEdit() ) );
   connect( ui->domEditHelpButton,           SIGNAL( clicked() ),       this, SLOT( showDOMEditHelp() ) );
@@ -152,7 +151,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->expandAllCheckBox,           SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
   connect( ui->actionExit,                  SIGNAL( triggered() ),     this, SLOT( close() ) );
   connect( ui->actionFind,                  SIGNAL( triggered() ),     this, SLOT( searchDocument() ) );
-  connect( ui->addNewElementButton,         SIGNAL( clicked() ),       this, SLOT( showNewElementForm() ) );
   connect( ui->actionForgetPreferences,     SIGNAL( triggered() ),     this, SLOT( forgetAllMessagePreferences() ) );
   connect( ui->actionHelpContents,          SIGNAL( triggered() ),     this, SLOT( showMainHelp() ) );
   connect( ui->actionVisitOfficialSite,     SIGNAL( triggered() ),     this, SLOT( goToSite() ) );
@@ -171,7 +169,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->tableWidget,                 SIGNAL( itemActivated( QTableWidgetItem* ) ),     this, SLOT( setActiveAttributeName( QTableWidgetItem* ) ) );
 
   /* Database related. */
-  connect( ui->actionRemoveFromProfile,     SIGNAL( triggered() ), this, SLOT( showDatabaseEditForm() ) );
+  connect( ui->actionAddItems,              SIGNAL( triggered() ), this, SLOT( showAddItemsForm() ) );
+  connect( ui->actionRemoveItems,           SIGNAL( triggered() ), this, SLOT( showRemoveItemsForm() ) );
   connect( ui->actionImportXMLToDatabase,   SIGNAL( triggered() ), this, SLOT( importXMLToDatabase() ) );
   connect( ui->actionSwitchSessionDatabase, SIGNAL( triggered() ), this, SLOT( switchActiveDatabase() ) );
   connect( ui->actionAddNewDatabase,        SIGNAL( triggered() ), this, SLOT( addNewDatabase() ) );
@@ -866,7 +865,7 @@ void GCMainWindow::importXMLToDatabase()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::deleteElementFromDOM()
+void GCMainWindow::deleteElementFromDocument()
 {
   QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
   QDomElement currentElement = m_treeItemNodes.value( currentItem );
@@ -898,7 +897,7 @@ void GCMainWindow::deleteElementFromDOM()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::addElementToDOM()
+void GCMainWindow::addElementToDocument()
 {
   QString newElementName = ui->addElementComboBox->currentText();
 
@@ -919,7 +918,7 @@ void GCMainWindow::addElementToDOM()
     item = item->parent();
   }
 
-  addElementToDOM( newElementName, item );
+  addElementToDocument( newElementName, item );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -946,7 +945,7 @@ void GCMainWindow::resetDOM()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::showDatabaseEditForm()
+void GCMainWindow::showRemoveItemsForm()
 {
   if( !GCDataBaseInterface::instance()->hasActiveSession() )
   {
@@ -961,13 +960,13 @@ void GCMainWindow::showDatabaseEditForm()
   }
 
   /* Delete on close flag set. */
-  GCDestructiveEditDialog *dialog = new GCDestructiveEditDialog( this );
+  GCRemoveItemsForm *dialog = new GCRemoveItemsForm( this );
   dialog->exec();
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-/* Receives new element information from "GCNewElementForm" and adds the new element and 
+/* Receives new element information from "GCAddItemsForm" and adds the new element and
   associated attributes to the database. */
 void GCMainWindow::addNewElement( const QString &element, const QStringList &attributes )
 {
@@ -982,14 +981,14 @@ void GCMainWindow::addNewElement( const QString &element, const QStringList &att
     ui->addElementComboBox->setCurrentIndex( 0 );
 
     m_newElementWasAdded = true;
-    addElementToDOM();
+    addElementToDocument();
     m_newElementWasAdded = false;
   }
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::showNewElementForm()
+void GCMainWindow::showAddItemsForm()
 {
   /* Check if there is a previously saved user preference for this action (we
     don't want to remember a \"Cancel\" option for this particular situation). */
@@ -1007,7 +1006,7 @@ void GCMainWindow::showNewElementForm()
 
   if( accepted )
   {
-    GCNewElementForm *form = new GCNewElementForm;
+    GCAddItemsForm *form = new GCAddItemsForm;
     form->setWindowModality( Qt::ApplicationModal );
     connect( form, SIGNAL( newElementDetails( QString,QStringList ) ), this, SLOT( addNewElement( QString,QStringList ) ) );
     form->show();
@@ -1143,7 +1142,6 @@ void GCMainWindow::switchSuperUserMode( bool super )
   }
 
   /* Set the new element and attribute options' visibility. */
-  ui->addNewElementButton->setVisible( m_superUserMode );
   ui->textSaveButton->setVisible     ( m_superUserMode );
   ui->textRevertButton->setVisible   ( m_superUserMode );
   ui->superUserLabel->setVisible     ( m_superUserMode );
@@ -1152,10 +1150,11 @@ void GCMainWindow::switchSuperUserMode( bool super )
 
   /* The user must see these actions exist, but shouldn't be able to access
     them except when in "Super User" mode. */
+  ui->actionImportXMLToDatabase->setEnabled( m_superUserMode );
   ui->actionAddNewDatabase->setEnabled( m_superUserMode );
   ui->actionRemoveDatabase->setEnabled( m_superUserMode );
-  ui->actionRemoveFromProfile->setEnabled  ( m_superUserMode );
-  ui->actionImportXMLToDatabase->setEnabled( m_superUserMode );
+  ui->actionRemoveItems->setEnabled   ( m_superUserMode );
+  ui->actionAddItems->setEnabled      ( m_superUserMode );
 
   /* Needed to reset all the tree widget item's "editable" flags
     to whatever the current mode allows. */
@@ -1317,7 +1316,7 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::addElementToDOM( const QString &elementName, QTreeWidgetItem *parentItem )
+void GCMainWindow::addElementToDocument( const QString &elementName, QTreeWidgetItem *parentItem )
 {
   /* There is probably no chance of this ever happening, but defensive programming FTW! */
   if( !elementName.isEmpty() )
@@ -1346,7 +1345,7 @@ void GCMainWindow::addElementToDOM( const QString &elementName, QTreeWidgetItem 
       QDomElement parent = m_treeItemNodes.value( parentItem );
       parent.appendChild( newElement );
 
-      /* If "addElementToDOM" was called from within "addNewElement", then
+      /* If "addElementToDocument" was called from within "addNewElement", then
         the new element name must be added as a child of the current element. */
       if( m_newElementWasAdded )
       {
@@ -1368,7 +1367,7 @@ void GCMainWindow::addElementToDOM( const QString &elementName, QTreeWidgetItem 
       ui->treeWidget->invisibleRootItem()->addChild( newItem );  // takes ownership
       m_domDoc->appendChild( newElement );
 
-      /* If "addElementToDOM" was called from within "addNewElement", then
+      /* If "addElementToDocument" was called from within "addNewElement", then
         the new element name will be a new root element. */
       if( m_newElementWasAdded )
       {

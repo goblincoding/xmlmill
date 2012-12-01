@@ -26,8 +26,8 @@
  *                    <http://www.gnu.org/licenses/>
  */
 
-#include "gcdestructiveeditdialog.h"
-#include "ui_gcdestructiveeditdialog.h"
+#include "gcremoveitemsform.h"
+#include "ui_gcremoveitemsform.h"
 #include "db/gcdatabaseinterface.h"
 #include "utils/gcmessagespace.h"
 #include <QMessageBox>
@@ -35,9 +35,9 @@
 
 /*--------------------------------------------------------------------------------------*/
 
-GCDestructiveEditDialog::GCDestructiveEditDialog( QWidget *parent ) :
+GCRemoveItemsForm::GCRemoveItemsForm( QWidget *parent ) :
   QDialog               ( parent ),
-  ui                    ( new Ui::GCDestructiveEditDialog ),
+  ui                    ( new Ui::GCRemoveItemsForm ),
   m_currentElement      ( "" ),
   m_currentElementParent( "" ),
   m_currentAttribute    ( "" ),
@@ -62,14 +62,14 @@ GCDestructiveEditDialog::GCDestructiveEditDialog( QWidget *parent ) :
 
 /*--------------------------------------------------------------------------------------*/
 
-GCDestructiveEditDialog::~GCDestructiveEditDialog()
+GCRemoveItemsForm::~GCRemoveItemsForm()
 {
   delete ui;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDestructiveEditDialog::treeWidgetItemSelected( QTreeWidgetItem *item, int column )
+void GCRemoveItemsForm::treeWidgetItemSelected( QTreeWidgetItem *item, int column )
 {
   if( item->parent() )
   {
@@ -106,7 +106,7 @@ void GCDestructiveEditDialog::treeWidgetItemSelected( QTreeWidgetItem *item, int
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDestructiveEditDialog::attributeActivated( const QString &attribute )
+void GCRemoveItemsForm::attributeActivated( const QString &attribute )
 {
   bool success( false );
   m_currentAttribute = attribute;
@@ -129,7 +129,7 @@ void GCDestructiveEditDialog::attributeActivated( const QString &attribute )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDestructiveEditDialog::deleteElement( const QString &element )
+void GCRemoveItemsForm::deleteElement( const QString &element )
 {
   /* If the element name is empty, then this is the first call to this function (i.e
     the slot has been called after the user clicked the relevant push button), in that
@@ -205,7 +205,7 @@ void GCDestructiveEditDialog::deleteElement( const QString &element )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDestructiveEditDialog::removeChildElement()
+void GCRemoveItemsForm::removeChildElement()
 {
   if( !m_currentElementParent.isEmpty() )
   {
@@ -224,7 +224,7 @@ void GCDestructiveEditDialog::removeChildElement()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDestructiveEditDialog::updateAttributeValues()
+void GCRemoveItemsForm::updateAttributeValues()
 {
   QStringList attributes = ui->plainTextEdit->toPlainText().split( "\n" );
 
@@ -256,7 +256,7 @@ void GCDestructiveEditDialog::updateAttributeValues()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDestructiveEditDialog::deleteAttribute()
+void GCRemoveItemsForm::deleteAttribute()
 {
   if( !GCDataBaseInterface::instance()->removeAttribute( m_currentElement, m_currentAttribute ) )
   {
@@ -270,7 +270,7 @@ void GCDestructiveEditDialog::deleteAttribute()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDestructiveEditDialog::showElementHelp()
+void GCRemoveItemsForm::showElementHelp()
 {
   QMessageBox::information( this,
                             "How this works...",
@@ -288,7 +288,7 @@ void GCDestructiveEditDialog::showElementHelp()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDestructiveEditDialog::showAttributeHelp()
+void GCRemoveItemsForm::showAttributeHelp()
 {
   QMessageBox::information( this,
                             "How this works...",
@@ -302,7 +302,7 @@ void GCDestructiveEditDialog::showAttributeHelp()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDestructiveEditDialog::updateChildLists()
+void GCRemoveItemsForm::updateChildLists()
 {
   bool success( false );
   QStringList knownElements = GCDataBaseInterface::instance()->knownElements();
@@ -333,7 +333,7 @@ void GCDestructiveEditDialog::updateChildLists()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDestructiveEditDialog::populateTreeWidget()
+void GCRemoveItemsForm::populateTreeWidget()
 {
   ui->treeWidget->clear();
 
@@ -349,7 +349,7 @@ void GCDestructiveEditDialog::populateTreeWidget()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDestructiveEditDialog::processNextElement( const QString &element, QTreeWidgetItem *parent )
+void GCRemoveItemsForm::processNextElement( const QString &element, QTreeWidgetItem *parent )
 {
   bool success( false );
   QStringList children = GCDataBaseInterface::instance()->children( element, success );
@@ -381,7 +381,7 @@ void GCDestructiveEditDialog::processNextElement( const QString &element, QTreeW
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDestructiveEditDialog::showErrorMessageBox( const QString &errorMsg )
+void GCRemoveItemsForm::showErrorMessageBox( const QString &errorMsg )
 {
   QMessageBox::critical( this, "Error!", errorMsg );
 }
