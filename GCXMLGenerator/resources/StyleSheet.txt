@@ -18,7 +18,7 @@ QMainWindow::separator:hover
 
 QWidget
 {
-  background-color: rgba(100, 100, 105, 255);
+  background-color: rgba(150, 150, 150, 255);
 }
 
 QDialog
@@ -277,7 +277,7 @@ QTableView
 {
   border: 1px solid black;
   color: rgba(10, 10, 10, 255);
-  background-color: rgba(140, 140, 140, 255);
+  background-color: rgb(200,200,200);
   alternate-background-color: rgba(120, 120, 130, 255);
   selection-background-color: rgba(130, 130, 140, 200);
   font: 13px;
@@ -303,7 +303,7 @@ QPlainTextEdit
 
 QSplitter::handle
 {
-  background-color: darkgray
+  background-color: rgba(150, 150, 150, 255);
 }
 
 QSplitter::handle:vertical 
@@ -393,7 +393,7 @@ QTreeView
 {
   border: 1px solid black;
   color: rgba(10, 10, 10, 255);
-  background-color: rgba(140, 140, 140, 255);
+  background-color: rgb(200,200,200);
   alternate-background-color: rgba(120, 120, 130, 255);
   selection-background-color: rgba(130, 130, 140, 200);
   font: 13px;
