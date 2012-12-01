@@ -105,7 +105,7 @@
            <bool>true</bool>
           </property>
           <attribute name="headerVisible">
-           <bool>false</bool>
+           <bool>true</bool>
           </attribute>
           <column>
            <property name="text">
@@ -124,7 +124,7 @@
            <number>2</number>
           </property>
           <attribute name="horizontalHeaderVisible">
-           <bool>false</bool>
+           <bool>true</bool>
           </attribute>
           <attribute name="horizontalHeaderCascadingSectionResizes">
            <bool>true</bool>
@@ -204,8 +204,9 @@
      <property name="title">
       <string>Edit &amp;Profile</string>
      </property>
-     <addaction name="actionRemoveItems"/>
      <addaction name="actionAddItems"/>
+     <addaction name="actionRemoveItems"/>
+     <addaction name="actionEditItems"/>
     </widget>
     <addaction name="actionSwitchSessionDatabase"/>
     <addaction name="actionAddExistingDatabase"/>
@@ -284,7 +285,7 @@
     <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
    </property>
    <property name="windowTitle">
-    <string>Contents:</string>
+    <string>Document:</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
@@ -376,7 +377,7 @@
      <normaloff>:/resources/opendatabase.png</normaloff>:/resources/opendatabase.png</iconset>
    </property>
    <property name="text">
-    <string>Add &amp;Existing Profile</string>
+    <string>Add E&amp;xisting Profile</string>
    </property>
    <property name="toolTip">
     <string>Add an existing database to the list of known databases.</string>
@@ -460,7 +461,7 @@
     <string>Switch to a different profile.</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+D</string>
+    <string>Ctrl+Shift+S</string>
    </property>
   </action>
   <action name="actionSaveAs">
@@ -626,6 +627,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="actionEditItems">
+   <property name="text">
+    <string>Edit Items</string>
    </property>
   </action>
  </widget>
