@@ -49,8 +49,8 @@ class GCNewDBWizard : public QWizard
 public:
   explicit GCNewDBWizard( QWidget *parent = 0 );
   ~GCNewDBWizard();
-  QString xmlFileName();
-  QString dbFileName();
+  QString xmlFileName() const;
+  QString dbFileName() const;
 
 public slots:
   void accept();

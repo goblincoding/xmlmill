@@ -114,10 +114,10 @@ private slots:
   void saveXMLFileAs();
 
   /* DOM and DB. */
-  void addNewDatabase();
-  void addExistingDatabase();
-  void removeDatabase();
-  void switchActiveDatabase();
+  void addNewDatabase() const;
+  void addExistingDatabase() const;
+  void removeDatabase() const;
+  void switchActiveDatabase() const;
   void importXMLToDatabase();
 
   void deleteElementFromDocument();

@@ -757,7 +757,7 @@ void GCMainWindow::saveXMLFileAs()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::addNewDatabase()
+void GCMainWindow::addNewDatabase() const
 {
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
@@ -774,7 +774,7 @@ void GCMainWindow::addNewDatabase()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::addExistingDatabase()
+void GCMainWindow::addExistingDatabase() const
 {
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
@@ -791,7 +791,7 @@ void GCMainWindow::addExistingDatabase()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::removeDatabase()
+void GCMainWindow::removeDatabase() const
 {
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
@@ -808,7 +808,7 @@ void GCMainWindow::removeDatabase()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::switchActiveDatabase()
+void GCMainWindow::switchActiveDatabase() const
 {
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether

@@ -70,14 +70,15 @@ signals:
   void existingConnection();
   void newConnection();
   void userCancelled();
+
+private slots:
+  void select();
   
 private:
   Ui::GCKnownDBForm *ui;
   Buttons            m_buttons;
   bool               m_remove;
 
-private slots:
-  void select();
 };
 
 #endif // GCKNOWNDBFORM_H

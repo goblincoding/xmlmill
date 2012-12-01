@@ -53,14 +53,14 @@ GCNewDBWizard::~GCNewDBWizard()
 
 /*--------------------------------------------------------------------------------------*/
 
-QString GCNewDBWizard::dbFileName()
+QString GCNewDBWizard::dbFileName() const
 {
   return m_dbFileName;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-QString GCNewDBWizard::xmlFileName()
+QString GCNewDBWizard::xmlFileName() const
 {
   return m_xmlFileName;
 }

@@ -145,7 +145,7 @@ void GCRemoveItemsForm::deleteElement( const QString &element )
   {
     /* Attributes and values must be removed before we can remove elements and we must also
       ensure that children are removed before their parents.  To achieve this, we need to ensure
-      that we clean the element tree from the "bottom up". */
+      that we clean the element tree from "the bottom up". */
     if( !children.isEmpty() )
     {
       foreach( QString child, children )
