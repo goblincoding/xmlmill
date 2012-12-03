@@ -42,7 +42,7 @@
 GCSnippetsForm::GCSnippetsForm( const QString &elementName, QDomElement parentElement, QWidget *parent ) :
   QDialog         ( parent ),
   ui              ( new Ui::GCSnippetsForm ),
-  m_parentElement ( &parentElement ),
+  m_parentElement ( parentElement ),
   m_elementSnippet(),
   m_treeItemNodes (),
   m_elements      ()
@@ -58,7 +58,7 @@ GCSnippetsForm::GCSnippetsForm( const QString &elementName, QDomElement parentEl
   connect( ui->closeButton,    SIGNAL( clicked() ), this, SLOT( close() ) );
   connect( ui->addButton,      SIGNAL( clicked() ), this, SLOT( addSnippet() ) );
   connect( ui->showHelpButton, SIGNAL( clicked() ), this, SLOT( showHelp() ) );
-  connect( ui->treeWidget,     SIGNAL( itemClicked  ( QTreeWidgetItem*, int ) ), this, SLOT( itemSelected( QTreeWidgetItem*, int ) ) );
+  connect( ui->treeWidget,     SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( treeWidgetItemSelected( QTreeWidgetItem*, int ) ) );
 
   setAttribute( Qt::WA_DeleteOnClose );
 }
@@ -67,12 +67,17 @@ GCSnippetsForm::GCSnippetsForm( const QString &elementName, QDomElement parentEl
 
 GCSnippetsForm::~GCSnippetsForm()
 {
+  m_treeItemNodes.clear();
+  m_elements.clear();
+
   delete ui;
+
+  int bob = 0;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCSnippetsForm::itemSelected( QTreeWidgetItem *item, int column )
+void GCSnippetsForm::treeWidgetItemSelected( QTreeWidgetItem *item, int column )
 {
   Q_UNUSED( column );
 
@@ -80,8 +85,7 @@ void GCSnippetsForm::itemSelected( QTreeWidgetItem *item, int column )
 
   /* Populate the table widget with the attributes and values associated with the element selected. */
   bool success( false );
-  QDomElement *element = m_treeItemNodes.value( item );
-  QString elementName = element->tagName();
+  QString elementName = m_treeItemNodes.value( item ).tagName();
   QStringList attributeNames = GCDataBaseInterface::instance()->attributes( elementName, success );
 
   /* This is more for debugging than for end-user functionality. */
@@ -136,7 +140,7 @@ void GCSnippetsForm::populateTreeWidget( const QString &elementName )
 
   ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
 
-  constructElement( elementName, m_elementSnippet, item );
+  constructElement( elementName, item, QDomElement() );
   processNextElement( elementName, item );
 
   ui->treeWidget->expandAll();
@@ -155,10 +159,9 @@ void GCSnippetsForm::processNextElement( const QString &elementName, QTreeWidget
     {
       QTreeWidgetItem *item = new QTreeWidgetItem;
       item->setText( 0, child );
-
       parent->addChild( item );  // takes ownership
 
-      constructElement( child, *m_treeItemNodes.value( item ), item );
+      constructElement( child, item, m_treeItemNodes.value( parent ) );
 
       /* Since it isn't illegal to have elements with children of the same name, we cannot
         block it in the DB, however, if we DO have elements with children of the same name,
@@ -196,17 +199,24 @@ void GCSnippetsForm::setElementValues( const QString &elementName )
 
     element.attr.insert( attributeName, Value( attributeValue, checkBox->isChecked() ) );
   }
+
+  m_elements.insert( elementName, element );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCSnippetsForm::constructElement( const QString &elementName, QDomElement parentElement, QTreeWidgetItem *item )
+void GCSnippetsForm::constructElement( const QString &elementName, QTreeWidgetItem *associatedItem, QDomElement parentElement )
 {
   /* QDomElement's shallow copy constructor allows us to set up the relationships between
     the snippet's children and their children, etc etc.  This means that we can later manipulate
     the elements' data directly without messing with the hierarchy. */
   QDomDocument doc;
   QDomElement element = doc.createElement( elementName );
+
+  if( parentElement.isNull() )
+  {
+    m_elementSnippet = element;
+  }
 
   bool success( false );
   QStringList attributeNames = GCDataBaseInterface::instance()->attributes( elementName, success );
@@ -223,19 +233,18 @@ void GCSnippetsForm::constructElement( const QString &elementName, QDomElement p
   }
 
   Element elemStruct;
-  elemStruct.elem = &element;
+  elemStruct.elem = element;
 
   QDomNamedNodeMap attributeMap = element.attributes();
 
-  for( int i = 0; i <  attributeMap.size(); ++i )
+  for( int i = 0; i < attributeMap.size(); ++i )
   {
-    elemStruct.attr.insert( attributeMap.item( 0 ).toAttr().name(),
-                            Value( attributeMap.item( 0 ).toAttr().value(), false ) );
+    elemStruct.attr.insert( attributeMap.item( i ).toAttr().name(),
+                            Value( attributeMap.item( i ).toAttr().value(), false ) );
   }
 
   m_elements.insert( elementName, elemStruct );
-
-  m_treeItemNodes.insert( item, &element );
+  m_treeItemNodes.insert( associatedItem, element );
 
   if( !parentElement.isNull() )
   {
@@ -271,7 +280,7 @@ void GCSnippetsForm::addSnippet()
     while( elemIt != m_elements.constEnd() )
     {
       Element elemStruct = static_cast< Element >( elemIt.value() );
-      QDomElement element( *elemStruct.elem );    //shallow copy
+      QDomElement element = elemStruct.elem;    //shallow copy
 
       QHash< QString, Value >::const_iterator attrIt = elemStruct.attr.constBegin();
 
@@ -310,10 +319,8 @@ void GCSnippetsForm::addSnippet()
       elemIt++;
     }
 
-    if( !m_parentElement->isNull() )
-    {
-      m_parentElement->appendChild( m_elementSnippet.cloneNode() );
-    }
+    m_parentElement.appendChild( m_elementSnippet.cloneNode() );
+    emit snippetAdded();
   }
 }
 

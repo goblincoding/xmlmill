@@ -441,6 +441,16 @@ void GCMainWindow::treeWidgetItemSelected( QTreeWidgetItem *item, int column )
   ui->dockWidgetTextEdit->moveCursor( QTextCursor::Start );
   setTextEditContent( element );
 
+  /* The user must not be allowed to add an entire document as a "snippet". */
+  if( ui->addElementComboBox->currentText() == m_domDoc->documentElement().tagName() )
+  {
+    ui->addSnippetButton->setEnabled( false );
+  }
+  else
+  {
+    ui->addSnippetButton->setEnabled( true );
+  }
+
   /* Unset flag. */
   m_wasTreeItemActivated = false;
 }
@@ -951,8 +961,16 @@ void GCMainWindow::addSnippetToDocument()
 {
   GCSnippetsForm *dialog = new GCSnippetsForm( ui->addElementComboBox->currentText(),
                                                m_treeItemNodes.value( ui->treeWidget->currentItem() ),
-                                               this);
+                                               this );
+  connect( dialog, SIGNAL( snippetAdded() ), this, SLOT(insertSnippet() ) );
   dialog->exec();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::insertSnippet()
+{
+  setTextEditContent( m_treeItemNodes.value( ui->treeWidget->currentItem() ) );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -968,6 +986,8 @@ void GCMainWindow::resetDOM()
   ui->addElementComboBox->clear();
   ui->addElementComboBox->addItems( GCDataBaseInterface::instance()->knownRootElements() );
   toggleAddElementWidgets();
+
+  ui->addSnippetButton->setEnabled( false );
 
   /* The timer will be reactivated as soon as work starts again on a legitimate
     document and the user saves it for the first time. */
@@ -1308,6 +1328,7 @@ void GCMainWindow::processDOMDoc()
 
   /* Now we can recursively stick the rest of the elements into the tree widget. */
   populateTreeWidget( root, item );
+  ui->addSnippetButton->setEnabled( true );
 
   /* Enable file save options. */
   ui->actionCloseFile->setEnabled( true );
@@ -1399,6 +1420,7 @@ void GCMainWindow::addElementToDocument( const QString &elementName, QTreeWidget
         the tree widget with its first item. */
       ui->treeWidget->invisibleRootItem()->addChild( newItem );  // takes ownership
       m_domDoc->appendChild( newElement );
+      ui->addSnippetButton->setEnabled( true );
 
       /* If "addElementToDocument" was called from within "addNewElement", then
         the new element name will be a new root element. */

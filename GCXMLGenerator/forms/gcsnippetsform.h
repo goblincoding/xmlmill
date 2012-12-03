@@ -61,32 +61,35 @@ public:
   explicit GCSnippetsForm( const QString &elementName, QDomElement parentElement, QWidget *parent = 0 );
   ~GCSnippetsForm();
 
+signals:
+  void snippetAdded();
+
 private slots:
-  void itemSelected( QTreeWidgetItem *item, int column );
+  void treeWidgetItemSelected( QTreeWidgetItem *item, int column );
   void addSnippet  ();
   void valueChanged();
   void showHelp    ();
   
 private:
-  void populateTreeWidget ( const QString &elementName );
-  void processNextElement ( const QString &elementName, QTreeWidgetItem *parent );
-  void setElementValues   ( const QString &elementName );
-  void constructElement   ( const QString &elementName, QDomElement parentElement, QTreeWidgetItem *item );
+  void populateTreeWidget( const QString &elementName );
+  void processNextElement( const QString &elementName, QTreeWidgetItem *parent );
+  void setElementValues  ( const QString &elementName );
+  void constructElement  ( const QString &elementName, QTreeWidgetItem *associatedItem, QDomElement parentElement );
   void resetTableWidget();
 
   void showErrorMessageBox( const QString &errorMsg );
 
   Ui::GCSnippetsForm *ui;
-  QDomElement        *m_parentElement;
+  QDomElement         m_parentElement;
   QDomElement         m_elementSnippet;
 
-  QHash< QTreeWidgetItem*, QDomElement* > m_treeItemNodes;
+  QHash< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
 
   typedef QPair< QString /*value*/, bool /*increment*/ > Value;
 
   struct Element
   {
-    QDomElement *elem;
+    QDomElement elem;
     QHash< QString /*name*/, Value > attr;
   };
 

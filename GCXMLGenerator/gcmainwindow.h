@@ -141,9 +141,10 @@ private slots:
   void activeDatabaseChanged     ( QString dbName );
   void collapseOrExpandTreeWidget( bool checked );
   void switchSuperUserMode       ( bool super );
-  void searchDocument();
   void forgetAllMessagePreferences();
   void userCancelledKnownDBForm();
+  void searchDocument();
+  void insertSnippet();
   void showDOMEditHelp();
   void showMainHelp();
   void goToSite();
