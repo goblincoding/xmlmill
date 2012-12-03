@@ -52,7 +52,8 @@ SOURCES += main.cpp\
     forms/gcnewdbwizard.cpp \
     forms/gcsearchform.cpp \
     forms/gcadditemsform.cpp \
-    forms/gcremoveitemsform.cpp
+    forms/gcremoveitemsform.cpp \
+    forms/gcsnippetsform.cpp
 
 HEADERS  += \
     db/gcdatabaseinterface.h \
@@ -68,7 +69,8 @@ HEADERS  += \
     forms/gcnewdbwizard.h \
     forms/gcsearchform.h \
     forms/gcadditemsform.h \
-    forms/gcremoveitemsform.h
+    forms/gcremoveitemsform.h \
+    forms/gcsnippetsform.h
 
 FORMS    += \
     gcmainwindow.ui \
@@ -78,7 +80,8 @@ FORMS    += \
     forms/gcnewdbwizard.ui \
     forms/gcsearchform.ui \
     forms/gcremoveitemsform.ui \
-    forms/gcadditemsform.ui
+    forms/gcadditemsform.ui \
+    forms/gcsnippetsform.ui
 
 RESOURCES += \
     resources/gcresources.qrc

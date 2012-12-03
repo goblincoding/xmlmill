@@ -34,6 +34,7 @@
 #include "forms/gcremoveitemsform.h"
 #include "forms/gchelpdialog.h"
 #include "forms/gcsearchform.h"
+#include "forms/gcsnippetsform.h"
 #include "utils/gccombobox.h"
 #include "utils/gcdbsessionmanager.h"
 #include "utils/gcmessagespace.h"
@@ -164,6 +165,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   /* Build/Edit XML. */
   connect( ui->deleteElementButton,         SIGNAL( clicked() ),       this, SLOT( deleteElementFromDocument() ) );
   connect( ui->addChildElementButton,       SIGNAL( clicked() ),       this, SLOT( addElementToDocument() ) );
+  connect( ui->addSnippetButton,            SIGNAL( clicked() ),       this, SLOT( addSnippetToDocument() ) );
   connect( ui->textSaveButton,              SIGNAL( clicked() ),       this, SLOT( saveDirectEdit() ) );
   connect( ui->textRevertButton,            SIGNAL( clicked() ),       this, SLOT( revertDirectEdit() ) );
   connect( ui->domEditHelpButton,           SIGNAL( clicked() ),       this, SLOT( showDOMEditHelp() ) );
@@ -941,6 +943,16 @@ void GCMainWindow::addElementToDocument()
   }
 
   addElementToDocument( newElementName, item );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::addSnippetToDocument()
+{
+  GCSnippetsForm *dialog = new GCSnippetsForm( ui->addElementComboBox->currentText(),
+                                               m_treeItemNodes.value( ui->treeWidget->currentItem() ),
+                                               this);
+  dialog->exec();
 }
 
 /*--------------------------------------------------------------------------------------*/

@@ -73,7 +73,7 @@ void GCBatchProcessorHelper::processElement( const QDomElement &parentElement )
 
 void GCBatchProcessorHelper::createRecord( const QDomElement &element )
 {
-  GCElementRecord record;
+  ElementRecord record;
 
   /* Stick the attributes and their corresponding values into the record map. */
   QDomNamedNodeMap attributeNodes = element.attributes();
@@ -116,13 +116,13 @@ void GCBatchProcessorHelper::sortRecords()
   foreach( QString element, m_unsorted.uniqueKeys() )
   {
     /* Retrieve all the records associated with this element. */
-    QList< GCElementRecord > duplicateRecords = m_unsorted.values( element );
+    QList< ElementRecord > duplicateRecords = m_unsorted.values( element );
 
     /* If we have more than one record for the same element, then we need to consolidate
       all the attributes associated with this particular element. */
     if( duplicateRecords.size() > 1 )
     {
-      GCElementRecord record;
+      ElementRecord record;
 
       /* Just stick all the attributes and their values into a map for now
         so that we don't have to run the consolidation functionality on

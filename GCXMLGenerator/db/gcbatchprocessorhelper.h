@@ -113,20 +113,20 @@ private:
 
   /* Represents a single element's associated first level children,
     attributes and known attribute values. */
-  struct GCElementRecord
+  struct ElementRecord
   {
     QStringList children;
     QMap< QString /*name*/, QStringList /*values*/ > attributes;
 
-    GCElementRecord()
+    ElementRecord()
       :
         children  (),
         attributes()
     {}
   };
 
-  QMultiHash< QString /*element*/, GCElementRecord > m_unsorted;
-  QMap      < QString /*element*/, GCElementRecord > m_records;
+  QMultiHash< QString /*element*/, ElementRecord > m_unsorted;
+  QMap      < QString /*element*/, ElementRecord > m_records;
 };
 
 #endif // GCBATCHPROCESSORHELPER_H

@@ -122,6 +122,7 @@ private slots:
 
   void deleteElementFromDocument();
   void addElementToDocument();
+  void addSnippetToDocument();
   void resetDOM();
 
   void showRemoveItemsForm();

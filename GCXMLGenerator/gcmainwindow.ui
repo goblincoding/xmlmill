@@ -75,6 +75,13 @@
            </property>
           </widget>
          </item>
+         <item row="1" column="3">
+          <widget class="QPushButton" name="addSnippetButton">
+           <property name="text">
+            <string>Add Snippet</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
@@ -105,7 +112,7 @@
            <bool>true</bool>
           </property>
           <attribute name="headerVisible">
-           <bool>false</bool>
+           <bool>true</bool>
           </attribute>
           <column>
            <property name="text">
@@ -124,7 +131,7 @@
            <number>2</number>
           </property>
           <attribute name="horizontalHeaderVisible">
-           <bool>false</bool>
+           <bool>true</bool>
           </attribute>
           <attribute name="horizontalHeaderCascadingSectionResizes">
            <bool>true</bool>
