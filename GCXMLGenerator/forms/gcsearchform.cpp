@@ -35,11 +35,12 @@
 /*--------------------------------------------------------------------------------------*/
 
 GCSearchForm::GCSearchForm( const QList< QDomElement > &elements, const QString &docContents, QWidget *parent ) :
-  QDialog    ( parent ),
-  ui         ( new Ui::GCSearchForm ),
-  m_text     (),
-  m_wasFound ( false ),
-  m_elements ( elements )
+  QDialog      ( parent ),
+  ui           ( new Ui::GCSearchForm ),
+  m_text       (),
+  m_wasFound   ( false ),
+  m_searchFlags( 0 ),
+  m_elements   ( elements )
 {
   ui->setupUi( this );
   ui->lineEdit->setFocus();
@@ -47,6 +48,10 @@ GCSearchForm::GCSearchForm( const QList< QDomElement > &elements, const QString 
 
   connect( ui->searchButton, SIGNAL( clicked() ), this, SLOT( search() ) );
   connect( ui->closeButton,  SIGNAL( clicked() ), this, SLOT( close() ) );
+
+  connect( ui->caseSensitiveCheckBox, SIGNAL( clicked() ), this, SLOT( caseSensitive() ) );
+  connect( ui->wholeWordsCheckBox,    SIGNAL( clicked() ), this, SLOT( wholeWords() ) );
+  connect( ui->searchUpCheckBox,      SIGNAL( clicked() ), this, SLOT( searchUp() ) );
 
   setAttribute( Qt::WA_DeleteOnClose );
 }
@@ -64,7 +69,7 @@ GCSearchForm::~GCSearchForm()
 void GCSearchForm::search()
 {
   QString searchText = ui->lineEdit->text();
-  bool found = m_text.find( searchText );
+  bool found = m_text.find( searchText, m_searchFlags );
 
   /* The first time we enter this function, if the text does not exist
     within the document, "found" and "m_wasFound" will both be false.
@@ -75,7 +80,8 @@ void GCSearchForm::search()
   if( found != m_wasFound &&
       m_wasFound )
   {
-    reachedEndOfDocument();
+    resetCursor();
+    found = m_text.find( searchText, m_searchFlags );
   }
 
   if( found )
@@ -155,15 +161,78 @@ void GCSearchForm::search()
       }
     }
   }
+  else
+  {
+    QMessageBox::information( this, "Not Found", QString( "Can't find the text:\"%1\"" ).arg( searchText ) );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCSearchForm::reachedEndOfDocument()
+void GCSearchForm::resetCursor()
 {
   /* Reset cursor so that we may keep cycling through. */
-  m_text.moveCursor( QTextCursor::Start );
-  QMessageBox::information( this, "Reached the End", "Search reached end of document, continuing at the beginning." );
+  if( ui->searchUpCheckBox->isChecked() )
+  {
+    m_text.moveCursor( QTextCursor::End );
+    QMessageBox::information( this, "Reached Top", "Search reached top, continuing at bottom." );
+  }
+  else
+  {
+    m_text.moveCursor( QTextCursor::Start );
+    QMessageBox::information( this, "Reached Bottom", "Search reached bottom, continuing at top." );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCSearchForm::searchUp()
+{
+  /* Reset found flag every time the user changes the search options. */
+  m_wasFound = false;
+
+  if( ui->searchUpCheckBox->isChecked() )
+  {
+    m_searchFlags |= QTextDocument::FindBackward;
+  }
+  else
+  {
+    m_searchFlags ^= QTextDocument::FindBackward;
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCSearchForm::caseSensitive()
+{
+  /* Reset found flag every time the user changes the search options. */
+  m_wasFound = false;
+
+  if( ui->caseSensitiveCheckBox->isChecked() )
+  {
+    m_searchFlags |= QTextDocument::FindCaseSensitively;
+  }
+  else
+  {
+    m_searchFlags ^= QTextDocument::FindCaseSensitively;
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCSearchForm::wholeWords()
+{
+  /* Reset found flag every time the user changes the search options. */
+  m_wasFound = false;
+
+  if( ui->wholeWordsCheckBox->isChecked() )
+  {
+    m_searchFlags |= QTextDocument::FindWholeWords;
+  }
+  else
+  {
+    m_searchFlags ^= QTextDocument::FindWholeWords;
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/

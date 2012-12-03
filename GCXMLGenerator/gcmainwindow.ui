@@ -105,7 +105,7 @@
            <bool>true</bool>
           </property>
           <attribute name="headerVisible">
-           <bool>true</bool>
+           <bool>false</bool>
           </attribute>
           <column>
            <property name="text">
@@ -124,7 +124,7 @@
            <number>2</number>
           </property>
           <attribute name="horizontalHeaderVisible">
-           <bool>true</bool>
+           <bool>false</bool>
           </attribute>
           <attribute name="horizontalHeaderCascadingSectionResizes">
            <bool>true</bool>
@@ -140,7 +140,7 @@
           </attribute>
           <column>
            <property name="text">
-            <string>Attribute:</string>
+            <string>Attributes:</string>
            </property>
           </column>
           <column>

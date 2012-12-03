@@ -58,7 +58,10 @@ signals:
 
 private slots:
   void search();
-  void reachedEndOfDocument();
+  void resetCursor();
+  void searchUp();
+  void caseSensitive();
+  void wholeWords();
   
 private:
   void foundMatch( const QDomElement &element );
@@ -67,7 +70,8 @@ private:
   QTextEdit         m_text;
   bool              m_wasFound;
 
-  QList< QDomElement > m_elements;
+  QTextDocument::FindFlags m_searchFlags;
+  QList< QDomElement >     m_elements;
 
 };
 

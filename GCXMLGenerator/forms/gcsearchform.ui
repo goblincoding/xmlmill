@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>248</width>
-    <height>69</height>
+    <width>364</width>
+    <height>83</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,41 +23,86 @@
   <property name="modal">
    <bool>true</bool>
   </property>
-  <layout class="QVBoxLayout" name="mainLayout">
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetFixedSize</enum>
+   </property>
    <item>
-    <widget class="QLineEdit" name="lineEdit"/>
+    <layout class="QVBoxLayout" name="checkBoxLayout">
+     <item>
+      <widget class="QCheckBox" name="caseSensitiveCheckBox">
+       <property name="text">
+        <string>Case Sensitive</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="wholeWordsCheckBox">
+       <property name="text">
+        <string>Whole Words Only</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="searchUpCheckBox">
+       <property name="text">
+        <string>Search Up</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="buttonLayout">
+    <layout class="QVBoxLayout" name="searchLayout">
      <item>
-      <spacer name="horizontalSpacer">
+      <widget class="QLineEdit" name="lineEdit"/>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Vertical</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
-         <height>20</height>
+         <width>20</width>
+         <height>40</height>
         </size>
        </property>
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="searchButton">
-       <property name="text">
-        <string>Search</string>
-       </property>
-       <property name="default">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="closeButton">
-       <property name="text">
-        <string>Close</string>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="buttonLayout">
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="searchButton">
+         <property name="text">
+          <string>Search</string>
+         </property>
+         <property name="default">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="closeButton">
+         <property name="text">
+          <string>Close</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
