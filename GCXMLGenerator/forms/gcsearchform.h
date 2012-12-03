@@ -30,6 +30,7 @@
 #define GCSEARCHFORM_H
 
 #include <QDialog>
+#include <QTextEdit>
 
 namespace Ui
 {
@@ -49,7 +50,7 @@ class GCSearchForm : public QDialog
   Q_OBJECT
   
 public:
-  explicit GCSearchForm( const QList< QDomElement > &elements, QWidget *parent = 0 );
+  explicit GCSearchForm( const QList< QDomElement > &elements, const QString &docContents, QWidget *parent = 0 );
   ~GCSearchForm();
 
 signals:
@@ -57,12 +58,17 @@ signals:
 
 private slots:
   void search();
+  void reachedEndOfDocument();
   
 private:
+  void foundMatch( const QDomElement &element );
+
   Ui::GCSearchForm *ui;
-  int m_lastIndex;
+  QTextEdit         m_text;
+  bool              m_wasFound;
 
   QList< QDomElement > m_elements;
+
 };
 
 #endif // GCSEARCHFORM_H

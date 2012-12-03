@@ -34,18 +34,19 @@
 
 /*--------------------------------------------------------------------------------------*/
 
-GCSearchForm::GCSearchForm( const QList< QDomElement > &elements, QWidget *parent ) :
+GCSearchForm::GCSearchForm( const QList< QDomElement > &elements, const QString &docContents, QWidget *parent ) :
   QDialog    ( parent ),
   ui         ( new Ui::GCSearchForm ),
-  m_lastIndex( 0 ),
+  m_text     (),
+  m_wasFound ( false ),
   m_elements ( elements )
 {
   ui->setupUi( this );
   ui->lineEdit->setFocus();
+  m_text.setText( docContents );
 
   connect( ui->searchButton, SIGNAL( clicked() ), this, SLOT( search() ) );
   connect( ui->closeButton,  SIGNAL( clicked() ), this, SLOT( close() ) );
-  connect( ui->lineEdit,     SIGNAL( returnPressed() ), this, SLOT( search() ) );
 
   setAttribute( Qt::WA_DeleteOnClose );
 }
@@ -54,6 +55,7 @@ GCSearchForm::GCSearchForm( const QList< QDomElement > &elements, QWidget *paren
 
 GCSearchForm::~GCSearchForm()
 {
+  /* The QDomDocument m_doc points at is owned externally. */
   delete ui;
 }
 
@@ -62,61 +64,125 @@ GCSearchForm::~GCSearchForm()
 void GCSearchForm::search()
 {
   QString searchText = ui->lineEdit->text();
-  bool found = false;
+  bool found = m_text.find( searchText );
 
-  for( int i = m_lastIndex; i < m_elements.size(); ++i )
+  /* The first time we enter this function, if the text does not exist
+    within the document, "found" and "m_wasFound" will both be false.
+    However, if the text does exist, we wish to know that we found a match
+    at least once so that, when we reach the end of the document and "found"
+    is once more false, we can reset all indices and flags in order to start
+    again from the beginning. */
+  if( found != m_wasFound &&
+      m_wasFound )
   {
-    if( ui->elementCheckBox->isChecked() )
+    reachedEndOfDocument();
+  }
+
+  if( found )
+  {
+    m_wasFound = true;
+
+    /* Highlight the entire node - element, attributes and attribute values. */
+    m_text.moveCursor( QTextCursor::StartOfLine );
+    m_text.moveCursor( QTextCursor::EndOfLine, QTextCursor::KeepAnchor );
+
+    /* Remove the special characters. */
+    QString nodeText = m_text.textCursor().selectedText().remove( QRegExp( "<|>|\\/") ).trimmed();
+
+    /* Extract the element name, attributes and attribute values. The element's
+      name will always appear first. */
+    QString elementName = nodeText.section( " ", 0, 0 );
+    nodeText.remove( elementName );
+    nodeText.trimmed();
+
+    QHash< QString, QString > attributeMap;
+
+    for( int i = 0; i < nodeText.count( "=" ); ++i )
     {
-      if( m_elements.at( i ).tagName() == searchText )
+      QString attributeName = nodeText.section( QRegExp( "(\"[^\"]*\"|'[^']*')" ), i, i );
+      attributeName = attributeName.remove( "=" );
+      QString attributeValue = nodeText.section( QRegExp( "[a-zA-Z0-9_:]+=" ), i, i );
+      attributeValue = attributeValue.remove( "\"" );
+      attributeMap.insert( attributeName.trimmed(), attributeValue.trimmed() );
+    }
+
+//    foreach( QString part, node )
+//    {
+//      /* It's the element name. */
+//      if( !part.contains( "\"" ) )
+//      {
+//        elementName = part.trimmed();
+//      }
+//      else
+//      {
+//        /* Split up the attributes and their values and stick them in a map. */
+//        QStringList attributeParts = part.split( "=" );
+//        QString attributeValue = attributeParts.at( 1 );
+//        attributeMap.insert( attributeParts.at( 0 ).trimmed(), attributeValue.remove( "\"" ).trimmed() );
+//      }
+//    }
+
+    /* Now that we found the exact element/attribute/values of the first successful
+      hit of this search, we need to figure out which of the DOM elements it corresponds to. */
+    for( int i = 0; i < m_elements.size(); ++i )
+    {
+      if( m_elements.at( i ).tagName() == elementName )
       {
-        emit foundElement( m_elements.at( i ) );
+        QDomNamedNodeMap attributeNodes = m_elements.at( i ).attributes();
 
-        if( ui->searchButton->text() == "Search" )
+        /* First ensure that this node has exactly the same number of attributes
+          as what we expect. */
+        if( attributeMap.keys().size() == attributeNodes.size() )
         {
-          ui->searchButton->setText( "Next" );
-        }
+          bool exactMatch( true );
 
-        found = true;
-      }
-
-      if( ui->attributeCheckBox->isChecked() || ui->valueCheckBox->isChecked() )
-      {
-        QDomNamedNodeMap attributes = m_elements.at( i ).attributes();
-
-        for( int j = 0; j < attributes.size(); ++j )
-        {
-          QDomAttr attribute = attributes.item( j ).toAttr();
-
-          if( attribute.name() == searchText || attribute.value() == searchText )
+          /* Now check that the attribute names we have match up with those of this node. */
+          foreach( QString attributeName, attributeMap.keys() )
           {
-            emit foundElement( m_elements.at( i ) );
-
-            if( ui->searchButton->text() == "Search" )
+            if( !attributeNodes.contains( attributeName ) )
             {
-              ui->searchButton->setText( "Next" );
+              exactMatch = false;
+              break;
             }
+            else
+            {
+              if( attributeMap.value( attributeName ) != attributeNodes.namedItem( attributeName ).toAttr().value() )
+              {
+                exactMatch = false;
+                break;
+              }
+            }
+          }
 
-            found = true;
+          if( exactMatch )
+          {
+            foundMatch( m_elements.at( i ) );
             break;
           }
         }
       }
     }
-
-    m_lastIndex = i + 1;
-
-    if( found )
-    {
-      break;
-    }
   }
+}
 
-  /* Reset index so that we may keep cycling through. */
-  if( m_lastIndex == m_elements.size() )
+/*--------------------------------------------------------------------------------------*/
+
+void GCSearchForm::reachedEndOfDocument()
+{
+  /* Reset cursor so that we may keep cycling through. */
+  m_text.moveCursor( QTextCursor::Start );
+  QMessageBox::information( this, "Reached the End", "Search reached end of document, continuing at the beginning." );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCSearchForm::foundMatch( const QDomElement &element )
+{
+  emit foundElement( element );
+
+  if( ui->searchButton->text() == "Search" )
   {
-    QMessageBox::information( this, "Reached the End", "Search reached end of document, continuing at the beginning." );
-    m_lastIndex = 0;
+    ui->searchButton->setText( "Next" );
   }
 }
 
