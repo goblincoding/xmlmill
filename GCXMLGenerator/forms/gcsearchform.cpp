@@ -96,31 +96,23 @@ void GCSearchForm::search()
     nodeText.trimmed();
 
     QHash< QString, QString > attributeMap;
+    int nrAttValPairs = nodeText.count( "=" );
 
-    for( int i = 0; i < nodeText.count( "=" ); ++i )
+    for( int i = 0; i < nrAttValPairs; ++i )
     {
-      QString attributeName = nodeText.section( QRegExp( "(\"[^\"]*\"|'[^']*')" ), i, i );
-      attributeName = attributeName.remove( "=" );
-      QString attributeValue = nodeText.section( QRegExp( "[a-zA-Z0-9_:]+=" ), i, i );
-      attributeValue = attributeValue.remove( "\"" );
+      /* Extract the attribute name and remove the name as well as the "=" sign
+        from the node string. */
+      QString attributeName = nodeText.mid( 0, nodeText.indexOf( "=" ) );
+      nodeText.remove( 0, nodeText.indexOf( "=" ) + 1 );
+
+      /* Extract the attribute value and remove the value as well as both "\"" from the
+        node string. */
+      nodeText.remove( 0, nodeText.indexOf( "\"" ) + 1 );
+      QString attributeValue = nodeText.mid( 0, nodeText.indexOf( "\"", 1 ) );
+      nodeText.remove( 0, nodeText.indexOf( attributeValue ) + attributeValue.length() + 1 );
+
       attributeMap.insert( attributeName.trimmed(), attributeValue.trimmed() );
     }
-
-//    foreach( QString part, node )
-//    {
-//      /* It's the element name. */
-//      if( !part.contains( "\"" ) )
-//      {
-//        elementName = part.trimmed();
-//      }
-//      else
-//      {
-//        /* Split up the attributes and their values and stick them in a map. */
-//        QStringList attributeParts = part.split( "=" );
-//        QString attributeValue = attributeParts.at( 1 );
-//        attributeMap.insert( attributeParts.at( 0 ).trimmed(), attributeValue.remove( "\"" ).trimmed() );
-//      }
-//    }
 
     /* Now that we found the exact element/attribute/values of the first successful
       hit of this search, we need to figure out which of the DOM elements it corresponds to. */
