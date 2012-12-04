@@ -49,7 +49,8 @@ public:
   
 protected:
   void mousePressEvent( QMouseEvent *e );
-  void focusInEvent( QFocusEvent *e );
+  void focusInEvent ( QFocusEvent *e );
+  void focusOutEvent( QFocusEvent *e );
   
 };
 

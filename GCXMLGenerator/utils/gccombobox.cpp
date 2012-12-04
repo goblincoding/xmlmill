@@ -52,3 +52,13 @@ void GCComboBox::focusInEvent( QFocusEvent *e )
 }
 
 /*--------------------------------------------------------------------------------------*/
+
+void GCComboBox::focusOutEvent( QFocusEvent *e )
+{
+  /* So that the user does not have to press "Enter" when manually changing or
+    adding an attribute value. */
+  QComboBox::focusOutEvent( e );
+  emit currentIndexChanged( currentText() );
+}
+
+/*--------------------------------------------------------------------------------------*/
