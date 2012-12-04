@@ -64,6 +64,9 @@ public:
   explicit GCMainWindow( QWidget *parent = 0 );
   ~GCMainWindow();
 
+protected:
+  void closeEvent( QCloseEvent * event );
+
 private slots:
   /* Called only in "Super User" mode when a user edits the name of an
     existing tree widget item (i.e. element). An element with the new name

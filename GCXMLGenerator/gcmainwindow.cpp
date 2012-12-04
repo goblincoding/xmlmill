@@ -229,13 +229,30 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 
 GCMainWindow::~GCMainWindow()
 {
-  // TODO: Give the user the option to save the current XML file.
-
   delete m_domDoc;
   delete ui;
 }
 
 /*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::closeEvent( QCloseEvent *event )
+{
+  if( !m_domDoc->documentElement().isNull() )
+  {
+    QMessageBox::StandardButtons accept = QMessageBox::question( this,
+                                                                 "Save File?",
+                                                                 "Save changes before closing?",
+                                                                 QMessageBox::Yes | QMessageBox::No,
+                                                                 QMessageBox::Yes );
+
+    if( accept == QMessageBox::Yes )
+    {
+      saveXMLFile();
+    }
+  }
+
+  QMainWindow::closeEvent( event );
+}
 
 /* This slot will only be called in Super User mode so we can safely keep the functionality
   as it is (i.e. updating the database alongside the DOM) without any other explicit checks. */
@@ -962,7 +979,7 @@ void GCMainWindow::addSnippetToDocument()
   GCSnippetsForm *dialog = new GCSnippetsForm( ui->addElementComboBox->currentText(),
                                                m_treeItemNodes.value( ui->treeWidget->currentItem() ),
                                                this );
-  connect( dialog, SIGNAL( snippetAdded() ), this, SLOT(insertSnippet() ) );
+  connect( dialog, SIGNAL( snippetAdded() ), this, SLOT( insertSnippet() ) );
   dialog->exec();
 }
 
