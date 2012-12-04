@@ -212,7 +212,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
     this->close();
   }
 
-  m_domDoc   = new QDomDocument;
+  m_domDoc = new QDomDocument;
 
   /* If the interface was successfully initialised, prompt the user to choose a database
     connection for this session. */
@@ -976,17 +976,33 @@ void GCMainWindow::addElementToDocument()
 
 void GCMainWindow::addSnippetToDocument()
 {
-  GCSnippetsForm *dialog = new GCSnippetsForm( ui->addElementComboBox->currentText(),
-                                               m_treeItemNodes.value( ui->treeWidget->currentItem() ),
-                                               this );
-  connect( dialog, SIGNAL( snippetAdded() ), this, SLOT( insertSnippet() ) );
-  dialog->exec();
+  QString elementName = ui->addElementComboBox->currentText();
+
+  /* Check if we're inserting snippets as children, or as siblings. */
+  if( elementName.contains( QRegExp( "<|>" ) ) )
+  {
+    GCSnippetsForm *dialog = new GCSnippetsForm( elementName.remove( QRegExp( "<|>" ) ),
+                                                 m_treeItemNodes.value( ui->treeWidget->currentItem()->parent() ),
+                                                 this );
+    connect( dialog, SIGNAL( snippetAdded() ), this, SLOT( insertSnippet() ) );
+    dialog->exec();
+  }
+  else
+  {
+    GCSnippetsForm *dialog = new GCSnippetsForm( elementName,
+                                                 m_treeItemNodes.value( ui->treeWidget->currentItem() ),
+                                                 this );
+    connect( dialog, SIGNAL( snippetAdded() ), this, SLOT( insertSnippet() ) );
+    dialog->exec();
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::insertSnippet()
 {
+  /* Since we directly manipulated the existing DOM through the "insert snippets" form,
+    all we have to do here is to updat the text. */
   setTextEditContent( m_treeItemNodes.value( ui->treeWidget->currentItem() ) );
 }
 

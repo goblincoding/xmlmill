@@ -31,7 +31,7 @@
 
 #include <QDialog>
 #include <QHash>
-#include <QDomElement>
+#include <QDomDocument>
 
 namespace Ui
 {
@@ -39,6 +39,8 @@ namespace Ui
 }
 
 class QTreeWidgetItem;
+class QSignalMapper;
+class QCheckBox;
 
 /*------------------------------------------------------------------------------------------
 
@@ -47,7 +49,9 @@ class QTreeWidgetItem;
   default values for each snippet (i.e. if the user specifies "1" as an attribute value with
   the option to increment, then the next snippet generated will have "2" as the value for the
   same attribute and so on and so forth.  Strings will have the incremented value appended
-  to the name).
+  to the name).  Only one element of each type can be inserted into any specific snippet as it
+  makes no sense to insert multiple elements of the same type - for those use cases the user
+  must create a smaller snippet subset.
 
 ------------------------------------------------------------------------------------------*/
 
@@ -66,34 +70,28 @@ signals:
 
 private slots:
   void treeWidgetItemSelected( QTreeWidgetItem *item, int column );
+  void setCurrentCheckBox    ( QWidget* checkBox );
+  void attributeValueChanged();
+  void elementValueChanged  ();
   void addSnippet  ();
-  void valueChanged();
   void showHelp    ();
   
 private:
-  void populateTreeWidget( const QString &elementName );
-  void processNextElement( const QString &elementName, QTreeWidgetItem *parent );
-  void constructElement  ( const QString &elementName, QTreeWidgetItem *associatedItem, QDomElement parentElement );
-  void setElementValues  ( const QString &elementName );
-  void resetTableWidget();
-
+  void populateTreeWidget ( const QString &elementName );
+  void processNextElement ( const QString &elementName, QTreeWidgetItem *parent, QDomNode parentNode );
   void showErrorMessageBox( const QString &errorMsg );
 
   Ui::GCSnippetsForm *ui;
-  QDomElement         m_parentElement;
-  QDomElement         m_elementSnippet;
+  QDomElement        *m_parentElement;
+  QSignalMapper      *m_signalMapper;
+  QCheckBox          *m_currentCheckBox;
+  QDomDocument        m_domDoc;
 
-  QHash< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
+  QHash< QString /*attr*/, bool /*increment*/ > m_attributes;
+  QHash< QString /*attr*/, QString /*value*/ >  m_originalValues;
+  QHash< QString /*elem*/, bool /*exclude*/ >   m_elements;
+  QHash< QWidget* /*check*/, QString /*elem*/ > m_checkBoxes;
 
-  typedef QPair< QString /*value*/, bool /*increment*/ > Value;
-
-  struct Element
-  {
-    QDomElement elem;
-    QHash< QString /*name*/, Value > attr;
-  };
-
-  QHash< QString /*name*/, Element > m_elements;
 };
 
 #endif // GCSNIPPETSFORM_H
