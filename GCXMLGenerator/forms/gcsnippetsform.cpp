@@ -115,8 +115,17 @@ void GCSnippetsForm::treeWidgetItemSelected( QTreeWidgetItem *item, int column )
     attributeCombo->setCurrentIndex( attributeCombo->findText(
                                        m_domDoc
                                        .elementsByTagName( elementName )
-                                       .at( 0 ).namedItem( attributeNames.at( i ) )
-                                       .toAttr().value() ) );
+                                       .at( 0 )
+                                       .toElement()
+                                       .attribute( attributeNames.at( i ) ) ) );
+
+    QString test = m_domDoc
+        .elementsByTagName( elementName )
+        .at( 0 )
+        .toElement()
+        .attribute( attributeNames.at( i ) );
+
+
     connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged() ) );
 
     /* This is more for debugging than for end-user functionality. */
