@@ -73,8 +73,8 @@ private slots:
 private:
   void populateTreeWidget( const QString &elementName );
   void processNextElement( const QString &elementName, QTreeWidgetItem *parent );
-  void setElementValues  ( const QString &elementName );
   void constructElement  ( const QString &elementName, QTreeWidgetItem *associatedItem, QDomElement parentElement );
+  void setElementValues  ( const QString &elementName );
   void resetTableWidget();
 
   void showErrorMessageBox( const QString &errorMsg );

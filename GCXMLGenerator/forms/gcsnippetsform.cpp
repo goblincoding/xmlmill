@@ -67,12 +67,7 @@ GCSnippetsForm::GCSnippetsForm( const QString &elementName, QDomElement parentEl
 
 GCSnippetsForm::~GCSnippetsForm()
 {
-  m_treeItemNodes.clear();
-  m_elements.clear();
-
   delete ui;
-
-  int bob = 0;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -137,7 +132,6 @@ void GCSnippetsForm::populateTreeWidget( const QString &elementName )
 
   QTreeWidgetItem *item = new QTreeWidgetItem;
   item->setText( 0, elementName );
-
   ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
 
   constructElement( elementName, item, QDomElement() );
@@ -293,7 +287,7 @@ void GCSnippetsForm::addSnippet()
         if( val.second )
         {
           /* Check if this is a number (if it contains any non-digit character). */
-          if( !attributeValue.contains( "\\D" ) )
+          if( !attributeValue.contains( QRegExp( "\\D+" ) ) )
           {
             bool ok( false );
             int intValue = attributeValue.toInt( &ok );
