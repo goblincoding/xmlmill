@@ -148,9 +148,6 @@ void GCSnippetsForm::attributeValueChanged()
   /* There will only ever be one element with this name the way this class has been implemented. */
   QDomElement element = m_domDoc.elementsByTagName( elementName ).at( 0 ).toElement();
 
-  QCheckBox *elemCheck = dynamic_cast< QCheckBox* >( ui->treeWidget->itemWidget( ui->treeWidget->currentItem(), 0 ) );
-  m_elements.insert( elementName, elemCheck->isChecked() );
-
   QDomNamedNodeMap attributes = element.attributes();
 
   for( int i = 0; i < attributes.size(); ++i )
