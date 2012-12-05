@@ -19,11 +19,12 @@
         <file>adddatabase.png</file>
         <file>opendatabase.png</file>
         <file>removedatabase.png</file>
-        <file>superuser.png</file>
         <file>switch.png</file>
         <file>importxml.png</file>
         <file>Help.txt</file>
         <file>clear.png</file>
         <file>StyleSheet.txt</file>
+        <file>downspinarrow.png</file>
+        <file>upspinarrow.png</file>
     </qresource>
 </RCC>
