@@ -92,7 +92,14 @@ QString getScrollAnchorText( const QDomElement &element )
       anchor += "\"";
     }
 
-    anchor += "/>";
+    if( element.firstChild().isNull() )
+    {
+      anchor += "/>";
+    }
+    else
+    {
+      anchor += ">";
+    }
   }
   else
   {
