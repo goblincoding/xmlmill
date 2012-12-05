@@ -283,6 +283,16 @@ QTableView
   font: 13px;
 }
 
+QTableView::indicator:unchecked
+{
+  image: url(":/resources/checkbox.png");
+}
+
+QTableView::indicator:checked
+{
+  image: url(":/resources/checkon.png");
+}
+
 QTextEdit
 {
   background-color: rgb(200,200,200);
