@@ -1002,8 +1002,8 @@ void GCMainWindow::addSnippetToDocument()
 void GCMainWindow::insertSnippet()
 {
   /* Since we directly manipulated the existing DOM through the "insert snippets" form,
-    all we have to do here is to updat the text. */
-  setTextEditContent( m_treeItemNodes.value( ui->treeWidget->currentItem() ) );
+    all we have to do here is to update the tree and the text edit. */
+  processDOMDoc();
 }
 
 /*--------------------------------------------------------------------------------------*/
