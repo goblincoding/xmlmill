@@ -52,6 +52,7 @@
 #include <QModelIndex>
 #include <QLabel>
 #include <QUrl>
+#include <QCloseEvent>
 
 /*--------------------------------------------------------------------------------------*/
 
@@ -216,12 +217,17 @@ void GCMainWindow::closeEvent( QCloseEvent *event )
     QMessageBox::StandardButtons accept = QMessageBox::question( this,
                                                                  "Save File?",
                                                                  "Save changes before closing?",
-                                                                 QMessageBox::Yes | QMessageBox::No,
+                                                                 QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
                                                                  QMessageBox::Yes );
 
     if( accept == QMessageBox::Yes )
     {
       saveXMLFile();
+    }
+    else if( accept == QMessageBox::Cancel )
+    {
+      event->ignore();
+      return;
     }
   }
 
