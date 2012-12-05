@@ -161,7 +161,7 @@ void GCSnippetsForm::attributeValueChanged()
     /* Third column. */
     GCComboBox *comboBox = dynamic_cast< GCComboBox* >( ui->tableWidget->cellWidget( i, 2 ) );
     QString attributeValue = comboBox->currentText();
-    m_originalValues.insert( elementName + attributeName, attributeValue );
+    m_originalValues.insert( elementName + attributeName, attributeValue.trimmed() );
 
     element.setAttribute( attributeName, attributeValue );
     m_attributes.insert( elementName + attributeName, checkBox->isChecked() );
@@ -215,35 +215,54 @@ void GCSnippetsForm::addSnippet()
       QDomElement element = doc.elementsByTagName( elementName ).at( 0 ).toElement();
       QDomNamedNodeMap attributes = element.attributes();
 
+      /* Required so that we do not end up manipulating the map itself (each time an attribute is removed,
+        the loop will be affected since the map's size changes). */
+      QList< QString > attributesToRemove;
+
       for( int k = 0; k < attributes.size(); ++k )
       {
         QDomAttr attr = attributes.item( k ).toAttr();
+        QString attributeValue = m_originalValues.value( elementName + attr.name() );
 
-        if( m_attributes.value( elementName + attr.name() ) )
+        /* Exclude empty attributes for now, I will rework this to something similar to what
+          is done for the elements...attributes may sometimes be compsulsory regardless of whether
+          or not they are empty. */
+        if( attributeValue.isEmpty() )
         {
-          QString attributeValue = m_originalValues.value( elementName + attr.name() );
-
-          /* Check if this is a number (if it contains any non-digit character). */
-          if( !attributeValue.contains( QRegExp( "\\D+" ) ) )
-          {
-            bool ok( false );
-            int intValue = attributeValue.toInt( &ok );
-
-            if( ok )
-            {
-              intValue += i;
-              attributeValue = QString( "%1" ).arg( intValue );
-            }
-          }
-          else
-          {
-            /* If the value contains some string characters, it's a string value and that's all
-              there is to it. */
-            attributeValue += QString( "%1" ).arg( i );
-          }
-
-          element.setAttribute( attr.name(), attributeValue );
+          attributesToRemove << attr.name() ;
         }
+        else
+        {
+          if( m_attributes.value( elementName + attr.name() ) )
+          {
+            /* Check if this is a number (if it contains any non-digit character). */
+            if( !attributeValue.contains( QRegExp( "\\D+" ) ) )
+            {
+              bool ok( false );
+              int intValue = attributeValue.toInt( &ok );
+
+              if( ok )
+              {
+                intValue += i;
+                attributeValue = QString( "%1" ).arg( intValue );
+              }
+            }
+            else
+            {
+              /* If the value contains some string characters, it's a string value and that's all
+              there is to it (it's not our responsibility to check that someone isn't incrementing
+              "false", e.g.). */
+              attributeValue += QString( "%1" ).arg( i );
+            }
+
+            element.setAttribute( attr.name(), attributeValue );
+          }
+        }
+      }
+
+      foreach( QString attribute, attributesToRemove )
+      {
+        element.removeAttribute( attribute );
       }
     }
 
