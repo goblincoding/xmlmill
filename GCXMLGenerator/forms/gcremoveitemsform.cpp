@@ -325,7 +325,7 @@ void GCRemoveItemsForm::updateChildLists()
         }
       }
     }
-    else
+    else if( !success )
     {
       showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
     }
