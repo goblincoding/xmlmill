@@ -291,7 +291,6 @@
    <addaction name="actionSwitchSessionDatabase"/>
    <addaction name="actionImportXMLToDatabase"/>
    <addaction name="separator"/>
-   <addaction name="actionSuperUserMode"/>
    <addaction name="separator"/>
    <addaction name="actionHelpContents"/>
   </widget>
@@ -518,10 +517,6 @@
    </property>
    <property name="checked">
     <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resources/gcresources.qrc">
-     <normaloff>:/resources/superuser.png</normaloff>:/resources/superuser.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Super User Mode</string>

@@ -577,3 +577,102 @@ QGroupBox
 {
   background-color: rgba(150, 150, 150, 255);
 }
+
+QSpinBox 
+{
+  border: 1px solid;
+  border-color: darkgray;
+  border-radius: 3px;
+  padding: 1 3px;
+  background-color: qlineargradient(spread:pad, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0 rgba(180, 180, 180, 240), stop:1 rgba(140, 140, 140, 255));
+  selection-background-color: rgb(110, 110, 110);
+  font: 12px;
+}
+
+QSpinBox::up-arrow
+{
+  image: url(":resources/upspinarrow.png");
+  width: 14px;
+  height: 7px;
+  border-width: 1px;
+  border-radius: 5px;
+  border-color: rgb(100,100,100);
+  border-style: solid;
+}
+
+QSpinBox::up-arrow:disabled, QSpinBox::up-arrow:off 
+{ 
+  image: url(":resources/upspinarrowdisabled.png");
+  background-color:rgba(120, 120, 120, 255);
+  border-color:rgba(120, 120, 120, 255);
+  border-width: 1px;
+  border-radius: 5px;
+  border-style: flat;
+}
+
+QSpinBox::up-button 
+{
+  background-color: qlineargradient(spread:pad, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0 rgba(110, 110, 110, 240), stop:1 rgba(150, 150, 150, 255));
+  border-width: 1px;
+  border-radius: 5px;
+  border-style: solid;
+}
+
+QSpinBox::up-button:hover
+{
+  background-color: qlineargradient(spread:pad, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0 rgba(150, 150, 150, 240), stop:1 rgba(110, 110, 110, 255));
+  border-width: 1px;
+  border-radius: 5px;
+  border-style: solid;
+  border-color: darkgray;
+}
+
+QSpinBox::up-button:pressed
+{
+  background-color: qlineargradient(spread:pad, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0 rgba(110, 110, 110, 240), stop:1 rgba(150, 150, 150, 255));
+  border-style: inset;
+}
+
+QSpinBox::down-arrow
+{
+  image: url(":resources/downspinarrow.png");
+  width: 14px;
+  height: 7px;
+  border-width: 1px;
+  border-radius: 5px;
+  border-color: rgb(100,100,100);
+  border-style: solid;
+}
+
+QSpinBox::down-arrow:disabled, QSpinBox::down-arrow:off 
+{ 
+  image: url(":resources/downspinarrowdisabled.png");
+  background-color:rgba(120, 120, 120, 255);
+  border-color:rgba(120, 120, 120, 255);
+  border-width: 1px;
+  border-radius: 5px;
+  border-style: flat;
+}
+
+QSpinBox::down-button 
+{
+  background-color: qlineargradient(spread:pad, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0 rgba(110, 110, 110, 255), stop:1 rgba(150, 150, 150, 240));
+  border-width: 1px;
+  border-radius: 5px;
+  border-style: solid;
+}
+
+QSpinBox::down-button:hover
+{
+  background-color: qlineargradient(spread:pad, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0 rgba(150, 150, 150, 240), stop:1 rgba(110, 110, 110, 255));
+  border-width: 1px;
+  border-radius: 5px;
+  border-style: solid;
+  border-color: darkgray;
+}
+
+QSpinBox::down-button:pressed 
+{
+  background-color: qlineargradient(spread:pad, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0 rgba(110, 110, 110, 255), stop:1 rgba(150, 150, 150, 240));
+  border-style: inset;
+}
