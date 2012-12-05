@@ -201,10 +201,10 @@
     </widget>
     <addaction name="actionSwitchSessionDatabase"/>
     <addaction name="separator"/>
+    <addaction name="actionImportXMLToDatabase"/>
     <addaction name="actionAddNewDatabase"/>
     <addaction name="actionAddExistingDatabase"/>
     <addaction name="actionRemoveDatabase"/>
-    <addaction name="actionImportXMLToDatabase"/>
     <addaction name="separator"/>
     <addaction name="menuAddItems"/>
     <addaction name="separator"/>
@@ -259,11 +259,11 @@
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
    <addaction name="separator"/>
-   <addaction name="actionAddNewDatabase"/>
-   <addaction name="actionAddExistingDatabase"/>
-   <addaction name="actionRemoveDatabase"/>
    <addaction name="actionSwitchSessionDatabase"/>
    <addaction name="actionImportXMLToDatabase"/>
+   <addaction name="actionAddExistingDatabase"/>
+   <addaction name="actionAddNewDatabase"/>
+   <addaction name="actionRemoveDatabase"/>
    <addaction name="separator"/>
    <addaction name="actionHelpContents"/>
    <addaction name="separator"/>

@@ -221,6 +221,8 @@ void GCMainWindow::closeEvent( QCloseEvent *event )
   QMainWindow::closeEvent( event );
 }
 
+/*--------------------------------------------------------------------------------------*/
+
 /* This slot will only be called in Super User mode so we can safely keep the functionality
   as it is (i.e. updating the database alongside the DOM) without any other explicit checks. */
 void GCMainWindow::treeWidgetItemNameChanged( QTreeWidgetItem *item, int column )
