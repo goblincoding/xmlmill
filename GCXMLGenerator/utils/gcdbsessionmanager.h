@@ -62,7 +62,6 @@ public slots:
 
 signals:
   void activeDatabaseChanged( QString );
-  void userCancelledKnownDBForm();
   void reset();
   
 private slots:

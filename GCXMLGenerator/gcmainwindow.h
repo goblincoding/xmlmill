@@ -143,9 +143,7 @@ private slots:
   void elementFound              ( const QDomElement &element );
   void activeDatabaseChanged     ( QString dbName );
   void collapseOrExpandTreeWidget( bool checked );
-  void switchSuperUserMode       ( bool super );
   void forgetAllMessagePreferences();
-  void userCancelledKnownDBForm();
   void searchDocument();
   void insertSnippet();
   void showDOMEditHelp();
@@ -175,12 +173,10 @@ private:
   QLabel             *m_activeSessionLabel;
   QString             m_currentXMLFileName;
   QString             m_activeAttributeName;
-  bool                m_userCancelled;
   bool                m_wasTreeItemActivated;
   bool                m_newElementWasAdded;
   bool                m_busyImporting;
   bool                m_DOMTooLarge;
-  bool                m_superUserMode;
 
   QHash< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
   QHash< QWidget*, int/* table row*/ >   m_comboBoxes;

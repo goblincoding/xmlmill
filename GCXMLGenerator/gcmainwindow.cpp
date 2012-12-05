@@ -55,12 +55,6 @@
 
 /*--------------------------------------------------------------------------------------*/
 
-/* Not sure if I still think the Super User mode is a good idea.  For now, let's just
-  allow all users to do everything.  Perhaps release a new version later on. */
-#define SUPERUSERMODE
-
-/*--------------------------------------------------------------------------------------*/
-
 const QString EMPTY( "---" );
 const qint64  DOMWARNING( 262144 );  // 0.25MB or ~7 500 lines
 const qint64  DOMLIMIT  ( 524288 );  // 0.5MB  or ~15 000 lines
@@ -121,39 +115,14 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_activeSessionLabel  ( NULL ),
   m_currentXMLFileName  ( "" ),
   m_activeAttributeName ( "" ),
-  m_userCancelled       ( false ),
   m_wasTreeItemActivated( false ),
   m_newElementWasAdded  ( false ),
   m_busyImporting       ( false ),
   m_DOMTooLarge         ( false ),
-
-  #ifdef SUPERUSERMODE
-    m_superUserMode     ( true ),
-  #else
-    m_superUserMode     ( false),
-  #endif
-
   m_treeItemNodes       (),
   m_comboBoxes          ()
 {
   ui->setupUi( this );
-
-  /* Hide super user options. */
-  ui->superUserLabel->setVisible     ( false );
-
-  #ifdef SUPERUSERMODE
-    ui->actionSuperUserMode->setVisible( false );
-    ui->textSaveButton->setVisible     ( true );
-    ui->textRevertButton->setVisible   ( true );
-    ui->domEditHelpButton->setVisible  ( true );
-    ui->dockWidgetTextEdit->setReadOnly( false );
-  #else
-    ui->actionSuperUserMode->setVisible( true );
-    ui->textSaveButton->setVisible     ( false );
-    ui->textRevertButton->setVisible   ( false );
-    ui->domEditHelpButton->setVisible  ( false );
-    ui->dockWidgetTextEdit->setReadOnly( true );
-  #endif
 
   /* XML File related. */
   connect( ui->actionNew,                   SIGNAL( triggered() ),     this, SLOT( newXMLFile() ) );
@@ -171,7 +140,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->domEditHelpButton,           SIGNAL( clicked() ),       this, SLOT( showDOMEditHelp() ) );
 
   /* Various other actions. */
-  connect( ui->actionSuperUserMode,         SIGNAL( toggled( bool ) ), this, SLOT( switchSuperUserMode( bool ) ) );
   connect( ui->expandAllCheckBox,           SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
   connect( ui->actionExit,                  SIGNAL( triggered() ),     this, SLOT( close() ) );
   connect( ui->actionFind,                  SIGNAL( triggered() ),     this, SLOT( searchDocument() ) );
@@ -201,7 +169,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionAddExistingDatabase,   SIGNAL( triggered() ), this, SLOT( addExistingDatabase() ) );
   connect( ui->actionRemoveDatabase,        SIGNAL( triggered() ), this, SLOT( removeDatabase() ) );
   connect( m_dbSessionManager,              SIGNAL( reset() ),     this, SLOT( resetDOM() ) );
-  connect( m_dbSessionManager,              SIGNAL( userCancelledKnownDBForm() ),  this, SLOT( userCancelledKnownDBForm() ) );
   connect( m_dbSessionManager,              SIGNAL( activeDatabaseChanged( QString ) ), this, SLOT( activeDatabaseChanged( QString ) ) );
 
   /* Initialise the database interface and retrieve the list of database names (this will
@@ -354,12 +321,7 @@ void GCMainWindow::treeWidgetItemSelected( QTreeWidgetItem *item, int column )
   for( int i = 0; i < attributeNames.count(); ++i )
   {
     QTableWidgetItem *label = new QTableWidgetItem( attributeNames.at( i ) );
-
-    /* Items are editable by default, disable this option if not in Super User mode. */
-    if( !m_superUserMode )
-    {
-      label->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable );
-    }
+    label->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable );
 
     ui->tableWidget->setRowCount( i + 1 );
     ui->tableWidget->setItem( i, 0, label );
@@ -406,32 +368,29 @@ void GCMainWindow::treeWidgetItemSelected( QTreeWidgetItem *item, int column )
     m_signalMapper->setMapping( attributeCombo, attributeCombo );
   }
 
-  /* Add the "empty" row as described above when in Super User mode. */
-  if( m_superUserMode )
-  {
-    QTableWidgetItem *label = new QTableWidgetItem( EMPTY );
+  /* Add the "empty" row as described above. */
+  QTableWidgetItem *label = new QTableWidgetItem( EMPTY );
 
-    int lastRow = ui->tableWidget->rowCount();
-    ui->tableWidget->setRowCount( lastRow + 1 );
-    ui->tableWidget->setItem( lastRow, 0, label );
+  int lastRow = ui->tableWidget->rowCount();
+  ui->tableWidget->setRowCount( lastRow + 1 );
+  ui->tableWidget->setItem( lastRow, 0, label );
 
-    /* Create the combo box, but deactivate it until we have an associated attribute name. */
-    GCComboBox *attributeCombo = new GCComboBox;
-    attributeCombo->insertItem( 0, EMPTY );
-    attributeCombo->setEnabled( false );
+  /* Create the combo box, but deactivate it until we have an associated attribute name. */
+  GCComboBox *attributeCombo = new GCComboBox;
+  attributeCombo->insertItem( 0, EMPTY );
+  attributeCombo->setEnabled( false );
 
-    /* Once again, only connect after inserting items or bad things will happen! */
-    connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged( QString ) ) );
+  /* Once again, only connect after inserting items or bad things will happen! */
+  connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged( QString ) ) );
 
-    ui->tableWidget->setCellWidget( lastRow, 1, attributeCombo );
-    m_comboBoxes.insert( attributeCombo, lastRow );
+  ui->tableWidget->setCellWidget( lastRow, 1, attributeCombo );
+  m_comboBoxes.insert( attributeCombo, lastRow );
 
-    /* This will point the current combo box member to the combo that's been activated
+  /* This will point the current combo box member to the combo that's been activated
       in the table widget (used in "attributeValueChanged" to obtain the row number the
       combo box appears in in the table widget, etc, etc). */
-    connect( attributeCombo, SIGNAL( activated( int ) ), m_signalMapper, SLOT( map() ) );
-    m_signalMapper->setMapping( attributeCombo, attributeCombo );
-  }
+  connect( attributeCombo, SIGNAL( activated( int ) ), m_signalMapper, SLOT( map() ) );
+  m_signalMapper->setMapping( attributeCombo, attributeCombo );
 
   /* Populate the "add element" combo box with the known first level children of the
     current highlighted element (highlighted in the tree widget, of course). */
@@ -683,30 +642,21 @@ void GCMainWindow::openXMLFile()
       privileges the current user mode has). */
     if( !GCDataBaseInterface::instance()->knownRootElements().contains( m_domDoc->documentElement().tagName() ) )
     {
-      if( !m_superUserMode )
+      /* If we're not already busy importing an XML file, check if the user maybe wants to do so. */
+      if( !m_busyImporting )
       {
-        do
+        bool accepted = GCMessageSpace::userAccepted( "QueryImportXML",
+                                                      "Import XML?",
+                                                      "The current active profile has no knowledge of the"
+                                                      "specific XML style of the document you are trying to open.\n\n"
+                                                      "Would you like to import the XML document to the active profile?",
+                                                      GCMessageDialog::YesNo,
+                                                      GCMessageDialog::No,
+                                                      GCMessageDialog::Question );
+
+        if( accepted )
         {
-          /* This message must always be shown (i.e. we don't have to show the custom
-          dialog box that provides the \"Don't show this again\" option). */
-          QMessageBox::warning( this,
-                                "Unknown XML Style",
-                                "The current active profile has no knowledge of the\n"
-                                "specific XML style (the elements, attributes, attribute values and\n"
-                                "all the associations between them) of the document you are trying to open.\n\n"
-                                "You can either:\n\n"
-                                "1. Select an existing profile that describes this type of XML, or\n"
-                                "2. Switch to \"Super User\" mode and open the file again to import it to the profile." );
-
-          m_dbSessionManager->showKnownDBForm( GCKnownDBForm::SelectAndExisting );
-
-        } while( !GCDataBaseInterface::instance()->knownRootElements().contains( m_domDoc->documentElement().tagName() ) &&
-                 !m_userCancelled );
-
-        /* If the user selected a database that fits, process the DOM. */
-        if( !m_userCancelled )
-        {
-          processDOMDoc();
+          importXMLToDatabase();
         }
         else
         {
@@ -714,37 +664,17 @@ void GCMainWindow::openXMLFile()
           resetDOM();
           m_currentXMLFileName = "";
         }
-
-        m_userCancelled = false;
       }
       else
       {
-        /* If we're not already busy importing an XML file, check if the user maybe wants to do so. */
-        if( !m_busyImporting )
-        {
-          bool accepted = GCMessageSpace::userAccepted( "QueryImportXML",
-                                                        "Import XML?",
-                                                        "Would you like to import the XML document to the active profile?",
-                                                        GCMessageDialog::YesNo,
-                                                        GCMessageDialog::No,
-                                                        GCMessageDialog::Question );
-
-          if( accepted )
-          {
-            importXMLToDatabase();
-          }
-        }
-        else
-        {
-          /* If we're already busy importing, it means the user explicitly requested
-          an XML import (via the "Database" menu), didn't have a current document active
-          and confirmed that he/she wanted to open an XML file to import.  Furthermore, 
-          there is no risk of an endless loop since the DOM document will have been 
-          populated by the time we get to this point, which will ensure that only the 
-          first part of the following function's logic will be executed..."openXMLFile"
-          won't be called again. */
-          importXMLToDatabase();
-        }
+        /* If we're already busy importing, it means the user explicitly requested
+        an XML import (via the "Database" menu), didn't have a current document active
+        and confirmed that he/she wanted to open an XML file to import.  Furthermore,
+        there is no risk of an endless loop since the DOM document will have been
+        populated by the time we get to this point, which will ensure that only the
+        first part of the following function's logic will be executed..."openXMLFile"
+        won't be called again. */
+        importXMLToDatabase();
       }
     }
     else
@@ -1204,76 +1134,6 @@ void GCMainWindow::collapseOrExpandTreeWidget( bool checked )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::switchSuperUserMode( bool super )
-{
-  m_superUserMode = super;
-
-  if( m_superUserMode )
-  {
-    /* There is nothing to be acted upon for this particular message so no need
-      to check what value the form returns. */ 
-    GCMessageSpace::userAccepted( "SuperUserMode",
-                                  "Super User Mode!",
-                                  "Absolutely everything you do in this mode is persisted to the "
-                                  "active profile and cannot be undone.\n\n"
-                                  "In other words, if anything goes wrong, it's all your fault...",
-                                  GCMessageDialog::OKOnly,
-                                  GCMessageDialog::OK,
-                                  GCMessageDialog::Warning );
-  }
-
-  if( !GCDataBaseInterface::instance()->hasActiveSession() )
-  {
-    m_dbSessionManager->showKnownDBForm( GCKnownDBForm::SelectAndExisting );
-  }
-
-  /* Set the new element and attribute options' visibility. */
-  ui->textSaveButton->setVisible     ( m_superUserMode );
-  ui->textRevertButton->setVisible   ( m_superUserMode );
-  ui->superUserLabel->setVisible     ( m_superUserMode );
-  ui->domEditHelpButton->setVisible  ( m_superUserMode );
-  ui->dockWidgetTextEdit->setReadOnly( !m_superUserMode );
-
-  /* The user must see these actions exist, but shouldn't be able to access
-    them except when in "Super User" mode. */
-  ui->actionImportXMLToDatabase->setEnabled( m_superUserMode );
-  ui->actionAddNewDatabase->setEnabled( m_superUserMode );
-  ui->actionRemoveDatabase->setEnabled( m_superUserMode );
-  ui->actionRemoveItems->setEnabled   ( m_superUserMode );
-  ui->actionAddItems->setEnabled      ( m_superUserMode );
-
-  /* Needed to reset all the tree widget item's "editable" flags
-    to whatever the current mode allows. */
-  QList< QTreeWidgetItem* > itemList = m_treeItemNodes.keys();
-
-  if( m_superUserMode )
-  {
-    for( int i = 0; i < itemList.size(); ++i )
-    {
-      const_cast< QTreeWidgetItem* >( itemList.at( i ) )->setFlags( Qt::ItemIsEnabled |
-                                                                    Qt::ItemIsSelectable |
-                                                                    Qt::ItemIsUserCheckable );
-    }
-  }
-  else
-  {
-    for( int i = 0; i < itemList.size(); ++i )
-    {
-      QTreeWidgetItem *item = const_cast< QTreeWidgetItem* >( itemList.at( i ) );
-      item->setFlags( item->flags() | Qt::ItemIsEditable );
-    }
-  }
-
-  /* Reactivate the current item to populate the table widget with the new
-    editable (or otherwise) combo boxes and attribute cells. */
-  if( ui->treeWidget->currentItem() )
-  {
-    treeWidgetItemSelected( ui->treeWidget->currentItem(), 0 );
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 void GCMainWindow::searchDocument()
 {
   /* Delete on close flag set. */
@@ -1287,13 +1147,6 @@ void GCMainWindow::searchDocument()
 void GCMainWindow::forgetAllMessagePreferences()
 {
   GCMessageSpace::forgetAllPreferences();
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::userCancelledKnownDBForm()
-{
-  m_userCancelled = true;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1350,11 +1203,7 @@ void GCMainWindow::processDOMDoc()
   /* Set the document root as the first item in the tree widget. */
   QTreeWidgetItem *item = new QTreeWidgetItem;
   item->setText( 0, root.tagName() );
-
-  if( m_superUserMode )
-  {
-    item->setFlags( item->flags() | Qt::ItemIsEditable );
-  }
+  item->setFlags( item->flags() | Qt::ItemIsEditable );
 
   ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
   m_treeItemNodes.insert( item, root );
@@ -1387,11 +1236,7 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
   {
     QTreeWidgetItem *item = new QTreeWidgetItem();
     item->setText( 0, element.tagName() );
-
-    if( m_superUserMode )
-    {
-      item->setFlags( item->flags() | Qt::ItemIsEditable );
-    }
+    item->setFlags( item->flags() | Qt::ItemIsEditable );
 
     parentItem->addChild( item );  // takes ownership
     m_treeItemNodes.insert( item, element );
@@ -1411,11 +1256,7 @@ void GCMainWindow::addElementToDocument( const QString &elementName, QTreeWidget
     /* Update the tree widget. */
     QTreeWidgetItem *newItem = new QTreeWidgetItem;
     newItem->setText( 0, elementName );
-
-    if( m_superUserMode )
-    {
-      newItem->setFlags( newItem->flags() | Qt::ItemIsEditable );
-    }
+    newItem->setFlags( newItem->flags() | Qt::ItemIsEditable );
 
     /* Update the current DOM document by creating and adding the new element. */
     QDomElement newElement = m_domDoc->createElement( elementName );

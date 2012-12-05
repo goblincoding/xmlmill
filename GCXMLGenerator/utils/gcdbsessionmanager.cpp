@@ -63,7 +63,6 @@ void GCDBSessionManager::showKnownDBForm( GCKnownDBForm::Buttons buttons )
   }
   else
   {
-    connect( knownDBForm, SIGNAL( userCancelled() ), this, SIGNAL( userCancelledKnownDBForm() ) );
     knownDBForm->exec();
   }
 }
