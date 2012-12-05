@@ -54,7 +54,7 @@ GCRemoveItemsForm::GCRemoveItemsForm( QWidget *parent ) :
   connect( ui->removeChildButton,     SIGNAL( clicked() ), this, SLOT( removeChildElement() ) );
 
   connect( ui->comboBox,   SIGNAL( currentIndexChanged( QString ) ),      this, SLOT( attributeActivated( QString ) ) );
-  connect( ui->treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ), this, SLOT( treeWidgetItemSelected( QTreeWidgetItem*,int ) ) );
+  connect( ui->treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ), this, SLOT( elementSelected( QTreeWidgetItem*,int ) ) );
 
   populateTreeWidget();
 
@@ -70,7 +70,7 @@ GCRemoveItemsForm::~GCRemoveItemsForm()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCRemoveItemsForm::treeWidgetItemSelected( QTreeWidgetItem *item, int column )
+void GCRemoveItemsForm::elementSelected( QTreeWidgetItem *item, int column )
 {
   if( item->parent() )
   {

@@ -61,7 +61,7 @@ GCSnippetsForm::GCSnippetsForm( const QString &elementName, QDomElement parentEl
   connect( ui->closeButton,    SIGNAL( clicked() ), this, SLOT( close() ) );
   connect( ui->addButton,      SIGNAL( clicked() ), this, SLOT( addSnippet() ) );
   connect( ui->showHelpButton, SIGNAL( clicked() ), this, SLOT( showHelp() ) );
-  connect( ui->treeWidget,     SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( treeWidgetItemSelected( QTreeWidgetItem*, int ) ) );
+  connect( ui->treeWidget,     SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( elementSelected( QTreeWidgetItem*, int ) ) );
 
   setAttribute( Qt::WA_DeleteOnClose );
 }
@@ -75,7 +75,7 @@ GCSnippetsForm::~GCSnippetsForm()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCSnippetsForm::treeWidgetItemSelected( QTreeWidgetItem *item, int column )
+void GCSnippetsForm::elementSelected( QTreeWidgetItem *item, int column )
 {
   ui->tableWidget->clearContents();   // also deletes current items
   ui->tableWidget->setRowCount( 0 );

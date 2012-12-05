@@ -68,13 +68,13 @@ protected:
   void closeEvent( QCloseEvent * event );
 
 private slots:
-  /* Called only in "Super User" mode when a user edits the name of an
-    existing tree widget item (i.e. element). An element with the new name
-    will be added to the DB (if it doesn't yet exist) with the same associated
-    attributes and attribute values as the element name it is replacing (the
-    "old" element will not be removed from the DB). All occurrences of the old
-    name throughout the current DOM will be replaced with the new name and the
-    tree widget will be updated accordingly. */
+  /* Called only when a user edits the name of an existing tree widget item
+    (i.e. element). An element with the new name will be added to the DB
+    (if it doesn't yet exist) with the same associated attributes and attribute
+    values as the element name it is replacing (the "old" element will not be
+    removed from the DB). All occurrences of the old name throughout the current
+    DOM will be replaced with the new name and the tree widget will be updated
+    accordingly. */
   void treeWidgetItemNameChanged( QTreeWidgetItem *item, int column );
 
   /* Triggered by clicking on a tree widget item, the trigger will populate
@@ -84,17 +84,17 @@ private slots:
     and combo boxes so that the user may add new attribute names to the selected
     element.  The addition of new attributes and values will automatically be
     persisted to the database. */
-  void treeWidgetItemSelected( QTreeWidgetItem *item, int column );
+  void elementSelected( QTreeWidgetItem *item, int column );
 
   /* Called when a user clicks on/enters an attribute name cell in the table widget
     and sets the name of the current active attribute to that represented by the cell. */
-  void setActiveAttributeName( QTableWidgetItem *item );
+  void attributeSelected( QTableWidgetItem *item );
 
-  /* This function is only called in "Super User" mode when the user changes the name
-    of an existing attribute via the table widget.  The new attribute name will be
-    persisted to the database (with the same known values of the "old" attribute) and
-    associated with the current highlighted element.  The current DOM will be updated to
-    reflect the new attribute name instead of the one that's been replaced. */
+  /* This function is only called when the user changes the name of an existing attribute
+    via the table widget.  The new attribute name will be persisted to the database (with
+    the same known values of the "old" attribute) and associated with the current highlighted
+    element.  The current DOM will be updated to reflect the new attribute name instead of
+    the one that's been replaced. */
   void attributeNameChanged( QTableWidgetItem *item );
 
   /* Called whenever the user enters or otherwise activates a combo box.  The active

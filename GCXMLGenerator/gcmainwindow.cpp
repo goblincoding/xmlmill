@@ -148,8 +148,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionVisitOfficialSite,     SIGNAL( triggered() ),     this, SLOT( goToSite() ) );
 
   /* Everything tree widget related. */
-  connect( ui->treeWidget,                  SIGNAL( itemClicked  ( QTreeWidgetItem*, int ) ), this, SLOT( treeWidgetItemSelected( QTreeWidgetItem*, int ) ) );
-  connect( ui->treeWidget,                  SIGNAL( itemActivated( QTreeWidgetItem*, int ) ), this, SLOT( treeWidgetItemSelected( QTreeWidgetItem*, int ) ) );
+  connect( ui->treeWidget,                  SIGNAL( itemClicked  ( QTreeWidgetItem*, int ) ), this, SLOT( elementSelected( QTreeWidgetItem*, int ) ) );
+  connect( ui->treeWidget,                  SIGNAL( itemActivated( QTreeWidgetItem*, int ) ), this, SLOT( elementSelected( QTreeWidgetItem*, int ) ) );
 
   /* "itemChanged" will only ever be emitted in Super User mode since tree widget items aren't editable otherwise. */
   connect( ui->treeWidget,                  SIGNAL( itemChanged  ( QTreeWidgetItem*, int ) ), this, SLOT( treeWidgetItemNameChanged( QTreeWidgetItem*, int ) ) );
@@ -157,8 +157,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   /* Everything table widget related ("itemChanged" will only ever be emitted in Super User mode
     since table widget items aren't editable otherwise). */
   connect( ui->tableWidget,                 SIGNAL( itemChanged  ( QTableWidgetItem* ) ),     this, SLOT( attributeNameChanged  ( QTableWidgetItem* ) ) );
-  connect( ui->tableWidget,                 SIGNAL( itemClicked  ( QTableWidgetItem* ) ),     this, SLOT( setActiveAttributeName( QTableWidgetItem* ) ) );
-  connect( ui->tableWidget,                 SIGNAL( itemActivated( QTableWidgetItem* ) ),     this, SLOT( setActiveAttributeName( QTableWidgetItem* ) ) );
+  connect( ui->tableWidget,                 SIGNAL( itemClicked  ( QTableWidgetItem* ) ),     this, SLOT( attributeSelected( QTableWidgetItem* ) ) );
+  connect( ui->tableWidget,                 SIGNAL( itemActivated( QTableWidgetItem* ) ),     this, SLOT( attributeSelected( QTableWidgetItem* ) ) );
 
   /* Database related. */
   connect( ui->actionAddItems,              SIGNAL( triggered() ), this, SLOT( showAddItemsForm() ) );
@@ -287,7 +287,7 @@ void GCMainWindow::treeWidgetItemNameChanged( QTreeWidgetItem *item, int column 
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::treeWidgetItemSelected( QTreeWidgetItem *item, int column )
+void GCMainWindow::elementSelected( QTreeWidgetItem *item, int column )
 {
   Q_UNUSED( column );
 
@@ -316,21 +316,20 @@ void GCMainWindow::treeWidgetItemSelected( QTreeWidgetItem *item, int column )
   /* Add all the known attribute names to the cells in the first column
     of the table widget, create and populate combo boxes with the values
     associated with the attributes in question and insert the combo boxes
-    into the second column of the table widget (attribute names are only
-    editable in Super User mode whereas attribute values can always be edited).
-    Finally we insert an "empty" row when in Super User mode so that the user
-    may add additional attributes and values to the current element. */
+    into the second column of the table widget. Finally we insert an
+    "empty" row so that the user may add additional attributes and values
+    to the current element. */
   for( int i = 0; i < attributeNames.count(); ++i )
   {
     QTableWidgetItem *label = new QTableWidgetItem( attributeNames.at( i ) );
-    label->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable );
+    label->setFlags( label->flags() | Qt::ItemIsUserCheckable );
+    label->setCheckState( Qt::Checked );
 
     ui->tableWidget->setRowCount( i + 1 );
     ui->tableWidget->setItem( i, 0, label );
 
     GCComboBox *attributeCombo = new GCComboBox;
     attributeCombo->addItems( GCDataBaseInterface::instance()->attributeValues( elementName, attributeNames.at( i ), success ) );
-    attributeCombo->insertItem( 0, EMPTY );
     attributeCombo->setEditable( true );
 
     /* This is more for debugging than for end-user functionality. */
@@ -379,7 +378,6 @@ void GCMainWindow::treeWidgetItemSelected( QTreeWidgetItem *item, int column )
 
   /* Create the combo box, but deactivate it until we have an associated attribute name. */
   GCComboBox *attributeCombo = new GCComboBox;
-  attributeCombo->insertItem( 0, EMPTY );
   attributeCombo->setEnabled( false );
 
   /* Once again, only connect after inserting items or bad things will happen! */
@@ -389,12 +387,12 @@ void GCMainWindow::treeWidgetItemSelected( QTreeWidgetItem *item, int column )
   m_comboBoxes.insert( attributeCombo, lastRow );
 
   /* This will point the current combo box member to the combo that's been activated
-      in the table widget (used in "attributeValueChanged" to obtain the row number the
-      combo box appears in in the table widget, etc, etc). */
+    in the table widget (used in "attributeValueChanged" to obtain the row number the
+    combo box appears in in the table widget, etc, etc). */
   connect( attributeCombo, SIGNAL( activated( int ) ), m_signalMapper, SLOT( map() ) );
   m_signalMapper->setMapping( attributeCombo, attributeCombo );
 
-  /* Populate the "add element" combo box with the known first level children of the
+  /* Populate the "add child element" combo box with the known first level children of the
     current highlighted element (highlighted in the tree widget, of course). */
   ui->addElementComboBox->clear();
   ui->addElementComboBox->addItems( GCDataBaseInterface::instance()->children( elementName, success ) );
@@ -402,7 +400,7 @@ void GCMainWindow::treeWidgetItemSelected( QTreeWidgetItem *item, int column )
   /* The following will be used to allow the user to add an element of the current type to
     its parent (this should improve the user experience as they do not have to explicitly
     navigate back up to a parent when adding multiple items of the same type).  We also don't
-    want the user to add a document root element to itself by accident, so exclude that case. */
+    want the user to add a document root element to itself by accident. */
   if( elementName != m_domDoc->documentElement().tagName() )
   {
     ui->addElementComboBox->addItem( QString( "<%1>" ).arg( elementName) );
@@ -435,14 +433,22 @@ void GCMainWindow::treeWidgetItemSelected( QTreeWidgetItem *item, int column )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::setActiveAttributeName( QTableWidgetItem *item )
+void GCMainWindow::attributeSelected( QTableWidgetItem *item )
 {
-  m_activeAttributeName = item->text();
+  if( item->checkState() == Qt::Checked )
+  {
+    m_activeAttributeName = item->text();
+  }
+  else
+  {
+    QDomElement element = m_treeItemNodes.value( ui->treeWidget->currentItem() );
+    element.removeAttribute( item->text() );
+    m_activeAttributeName = EMPTY;
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-/* This slot will only ever be called in Super User mode. */
 void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
 {
   /* Don't execute the logic if a tree widget item's activation is triggering
@@ -451,8 +457,7 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
   {
     /* All attribute name changes will be assumed to be additions, removing an attribute
       with a specific name has to be done explicitly. */
-    QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
-    QDomElement currentElement = m_treeItemNodes.value( currentItem );
+    QDomElement currentElement = m_treeItemNodes.value( ui->treeWidget->currentItem() );
 
     if( !GCDataBaseInterface::instance()->updateElementAttributes( currentElement.tagName(), QStringList( item->text() ) ) )
     {
@@ -467,14 +472,12 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
 
       if( attributeValueCombo )
       {
-        if( attributeValueCombo->currentText() != EMPTY )
+        if( item->checkState() == Qt::Checked )
         {
+          /* Although attribute name changes are additive from a DB perspective, if the old
+            name is no longer required, we can remove it from the current document. */
           currentElement.removeAttribute( m_activeAttributeName );
           currentElement.setAttribute( item->text(), attributeValueCombo->currentText() );
-        }
-        else
-        {
-          currentElement.setAttribute( item->text(), "" );
 
           /* If the attribute value was empty, we might have just started
             editing a previously inactive row (in other words this could
@@ -504,11 +507,11 @@ void GCMainWindow::attributeNameChanged( QTableWidgetItem *item )
       /* If the user added a new attribute, we wish to insert another new "empty" row so that 
         he/she may add even more attributes if he/she wishes to do so. We also need to update
         the active attribute name to the new attribute name (normally this is handled by a signal
-        that calls "setActiveAttributeName" but these signals are emitted by clicking on the 
+        that calls "attributeSelected" but these signals are emitted by clicking on the
         table widget only so we have to trigger it explicitly). */
       if( m_activeAttributeName == EMPTY )
       {
-        treeWidgetItemSelected( ui->treeWidget->currentItem(), 0 );
+        elementSelected( ui->treeWidget->currentItem(), 0 );
       }
     }
   }
@@ -872,7 +875,7 @@ void GCMainWindow::deleteElementFromDocument()
 
     /* Repopulate the table widget with values from whichever
       element is highlighted after the removal. */
-    treeWidgetItemSelected( ui->treeWidget->currentItem(), 0 );
+    elementSelected( ui->treeWidget->currentItem(), 0 );
 
     setTextEditContent( parentNode.toElement() );
   }
@@ -1096,7 +1099,7 @@ void GCMainWindow::elementFound( const QDomElement &element )
   QTreeWidgetItem *item = m_treeItemNodes.key( element );
   ui->treeWidget->expandAll();
   ui->treeWidget->setCurrentItem( item );
-  treeWidgetItemSelected( item, 0 );
+  elementSelected( item, 0 );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1223,7 +1226,7 @@ void GCMainWindow::processDOMDoc()
   setTextEditContent( QDomElement() );
 
   ui->treeWidget->setCurrentItem( item, 0 );
-  treeWidgetItemSelected( item, 0 );
+  elementSelected( item, 0 );
 
   collapseOrExpandTreeWidget( ui->expandAllCheckBox->isChecked() );
 }
@@ -1335,12 +1338,12 @@ void GCMainWindow::addElementToDocument( const QString &elementName, QTreeWidget
     if( !m_newElementWasAdded )
     {
       ui->treeWidget->setCurrentItem( newItem, 0 );
-      treeWidgetItemSelected( newItem, 0 );
+      elementSelected( newItem, 0 );
     }
     else
     {
       ui->treeWidget->setCurrentItem( newItem->parent(), 0 );
-      treeWidgetItemSelected( newItem->parent(), 0 );
+      elementSelected( newItem->parent(), 0 );
     }
   }
 }

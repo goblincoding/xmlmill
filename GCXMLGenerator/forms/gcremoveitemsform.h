@@ -54,7 +54,7 @@ public:
   ~GCRemoveItemsForm();
 
 private slots:
-  void treeWidgetItemSelected( QTreeWidgetItem *item, int column );
+  void elementSelected( QTreeWidgetItem *item, int column );
   void attributeActivated    ( const QString &attribute );
   void deleteElement         ( const QString &element = QString() );
   void removeChildElement    ();

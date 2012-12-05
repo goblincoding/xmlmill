@@ -69,7 +69,7 @@ signals:
   void snippetAdded();
 
 private slots:
-  void treeWidgetItemSelected( QTreeWidgetItem *item, int column );
+  void elementSelected( QTreeWidgetItem *item, int column );
   void setCurrentCheckBox    ( QWidget* checkBox );
   void attributeValueChanged();
   void elementValueChanged  ();
