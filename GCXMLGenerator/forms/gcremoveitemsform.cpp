@@ -57,6 +57,7 @@ GCRemoveItemsForm::GCRemoveItemsForm( QWidget *parent ) :
   connect( ui->treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ), this, SLOT( elementSelected( QTreeWidgetItem*,int ) ) );
 
   populateTreeWidget();
+  ui->treeWidget->expandAll();
 
   setAttribute( Qt::WA_DeleteOnClose );
 }
@@ -246,6 +247,7 @@ void GCRemoveItemsForm::deleteElement( const QString &element )
     ui->comboBox->clear();
     ui->plainTextEdit->clear();
     populateTreeWidget();
+    ui->treeWidget->expandAll();
   }
   else
   {

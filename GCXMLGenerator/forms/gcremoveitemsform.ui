@@ -53,7 +53,7 @@
          </property>
          <column>
           <property name="text">
-           <string>Element Hierarchy</string>
+           <string>Element Hierarchy:</string>
           </property>
          </column>
         </widget>
