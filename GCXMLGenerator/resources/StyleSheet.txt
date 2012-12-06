@@ -431,6 +431,16 @@ QTreeView::item:selected
    color: rgba(20, 20, 20, 255);
 }
 
+QTreeView::indicator:unchecked
+{
+  image: url(":/resources/checkbox.png");
+}
+
+QTreeView::indicator:checked
+{
+  image: url(":/resources/checkon.png");
+}
+
 QScrollBar:vertical 
 {
   width: 17px;
