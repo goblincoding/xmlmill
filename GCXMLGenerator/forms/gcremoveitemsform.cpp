@@ -70,6 +70,54 @@ GCRemoveItemsForm::~GCRemoveItemsForm()
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCRemoveItemsForm::populateTreeWidget()
+{
+  ui->treeWidget->clear();
+
+  foreach( QString element, GCDataBaseInterface::instance()->knownRootElements() )
+  {
+    QTreeWidgetItem *item = new QTreeWidgetItem;
+    item->setText( 0, element );
+
+    ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
+    processNextElement( element, item );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCRemoveItemsForm::processNextElement( const QString &element, QTreeWidgetItem *parent )
+{
+  bool success( false );
+  QStringList children = GCDataBaseInterface::instance()->children( element, success );
+
+  if( success )
+  {
+    foreach( QString child, children )
+    {
+      QTreeWidgetItem *item = new QTreeWidgetItem;
+      item->setText( 0, child );
+
+      parent->addChild( item );  // takes ownership
+
+      /* Since it isn't illegal to have elements with children of the same name, we cannot
+        block it in the DB, however, if we DO have elements with children of the same name,
+        this recursive call enters an infinite loop, so we need to make sure that doesn't
+        happen. */
+      if( child != element )
+      {
+        processNextElement( child, item );
+      }
+    }
+  }
+  else
+  {
+    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCRemoveItemsForm::elementSelected( QTreeWidgetItem *item, int column )
 {
   if( item->parent() )
@@ -132,9 +180,10 @@ void GCRemoveItemsForm::attributeActivated( const QString &attribute )
 
 void GCRemoveItemsForm::deleteElement( const QString &element )
 {
-  /* If the element name is empty, then this is the first call to this function (i.e
-    the slot has been called after the user clicked the relevant push button), in that
-    case, the first element to be removed is the current one. */
+  /* If the element name is empty, then this function was called directly by the user
+    clicking on "delete" (as opposed to this function being called further down below
+    during the recursive process of getting rid of the element's children) in that case,
+    the first element to be removed is the current one (set in "elementSelected"). */
   QString currentElement = ( element.isEmpty() ) ? m_currentElement : element;
 
   bool success( false );
@@ -233,8 +282,8 @@ void GCRemoveItemsForm::updateAttributeValues()
   {
     bool accepted = GCMessageSpace::userAccepted( "UpdateEmptyAttributeValues",
                                                   "Update with empty attribute values?",
-                                                  "Since you have removed all the known values from this attribute, "
-                                                  "would you perhaps like to remove it in its entirety?",
+                                                  "All known values were removed. "
+                                                  "Would you like to remove the attribute completely?",
                                                   GCMessageDialog::YesNo,
                                                   GCMessageDialog::No,
                                                   GCMessageDialog::Question );
@@ -271,38 +320,6 @@ void GCRemoveItemsForm::deleteAttribute()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCRemoveItemsForm::showElementHelp()
-{
-  QMessageBox::information( this,
-                            "How this works...",
-                            "Removing a child will remove the currently highlighted element\n"
-                            "from the list of children associated with its parent, i.e. it will\n"
-                            "only affect the relationship between the two elements, the element\n"
-                            "itself is not deleted in the process.\n\n"
-                            "Deleting an element will also delete its children, associated\n"
-                            "attributes, the associated attributes of its children all\n"
-                            "the known values for all the attributes thus deleted and remove the\n"
-                            "element as child from absolutely every element that had it listed as\n"
-                            "a first level child element.\n\n"
-                            "I suggest you tread lightly :)\n" );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCRemoveItemsForm::showAttributeHelp()
-{
-  QMessageBox::information( this,
-                            "How this works...",
-                            "1. Deleting an attribute will also delete all its known values.\n"
-                            "2. Only those values remaining in the text edit below will be\n"
-                            "   saved against the attribute shown in the drop down (this\n"
-                            "   effectively means that you could also add new values to the\n"
-                            "   attribute).  Just make sure that all the values you want to\n"
-                            "   associate with the attribute appear on their own lines." );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 void GCRemoveItemsForm::updateChildLists()
 {
   bool success( false );
@@ -334,50 +351,35 @@ void GCRemoveItemsForm::updateChildLists()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCRemoveItemsForm::populateTreeWidget()
+void GCRemoveItemsForm::showElementHelp()
 {
-  ui->treeWidget->clear();
-
-  foreach( QString element, GCDataBaseInterface::instance()->knownRootElements() )
-  {
-    QTreeWidgetItem *item = new QTreeWidgetItem;
-    item->setText( 0, element );
-
-    ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
-    processNextElement( element, item );
-  }
+  QMessageBox::information( this,
+                            "How this works...",
+                            "\"Remove Child\" will remove the currently highlighted element\n"
+                            "from its parent element's child list, i.e. it will only\n"
+                            "affect the relationship between the two elements, the element\n"
+                            "itself is not deleted in the process.\n\n"
+                            "\"Delete Element\" will delete the element, the element's children,\n"
+                            "the chlidren's children (etc, etc), its associated attributes, the\n"
+                            "associated attributes of its children (and their children, etc, etc), all\n"
+                            "the known values for all the attributes thus deleted and finally also\n"
+                            "remove the element (and its children and the children's children, etc etc)\n"
+                            "from every single child list that contains it.\n\n"
+                            "Intense, right? And no, none of this can be undone.\n" );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCRemoveItemsForm::processNextElement( const QString &element, QTreeWidgetItem *parent )
+void GCRemoveItemsForm::showAttributeHelp()
 {
-  bool success( false );
-  QStringList children = GCDataBaseInterface::instance()->children( element, success );
-
-  if( success )
-  {
-    foreach( QString child, children )
-    {
-      QTreeWidgetItem *item = new QTreeWidgetItem;
-      item->setText( 0, child );
-
-      parent->addChild( item );  // takes ownership
-
-      /* Since it isn't illegal to have elements with children of the same name, we cannot
-        block it in the DB, however, if we DO have elements with children of the same name,
-        this recursive call enters an infinite loop, so we need to make sure that doesn't
-        happen. */
-      if( child != element )
-      {
-        processNextElement( child, item );
-      }
-    }
-  }
-  else
-  {
-    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
-  }
+  QMessageBox::information( this,
+                            "How this works...",
+                            "1. Deleting an attribute will also delete all its known values.\n"
+                            "2. Only those values remaining in the text edit below will be\n"
+                            "   saved against the attribute shown in the drop down (this\n"
+                            "   effectively means that you could also add new values to the\n"
+                            "   attribute).  Just make sure that all the values you want to\n"
+                            "   associate with the attribute appear on separate lines." );
 }
 
 /*--------------------------------------------------------------------------------------*/

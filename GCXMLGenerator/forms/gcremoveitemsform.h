@@ -64,10 +64,10 @@ private slots:
   void showAttributeHelp     ();
   
 private:
+  void populateTreeWidget();
   void processNextElement ( const QString &element, QTreeWidgetItem *parent );
   void showErrorMessageBox( const QString &errorMsg );
-  void updateChildLists();
-  void populateTreeWidget();
+  void updateChildLists();  
 
   Ui::GCRemoveItemsForm *ui;
   QString m_currentElement;
