@@ -75,7 +75,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_currentXMLFileName  ( "" ),
   m_activeAttributeName ( "" ),
   m_wasTreeItemActivated( false ),
-  m_newElementAdded     ( false ),
   m_newAttributeAdded   ( false ),
   m_busyImporting       ( false ),
   m_DOMTooLarge         ( false ),
@@ -222,17 +221,23 @@ void GCMainWindow::elementChanged( QTreeWidgetItem *item, int column )
         bool success( false );
         QStringList attributes = GCDataBaseInterface::instance()->attributes( previousName, success );
 
-        GCDataBaseInterface::instance()->addElement( elementName,
-                                                     GCDataBaseInterface::instance()->children( previousName, success ),
-                                                     attributes );
+        if( !GCDataBaseInterface::instance()->addElement( elementName,
+                                                          GCDataBaseInterface::instance()->children( previousName, success ),
+                                                          attributes ) )
+        {
+          showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+        }
 
         /* Since the user only really changed the element name, we also want the "new" element to be automatically
           associated with the attributes connected to the previous name (as well as the attributes' known values). */
         foreach( QString attribute, attributes )
         {
-          GCDataBaseInterface::instance()->updateAttributeValues( elementName,
-                                                                  attribute,
-                                                                  GCDataBaseInterface::instance()->attributeValues( previousName, attribute, success ) );
+          if( !GCDataBaseInterface::instance()->updateAttributeValues( elementName,
+                                                                       attribute,
+                                                                       GCDataBaseInterface::instance()->attributeValues( previousName, attribute, success ) ) )
+          {
+            showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+          }
         }
 
         if( !success )
@@ -769,7 +774,6 @@ void GCMainWindow::switchActiveDatabase() const
 
 /*--------------------------------------------------------------------------------------*/
 
-  /* This slot will only ever be called in Super User mode. */
 void GCMainWindow::importXMLToDatabase()
 {
   /* Set this flag in case the user doesn't have an active DOM document to import
@@ -961,26 +965,6 @@ void GCMainWindow::showRemoveItemsForm()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::addNewElement( const QString &element, const QStringList &attributes )
-{
-  if( !element.isEmpty() )
-  {
-    /* The new element is added as a first level child of the current element (represented
-      by the highlighted item in the tree view). */
-    GCDataBaseInterface::instance()->addElement( element, QStringList(), attributes );
-
-    /* Insert the new element at the top of the current element combo box. */
-    ui->addElementComboBox->insertItem( 0, element );
-    ui->addElementComboBox->setCurrentIndex( 0 );
-
-    m_newElementAdded = true;
-    addElementToDocument();
-    m_newElementAdded = false;
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 void GCMainWindow::showAddItemsForm()
 {
   /* Check if there is a previously saved user preference for this action (we
@@ -1000,14 +984,12 @@ void GCMainWindow::showAddItemsForm()
   if( accepted )
   {
     GCAddItemsForm *form = new GCAddItemsForm( this );
-    connect( form, SIGNAL( newElementDetails( QString,QStringList ) ), this, SLOT( addNewElement( QString,QStringList ) ) );
     form->exec();
   }
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-/* This slot will only ever be called in Super User mode. */
 void GCMainWindow::revertDirectEdit()
 {
   setTextEditContent( QDomElement() );
@@ -1015,7 +997,6 @@ void GCMainWindow::revertDirectEdit()
 
 /*--------------------------------------------------------------------------------------*/
 
-/* This slot will only ever be called in Super User mode. */
 void GCMainWindow::saveDirectEdit()
 {
   QString xmlErr( "" );
@@ -1253,13 +1234,6 @@ void GCMainWindow::addElementToDocument( const QString &elementName, QTreeWidget
 
       QDomElement parent = m_treeItemNodes.value( parentItem );
       parent.appendChild( newElement );
-
-      /* If "addElementToDocument" was called from within "addNewElement", then
-        the new element name must be added as a child of the current element. */
-      if( m_newElementAdded )
-      {
-        GCDataBaseInterface::instance()->updateElementChildren( parentItem->text( 0 ), QStringList( elementName ) );
-      }
     }
     else
     {
@@ -1276,13 +1250,6 @@ void GCMainWindow::addElementToDocument( const QString &elementName, QTreeWidget
       ui->treeWidget->invisibleRootItem()->addChild( newItem );  // takes ownership
       m_domDoc->appendChild( newElement );
       ui->addSnippetButton->setEnabled( true );
-
-      /* If "addElementToDocument" was called from within "addNewElement", then
-        the new element name will be a new root element. */
-      if( m_newElementAdded )
-      {
-        GCDataBaseInterface::instance()->addRootElement( elementName );
-      }
     }
 
     /* Keep everything in sync in the maps. */
@@ -1306,22 +1273,8 @@ void GCMainWindow::addElementToDocument( const QString &elementName, QTreeWidget
     }
 
     setTextEditContent( newElement );
-
-    /* If we've just added a new element in Super User mode, we wish to set the current
-      active tree item as the parent of the new element and not the new element itself.
-      Failing to do so will cause a cascading effect where each new element added through
-      the form will be the child of the previously added element.  We don't want this to
-      happen as all newly added elements (at least via the form) must be siblings. */
-    if( !m_newElementAdded )
-    {
-      ui->treeWidget->setCurrentItem( newItem, 0 );
-      elementSelected( newItem, 0 );
-    }
-    else
-    {
-      ui->treeWidget->setCurrentItem( newItem->parent(), 0 );
-      elementSelected( newItem->parent(), 0 );
-    }
+    ui->treeWidget->setCurrentItem( newItem, 0 );
+    elementSelected( newItem, 0 );
   }
 }
 

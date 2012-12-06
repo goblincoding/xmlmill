@@ -127,7 +127,7 @@
           </column>
           <column>
            <property name="text">
-            <string>Known Possible Values:</string>
+            <string>Values:</string>
            </property>
           </column>
          </widget>

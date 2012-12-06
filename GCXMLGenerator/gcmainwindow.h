@@ -129,10 +129,6 @@ private slots:
   void showRemoveItemsForm();
   void showAddItemsForm();
 
-  /* Receives new element information from "GCAddItemsForm" and adds the new element and
-  associated attributes to the database. */
-  void addNewElement( const QString &element, const QStringList &attributes );
-
   /* Direct DOM edit. */
   void revertDirectEdit();
   void saveDirectEdit();
@@ -174,7 +170,6 @@ private:
   QString             m_currentXMLFileName;
   QString             m_activeAttributeName;
   bool                m_wasTreeItemActivated;
-  bool                m_newElementAdded;
   bool                m_newAttributeAdded;
   bool                m_busyImporting;
   bool                m_DOMTooLarge;
