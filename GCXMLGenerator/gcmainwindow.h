@@ -92,7 +92,7 @@ private slots:
     attribute name will be persisted to the database (with the same known values of
     the "old" attribute) and associated with the current highlighted element.  The current
     DOM will be updated to reflect the new attribute name instead of the one that was replaced. */
-  void attributeChanged( QTableWidgetItem *item );
+  void attributeChanged ( QTableWidgetItem *item );
   void attributeSelected( QTableWidgetItem *item );
 
   /* Triggered whenever the current value of a combo box changes or when the user edits

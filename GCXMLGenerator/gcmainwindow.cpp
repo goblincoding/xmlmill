@@ -1420,7 +1420,7 @@ void GCMainWindow::insertEmptyTableRow()
   attributeCombo->setEditable( true );
   attributeCombo->setEnabled( false );
 
-  /* Once again, only connect after inserting items or bad things will happen! */
+  /* Only connect after inserting items or bad things will happen! */
   connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged( QString ) ) );
 
   ui->tableWidget->setCellWidget( lastRow, 1, attributeCombo );

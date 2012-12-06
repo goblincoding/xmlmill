@@ -38,7 +38,9 @@ namespace Ui
   class GCSnippetsForm;
 }
 
+class GCDomElementInfo;
 class QTreeWidgetItem;
+class QTableWidgetItem;
 class QSignalMapper;
 class QCheckBox;
 
@@ -69,10 +71,10 @@ signals:
   void snippetAdded();
 
 private slots:
-  void elementSelected( QTreeWidgetItem *item, int column );
-  void setCurrentCheckBox    ( QWidget* checkBox );
+  void setCurrentCheckBox( QWidget* checkBox );
+  void elementSelected   ( QTreeWidgetItem *item, int column );
+  void attributeChanged  ( QTableWidgetItem *item );
   void attributeValueChanged();
-  void elementValueChanged  ();
   void addSnippet  ();
   void showHelp    ();
   
@@ -80,17 +82,20 @@ private:
   void populateTreeWidget ( const QString &elementName );
   void processNextElement ( const QString &elementName, QTreeWidgetItem *parent, QDomNode parentNode );
   void showErrorMessageBox( const QString &errorMsg );
+  void clearElementInfo();
 
   Ui::GCSnippetsForm *ui;
   QDomElement        *m_parentElement;
   QSignalMapper      *m_signalMapper;
   QCheckBox          *m_currentCheckBox;
   QDomDocument        m_domDoc;
+  bool                m_treeItemActivated;
+
+  QHash< QTreeWidgetItem*, GCDomElementInfo* > m_elementInfo;
+  QHash< QTreeWidgetItem*, QDomElement >       m_treeItemNodes;
 
   QHash< QString /*attr*/, bool /*increment*/ > m_attributes;
   QHash< QString /*attr*/, QString /*value*/ >  m_originalValues;
-  QHash< QString /*elem*/, bool /*exclude*/ >   m_elements;
-  QHash< QWidget* /*check*/, QString /*elem*/ > m_checkBoxes;
 
 };
 
