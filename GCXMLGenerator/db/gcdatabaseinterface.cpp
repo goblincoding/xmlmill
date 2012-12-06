@@ -54,16 +54,6 @@ static const QLatin1String UPDATE_ATTRIBUTES(
 static const QLatin1String UPDATE_ATTRIBUTEVALUES(
     "UPDATE xmlattributes SET attributeValues = ? WHERE attribute = ? AND associatedElement = ?" );
 
-
-//static const QLatin1String UPSERT_ELEMENT ( " CASE EXISTS (SELECT * FROM xmlelements WHERE element = ? ) "
-//                                            " THEN "
-//                                            "   UPDATE xmlelements SET children = CONCAT( children, ? ), attributes = CONCAT( attributes, ? ) WHERE element = ? "
-//                                            " ELSE"
-//                                            "   INSERT INTO xmlelements( element, children, attributes ) VALUES( ?, ?, ? ) "
-//                                            " END" );
-
-
-
 /*--------------------------------------------------------------------------------------*/
 
 /* Flat file containing list of databases. */
