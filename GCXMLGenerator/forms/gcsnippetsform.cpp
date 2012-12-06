@@ -171,6 +171,29 @@ void GCSnippetsForm::elementSelected( QTreeWidgetItem *item, int column )
     const_cast< GCDomElementInfo* >( m_elementInfo.value( item ) )->setExcludeElement( true );
   }
 
+  /* Update all children of the item's check state as well, note that we don't
+    want to set the check state on siblings, only on children. */
+  QTreeWidgetItemIterator itemIt( item );
+
+  if( ( *itemIt )->childCount() > 0 )
+  {
+    while( *itemIt )
+    {
+      ( *itemIt )->setCheckState( 0, item->checkState( 0 ) );
+
+      if( item->checkState( 0 ) == Qt::Checked )
+      {
+        const_cast< GCDomElementInfo* >( m_elementInfo.value( *itemIt ) )->setExcludeElement( false );
+      }
+      else
+      {
+        const_cast< GCDomElementInfo* >( m_elementInfo.value( *itemIt ) )->setExcludeElement( true );
+      }
+
+      ++itemIt;
+    }
+  }
+
   ui->tableWidget->horizontalHeader()->setResizeMode( LABELCOLUMN, QHeaderView::Stretch );
   ui->tableWidget->horizontalHeader()->setResizeMode( COMBOCOLUMN, QHeaderView::Stretch );
   ui->tableWidget->horizontalHeader()->setResizeMode( INCRCOLUMN,  QHeaderView::Fixed );
