@@ -53,7 +53,8 @@ SOURCES += main.cpp\
     forms/gcsearchform.cpp \
     forms/gcadditemsform.cpp \
     forms/gcremoveitemsform.cpp \
-    forms/gcsnippetsform.cpp
+    forms/gcsnippetsform.cpp \
+    utils/gcdomelementinfo.cpp
 
 HEADERS  += \
     db/gcdatabaseinterface.h \
@@ -70,7 +71,8 @@ HEADERS  += \
     forms/gcsearchform.h \
     forms/gcadditemsform.h \
     forms/gcremoveitemsform.h \
-    forms/gcsnippetsform.h
+    forms/gcsnippetsform.h \
+    utils/gcdomelementinfo.h
 
 FORMS    += \
     gcmainwindow.ui \
