@@ -47,6 +47,7 @@ namespace Ui
 }
 
 class GCDBSessionManager;
+class GCDomElementInfo;
 class QSignalMapper;
 class QTreeWidgetItem;
 class QTableWidgetItem;
@@ -86,22 +87,13 @@ private slots:
     persisted to the database. */
   void elementSelected( QTreeWidgetItem *item, int column );
 
-  /* Called when a user clicks on/enters an attribute name cell in the table widget
-    and sets the name of the current active attribute to that represented by the cell. */
+  /* This function is called when the user changes the name of an existing attribute
+    via the table widget, or when the attribute's include/exclude state changes. The new
+    attribute name will be persisted to the database (with the same known values of
+    the "old" attribute) and associated with the current highlighted element.  The current
+    DOM will be updated to reflect the new attribute name instead of the one that was replaced. */
+  void attributeChanged( QTableWidgetItem *item );
   void attributeSelected( QTableWidgetItem *item );
-
-  /* This function is only called when the user changes the name of an existing attribute
-    via the table widget.  The new attribute name will be persisted to the database (with
-    the same known values of the "old" attribute) and associated with the current highlighted
-    element.  The current DOM will be updated to reflect the new attribute name instead of
-    the one that's been replaced. */
-  void attributeNameChanged( QTableWidgetItem *item );
-
-  /* Called whenever the user enters or otherwise activates a combo box.  The active
-    combo box is used to determine the row of the associated attribute (in the table
-    widget), which in turn is required in order to determine which attribute must be
-    updated when an attribute value changes. */
-  void setCurrentComboBox( QWidget *combo );
 
   /* Triggered whenever the current value of a combo box changes or when the user edits
     the content of a combo box.  In the first scenario, the DOM will be updated to reflect
@@ -109,6 +101,12 @@ private slots:
     the edited/provided value will be persisted to the database as a known value against
     the current element and associated attribute if it was previously unknown. */
   void attributeValueChanged( const QString &value );
+
+  /* Called whenever the user enters or otherwise activates a combo box.  The active
+    combo box is used to determine the row of the associated attribute (in the table
+    widget), which in turn is required in order to determine which attribute must be
+    updated when an attribute value changes. */
+  void setCurrentComboBox( QWidget *combo );
 
   /* XML file related. */
   void newXMLFile();
@@ -160,7 +158,9 @@ private:
   void setTextEditContent   ( const QDomElement &element );
   void showLargeFileWarnings( qint64 fileSize );
 
+  void insertEmptyTableRow();
   void resetTableWidget();
+  void clearElementInfo();
   void startSaveTimer();
   void toggleAddElementWidgets();
 
@@ -174,12 +174,15 @@ private:
   QString             m_currentXMLFileName;
   QString             m_activeAttributeName;
   bool                m_wasTreeItemActivated;
-  bool                m_newElementWasAdded;
+  bool                m_newElementAdded;
+  bool                m_newAttributeAdded;
   bool                m_busyImporting;
   bool                m_DOMTooLarge;
 
+  QHash< QTreeWidgetItem*, GCDomElementInfo* > m_elementInfo;
   QHash< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
   QHash< QWidget*, int/* table row*/ >   m_comboBoxes;
+
 };
 
 #endif // GCMAINWINDOW_H
