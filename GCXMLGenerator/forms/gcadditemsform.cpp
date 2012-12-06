@@ -28,6 +28,7 @@
 
 #include "gcadditemsform.h"
 #include "ui_gcadditemsform.h"
+#include "db/gcdatabaseinterface.h"
 
 #include <QMessageBox>
 
@@ -43,6 +44,9 @@ GCAddItemsForm::GCAddItemsForm( QWidget *parent ) :
   connect( ui->donePushButton, SIGNAL( clicked() ), this, SLOT( close() ) );
   connect( ui->helpToolButton, SIGNAL( clicked() ), this, SLOT( showHelp() ) );
 
+  populateTreeWidget();
+  ui->treeWidget->expandAll();
+
   setAttribute( Qt::WA_DeleteOnClose );
 }
 
@@ -55,18 +59,80 @@ GCAddItemsForm::~GCAddItemsForm()
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCAddItemsForm::populateTreeWidget()
+{
+  ui->treeWidget->clear();
+
+  foreach( QString element, GCDataBaseInterface::instance()->knownRootElements() )
+  {
+    QTreeWidgetItem *item = new QTreeWidgetItem;
+    item->setText( 0, element );
+
+    ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
+    processNextElement( element, item );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCAddItemsForm::processNextElement( const QString &element, QTreeWidgetItem *parent )
+{
+  bool success( false );
+  QStringList children = GCDataBaseInterface::instance()->children( element, success );
+
+  if( success )
+  {
+    foreach( QString child, children )
+    {
+      QTreeWidgetItem *item = new QTreeWidgetItem;
+      item->setText( 0, child );
+
+      parent->addChild( item );  // takes ownership
+
+      /* Since it isn't illegal to have elements with children of the same name, we cannot
+        block it in the DB, however, if we DO have elements with children of the same name,
+        this recursive call enters an infinite loop, so we need to make sure that doesn't
+        happen. */
+      if( child != element )
+      {
+        processNextElement( child, item );
+      }
+    }
+  }
+  else
+  {
+    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCAddItemsForm::addElementAndAttributes()
 {
   QString element = ui->lineEdit->text();
 
   if( !element.isEmpty() )
   {
+    /* Add the new element and associated attributes to the DB. */
     QStringList attributes = ui->plainTextEdit->toPlainText().split( "\n" );
-    emit newElementDetails( element, attributes );
+
+    if( !GCDataBaseInterface::instance()->addElement( element, QStringList(), attributes ) )
+    {
+      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    }
+
+    /* Also add it to the parent element's child list. */
+    if( !GCDataBaseInterface::instance()->updateElementChildren( ui->treeWidget->currentItem()->text( 0 ),
+                                                                 QStringList( element ) ) )
+    {
+      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    }
   }
 
   ui->lineEdit->clear();
   ui->plainTextEdit->clear();
+  populateTreeWidget();
+  ui->treeWidget->expandAll();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -75,16 +141,20 @@ void GCAddItemsForm::showHelp()
 {
   QMessageBox::information( this,
                             "How this works...",
-                            "Enter the name of the new element in the \"Element Name\"\n"
-                            "field (no surprises there) and the attributes associated\n"
-                            "with the element in the \"Attribute Names\" text area (again\n"
-                            "pretty obvious).\n\n"
-                            "What you might not know, however, is that although you can only add\n"
-                            "one element at a time, you can add all the attributes for the\n"
-                            "element in one go: simply stick each of them on a separate line\n"
-                            "in the text edit area and hit \"Add\" when you're done.\n\n"
+                            "The new element will be added as a child of the element highlighted\n"
+                            "in the \"Element Hierarchy\" tree.\n\n"
+                            "Although you can only add one element at a time, you can add all the\n"
+                            "element's attributes in one go: simply stick each of them on a separate\n"
+                            "line in the text edit area and hit \"Add\" when you're done.\n\n"
                             "(oh, and if the element doesn't have associated attributes, just\n"
                             "leave the text edit area empty)" );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCAddItemsForm::showErrorMessageBox( const QString &errorMsg )
+{
+  QMessageBox::critical( this, "Error!", errorMsg );
 }
 
 /*--------------------------------------------------------------------------------------*/

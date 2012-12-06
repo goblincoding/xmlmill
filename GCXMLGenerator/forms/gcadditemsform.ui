@@ -9,12 +9,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>296</width>
-    <height>226</height>
+    <width>592</width>
+    <height>425</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Add New Element</string>
+   <string>Add Elements to Profile</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../resources/gcresources.qrc">
@@ -26,92 +26,119 @@
   <property name="modal">
    <bool>true</bool>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="mainLayout">
    <item>
-    <widget class="QGroupBox" name="elementGroupBox">
-     <property name="title">
-      <string>Element Name:</string>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
-     <layout class="QHBoxLayout" name="elementLayout">
-      <item>
-       <widget class="QLineEdit" name="lineEdit">
-        <property name="whatsThis">
-         <string>Enter the new element's name here.</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="helpToolButton">
-        <property name="whatsThis">
-         <string>Display a detailed &quot;How To&quot;.</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources/gcresources.qrc">
-          <normaloff>:/resources/helpcursor.png</normaloff>:/resources/helpcursor.png</iconset>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="attributesGroupBox">
-     <property name="title">
-      <string>Attribute Names:</string>
-     </property>
-     <layout class="QVBoxLayout" name="attributesLayout">
-      <item>
-       <widget class="QPlainTextEdit" name="plainTextEdit">
-        <property name="whatsThis">
-         <string>Enter the associated attribute names here.</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="buttonLayout">
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="addPushButton">
-       <property name="whatsThis">
-        <string>Add the new element and all (if any) attributes.</string>
-       </property>
+     <widget class="QTreeWidget" name="treeWidget">
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+      <property name="indentation">
+       <number>12</number>
+      </property>
+      <property name="animated">
+       <bool>true</bool>
+      </property>
+      <column>
        <property name="text">
-        <string>Add</string>
+        <string>Element Hierarchy:</string>
        </property>
-       <property name="default">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="donePushButton">
-       <property name="whatsThis">
-        <string>Close this form when you're finished adding elements.</string>
-       </property>
-       <property name="text">
-        <string>Done</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+      </column>
+     </widget>
+     <widget class="QWidget" name="">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QGroupBox" name="elementGroupBox">
+         <property name="title">
+          <string>Element Name:</string>
+         </property>
+         <layout class="QHBoxLayout" name="elementLayout">
+          <item>
+           <widget class="QLineEdit" name="lineEdit">
+            <property name="whatsThis">
+             <string>Enter the new element's name here.</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="helpToolButton">
+            <property name="whatsThis">
+             <string>Display a detailed &quot;How To&quot;.</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="../resources/gcresources.qrc">
+              <normaloff>:/resources/helpcursor.png</normaloff>:/resources/helpcursor.png</iconset>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="attributesGroupBox">
+         <property name="title">
+          <string>Attribute Names:</string>
+         </property>
+         <layout class="QVBoxLayout" name="attributesLayout">
+          <item>
+           <widget class="QPlainTextEdit" name="plainTextEdit">
+            <property name="whatsThis">
+             <string>Enter the associated attribute names here.</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="buttonLayout">
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="addPushButton">
+           <property name="whatsThis">
+            <string>Add the new element and all (if any) attributes.</string>
+           </property>
+           <property name="text">
+            <string>Add</string>
+           </property>
+           <property name="default">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="donePushButton">
+           <property name="whatsThis">
+            <string>Close this form when you're finished adding elements.</string>
+           </property>
+           <property name="text">
+            <string>Done</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
    </item>
   </layout>
  </widget>

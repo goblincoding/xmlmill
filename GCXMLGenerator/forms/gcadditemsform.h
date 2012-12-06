@@ -31,6 +31,8 @@
 
 #include <QDialog>
 
+class QTreeWidgetItem;
+
 /*------------------------------------------------------------------------------------------
 
   This form allows the user to add new elements and their associated attributes to the 
@@ -54,17 +56,16 @@ class GCAddItemsForm : public QDialog
 public:
   explicit GCAddItemsForm( QWidget *parent = 0 );
   ~GCAddItemsForm();
-
-signals:
-  /* Emits the name of the new element and the list of associated attributes
-    (or an empty list if the element doesn't have any attributes). */
-  void newElementDetails( const QString&, const QStringList& );
   
 private slots:
   void addElementAndAttributes();
   void showHelp();
 
 private:
+  void populateTreeWidget();
+  void processNextElement ( const QString &element, QTreeWidgetItem *parent );
+  void showErrorMessageBox( const QString &errorMsg );
+
   Ui::GCAddItemsForm *ui;
 };
 
