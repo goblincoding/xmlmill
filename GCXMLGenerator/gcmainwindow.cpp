@@ -86,47 +86,47 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   ui->setupUi( this );
 
   /* XML File related. */
-  connect( ui->actionNew,                   SIGNAL( triggered() ),     this, SLOT( newXMLFile() ) );
-  connect( ui->actionOpen,                  SIGNAL( triggered() ),     this, SLOT( openXMLFile() ) );
-  connect( ui->actionSave,                  SIGNAL( triggered() ),     this, SLOT( saveXMLFile() ) );
-  connect( ui->actionSaveAs,                SIGNAL( triggered() ),     this, SLOT( saveXMLFileAs() ) );
-  connect( ui->actionCloseFile,             SIGNAL( triggered() ),     this, SLOT( resetDOM() ) );
+  connect( ui->actionNew, SIGNAL( triggered() ), this, SLOT( newXMLFile() ) );
+  connect( ui->actionOpen, SIGNAL( triggered() ), this, SLOT( openXMLFile() ) );
+  connect( ui->actionSave, SIGNAL( triggered() ), this, SLOT( saveXMLFile() ) );
+  connect( ui->actionSaveAs, SIGNAL( triggered() ), this, SLOT( saveXMLFileAs() ) );
+  connect( ui->actionCloseFile, SIGNAL( triggered() ), this, SLOT( resetDOM() ) );
 
   /* Build/Edit XML. */
-  connect( ui->deleteElementButton,         SIGNAL( clicked() ),       this, SLOT( deleteElementFromDocument() ) );
-  connect( ui->addChildElementButton,       SIGNAL( clicked() ),       this, SLOT( addElementToDocument() ) );
-  connect( ui->addSnippetButton,            SIGNAL( clicked() ),       this, SLOT( addSnippetToDocument() ) );
-  connect( ui->textSaveButton,              SIGNAL( clicked() ),       this, SLOT( saveDirectEdit() ) );
-  connect( ui->textRevertButton,            SIGNAL( clicked() ),       this, SLOT( revertDirectEdit() ) );
-  connect( ui->domEditHelpButton,           SIGNAL( clicked() ),       this, SLOT( showDOMEditHelp() ) );
+  connect( ui->deleteElementButton, SIGNAL( clicked() ), this, SLOT( deleteElementFromDocument() ) );
+  connect( ui->addChildElementButton, SIGNAL( clicked() ), this, SLOT( addElementToDocument() ) );
+  connect( ui->addSnippetButton, SIGNAL( clicked() ), this, SLOT( addSnippetToDocument() ) );
+  connect( ui->textSaveButton, SIGNAL( clicked() ), this, SLOT( saveDirectEdit() ) );
+  connect( ui->textRevertButton, SIGNAL( clicked() ), this, SLOT( revertDirectEdit() ) );
+  connect( ui->domEditHelpButton, SIGNAL( clicked() ), this, SLOT( showDOMEditHelp() ) );
 
   /* Various other actions. */
-  connect( ui->expandAllCheckBox,           SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
-  connect( ui->actionExit,                  SIGNAL( triggered() ),     this, SLOT( close() ) );
-  connect( ui->actionFind,                  SIGNAL( triggered() ),     this, SLOT( searchDocument() ) );
-  connect( ui->actionForgetPreferences,     SIGNAL( triggered() ),     this, SLOT( forgetAllMessagePreferences() ) );
-  connect( ui->actionHelpContents,          SIGNAL( triggered() ),     this, SLOT( showMainHelp() ) );
-  connect( ui->actionVisitOfficialSite,     SIGNAL( triggered() ),     this, SLOT( goToSite() ) );
+  connect( ui->actionExit, SIGNAL( triggered() ), this, SLOT( close() ) );
+  connect( ui->actionFind, SIGNAL( triggered() ), this, SLOT( searchDocument() ) );
+  connect( ui->actionForgetPreferences, SIGNAL( triggered() ), this, SLOT( forgetMessagePreferences() ) );
+  connect( ui->actionHelpContents, SIGNAL( triggered() ), this, SLOT( showMainHelp() ) );
+  connect( ui->actionVisitOfficialSite, SIGNAL( triggered() ), this, SLOT( goToSite() ) );
+  connect( ui->expandAllCheckBox, SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
 
   /* Everything tree widget related. */
-  connect( ui->treeWidget,                  SIGNAL( itemClicked  ( QTreeWidgetItem*, int ) ), this, SLOT( elementSelected( QTreeWidgetItem*, int ) ) );
-  connect( ui->treeWidget,                  SIGNAL( itemActivated( QTreeWidgetItem*, int ) ), this, SLOT( elementSelected( QTreeWidgetItem*, int ) ) );
-  connect( ui->treeWidget,                  SIGNAL( itemChanged  ( QTreeWidgetItem*, int ) ), this, SLOT( treeWidgetItemNameChanged( QTreeWidgetItem*, int ) ) );
+  connect( ui->treeWidget, SIGNAL( itemClicked ( QTreeWidgetItem*, int ) ), this, SLOT( elementSelected( QTreeWidgetItem*, int ) ) );
+  connect( ui->treeWidget, SIGNAL( itemActivated( QTreeWidgetItem*, int ) ), this, SLOT( elementSelected( QTreeWidgetItem*, int ) ) );
+  connect( ui->treeWidget, SIGNAL( itemChanged( QTreeWidgetItem*, int ) ), this, SLOT( elementChanged( QTreeWidgetItem*, int ) ) );
 
   /* Everything table widget related. */
-  connect( ui->tableWidget,                 SIGNAL( itemChanged  ( QTableWidgetItem* ) ),     this, SLOT( attributeChanged( QTableWidgetItem* ) ) );
-  connect( ui->tableWidget,                 SIGNAL( itemClicked  ( QTableWidgetItem* ) ),     this, SLOT( attributeSelected( QTableWidgetItem* ) ) );
+  connect( ui->tableWidget, SIGNAL( itemChanged( QTableWidgetItem* ) ), this, SLOT( attributeChanged( QTableWidgetItem* ) ) );
+  connect( ui->tableWidget, SIGNAL( itemClicked( QTableWidgetItem* ) ), this, SLOT( attributeSelected( QTableWidgetItem* ) ) );
 
   /* Database related. */
-  connect( ui->actionAddItems,              SIGNAL( triggered() ), this, SLOT( showAddItemsForm() ) );
-  connect( ui->actionRemoveItems,           SIGNAL( triggered() ), this, SLOT( showRemoveItemsForm() ) );
-  connect( ui->actionImportXMLToDatabase,   SIGNAL( triggered() ), this, SLOT( importXMLToDatabase() ) );
+  connect( ui->actionAddItems, SIGNAL( triggered() ), this, SLOT( showAddItemsForm() ) );
+  connect( ui->actionRemoveItems, SIGNAL( triggered() ), this, SLOT( showRemoveItemsForm() ) );
+  connect( ui->actionImportXMLToDatabase, SIGNAL( triggered() ), this, SLOT( importXMLToDatabase() ) );
   connect( ui->actionSwitchSessionDatabase, SIGNAL( triggered() ), this, SLOT( switchActiveDatabase() ) );
-  connect( ui->actionAddNewDatabase,        SIGNAL( triggered() ), this, SLOT( addNewDatabase() ) );
-  connect( ui->actionAddExistingDatabase,   SIGNAL( triggered() ), this, SLOT( addExistingDatabase() ) );
-  connect( ui->actionRemoveDatabase,        SIGNAL( triggered() ), this, SLOT( removeDatabase() ) );
-  connect( m_dbSessionManager,              SIGNAL( reset() ),     this, SLOT( resetDOM() ) );
-  connect( m_dbSessionManager,              SIGNAL( activeDatabaseChanged( QString ) ), this, SLOT( activeDatabaseChanged( QString ) ) );
+  connect( ui->actionAddNewDatabase, SIGNAL( triggered() ), this, SLOT( addNewDatabase() ) );
+  connect( ui->actionAddExistingDatabase, SIGNAL( triggered() ), this, SLOT( addExistingDatabase() ) );
+  connect( ui->actionRemoveDatabase, SIGNAL( triggered() ), this, SLOT( removeDatabase() ) );
+  connect( m_dbSessionManager, SIGNAL( reset() ), this, SLOT( resetDOM() ) );
+  connect( m_dbSessionManager, SIGNAL( activeDatabaseChanged( QString ) ), this, SLOT( activeDatabaseChanged( QString ) ) );
 
   /* Initialise the database interface and retrieve the list of database names (this will
     include the path references to the ".db" files). */
@@ -186,9 +186,7 @@ void GCMainWindow::closeEvent( QCloseEvent *event )
 
 /*--------------------------------------------------------------------------------------*/
 
-/* This slot will only be called in Super User mode so we can safely keep the functionality
-  as it is (i.e. updating the database alongside the DOM) without any other explicit checks. */
-void GCMainWindow::treeWidgetItemNameChanged( QTreeWidgetItem *item, int column )
+void GCMainWindow::elementChanged( QTreeWidgetItem *item, int column )
 {
   /* This check is probably redundant, but rather safe than sorry... */
   if( m_treeItemNodes.contains( item ) )
@@ -963,8 +961,6 @@ void GCMainWindow::showRemoveItemsForm()
 
 /*--------------------------------------------------------------------------------------*/
 
-/* Receives new element information from "GCAddItemsForm" and adds the new element and
-  associated attributes to the database. */
 void GCMainWindow::addNewElement( const QString &element, const QStringList &attributes )
 {
   if( !element.isEmpty() )
@@ -1124,7 +1120,7 @@ void GCMainWindow::searchDocument()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::forgetAllMessagePreferences()
+void GCMainWindow::forgetMessagePreferences()
 {
   GCMessageSpace::forgetAllPreferences();
 }

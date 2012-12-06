@@ -76,15 +76,15 @@ private slots:
     removed from the DB). All occurrences of the old name throughout the current
     DOM will be replaced with the new name and the tree widget will be updated
     accordingly. */
-  void treeWidgetItemNameChanged( QTreeWidgetItem *item, int column );
+  void elementChanged( QTreeWidgetItem *item, int column );
 
   /* Triggered by clicking on a tree widget item, the trigger will populate
     the table widget with the names of the attributes associated with the
     highlighted item's element as well as combo boxes containing their known
-    values.  In "Super User" mode, this function will also create "empty" cells
-    and combo boxes so that the user may add new attribute names to the selected
-    element.  The addition of new attributes and values will automatically be
-    persisted to the database. */
+    values.  This function will also create "empty" cells and combo boxes so
+    that the user may add new attribute names to the selected element.  The
+    addition of new attributes and values will automatically be persisted
+    to the database. */
   void elementSelected( QTreeWidgetItem *item, int column );
 
   /* This function is called when the user changes the name of an existing attribute
@@ -138,10 +138,10 @@ private slots:
   void saveDirectEdit();
 
   /* These do exactly what you would expect. */
-  void elementFound              ( const QDomElement &element );
-  void activeDatabaseChanged     ( QString dbName );
   void collapseOrExpandTreeWidget( bool checked );
-  void forgetAllMessagePreferences();
+  void activeDatabaseChanged( QString dbName );
+  void elementFound( const QDomElement &element );
+  void forgetMessagePreferences();
   void searchDocument();
   void insertSnippet();
   void showDOMEditHelp();
@@ -150,12 +150,12 @@ private slots:
   
 private:
   void processDOMDoc();
-  void populateTreeWidget   ( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
-  void addElementToDocument ( const QString &elementName, QTreeWidgetItem *parentItem );
+  void populateTreeWidget( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
+  void addElementToDocument( const QString &elementName, QTreeWidgetItem *parentItem );
 
-  void setStatusBarMessage  ( const QString &message );
-  void showErrorMessageBox  ( const QString &errorMsg );
-  void setTextEditContent   ( const QDomElement &element );
+  void setStatusBarMessage( const QString &message );
+  void showErrorMessageBox( const QString &errorMsg );
+  void setTextEditContent ( const QDomElement &element );
   void showLargeFileWarnings( qint64 fileSize );
 
   void insertEmptyTableRow();
