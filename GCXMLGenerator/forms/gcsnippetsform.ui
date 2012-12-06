@@ -72,6 +72,9 @@ QCheckBox::indicator
       </column>
      </widget>
      <widget class="QTableWidget" name="tableWidget">
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
       <property name="alternatingRowColors">
        <bool>true</bool>
       </property>

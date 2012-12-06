@@ -26,7 +26,7 @@
   <property name="modal">
    <bool>true</bool>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="mainLayout">
    <item>
     <layout class="QHBoxLayout" name="plainTextLayout">
      <item>
@@ -129,6 +129,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>checkBox</tabstop>
+  <tabstop>acceptButton</tabstop>
+  <tabstop>rejectButton</tabstop>
+  <tabstop>iconButton</tabstop>
+  <tabstop>plainTextEdit</tabstop>
+ </tabstops>
  <resources>
   <include location="../resources/gcresources.qrc"/>
  </resources>

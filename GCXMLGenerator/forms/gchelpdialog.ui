@@ -71,6 +71,10 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>closeButton</tabstop>
+  <tabstop>textBrowser</tabstop>
+ </tabstops>
  <resources>
   <include location="../resources/gcresources.qrc"/>
  </resources>

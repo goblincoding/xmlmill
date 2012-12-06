@@ -48,6 +48,9 @@
          <property name="indentation">
           <number>12</number>
          </property>
+         <property name="animated">
+          <bool>true</bool>
+         </property>
          <column>
           <property name="text">
            <string>Element Hierarchy</string>

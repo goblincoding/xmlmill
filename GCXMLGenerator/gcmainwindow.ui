@@ -196,7 +196,6 @@
       <string>Edit &amp;Profile</string>
      </property>
      <addaction name="actionAddItems"/>
-     <addaction name="actionEditItems"/>
      <addaction name="actionRemoveItems"/>
     </widget>
     <addaction name="actionSwitchSessionDatabase"/>
@@ -645,6 +644,19 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>addElementComboBox</tabstop>
+  <tabstop>addChildElementButton</tabstop>
+  <tabstop>addSnippetButton</tabstop>
+  <tabstop>treeWidget</tabstop>
+  <tabstop>tableWidget</tabstop>
+  <tabstop>expandAllCheckBox</tabstop>
+  <tabstop>deleteElementButton</tabstop>
+  <tabstop>dockWidgetTextEdit</tabstop>
+  <tabstop>textSaveButton</tabstop>
+  <tabstop>textRevertButton</tabstop>
+  <tabstop>domEditHelpButton</tabstop>
+ </tabstops>
  <resources>
   <include location="resources/gcresources.qrc"/>
  </resources>

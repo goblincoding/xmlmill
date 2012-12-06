@@ -115,6 +115,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEdit</tabstop>
+  <tabstop>plainTextEdit</tabstop>
+  <tabstop>addPushButton</tabstop>
+  <tabstop>donePushButton</tabstop>
+  <tabstop>helpToolButton</tabstop>
+ </tabstops>
  <resources>
   <include location="../resources/gcresources.qrc"/>
  </resources>
