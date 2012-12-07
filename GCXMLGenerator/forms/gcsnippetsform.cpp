@@ -80,7 +80,7 @@ GCSnippetsForm::GCSnippetsForm( const QString &elementName, QDomElement parentEl
 
 GCSnippetsForm::~GCSnippetsForm()
 {
-  clearElementInfo();
+  deleteElementInfo();
   delete ui;
 }
 
@@ -446,7 +446,7 @@ void GCSnippetsForm::processNextElement( const QString &elementName, QTreeWidget
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCSnippetsForm::clearElementInfo()
+void GCSnippetsForm::deleteElementInfo()
 {
   foreach( GCDomElementInfo *info, m_elementInfo.values() )
   {

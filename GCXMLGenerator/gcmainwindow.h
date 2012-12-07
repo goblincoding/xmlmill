@@ -156,7 +156,7 @@ private:
 
   void insertEmptyTableRow();
   void resetTableWidget();
-  void clearElementInfo();
+  void deleteElementInfo();
   void startSaveTimer();
   void toggleAddElementWidgets();
 

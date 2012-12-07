@@ -82,7 +82,7 @@ private:
   void populateTreeWidget ( const QString &elementName );
   void processNextElement ( const QString &elementName, QTreeWidgetItem *parent, QDomNode parentNode );
   void showErrorMessageBox( const QString &errorMsg );
-  void clearElementInfo();
+  void deleteElementInfo();
 
   Ui::GCSnippetsForm *ui;
   QDomElement        *m_parentElement;
