@@ -775,6 +775,13 @@ bool GCDataBaseInterface::hasActiveSession() const
 
 /*--------------------------------------------------------------------------------------*/
 
+bool GCDataBaseInterface::profileEmpty()
+{
+  return knownRootElements().isEmpty();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 QStringList GCDataBaseInterface::knownElements() const
 {
   QSqlQuery query( m_sessionDB );

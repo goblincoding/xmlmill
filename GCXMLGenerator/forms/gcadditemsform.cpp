@@ -115,7 +115,7 @@ void GCAddItemsForm::addElementAndAttributes()
   if( !element.isEmpty() )
   {
     /* If the profile is empty, add the new element as a root element by default. */
-    if( GCDataBaseInterface::instance()->knownRootElements().isEmpty() )
+    if( GCDataBaseInterface::instance()->profileEmpty() )
     {
       if( !GCDataBaseInterface::instance()->addRootElement( element ) )
       {
