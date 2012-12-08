@@ -902,7 +902,7 @@ void GCMainWindow::showRemoveItemsForm()
     return;
   }
 
-  if( GCDataBaseInterface::instance()->knownRootElements().isEmpty() )
+  if( GCDataBaseInterface::instance()->profileEmpty() )
   {
     QMessageBox::warning( this,
                           "Profile Empty",

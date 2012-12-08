@@ -775,7 +775,7 @@ bool GCDataBaseInterface::hasActiveSession() const
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::profileEmpty()
+bool GCDataBaseInterface::profileEmpty() const
 {
   return knownRootElements().isEmpty();
 }

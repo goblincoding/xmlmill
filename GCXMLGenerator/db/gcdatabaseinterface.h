@@ -115,7 +115,7 @@ public:
   QStringList getDBList() const;    // returns a list of known DB connections
   QString  getLastError() const;    // returns the last error message set
   bool hasActiveSession() const;    // returns "true" if an active DB session exists, "false" if not
-  bool isProfileEmpty() const;
+  bool profileEmpty() const;
 
   /* Returns a sorted (case sensitive, ascending) list of all the element names known to
     the current database connection (the active session). */
