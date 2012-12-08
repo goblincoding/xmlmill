@@ -902,6 +902,14 @@ void GCMainWindow::showRemoveItemsForm()
     return;
   }
 
+  if( GCDataBaseInterface::instance()->knownRootElements().isEmpty() )
+  {
+    QMessageBox::warning( this,
+                          "Profile Empty",
+                          "Active profile empty, nothing to remove." );
+    return;
+  }
+
   if( !m_domDoc->documentElement().isNull() )
   {
     showErrorMessageBox( "\"Save\" and \"Close\" the current document before continuing.");
