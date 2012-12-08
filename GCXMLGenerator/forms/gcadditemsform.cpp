@@ -63,6 +63,7 @@ void GCAddItemsForm::populateTreeWidget()
 {
   ui->treeWidget->clear();
 
+  /* It is possible that there may be multiple document types saved to this profile. */
   foreach( QString element, GCDataBaseInterface::instance()->knownRootElements() )
   {
     QTreeWidgetItem *item = new QTreeWidgetItem;
@@ -113,17 +114,37 @@ void GCAddItemsForm::addElementAndAttributes()
 
   if( !element.isEmpty() )
   {
+    /* If the profile is empty, add the new element as a root element by default. */
+    if( GCDataBaseInterface::instance()->knownRootElements().isEmpty() )
+    {
+      if( !GCDataBaseInterface::instance()->addRootElement( element ) )
+      {
+        showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+      }
+    }
+    else
+    {
+      /* If the profile isn't empty, the user must specify a parent element. */
+      if( ui->treeWidget->currentItem() )
+      {
+        /* Also add it to the parent element's child list. */
+        if( !GCDataBaseInterface::instance()->updateElementChildren( ui->treeWidget->currentItem()->text( 0 ),
+                                                                     QStringList( element ) ) )
+        {
+          showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+        }
+      }
+      else
+      {
+        showErrorMessageBox( "Please select a parent element in the tree." );
+        return;
+      }
+    }
+
     /* Add the new element and associated attributes to the DB. */
     QStringList attributes = ui->plainTextEdit->toPlainText().split( "\n" );
 
     if( !GCDataBaseInterface::instance()->addElement( element, QStringList(), attributes ) )
-    {
-      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
-    }
-
-    /* Also add it to the parent element's child list. */
-    if( !GCDataBaseInterface::instance()->updateElementChildren( ui->treeWidget->currentItem()->text( 0 ),
-                                                                 QStringList( element ) ) )
     {
       showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
     }
