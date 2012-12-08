@@ -31,7 +31,6 @@
 #include "utils/gcmessagespace.h"
 
 #include <QFileDialog>
-#include <QSettings>
 #include <QMessageBox>
 
 /*--------------------------------------------------------------------------------------*/
@@ -45,26 +44,9 @@ GCDBSessionManager::GCDBSessionManager( QWidget *parent ) :
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::showKnownDBForm( GCKnownDBForm::Buttons buttons )
+void GCDBSessionManager::initialiseSession()
 {
-  GCKnownDBForm *knownDBForm = new GCKnownDBForm( GCDataBaseInterface::instance()->getDBList(), buttons, m_parentWidget );
-
-  connect( knownDBForm,   SIGNAL( newConnection() ),       this, SLOT( addNewDatabase() ) );
-  connect( knownDBForm,   SIGNAL( existingConnection() ),  this, SLOT( addExistingDatabase() ) );
-  connect( knownDBForm,   SIGNAL( selectedDatabase( QString ) ), this, SLOT( setActiveDatabase( QString ) ) );
-  connect( knownDBForm,   SIGNAL( databaseRemoved ( QString ) ), this, SLOT( removeDBConnection( QString ) ) );
-
-  /* If we don't have an active DB session, it's probably at program
-    start-up and the user wishes to exit the application by clicking "Cancel". */
-  if( !GCDataBaseInterface::instance()->hasActiveSession() )
-  {
-    connect( knownDBForm, SIGNAL( userCancelled() ), m_parentWidget, SLOT( close() ) );
-    knownDBForm->show();
-  }
-  else
-  {
-    knownDBForm->exec();
-  }
+  showKnownDBForm( GCKnownDBForm::ShowAll );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -247,6 +229,30 @@ bool GCDBSessionManager::acceptSwitchReset()
                                        GCMessageDialog::OKCancel,
                                        GCMessageDialog::Cancel,
                                        GCMessageDialog::Warning );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDBSessionManager::showKnownDBForm( GCKnownDBForm::Buttons buttons )
+{
+  GCKnownDBForm *knownDBForm = new GCKnownDBForm( GCDataBaseInterface::instance()->getDBList(), buttons, m_parentWidget );
+
+  connect( knownDBForm, SIGNAL( newConnection() ),      this, SLOT( addNewDatabase() ) );
+  connect( knownDBForm, SIGNAL( existingConnection() ), this, SLOT( addExistingDatabase() ) );
+  connect( knownDBForm, SIGNAL( selectedDatabase( QString ) ), this, SLOT( setActiveDatabase( QString ) ) );
+  connect( knownDBForm, SIGNAL( databaseRemoved ( QString ) ), this, SLOT( removeDBConnection( QString ) ) );
+
+  /* If we don't have an active DB session, it's probably at program
+    start-up and the user wishes to exit the application by clicking "Cancel". */
+  if( !GCDataBaseInterface::instance()->hasActiveSession() )
+  {
+    connect( knownDBForm, SIGNAL( userCancelled() ), m_parentWidget, SLOT( close() ) );
+    knownDBForm->show();
+  }
+  else
+  {
+    knownDBForm->exec();
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/

@@ -34,9 +34,9 @@
 
 /*----------------------------------------------------------------------------------
 
-   The name pretty much says it all.  This guy is responsible for managing database
-   connections and active database sessions and will prompt the user to confirm
-   actions or changes that may result in the current DOM doc being reset.
+   Responsible for managing database connections and active database sessions
+   and will prompt the user to confirm actions or changes that may result in
+   the current DOM doc being reset.
 
 ----------------------------------------------------------------------------------*/
 
@@ -47,12 +47,7 @@ class GCDBSessionManager : public QObject
 public:
   explicit GCDBSessionManager( QWidget *parent = 0 );
 
-  /* Should only be called directly in cases where there isn't an active
-    DOM document (for those it's best to use the functions that take the
-    known document root name as parameter to ensure that there will be no
-    accidental deletion of a user's work). */
-  void showKnownDBForm( GCKnownDBForm::Buttons buttons );
-
+  void initialiseSession();
   void switchActiveDatabase( const QString &currentRoot = QString() );
   void removeDatabase      ( const QString &currentRoot = QString() ); // shows known DB form
 
@@ -71,6 +66,7 @@ private slots:
 private:
   void showErrorMessageBox( const QString &errorMsg );
   void addDBConnection    ( const QString &dbName );
+  void showKnownDBForm    ( GCKnownDBForm::Buttons buttons );
   bool acceptSwitchReset();
 
   QWidget *m_parentWidget;

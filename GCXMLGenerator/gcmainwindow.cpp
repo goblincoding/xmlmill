@@ -140,7 +140,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 
   /* If the interface was successfully initialised, prompt the user to choose a database
     connection for this session. */
-  m_dbSessionManager->showKnownDBForm( GCKnownDBForm::ShowAll );
+  m_dbSessionManager->initialiseSession();
 
   /* Everything happens automagically and the text edit takes ownership. */
   XmlSyntaxHighlighter *highLighter = new XmlSyntaxHighlighter( ui->dockWidgetTextEdit );
@@ -536,7 +536,7 @@ void GCMainWindow::openXMLFile()
   {
     QString errMsg( "No active profile set, please set one for this session." );
     showErrorMessageBox( errMsg );
-    m_dbSessionManager->showKnownDBForm( GCKnownDBForm::ShowAll );
+    m_dbSessionManager->initialiseSession();
     return;
   }
 
