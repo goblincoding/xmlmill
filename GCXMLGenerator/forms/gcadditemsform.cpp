@@ -121,6 +121,10 @@ void GCAddItemsForm::addElementAndAttributes()
       {
         showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
       }
+
+      QTreeWidgetItem *item = new QTreeWidgetItem;
+      item->setText( 0, element );
+      ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
     }
     else
     {
@@ -133,6 +137,10 @@ void GCAddItemsForm::addElementAndAttributes()
         {
           showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
         }
+
+        QTreeWidgetItem *item = new QTreeWidgetItem;
+        item->setText( 0, element );
+        ui->treeWidget->currentItem()->addChild( item );      // takes ownership
       }
       else
       {
@@ -152,7 +160,6 @@ void GCAddItemsForm::addElementAndAttributes()
 
   ui->lineEdit->clear();
   ui->plainTextEdit->clear();
-  populateTreeWidget();
   ui->treeWidget->expandAll();
 }
 
