@@ -807,26 +807,97 @@ void GCMainWindow::deleteElementFromDocument()
 
 void GCMainWindow::addElementToDocument()
 {
-  QString newElementName = ui->addElementComboBox->currentText();
+  QString elementName = ui->addElementComboBox->currentText();
 
   /* If we already have mapped element nodes, add the new item to whichever
     parent item is currently highlighted in the tree widget. */
-  QTreeWidgetItem *item( NULL );
+  QTreeWidgetItem *parentItem( NULL );
 
   if( !m_treeItemNodes.isEmpty() )
   {
-    item = ui->treeWidget->currentItem();
+    parentItem = ui->treeWidget->currentItem();
   }
 
   /* If the user selected the <element> option, we add a new sibling element
     of the same name as the current element to the current element's parent. */
-  if( newElementName.contains( QRegExp( "<|>" ) ) )
+  if( elementName.contains( QRegExp( "<|>" ) ) )
   {
-    newElementName = newElementName.remove( QRegExp( "<|>" ) );
-    item = item->parent();
+    elementName = elementName.remove( QRegExp( "<|>" ) );
+    parentItem = parentItem->parent();
   }
 
-  addElementToDocument( newElementName, item );
+  /* There is probably no chance of this ever happening, but defensive programming FTW! */
+  if( !elementName.isEmpty() )
+  {
+    /* Update the tree widget. */
+    QTreeWidgetItem *newItem = new QTreeWidgetItem;
+    newItem->setText( 0, elementName );
+    newItem->setFlags( newItem->flags() | Qt::ItemIsEditable );
+
+    /* Update the current DOM document by creating and adding the new element. */
+    QDomElement newElement = m_domDoc->createElement( elementName );
+
+    /* If we already have mapped element nodes, add the new item to whichever
+      parent item is currently highlighted in the tree widget. */
+    if( parentItem )
+    {
+      parentItem->addChild( newItem );
+
+      /* Expand the item's parent for convenience. */
+      ui->treeWidget->expandItem( parentItem );
+
+      QDomElement parent = m_treeItemNodes.value( parentItem );
+      parent.appendChild( newElement );
+    }
+    else
+    {
+      /* If the user starts creating a DOM document without having explicitly asked for
+      a new file to be created, do it automatically (we can't call "newXMLFile here" since
+      it resets the DOM document). */
+      m_currentXMLFileName = "";
+      ui->actionCloseFile->setEnabled( true );
+      ui->actionSave->setEnabled     ( true );
+      ui->actionSaveAs->setEnabled   ( true );
+
+      /* Since we don't have any existing nodes if we get to this point, we need to initialise
+        the tree widget with its first item. */
+      ui->treeWidget->invisibleRootItem()->addChild( newItem );  // takes ownership
+      m_domDoc->appendChild( newElement );
+      ui->addSnippetButton->setEnabled( true );
+    }
+
+    /* Add the known attributes associated with this element. */
+    bool success( false );
+    QStringList attributes = GCDataBaseInterface::instance()->attributes( elementName, success );
+
+    if( success )
+    {
+      for( int i = 0; i < attributes.size(); ++i )
+      {
+        newElement.setAttribute( attributes.at( i ), QString( "" ) );
+      }
+    }
+    else
+    {
+      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    }
+
+    /* Check if the user provided a comment. */
+    if( !ui->commentLineEdit->text().isEmpty() )
+    {
+      QDomComment comment = m_domDoc->createComment( ui->commentLineEdit->text() );
+      m_domDoc->insertBefore( comment, newElement );
+      ui->commentLineEdit->clear();
+    }
+
+    /* Keep everything in sync in the maps. */
+    m_treeItemNodes.insert( newItem, newElement );
+    m_elementInfo.insert( newItem, new GCDomElementInfo( newElement ) );
+
+    setTextEditContent( newElement );
+    ui->treeWidget->setCurrentItem( newItem, 0 );
+    elementSelected( newItem, 0 );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1147,76 +1218,6 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
 
     populateTreeWidget( element, item );
     element = element.nextSiblingElement();
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::addElementToDocument( const QString &elementName, QTreeWidgetItem *parentItem )
-{
-  /* There is probably no chance of this ever happening, but defensive programming FTW! */
-  if( !elementName.isEmpty() )
-  {
-    /* Update the tree widget. */
-    QTreeWidgetItem *newItem = new QTreeWidgetItem;
-    newItem->setText( 0, elementName );
-    newItem->setFlags( newItem->flags() | Qt::ItemIsEditable );
-
-    /* Update the current DOM document by creating and adding the new element. */
-    QDomElement newElement = m_domDoc->createElement( elementName );
-
-    /* If we already have mapped element nodes, add the new item to whichever
-      parent item is currently highlighted in the tree widget. */
-    if( parentItem )
-    {
-      parentItem->addChild( newItem );
-
-      /* Expand the item's parent for convenience. */
-      ui->treeWidget->expandItem( parentItem );
-
-      QDomElement parent = m_treeItemNodes.value( parentItem );
-      parent.appendChild( newElement );
-    }
-    else
-    {
-      /* If the user starts creating a DOM document without having explicitly asked for
-      a new file to be created, do it automatically (we can't call "newXMLFile here" since
-      it resets the DOM document). */
-      m_currentXMLFileName = "";
-      ui->actionCloseFile->setEnabled( true );
-      ui->actionSave->setEnabled     ( true );
-      ui->actionSaveAs->setEnabled   ( true );
-
-      /* Since we don't have any existing nodes if we get to this point, we need to initialise
-        the tree widget with its first item. */
-      ui->treeWidget->invisibleRootItem()->addChild( newItem );  // takes ownership
-      m_domDoc->appendChild( newElement );
-      ui->addSnippetButton->setEnabled( true );
-    }
-
-    /* Keep everything in sync in the maps. */
-    m_treeItemNodes.insert( newItem, newElement );    
-    m_elementInfo.insert( newItem, new GCDomElementInfo( newElement ) );
-
-    /* Add the known attributes associated with this element. */
-    bool success( false );
-    QStringList attributes = GCDataBaseInterface::instance()->attributes( elementName, success );
-
-    if( success )
-    {
-      for( int i = 0; i < attributes.size(); ++i )
-      {
-        newElement.setAttribute( attributes.at( i ), QString( "" ) );
-      }
-    }
-    else
-    {
-      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
-    }
-
-    setTextEditContent( newElement );
-    ui->treeWidget->setCurrentItem( newItem, 0 );
-    elementSelected( newItem, 0 );
   }
 }
 
