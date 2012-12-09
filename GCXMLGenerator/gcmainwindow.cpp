@@ -79,12 +79,16 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_wasTreeItemActivated( false ),
   m_newAttributeAdded   ( false ),
   m_busyImporting       ( false ),
+  m_fileContentsChanged ( false ),
   m_elementInfo         (),
   m_treeItemNodes       (),
   m_comboBoxes          ()
 {
   ui->setupUi( this );
   ui->emptyProfileHelpButton->setVisible( false );
+
+  /* If the content of the text edit changes, it means that the DOM content also changed. */
+  connect( ui->dockWidgetTextEdit, SIGNAL( textChanged() ), this, SLOT( fileContentsChanged() ) );
 
   /* XML File related. */
   connect( ui->actionNew, SIGNAL( triggered() ), this, SLOT( newXMLFile() ) );
@@ -676,6 +680,7 @@ void GCMainWindow::saveXMLFile()
       outStream << m_domDoc->toString( 2 );
       file.close();
 
+      m_fileContentsChanged = false;
       startSaveTimer();
     }
   }
@@ -961,6 +966,23 @@ void GCMainWindow::insertSnippet()
 
 void GCMainWindow::resetDOM()
 {
+  /* There are a number of places and opportunities for reset DOM to be called,
+    if there is an active document, check if it's content has changed since the
+    last time it had changed and make sure we don't accidentally delete anything. */
+  if( m_fileContentsChanged )
+  {
+    QMessageBox::StandardButtons accept = QMessageBox::question( this,
+                                                                 "Save File?",
+                                                                 "Save changes before closing?",
+                                                                 QMessageBox::Yes | QMessageBox::No,
+                                                                 QMessageBox::Yes );
+
+    if( accept == QMessageBox::Yes )
+    {
+      saveXMLFile();
+    }
+  }
+
   m_domDoc->clear();
   m_treeItemNodes.clear();
   ui->treeWidget->clear();
@@ -1162,6 +1184,13 @@ void GCMainWindow::searchDocument()
 void GCMainWindow::forgetMessagePreferences()
 {
   GCMessageSpace::forgetAllPreferences();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::fileContentsChanged()
+{
+  m_fileContentsChanged = true;
 }
 
 /*--------------------------------------------------------------------------------------*/

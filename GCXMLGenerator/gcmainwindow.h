@@ -138,6 +138,7 @@ private slots:
   void activeDatabaseChanged( QString dbName );
   void elementFound( const QDomElement &element );
   void forgetMessagePreferences();
+  void fileContentsChanged();
   void searchDocument();
   void insertSnippet();
   void showDOMEditHelp();
@@ -171,6 +172,7 @@ private:
   bool                m_wasTreeItemActivated;
   bool                m_newAttributeAdded;
   bool                m_busyImporting;
+  bool                m_fileContentsChanged;
 
   QHash< QTreeWidgetItem*, GCDomElementInfo* > m_elementInfo;
   QHash< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
