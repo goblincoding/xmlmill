@@ -87,9 +87,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   ui->setupUi( this );
   ui->emptyProfileHelpButton->setVisible( false );
 
-  /* If the content of the text edit changes, it means that the DOM content also changed. */
-  connect( ui->dockWidgetTextEdit, SIGNAL( textChanged() ), this, SLOT( fileContentsChanged() ) );
-
   /* XML File related. */
   connect( ui->actionNew, SIGNAL( triggered() ), this, SLOT( newXMLFile() ) );
   connect( ui->actionOpen, SIGNAL( triggered() ), this, SLOT( openXMLFile() ) );
@@ -1311,6 +1308,8 @@ void GCMainWindow::showErrorMessageBox( const QString &errorMsg )
 
 void GCMainWindow::setTextEditContent( const QDomElement &element )
 {
+  m_fileContentsChanged = true;
+
   ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
 
   if( !element.isNull() )
