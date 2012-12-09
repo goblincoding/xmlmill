@@ -641,26 +641,9 @@ void GCMainWindow::openXMLFile()
           m_currentXMLFileName = "";
         }
       }
-      else
-      {
-        /* If we're already busy importing, it means the user explicitly requested
-        an XML import (via the "Database" menu), didn't have a current document active
-        and confirmed that he/she wanted to open an XML file to import.  Furthermore,
-        there is no risk of an endless loop since the DOM document will have been
-        populated by the time we get to this point, which will ensure that only the
-        first part of the following function's logic will be executed..."openXMLFile"
-        won't be called again. */
-        importXMLToDatabase();
-      }
     }
     else
     {
-      /* If the user is currently busy importing XML, batch process the new file. */
-      if( m_busyImporting )
-      {
-        importXMLToDatabase();
-      }
-
       /* If the user selected a database that knows of this particular XML profile,
       simply process the document. */
       processDOMDoc();
@@ -788,6 +771,16 @@ void GCMainWindow::importXMLToDatabase()
     and wishes to open an XML file (the flag's status is used in "openXMLFile"). */
   m_busyImporting = true;
   openXMLFile();
+
+  if( !GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc ) )
+  {
+    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+  }
+  else
+  {
+    processDOMDoc();
+  }
+
   m_busyImporting = false;
 }
 
