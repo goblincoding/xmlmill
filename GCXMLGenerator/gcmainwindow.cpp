@@ -70,6 +70,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_dbSessionManager    ( new GCDBSessionManager( this ) ),
   m_signalMapper        ( new QSignalMapper( this ) ),
   m_domDoc              ( NULL ),
+  m_activeAttribute     ( NULL ),
   m_currentCombo        ( NULL ),
   m_saveTimer           ( NULL ),
   m_activeSessionLabel  ( NULL ),
@@ -114,8 +115,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->treeWidget, SIGNAL( itemChanged( QTreeWidgetItem*, int ) ), this, SLOT( elementChanged( QTreeWidgetItem*, int ) ) );
 
   /* Everything table widget related. */
-  connect( ui->tableWidget, SIGNAL( itemChanged( QTableWidgetItem* ) ), this, SLOT( attributeChanged( QTableWidgetItem* ) ) );
   connect( ui->tableWidget, SIGNAL( itemClicked( QTableWidgetItem* ) ), this, SLOT( attributeSelected( QTableWidgetItem* ) ) );
+  connect( ui->tableWidget, SIGNAL( itemChanged( QTableWidgetItem* ) ), this, SLOT( attributeChanged( QTableWidgetItem* ) ) );  
 
   /* Database related. */
   connect( ui->actionAddItems, SIGNAL( triggered() ), this, SLOT( showAddItemsForm() ) );
@@ -388,6 +389,17 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *item )
     a re-population of the table widget (which results in this slot being called). */
   if( !m_wasTreeItemActivated && !m_newAttributeAdded )
   {
+
+    /* When the check state of a table widget item changes, the "itemChagned" signal is emitted
+      before the "itemClicked" one and this messes up the logic that follows completely.  Since
+      I depend on knowing which attribute is currently active, I needed to insert the following
+      odd little check (the other alternative is probably to subclass QTableWidgetItem but I'm
+      worried about the added complications). */
+    if( m_activeAttribute != item )
+    {
+      m_activeAttributeName = item->text();
+    }
+
     /* All attribute name changes will be assumed to be additions, removing an attribute
       with a specific name has to be done explicitly. */
     QTreeWidgetItem *treeItem = ui->treeWidget->currentItem();
@@ -465,6 +477,7 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *item )
 
 void GCMainWindow::attributeSelected( QTableWidgetItem *item )
 {
+  m_activeAttribute = item;
   m_activeAttributeName = item->text();
 }
 

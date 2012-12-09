@@ -163,6 +163,7 @@ private:
   GCDBSessionManager *m_dbSessionManager;
   QSignalMapper      *m_signalMapper;
   QDomDocument       *m_domDoc;
+  QTableWidgetItem   *m_activeAttribute;
   QWidget            *m_currentCombo;
   QTimer             *m_saveTimer;
   QLabel             *m_activeSessionLabel;
