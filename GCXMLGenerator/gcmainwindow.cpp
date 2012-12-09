@@ -84,6 +84,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_comboBoxes          ()
 {
   ui->setupUi( this );
+  ui->emptyProfileHelpButton->setVisible( false );
 
   /* XML File related. */
   connect( ui->actionNew, SIGNAL( triggered() ), this, SLOT( newXMLFile() ) );
@@ -1113,7 +1114,9 @@ void GCMainWindow::activeDatabaseChanged( QString dbName )
   {
     QMessageBox::StandardButton accepted = QMessageBox::warning( this,
                                                          "Empty Profile",
-                                                         "Empty profile selected. Import XML from file?" );
+                                                         "Empty profile selected. Import XML from file?",
+                                                         QMessageBox::Yes | QMessageBox::No,
+                                                         QMessageBox::Yes );
 
     if( accepted == QMessageBox::Ok )
     {
@@ -1380,11 +1383,23 @@ void GCMainWindow::toggleAddElementWidgets()
   {
     ui->addElementComboBox->setEnabled( false );
     ui->addChildElementButton->setEnabled( false );
+
+    /* Check if the element combo box is empty due to an empty profile
+      being active. */
+    if( GCDataBaseInterface::instance()->profileEmpty() )
+    {
+      ui->emptyProfileHelpButton->setVisible( true );
+    }
+    else
+    {
+      ui->emptyProfileHelpButton->setVisible( false );
+    }
   }
   else
   {
     ui->addElementComboBox->setEnabled( true );
     ui->addChildElementButton->setEnabled( true );
+    ui->emptyProfileHelpButton->setVisible( false );
   }
 }
 

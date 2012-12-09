@@ -162,8 +162,10 @@ void GCAddItemsForm::showHelp()
 {
   QMessageBox::information( this,
                             "How this works...",
-                            "The new element will be added as a child of the element highlighted\n"
-                            "in the \"Element Hierarchy\" tree.\n\n"
+                            "If the active profile is empty, the new element will be added as a\n"
+                            "root (main document) element for the current profile, otherwise it\n"
+                            "will be added as a child of the element highlighted in the \"Element\n"
+                            "Hierarchy\" tree.\n\n"
                             "Although you can only add one element at a time, you can add all the\n"
                             "element's attributes in one go: simply stick each of them on a separate\n"
                             "line in the text edit area and hit \"Add\" when you're done.\n\n"
