@@ -94,7 +94,7 @@
      <item>
       <widget class="QCheckBox" name="checkBox">
        <property name="text">
-        <string>Remember my choice.</string>
+        <string>Don't ask me again.</string>
        </property>
       </widget>
      </item>

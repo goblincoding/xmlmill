@@ -151,7 +151,6 @@ private:
   void setStatusBarMessage( const QString &message );
   void showErrorMessageBox( const QString &errorMsg );
   void setTextEditContent ( const QDomElement &element );
-  void showLargeFileWarnings( qint64 fileSize );
 
   void insertEmptyTableRow();
   void resetTableWidget();
@@ -172,7 +171,6 @@ private:
   bool                m_wasTreeItemActivated;
   bool                m_newAttributeAdded;
   bool                m_busyImporting;
-  bool                m_DOMTooLarge;
 
   QHash< QTreeWidgetItem*, GCDomElementInfo* > m_elementInfo;
   QHash< QTreeWidgetItem*, QDomElement > m_treeItemNodes;

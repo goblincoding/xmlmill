@@ -539,7 +539,7 @@
      <normaloff>:/resources/clear.png</normaloff>:/resources/clear.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Forget Saved Preferences</string>
+    <string>&amp;Reset Message Preferences</string>
    </property>
    <property name="whatsThis">
     <string>Forget all saved preferences regarding messages/warnings/queries.</string>

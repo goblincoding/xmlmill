@@ -49,25 +49,24 @@ public:
 
   void initialiseSession();
   void switchActiveDatabase( const QString &currentRoot = QString() );
-  void removeDatabase      ( const QString &currentRoot = QString() ); // shows known DB form
+  void removeDatabase      ( const QString &currentRoot = QString() );
 
 public slots:
-  void addExistingDatabase( const QString &currentRoot = QString() ); // calls addDBConnection
-  void addNewDatabase     ( const QString &currentRoot = QString() ); // calls addDBConnection
+  void addExistingDatabase( const QString &currentRoot = QString() );
+  void addNewDatabase     ( const QString &currentRoot = QString() );
 
 signals:
   void activeDatabaseChanged( QString );
   void reset();
   
 private slots:
-  void removeDBConnection( const QString &dbName );  // receives signal from DB form
-  void setActiveDatabase ( const QString &dbName );  // receives signal from DB form
+  void removeDBConnection( const QString &dbName );
+  void setActiveDatabase ( const QString &dbName );
 
 private:
   void showErrorMessageBox( const QString &errorMsg );
   void addDBConnection    ( const QString &dbName );
   void showKnownDBForm    ( GCKnownDBForm::Buttons buttons );
-  bool acceptSwitchReset();
 
   QWidget *m_parentWidget;
   QString  m_currentRoot;

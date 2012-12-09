@@ -107,7 +107,7 @@ void GCDBSessionManager::removeDBConnection( const QString &dbName )
     {
       GCMessageSpace::userAccepted( "RemoveActiveSessionWarning",
                                     "Warning!",
-                                    "Removing an active session will cause the current "
+                                    "Removing the active profile will cause the current "
                                     "document to be reset and your work will be lost.\n\n "
                                     "If you are not removing the current profile (it could be "
                                     "that the profile you are removing just happens to know "
@@ -132,7 +132,7 @@ void GCDBSessionManager::removeDBConnection( const QString &dbName )
   {
     emit reset();
     m_currentRoot = "";
-    QString errMsg( "The active profile has been removed, please set another as active." );
+    QString errMsg( "The active profile has been removed, please select another." );
     showErrorMessageBox( errMsg );
     showKnownDBForm( GCKnownDBForm::ShowAll );
   }
@@ -148,7 +148,16 @@ void GCDBSessionManager::setActiveDatabase( const QString &dbName )
   {
     if( !GCDataBaseInterface::instance()->containsKnownRootElement( dbName, m_currentRoot ) )
     {
-      if( !acceptSwitchReset() )
+      QMessageBox::StandardButton accepted = QMessageBox::warning( m_parentWidget,
+                                                                   "Warning!",
+                                                                   "The new profile doesn't support your current document's\n"
+                                                                   "content, switching will cause the document to be reset and\n"
+                                                                   "your work will be lost.\n\n"
+                                                                   "Proceed?",
+                                                                   QMessageBox::Ok | QMessageBox::Cancel,
+                                                                   QMessageBox::Cancel );
+
+      if( accepted == QMessageBox::Ok )
       {
         return;
       }
@@ -168,19 +177,6 @@ void GCDBSessionManager::setActiveDatabase( const QString &dbName )
   }
   else
   {
-    /* If the user set an empty database, prompt to populate it.  This message must
-      always be shown (i.e. we don't have to show the custom dialog box that provides
-      the \"Don't show this again\" option). */
-    if( GCDataBaseInterface::instance()->knownElements().size() < 1 )
-    {
-      QMessageBox::warning( m_parentWidget,
-                            "Empty Profile",
-                            "The current active profile is completely empty (aka \"entirely useless\").\n\n"
-                            "You can either:\n"
-                            "1. Select a different (populated) profile and continue working, or\n"
-                            "2. Switch to \"Super User\" mode and start populating this one." );
-    }
-
     emit activeDatabaseChanged( dbName );
   }
 }
@@ -213,22 +209,6 @@ void GCDBSessionManager::addDBConnection( const QString &dbName )
       showKnownDBForm( GCKnownDBForm::ShowAll );
     }
   }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-bool GCDBSessionManager::acceptSwitchReset()
-{
-  return GCMessageSpace::userAccepted( "SwitchingSessionsWarning",
-                                       "Warning!",
-                                       "The new profile doesn't support your current document's content, switching "
-                                       "will cause the document to be reset and your work will be lost. "
-                                       "If this is fine, proceed with \"OK\".\n\n"
-                                       "On the other hand, if you wish to keep your work, please hit \"Cancel\" and "
-                                       "save the document first before coming back here.",
-                                       GCMessageDialog::OKCancel,
-                                       GCMessageDialog::Cancel,
-                                       GCMessageDialog::Warning );
 }
 
 /*--------------------------------------------------------------------------------------*/

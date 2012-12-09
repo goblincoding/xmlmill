@@ -79,7 +79,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_wasTreeItemActivated( false ),
   m_newAttributeAdded   ( false ),
   m_busyImporting       ( false ),
-  m_DOMTooLarge         ( false ),
   m_elementInfo         (),
   m_treeItemNodes       (),
   m_comboBoxes          ()
@@ -579,7 +578,26 @@ void GCMainWindow::openXMLFile()
     qint64 fileSize = file.size();
     file.close();
 
-    showLargeFileWarnings( fileSize );
+    /* This application isn't optimised for dealing with very large XML files (the entire point is that
+      this suite should provide the functionality necessary for the manual manipulation of, e.g. XML config
+      files normally set up by hand via copy and paste exercises), if this file is too large to be handled
+      comfortably, we need to let the user know and also make sure that we don't try to set the DOM content
+      as text in the QTextEdit (QTextEdit is optimised for paragraphs). */
+    if( fileSize > DOMWARNING &&
+        fileSize < DOMLIMIT )
+    {
+      QMessageBox::warning( this,
+                            "Large file!",
+                            "The file you just opened is pretty large. Response times may be slow." );
+    }
+    else if( fileSize > DOMLIMIT )
+    {
+      QMessageBox::critical( this,
+                             "Very large file!",
+                             "This file is too large to edit manually!" );
+
+      return;
+    }
 
     QString xmlErr( "" );
     int     line  ( -1 );
@@ -606,9 +624,7 @@ void GCMainWindow::openXMLFile()
       {
         bool accepted = GCMessageSpace::userAccepted( "QueryImportXML",
                                                       "Import XML?",
-                                                      "The current active profile has no knowledge of the"
-                                                      "specific XML style of the document you are trying to open.\n\n"
-                                                      "Would you like to import the XML document to the active profile?",
+                                                      "Import the document's content to the active profile?",
                                                       GCMessageDialog::YesNo,
                                                       GCMessageDialog::No,
                                                       GCMessageDialog::Question );
@@ -966,7 +982,6 @@ void GCMainWindow::resetDOM()
 
   m_currentCombo = NULL;
   m_activeAttributeName = "";
-  m_DOMTooLarge = false;
 
   /* The timer will be reactivated as soon as work starts again on a legitimate
     document and the user saves it for the first time. */
@@ -1089,6 +1104,25 @@ void GCMainWindow::activeDatabaseChanged( QString dbName )
   if( m_domDoc->documentElement().isNull() )
   {
     resetDOM();
+  }
+
+  /* If the user set an empty database, prompt to populate it.  This message must
+    always be shown (i.e. we don't have to show the custom dialog box that provides
+    the \"Don't show this again\" option). */
+  if( GCDataBaseInterface::instance()->profileEmpty() )
+  {
+    QMessageBox::StandardButton accepted = QMessageBox::warning( this,
+                                                         "Empty Profile",
+                                                         "Empty profile selected. Import XML from file?" );
+
+    if( accepted == QMessageBox::Ok )
+    {
+      importXMLToDatabase();
+    }
+    else
+    {
+      showAddItemsForm();
+    }
   }
 
   if( !m_activeSessionLabel )
@@ -1252,61 +1286,12 @@ void GCMainWindow::showErrorMessageBox( const QString &errorMsg )
 
 void GCMainWindow::setTextEditContent( const QDomElement &element )
 {
-  if( !m_DOMTooLarge )
+  ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
+
+  if( !element.isNull() )
   {
-    ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
-
-    if( !element.isNull() )
-    {
-      ui->dockWidgetTextEdit->find( m_elementInfo.value( m_treeItemNodes.key( element ) )->toString() );
-      ui->dockWidgetTextEdit->ensureCursorVisible();
-    }
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::showLargeFileWarnings( qint64 fileSize )
-{
-  /* This application isn't optimised for dealing with very large XML files (the entire point is that
-    this suite should provide the functionality necessary for the manual manipulation of, e.g. XML config
-    files normally set up by hand via copy and paste exercises), if this file is too large to be handled
-    comfortably, we need to let the user know and also make sure that we don't try to set the DOM content
-    as text in the QTextEdit (QTextEdit is optimised for paragraphs). */
-  if( fileSize > DOMWARNING &&
-      fileSize < DOMLIMIT )
-  {
-    /* There is nothing to be acted upon for this particular message so no need
-      to check what value the form returns. */ 
-    GCMessageSpace::userAccepted( "LargeFileWarning",
-                                  "Large file!",
-                                  "The file you just opened is slightly on the large side of "
-                                  "what we can handle comfortably (ideally you don't want to "
-                                  "go for files that have more than ~7 500 lines).\n\n "
-                                  "Feel free to try working on it, however, but "
-                                  "be aware that response times may not be ideal.",
-                                  GCMessageDialog::OKOnly,
-                                  GCMessageDialog::OK,
-                                  GCMessageDialog::Warning );
-  }
-  else if( fileSize > DOMLIMIT )
-  {
-    m_DOMTooLarge = true;
-
-    /* There is nothing to be acted upon for this particular message so no need
-      to check what value the form returns. */ 
-    GCMessageSpace::userAccepted( "VeryLargeFileWarning",
-                                  "Very Large file!",
-                                  "The file you just opened is too large for us "
-                                  "to handle comfortably (ideally you don't want to "
-                                  "go for files that have more than ~7 500 lines).\n\n "
-                                  "Feel free to try working on it, however, but "
-                                  "you definitely won't be able to see your changes "
-                                  "in the text edit and depending on how large your file really "
-                                  "is, things may also become impossibly slow.",
-                                  GCMessageDialog::OKOnly,
-                                  GCMessageDialog::OK,
-                                  GCMessageDialog::Warning );
+    ui->dockWidgetTextEdit->find( m_elementInfo.value( m_treeItemNodes.key( element ) )->toString() );
+    ui->dockWidgetTextEdit->ensureCursorVisible();
   }
 }
 
