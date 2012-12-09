@@ -141,6 +141,7 @@ private slots:
   void fileContentsChanged();
   void searchDocument();
   void insertSnippet();
+  void showEmptyProfileHelp();
   void showDOMEditHelp();
   void showMainHelp();
   void goToSite();

@@ -87,6 +87,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   ui->setupUi( this );
   ui->emptyProfileHelpButton->setVisible( false );
 
+  connect( ui->emptyProfileHelpButton, SIGNAL( clicked() ), this, SLOT( showEmptyProfileHelp() ) );
+
   /* XML File related. */
   connect( ui->actionNew, SIGNAL( triggered() ), this, SLOT( newXMLFile() ) );
   connect( ui->actionOpen, SIGNAL( triggered() ), this, SLOT( openXMLFile() ) );
@@ -1065,9 +1067,19 @@ void GCMainWindow::showAddItemsForm()
     return;
   }
 
+  bool profileWasEmpty = GCDataBaseInterface::instance()->profileEmpty();
+
   /* Delete on close flag set (no clean-up needed). */
   GCAddItemsForm *form = new GCAddItemsForm( this );
   form->exec();
+
+  /* If the active profile has just been populated with elements for the first time,
+    make sure that we set the newly added root elements to the dropdown. */
+  if( profileWasEmpty )
+  {
+    ui->addElementComboBox->addItems( GCDataBaseInterface::instance()->knownRootElements() );
+    toggleAddElementWidgets();
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1210,6 +1222,17 @@ void GCMainWindow::forgetMessagePreferences()
 void GCMainWindow::fileContentsChanged()
 {
   m_fileContentsChanged = true;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::showEmptyProfileHelp()
+{
+  QMessageBox::information( this,
+                            "Empty Profile",
+                            "The active profile is empty.  You can either import XML from file\n"
+                            "via \"Edit -> Import XML to Profile\" or you can populate the\n"
+                            "profile from scratch via \"Edit -> Edit Profile -> Add Items\"." );
 }
 
 /*--------------------------------------------------------------------------------------*/
