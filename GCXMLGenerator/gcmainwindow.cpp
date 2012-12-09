@@ -978,6 +978,10 @@ void GCMainWindow::resetDOM()
     {
       saveXMLFile();
     }
+    else
+    {
+      m_fileContentsChanged = false;
+    }
   }
 
   m_domDoc->clear();
