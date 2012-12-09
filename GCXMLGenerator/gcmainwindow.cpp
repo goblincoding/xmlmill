@@ -534,11 +534,14 @@ void GCMainWindow::attributeValueChanged( const QString &value )
 
 void GCMainWindow::newXMLFile()
 {
-  resetDOM();
-  m_currentXMLFileName = "";
-  ui->actionCloseFile->setEnabled( true );
-  ui->actionSaveAs->setEnabled   ( true );
-  ui->actionSave->setEnabled     ( true );
+  if( queryResetDOM( "Save document before continuing?" ) )
+  {
+    resetDOM();
+    m_currentXMLFileName = "";
+    ui->actionCloseFile->setEnabled( true );
+    ui->actionSaveAs->setEnabled   ( true );
+    ui->actionSave->setEnabled     ( true );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -554,11 +557,18 @@ void GCMainWindow::openXMLFile()
     return;
   }
 
+  if( !queryResetDOM( "Save document before continuing?" ) )
+  {
+    return;
+  }
+
   QString fileName = QFileDialog::getOpenFileName( this, "Open File", QDir::homePath(), "XML Files (*.*)" );
 
   /* If the user clicked "OK", continue (a cancellation will result in an empty file name). */
   if( !fileName.isEmpty() )
   {
+    resetDOM();
+
     m_currentXMLFileName = fileName;
     QFile file( m_currentXMLFileName );
 
@@ -571,9 +581,6 @@ void GCMainWindow::openXMLFile()
       m_currentXMLFileName = "";
       return;
     }
-
-    /* Reset the DOM only after we've successfully opened the file. */
-    resetDOM();
 
     QTextStream inStream( &file );
     QString fileContent( inStream.readAll() );
@@ -625,8 +632,8 @@ void GCMainWindow::openXMLFile()
       if( !m_busyImporting )
       {
         bool accepted = GCMessageSpace::userAccepted( "QueryImportXML",
-                                                      "Import XML?",
-                                                      "Import the document's content to the active profile?",
+                                                      "Import document?",
+                                                      "Unknown XML - import to active profile?",
                                                       GCMessageDialog::YesNo,
                                                       GCMessageDialog::No,
                                                       GCMessageDialog::Question );
@@ -637,7 +644,7 @@ void GCMainWindow::openXMLFile()
         }
         else
         {
-          /* If the user decided to rather abort the file opening process, reset everything. */
+          /* If the user decided to rather abort the import, reset everything. */
           resetDOM();
           m_currentXMLFileName = "";
         }
@@ -961,7 +968,7 @@ void GCMainWindow::insertSnippet()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::resetDOM()
+bool GCMainWindow::queryResetDOM( const QString &resetReason )
 {
   /* There are a number of places and opportunities for reset DOM to be called,
     if there is an active document, check if it's content has changed since the
@@ -969,21 +976,32 @@ void GCMainWindow::resetDOM()
   if( m_fileContentsChanged )
   {
     QMessageBox::StandardButtons accept = QMessageBox::question( this,
-                                                                 "Save File?",
-                                                                 "Save changes before closing?",
-                                                                 QMessageBox::Yes | QMessageBox::No,
+                                                                 "Save file?",
+                                                                 resetReason,
+                                                                 QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
                                                                  QMessageBox::Yes );
 
     if( accept == QMessageBox::Yes )
     {
       saveXMLFile();
     }
-    else
+    else if( accept == QMessageBox::No )
     {
       m_fileContentsChanged = false;
     }
+    else
+    {
+      return false;
+    }
   }
 
+  return true;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::resetDOM()
+{
   m_domDoc->clear();
   m_treeItemNodes.clear();
   ui->treeWidget->clear();
@@ -1129,10 +1147,10 @@ void GCMainWindow::activeDatabaseChanged( QString dbName )
   if( GCDataBaseInterface::instance()->profileEmpty() )
   {
     QMessageBox::StandardButton accepted = QMessageBox::warning( this,
-                                                         "Empty Profile",
-                                                         "Empty profile selected. Import XML from file?",
-                                                         QMessageBox::Yes | QMessageBox::No,
-                                                         QMessageBox::Yes );
+                                                                 "Empty Profile",
+                                                                 "Empty profile selected. Import XML from file?",
+                                                                 QMessageBox::Yes | QMessageBox::No,
+                                                                 QMessageBox::Yes );
 
     if( accepted == QMessageBox::Ok )
     {

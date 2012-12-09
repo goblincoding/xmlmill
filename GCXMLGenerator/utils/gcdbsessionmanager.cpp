@@ -105,7 +105,7 @@ void GCDBSessionManager::removeDBConnection( const QString &dbName )
   {
     if( GCDataBaseInterface::instance()->knownRootElements().contains( m_currentRoot ) )
     {
-      GCMessageSpace::userAccepted( "RemoveActiveSessionWarning",
+      bool accepted = GCMessageSpace::userAccepted( "RemoveActiveSessionWarning",
                                     "Warning!",
                                     "Removing the active profile will cause the current "
                                     "document to be reset and your work will be lost.\n\n "
@@ -116,6 +116,11 @@ void GCDBSessionManager::removeDBConnection( const QString &dbName )
                                     GCMessageDialog::OKCancel,
                                     GCMessageDialog::Cancel,
                                     GCMessageDialog::Warning );
+
+      if( !accepted )
+      {
+        return;
+      }
     }
   }
 
@@ -148,24 +153,19 @@ void GCDBSessionManager::setActiveDatabase( const QString &dbName )
   {
     if( !GCDataBaseInterface::instance()->containsKnownRootElement( dbName, m_currentRoot ) )
     {
-      QMessageBox::StandardButton accepted = QMessageBox::warning( m_parentWidget,
-                                                                   "Warning!",
-                                                                   "The new profile doesn't support your current document's\n"
-                                                                   "content, switching will cause the document to be reset and\n"
-                                                                   "your work will be lost.\n\n"
-                                                                   "Proceed?",
-                                                                   QMessageBox::Ok | QMessageBox::Cancel,
-                                                                   QMessageBox::Cancel );
-
-      if( accepted == QMessageBox::Ok )
+      QMessageBox::StandardButton accept = QMessageBox::question( m_parentWidget,
+                                                                  "Unsupported document",
+                                                                  "The new profile doesn't support your current document and\n"
+                                                                  "will be reset if you continue.",
+                                                                  QMessageBox::Ok | QMessageBox::Cancel,
+                                                                  QMessageBox::Cancel );
+      if( !accept == QMessageBox::Ok )
       {
         return;
       }
-      else
-      {
-        emit reset();
-        m_currentRoot = "";
-      }
+
+      emit reset();
+      m_currentRoot = "";
     }
   }
 

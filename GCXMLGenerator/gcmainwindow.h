@@ -159,6 +159,8 @@ private:
   void startSaveTimer();
   void toggleAddElementWidgets();
 
+  bool queryResetDOM( const QString &resetReason );
+
   Ui::GCMainWindow   *ui;
   GCDBSessionManager *m_dbSessionManager;
   QSignalMapper      *m_signalMapper;
