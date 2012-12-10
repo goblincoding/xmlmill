@@ -52,6 +52,7 @@
 #include <QLabel>
 #include <QUrl>
 #include <QCloseEvent>
+#include <QFont>
 
 /*--------------------------------------------------------------------------------------*/
 
@@ -86,6 +87,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 {
   ui->setupUi( this );
   ui->emptyProfileHelpButton->setVisible( false );
+  ui->dockWidgetTextEdit->setFont( QFont( "Courier New", 10 ) );
 
   connect( ui->emptyProfileHelpButton, SIGNAL( clicked() ), this, SLOT( showEmptyProfileHelp() ) );
 
