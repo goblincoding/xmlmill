@@ -75,12 +75,14 @@ private slots:
   void elementSelected   ( QTreeWidgetItem *item, int column );
   void attributeChanged  ( QTableWidgetItem *item );
   void attributeValueChanged();
-  void addSnippet  ();
-  void showHelp    ();
+  void addSnippet();
+  void showHelp();
   
 private:
-  void populateTreeWidget ( const QString &elementName );
-  void processNextElement ( const QString &elementName, QTreeWidgetItem *parent, QDomNode parentNode );
+  void populateTreeWidget( const QString &elementName );
+  void processNextElement( const QString &elementName, QTreeWidgetItem *parent, QDomNode parentNode );
+  void updateCheckStates ( QTreeWidgetItem *item );
+
   void showErrorMessageBox( const QString &errorMsg );
   void deleteElementInfo();
 

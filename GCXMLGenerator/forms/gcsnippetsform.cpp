@@ -47,17 +47,17 @@ const int INCRCOLUMN  = 2;
 /*--------------------------------------------------------------------------------------*/
 
 GCSnippetsForm::GCSnippetsForm( const QString &elementName, QDomElement parentElement, QWidget *parent ) :
-  QDialog            ( parent ),
-  ui                 ( new Ui::GCSnippetsForm ),
-  m_parentElement    ( &parentElement ),
-  m_signalMapper     ( new QSignalMapper( this ) ),
-  m_currentCheckBox  ( NULL ),
-  m_domDoc           (),
-  m_treeItemActivated( false ),
-  m_elementInfo      (),
-  m_treeItemNodes    (),
-  m_attributes       (),
-  m_originalValues   ()
+  QDialog             ( parent ),
+  ui                  ( new Ui::GCSnippetsForm ),
+  m_parentElement     ( &parentElement ),
+  m_signalMapper      ( new QSignalMapper( this ) ),
+  m_currentCheckBox   ( NULL ),
+  m_domDoc            (),
+  m_treeItemActivated ( false ),
+  m_elementInfo       (),
+  m_treeItemNodes     (),
+  m_attributes        (),
+  m_originalValues    ()
 {
   ui->setupUi( this );
   ui->tableWidget->setColumnWidth( INCRCOLUMN, 40 );  // restricted for checkbox
@@ -161,38 +161,7 @@ void GCSnippetsForm::elementSelected( QTreeWidgetItem *item, int column )
     ui->tableWidget->setCellWidget( i, COMBOCOLUMN, attributeCombo );
   }
 
-  /* Check if the element state has changed. */
-  if( item->checkState( 0 ) == Qt::Checked )
-  {
-    const_cast< GCDomElementInfo* >( m_elementInfo.value( item ) )->setExcludeElement( false );
-  }
-  else
-  {
-    const_cast< GCDomElementInfo* >( m_elementInfo.value( item ) )->setExcludeElement( true );
-  }
-
-  /* Update all children of the item's check state as well, note that we don't
-    want to set the check state on siblings, only on children. */
-  QTreeWidgetItemIterator itemIt( item );
-
-  if( ( *itemIt )->childCount() > 0 )
-  {
-    while( *itemIt )
-    {
-      ( *itemIt )->setCheckState( 0, item->checkState( 0 ) );
-
-      if( item->checkState( 0 ) == Qt::Checked )
-      {
-        const_cast< GCDomElementInfo* >( m_elementInfo.value( *itemIt ) )->setExcludeElement( false );
-      }
-      else
-      {
-        const_cast< GCDomElementInfo* >( m_elementInfo.value( *itemIt ) )->setExcludeElement( true );
-      }
-
-      ++itemIt;
-    }
-  }
+  updateCheckStates( item );
 
   ui->tableWidget->horizontalHeader()->setResizeMode( LABELCOLUMN, QHeaderView::Stretch );
   ui->tableWidget->horizontalHeader()->setResizeMode( COMBOCOLUMN, QHeaderView::Stretch );
@@ -441,6 +410,40 @@ void GCSnippetsForm::processNextElement( const QString &elementName, QTreeWidget
   else
   {
     showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCSnippetsForm::updateCheckStates( QTreeWidgetItem *item )
+{
+  /* Checking or unchecking an item must recursively update its children as well. */
+  if( item->checkState( 0 ) == Qt::Checked )
+  {
+    const_cast< GCDomElementInfo* >( m_elementInfo.value( item ) )->setExcludeElement( false );
+
+    /* When a low-level child is activated, we need to also update its parent tree all the way
+      up to the root element since including a child automatically implies that the parent
+      element is included.  By the time we reach this point, all the element's children have
+      been updated so we can now set the flag to prevent its siblings from being reactivated
+      when we set its parent's check state. */
+    QTreeWidgetItem *parent = item->parent();
+
+    while( parent && parent->checkState( 0 ) != Qt::Checked )
+    {
+      parent->setCheckState( 0, Qt::Checked );
+      parent = parent->parent();
+    }
+  }
+  else
+  {
+    const_cast< GCDomElementInfo* >( m_elementInfo.value( item ) )->setExcludeElement( true );
+  }
+
+  for( int i = 0; i < item->childCount(); ++i )
+  {
+    item->child( i )->setCheckState( 0, item->checkState( 0 ) );
+    updateCheckStates( item->child( i ) );
   }
 }
 
