@@ -48,7 +48,7 @@
        </property>
       </column>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QGroupBox" name="elementGroupBox">
@@ -114,7 +114,7 @@
          <item>
           <widget class="QPushButton" name="addPushButton">
            <property name="whatsThis">
-            <string>Add the new element and all (if any) attributes.</string>
+            <string>Add the new element and all (if any) attributes to the active profile.</string>
            </property>
            <property name="text">
             <string>Add</string>
@@ -127,10 +127,10 @@
          <item>
           <widget class="QPushButton" name="donePushButton">
            <property name="whatsThis">
-            <string>Close this form when you're finished adding elements.</string>
+            <string>Close this form when you've finished adding elements.</string>
            </property>
            <property name="text">
-            <string>Done</string>
+            <string>Close</string>
            </property>
           </widget>
          </item>
