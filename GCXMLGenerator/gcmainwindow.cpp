@@ -251,6 +251,7 @@ void GCMainWindow::elementChanged( QTreeWidgetItem *item, int column )
           showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
         }
 
+        m_fileContentsChanged = true;
         setTextEditContent( m_treeItemNodes.value( item ).toElement() );
       }
     }
@@ -474,6 +475,7 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *item )
     }
 
     m_activeAttributeName = item->text();
+    m_fileContentsChanged = true;
     setTextEditContent( currentElement );
   }
 }
@@ -530,6 +532,7 @@ void GCMainWindow::attributeValueChanged( const QString &value )
       showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
     }
 
+    m_fileContentsChanged = true;
     setTextEditContent( currentElement );
   }
 }
@@ -848,6 +851,7 @@ void GCMainWindow::deleteElementFromDocument()
       element is highlighted after the removal. */
     elementSelected( currentItem, 0 );
 
+    m_fileContentsChanged = true;
     setTextEditContent( parentNode.toElement() );
   }
 }
@@ -943,6 +947,7 @@ void GCMainWindow::addElementToDocument()
     m_treeItemNodes.insert( newItem, newElement );
     m_elementInfo.insert( newItem, new GCDomElementInfo( newElement ) );
 
+    m_fileContentsChanged = true;
     setTextEditContent( newElement );
     ui->treeWidget->setCurrentItem( newItem, 0 );
     elementSelected( newItem, 0 );
@@ -1368,8 +1373,6 @@ void GCMainWindow::showErrorMessageBox( const QString &errorMsg )
 
 void GCMainWindow::setTextEditContent( const QDomElement &element )
 {
-  m_fileContentsChanged = true;
-
   ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
 
   if( !element.isNull() )
