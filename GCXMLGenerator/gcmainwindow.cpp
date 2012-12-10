@@ -548,7 +548,7 @@ void GCMainWindow::newXMLFile()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::openXMLFile()
+bool GCMainWindow::openXMLFile()
 {
   /* Can't open a file if there is no DB profile to describe it. */
   if( !GCDataBaseInterface::instance()->hasActiveSession() )
@@ -556,109 +556,120 @@ void GCMainWindow::openXMLFile()
     QString errMsg( "No active profile set, please set one for this session." );
     showErrorMessageBox( errMsg );
     m_dbSessionManager->initialiseSession();
-    return;
+    return false;
   }
 
   if( !queryResetDOM( "Save document before continuing?" ) )
   {
-    return;
+    return false;
   }
 
   QString fileName = QFileDialog::getOpenFileName( this, "Open File", QDir::homePath(), "XML Files (*.*)" );
 
-  /* If the user clicked "OK", continue (a cancellation will result in an empty file name). */
-  if( !fileName.isEmpty() )
+  /* If the user cancelled, we don't want to continue. */
+  if( fileName.isEmpty() )
   {
-    resetDOM();
+    return false;
+  }
 
-    m_currentXMLFileName = fileName;
-    QFile file( m_currentXMLFileName );
+  resetDOM();
 
-    if( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
-    {
-      QString errorMsg = QString( "Failed to open file \"%1\": [%2]" )
-          .arg( fileName )
-          .arg( file.errorString() );
-      showErrorMessageBox( errorMsg );
-      m_currentXMLFileName = "";
-      return;
-    }
+  m_currentXMLFileName = fileName;
+  QFile file( m_currentXMLFileName );
 
-    QTextStream inStream( &file );
-    QString fileContent( inStream.readAll() );
-    qint64 fileSize = file.size();
-    file.close();
+  if( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
+  {
+    QString errorMsg = QString( "Failed to open file \"%1\": [%2]" )
+                       .arg( fileName )
+                       .arg( file.errorString() );
+    showErrorMessageBox( errorMsg );
+    m_currentXMLFileName = "";
+    return false;
+  }
 
-    /* This application isn't optimised for dealing with very large XML files (the entire point is that
+  QTextStream inStream( &file );
+  QString fileContent( inStream.readAll() );
+  qint64 fileSize = file.size();
+  file.close();
+
+  /* This application isn't optimised for dealing with very large XML files (the entire point is that
       this suite should provide the functionality necessary for the manual manipulation of, e.g. XML config
       files normally set up by hand via copy and paste exercises), if this file is too large to be handled
       comfortably, we need to let the user know and also make sure that we don't try to set the DOM content
       as text in the QTextEdit (QTextEdit is optimised for paragraphs). */
-    if( fileSize > DOMWARNING &&
-        fileSize < DOMLIMIT )
-    {
-      QMessageBox::warning( this,
-                            "Large file!",
-                            "The file you just opened is pretty large. Response times may be slow." );
-    }
-    else if( fileSize > DOMLIMIT )
-    {
-      QMessageBox::critical( this,
-                             "Very large file!",
-                             "This file is too large to edit manually!" );
+  if( fileSize > DOMWARNING &&
+      fileSize < DOMLIMIT )
+  {
+    QMessageBox::warning( this,
+                          "Large file!",
+                          "The file you just opened is pretty large. Response times may be slow." );
+  }
+  else if( fileSize > DOMLIMIT )
+  {
+    QMessageBox::critical( this,
+                           "Very large file!",
+                           "This file is too large to edit manually!" );
 
-      return;
-    }
+    return false;
+  }
 
-    QString xmlErr( "" );
-    int     line  ( -1 );
-    int     col   ( -1 );
+  QString xmlErr( "" );
+  int     line  ( -1 );
+  int     col   ( -1 );
 
-    if( !m_domDoc->setContent( fileContent, &xmlErr, &line, &col ) )
-    {
-      QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3]" )
-          .arg( xmlErr )
-          .arg( line )
-          .arg( col );
-      showErrorMessageBox( errorMsg );
-      resetDOM();
-      m_currentXMLFileName = "";
-      return;
-    }
+  if( !m_domDoc->setContent( fileContent, &xmlErr, &line, &col ) )
+  {
+    QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3]" )
+                       .arg( xmlErr )
+                       .arg( line )
+                       .arg( col );
+    showErrorMessageBox( errorMsg );
+    resetDOM();
+    m_currentXMLFileName = "";
+    return false;
+  }
 
-    /* If the user is opening an XML file of a kind that isn't supported by the current active DB,
+  /* If the user is opening an XML file of a kind that isn't supported by the current active DB,
       we need to warn him/her of this fact and provide them with a couple of options. */
-    if( !GCDataBaseInterface::instance()->knownRootElements().contains( m_domDoc->documentElement().tagName() ) )
+  if( !GCDataBaseInterface::instance()->knownRootElements().contains( m_domDoc->documentElement().tagName() ) )
+  {
+    /* If we're not already busy importing an XML file, check if the user maybe wants to do so. */
+    if( !m_busyImporting )
     {
-      /* If we're not already busy importing an XML file, check if the user maybe wants to do so. */
-      if( !m_busyImporting )
-      {
-        bool accepted = GCMessageSpace::userAccepted( "QueryImportXML",
-                                                      "Import document?",
-                                                      "Unknown XML - import to active profile?",
-                                                      GCMessageDialog::YesNo,
-                                                      GCMessageDialog::No,
-                                                      GCMessageDialog::Question );
+      bool accepted = GCMessageSpace::userAccepted( "QueryImportXML",
+                                                    "Import document?",
+                                                    "Unknown XML - import to active profile?",
+                                                    GCMessageDialog::YesNo,
+                                                    GCMessageDialog::No,
+                                                    GCMessageDialog::Question );
 
-        if( accepted )
+      if( accepted )
+      {
+        if( !GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc ) )
         {
-          importXMLToDatabase();
+          showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
         }
         else
         {
-          /* If the user decided to rather abort the import, reset everything. */
-          resetDOM();
-          m_currentXMLFileName = "";
+          processDOMDoc();
         }
       }
-    }
-    else
-    {
-      /* If the user selected a database that knows of this particular XML profile,
-      simply process the document. */
-      processDOMDoc();
+      else
+      {
+        /* If the user decided to rather abort the import, reset everything. */
+        resetDOM();
+        m_currentXMLFileName = "";
+      }
     }
   }
+  else
+  {
+    /* If the user selected a database that knows of this particular XML profile,
+      simply process the document. */
+    processDOMDoc();
+  }
+
+  return true;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -781,15 +792,17 @@ void GCMainWindow::importXMLToDatabase()
   /* Set this flag in case the user doesn't have an active DOM document to import
     and wishes to open an XML file (the flag's status is used in "openXMLFile"). */
   m_busyImporting = true;
-  openXMLFile();
 
-  if( !GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc ) )
+  if( openXMLFile() )
   {
-    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
-  }
-  else
-  {
-    processDOMDoc();
+    if( !GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc ) )
+    {
+      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    }
+    else
+    {
+      processDOMDoc();
+    }
   }
 
   m_busyImporting = false;
@@ -1164,7 +1177,7 @@ void GCMainWindow::activeDatabaseChanged( QString dbName )
                                                                  QMessageBox::Yes | QMessageBox::No,
                                                                  QMessageBox::Yes );
 
-    if( accepted == QMessageBox::Ok )
+    if( accepted == QMessageBox::Yes )
     {
       importXMLToDatabase();
     }

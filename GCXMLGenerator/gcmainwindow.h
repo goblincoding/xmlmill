@@ -109,8 +109,8 @@ private slots:
   void setCurrentComboBox( QWidget *combo );
 
   /* XML file related. */
+  bool openXMLFile();
   void newXMLFile();
-  void openXMLFile();
   void saveXMLFile();
   void saveXMLFileAs();
 
