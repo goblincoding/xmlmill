@@ -696,3 +696,18 @@ QSpinBox::down-button:pressed
   background-color: qlineargradient(spread:pad, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0 rgba(110, 110, 110, 255), stop:1 rgba(150, 150, 150, 240));
   border-style: inset;
 }
+
+QProgressBar 
+{
+  background-color: qlineargradient(spread:pad, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0 rgba(150, 150, 150, 240), stop:1 rgba(110, 110, 110, 255));
+  border-width: 1px;
+  border-radius: 5px;
+  border-color: darkgray;
+  border-style: solid;
+}
+
+QProgressBar::chunk 
+{
+  background-color: qlineargradient(spread:pad, x1:1, y1:0.5, x2:0.5, y2:0.5, stop:0 rgba(146, 11, 11, 255), stop:1 rgba(110, 110, 110, 0));
+  border-radius: 5px;
+}
