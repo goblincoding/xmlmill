@@ -31,15 +31,13 @@
 
 #include <QComboBox>
 
-/*----------------------------------------------------------------------------------------
+/// A custom combo box providing additional user selection information.
 
-  The only reason this class exists is so that we may know when a combo box is activated.
-  Initially I understood that the "activated" signal is emitted when a user clicks on
-  a QComboBox (e.g. when the dropdown is expanded), but it turns out that this is not the
-  case.
-
-----------------------------------------------------------------------------------------*/
-
+/** The only reason this class exists is so that we may know when a combo box is activated.
+    Initially I understood that the "activated" signal is emitted when a user clicks on
+    a QComboBox (e.g. when the dropdown is expanded), but it turns out that this is not the
+    case. 
+*/
 class GCComboBox : public QComboBox
 {
   Q_OBJECT
@@ -51,7 +49,6 @@ protected:
   void mousePressEvent( QMouseEvent *e );
   void focusInEvent ( QFocusEvent *e );
   void focusOutEvent( QFocusEvent *e );
-  
 };
 
 #endif // GCCOMBOBOX_H

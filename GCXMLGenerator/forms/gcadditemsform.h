@@ -33,16 +33,16 @@
 
 class QTreeWidgetItem;
 
-/*------------------------------------------------------------------------------------------
+/// Form to add elements and attributes to the active database.
 
+/**
   This form allows the user to add new elements and their associated attributes to the 
   database.  Although only one element can be added at a time (with or without attributes), 
   all an element's attributes can be provided in one go through simply ensuring that each 
   attribute appears on its own line in the input text edit.  
   
   The user will also be allowed to continue adding elements until "Done" is selected.
-
-------------------------------------------------------------------------------------------*/
+*/
 
 namespace Ui
 {

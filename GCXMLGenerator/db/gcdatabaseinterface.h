@@ -33,8 +33,9 @@
 #include <QMap>
 #include <QtSql/QSqlQuery>
 
-/*---------------------------------------------------------------------------------------------------
+/// This class manages and interfaces with the SQLite databases used to profile XML documents.
 
+/**
   This class is designed to set up and manage embedded SQLite databases used to profile
   XML documents.  Databases created by this class will consist of three tables:
 
@@ -59,8 +60,7 @@
                         specific database.  If more than one XML profile has been loaded into the
                         database in question, the database will have all their root elements listed
                         in this table.
-
----------------------------------------------------------------------------------------------------*/
+*/
 
 class QDomDocument;
 
@@ -69,82 +69,105 @@ class GCDataBaseInterface : public QObject
   Q_OBJECT
 
 public:
-  /* Singleton. */
+  /*! Singleton accessor. */
   static GCDataBaseInterface* instance();
 
-  /* Call this function before using this interface for the first time to ensure that
-    the database was initialised successfully. */
+  /*! Call this function before using this interface for the first time to ensure that
+      the known databases were initialised successfully. */
   bool initialised();
 
-  /* Processes an entire DOM document, adding new or updating existing elements (with their
-    corresponding first level children and associated attributes) and known attribute values. */
+  /*! Batch process an entire DOM document.  This function processes an entire DOM document by 
+      adding new or updating existing elements with their corresponding first level children 
+      and associated attributes and known attribute values to the active database in batches. */
   bool batchProcessDOMDocument( const QDomDocument *domDoc ) const;
 
-  /* Adds a single new element (this function does nothing if an element with the same name
-    already exists). */
+  /*! Adds a single new element to the active database. This function does nothing if an element with the same name
+      already exists. 
+      @param element - the unique element name
+      @param children - a list of the element's first level child elements
+      @param attributes - a list of all the element's associated attributes. */
   bool addElement( const QString &element, const QStringList &children, const QStringList &attributes ) const;
 
-  /* Marks an element as a known document root element. This function does nothing if the root
-    already exists in the relevant table. */
+  /*! Marks an element as a known document root element. This function does nothing if the root
+      already exists in the relevant table. */
   bool addRootElement( const QString &root ) const;
 
-  /* Updates the list of known children associated with "element" by appending
-    the new children to the existing list (nothing is deleted). */
+  /*! Updates the list of known first level children associated with "element" by appending
+      the new children to the existing list (nothing is deleted). */
   bool updateElementChildren( const QString &element, const QStringList &children ) const;
 
-  /* Updates the list of known attributes associated with "element" by appending
-    the new attributes to the existing list (nothing is deleted). */
+  /*! Updates the list of known attributes associated with "element" by appending
+      the new attributes to the existing list (nothing is deleted). */
   bool updateElementAttributes( const QString &element, const QStringList &attributes ) const;
 
-  /* Updates the list of known attribute values that is associated with "element" and its
-    corresponding "attribute" by appending the new attribute values to the existing list
-    (nothing is deleted). */
+  /*! Updates the list of known attribute values that is associated with "element" and its
+      corresponding "attribute" by appending the new attribute values to the existing list
+      (nothing is deleted). */
   bool updateAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const;
 
-  /* Updates the list of known attribute values that is associated with "element" and its
-    corresponding "attribute" by replacing all the existing values with those from the new list. */
+  /*! Updates the list of known attribute values that is associated with "element" and its
+      corresponding "attribute" by replacing all the existing values with those from the new list. */
   bool replaceAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const;
 
-  /* Remove single entries/values from the database. */
-  bool removeElement     ( const QString &element ) const;
-  bool removeRootElement ( const QString &element ) const;
+  /*! Removes "element" from the active database. */
+  bool removeElement( const QString &element ) const;
+
+  /*! Removes "element" from the list of known root elements for the active database. */
+  bool removeRootElement( const QString &element ) const;
+
+  /*! Removes "child" from the list of first level element children associated with "element" 
+      in the active database. */
   bool removeChildElement( const QString &element, const QString &child ) const;
+
+  /*! Removes "attribute" from the list of attributes associated with "element" 
+      in the active database. */
   bool removeAttribute   ( const QString &element, const QString &attribute ) const;
 
-  /* Getters. */
-  QStringList getDBList() const;    // returns a list of known DB connections
-  QString  getLastError() const;    // returns the last error message set
-  bool hasActiveSession() const;    // returns "true" if an active DB session exists, "false" if not
+  /*! Returns a list of known database connections. */
+  QStringList getDBList() const;
+
+  /*! Returns the last known error message. */
+  QString getLastError() const;
+
+  /*! Returns "true" if an active database session exists, "false" if not. */
+  bool hasActiveSession() const;
+
+  /*! Returns "true" if the active database is empty, "false" if not. */
   bool profileEmpty() const;
 
-  /* Returns a sorted (case sensitive, ascending) list of all the element names known to
-    the current database connection (the active session). */
+  /*! Returns a sorted (case sensitive, ascending) list of all the element names known to
+      the current database connection (the active session). */
   QStringList knownElements() const;
 
-  /* Returns a sorted (case sensitive, ascending) list of all the children associated with
-    "element" in the active database. */
+  /*! Returns a sorted (case sensitive, ascending) list of all the children associated with
+      "element" in the active database. */
   QStringList children( const QString &element, bool &success ) const;
 
-  /* Returns an UNSORTED list of all the attributes associated with "element" in the active
-    database (the reason is that all the other lists are used to populate combo boxes, where
-    ordering makes sense, but this particular list is used to populate a table). */
+  /*! Returns an UNSORTED list of all the attributes associated with "element" in the active
+      database (the reason this list is unsorted is that all the other lists are used to populate 
+      combo boxes, where ordering makes sense, but this particular list is used to populate a table). */
   QStringList attributes( const QString &element, bool &success ) const;
 
-  /* Returns a sorted (case sensitive, ascending) list of all the attribute values associated with
-    "element" and its corresponding "attribute" in the active database. */
+  /*! Returns a sorted (case sensitive, ascending) list of all the attribute values associated with
+      "element" and its corresponding "attribute" in the active database. */
   QStringList attributeValues( const QString &element, const QString &attribute, bool &success ) const;
 
-  /* Returns a sorted (case sensitive, ascending) list of all the document root elements
-    known to the the active database. */
+  /*! Returns a sorted (case sensitive, ascending) list of all the document root elements
+      known to the the active database. */
   QStringList knownRootElements() const;
 
-  /* Returns true if the database named "dbName" knows about "root". */
+  /*! Returns true if the database named "dbName" knows about "root". */
   bool containsKnownRootElement( const QString &dbName, const QString &root ) const;
   
 public slots:
+  /*! Sets the database corresponding to "dbName" as the active database. */
   bool setActiveDatabase( const QString &dbName );
-  bool addDatabase      ( const QString &dbName );
-  bool removeDatabase   ( const QString &dbName );
+
+  /*! Adds "dbName" to the list of known database connections. */
+  bool addDatabase( const QString &dbName );
+
+  /*! Removes "dbName" from the list of known database connections. */
+  bool removeDatabase( const QString &dbName );
 
 private:
   static GCDataBaseInterface *m_instance;
