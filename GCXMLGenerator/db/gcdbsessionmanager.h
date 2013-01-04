@@ -92,6 +92,7 @@ private slots:
   void setActiveDatabase();
 
 private:
+  void setActiveDatabase( const QString &dbName );
   void showErrorMessageBox( const QString &errorMsg );
   void addDBConnection( const QString &dbName );
   

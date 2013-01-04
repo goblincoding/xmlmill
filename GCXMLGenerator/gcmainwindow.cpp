@@ -69,7 +69,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   QMainWindow           ( parent ),
   ui                    ( new Ui::GCMainWindow ),
   m_signalMapper        ( new QSignalMapper( this ) ),
-  m_dbSessionManager    ( NULL ),
   m_domDoc              ( NULL ),
   m_activeAttribute     ( NULL ),
   m_currentCombo        ( NULL ),
@@ -145,9 +144,9 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 
   /* If the interface was successfully initialised, prompt the user to choose a database
     connection for this session. */
-  createDBSessionManager();
-  m_dbSessionManager->selectActiveDatabase();
-  QDialog::DialogCode result = static_cast< QDialog::DialogCode >( m_dbSessionManager->exec() );
+  GCDBSessionManager *manager = createDBSessionManager();
+  manager->selectActiveDatabase();
+  QDialog::DialogCode result = static_cast< QDialog::DialogCode >( manager->exec() );
 
   if( result == QDialog::Rejected )
   {
@@ -566,9 +565,9 @@ bool GCMainWindow::openXMLFile()
   {
     QString errMsg( "No active profile set, please set one for this session." );
     showErrorMessageBox( errMsg );    
-    createDBSessionManager();
-    m_dbSessionManager->selectActiveDatabase();
-    m_dbSessionManager->exec();
+    GCDBSessionManager *manager = createDBSessionManager();
+    manager->selectActiveDatabase();
+    manager->exec();
     return false;
   }
 
@@ -734,84 +733,84 @@ void GCMainWindow::saveXMLFileAs()
 
 void GCMainWindow::addNewDatabase()
 {
-  createDBSessionManager();
+  GCDBSessionManager *manager = createDBSessionManager();
 
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
     or not a user is on the verge of messing something up... */
   if( m_domDoc->documentElement().isNull() )
   {
-    m_dbSessionManager->addNewDatabase();
+    manager->addNewDatabase();
   }
   else
   {
-    m_dbSessionManager->addNewDatabase( m_domDoc->documentElement().tagName() );
+    manager->addNewDatabase( m_domDoc->documentElement().tagName() );
   }
 
-  m_dbSessionManager->exec();
+  manager->exec();
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::addExistingDatabase()
 {
-  createDBSessionManager();
+  GCDBSessionManager *manager = createDBSessionManager();
 
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
     or not a user is on the verge of messing something up... */
   if( m_domDoc->documentElement().isNull() )
   {
-    m_dbSessionManager->addExistingDatabase();
+    manager->addExistingDatabase();
   }
   else
   {
-    m_dbSessionManager->addExistingDatabase( m_domDoc->documentElement().tagName() );
+    manager->addExistingDatabase( m_domDoc->documentElement().tagName() );
   }
 
-  m_dbSessionManager->exec();
+  manager->exec();
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::removeDatabase()
 {
-  createDBSessionManager();
+  GCDBSessionManager *manager = createDBSessionManager();
 
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
     or not a user is on the verge of messing something up... */
   if( m_domDoc->documentElement().isNull() )
   {
-    m_dbSessionManager->removeDatabase();
+    manager->removeDatabase();
   }
   else
   {
-    m_dbSessionManager->removeDatabase( m_domDoc->documentElement().tagName() );
+    manager->removeDatabase( m_domDoc->documentElement().tagName() );
   }
 
-  m_dbSessionManager->exec();
+  manager->exec();
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::switchActiveDatabase()
 {
-  createDBSessionManager();
+  GCDBSessionManager *manager = createDBSessionManager();
 
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
     or not a user is on the verge of messing something up... */
   if( m_domDoc->documentElement().isNull() )
   {
-    m_dbSessionManager->switchActiveDatabase();
+    manager->switchActiveDatabase();
   }
   else
   {
-    m_dbSessionManager->switchActiveDatabase( m_domDoc->documentElement().tagName() );
+    manager->switchActiveDatabase( m_domDoc->documentElement().tagName() );
   }
 
-  m_dbSessionManager->exec();
+  manager->exec();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1513,14 +1512,13 @@ void GCMainWindow::toggleAddElementWidgets()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::createDBSessionManager()
+GCDBSessionManager *GCMainWindow::createDBSessionManager()
 {
-  if( !m_dbSessionManager )
-  {
-    m_dbSessionManager = new GCDBSessionManager( this );
-    connect( m_dbSessionManager, SIGNAL( reset() ), this, SLOT( resetDOM() ) );
-    connect( m_dbSessionManager, SIGNAL( activeDatabaseChanged( QString ) ), this, SLOT( activeDatabaseChanged( QString ) ) );
-  }
+  /* Clean-up is handled by the manager itself - Qt::WA_DeleteOnClose flag is set. */
+  GCDBSessionManager *manager = new GCDBSessionManager( this );
+  connect( manager, SIGNAL( reset() ), this, SLOT( resetDOM() ) );
+  connect( manager, SIGNAL( activeDatabaseChanged( QString ) ), this, SLOT( activeDatabaseChanged( QString ) ) );
+  return manager;
 }
 
 /*--------------------------------------------------------------------------------------*/

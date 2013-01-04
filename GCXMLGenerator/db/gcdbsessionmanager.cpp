@@ -59,7 +59,6 @@ GCDBSessionManager::GCDBSessionManager( QWidget *parent ) :
   connect( ui->okButton,          SIGNAL( clicked() ), this, SLOT( setActiveDatabase() ) );
   connect( ui->addNewButton,      SIGNAL( clicked() ), this, SLOT( addNewDatabase() ) );
   connect( ui->cancelButton,      SIGNAL( clicked() ), this, SLOT( reject() ) );
-  connect( ui->cancelButton,      SIGNAL( clicked() ), this, SLOT( close() ) );
 
   setAttribute( Qt::WA_DeleteOnClose );
 }
@@ -190,8 +189,13 @@ void GCDBSessionManager::removeDBConnection()
 
 void GCDBSessionManager::setActiveDatabase()
 {
-  QString dbName = ui->comboBox->currentText();
+  setActiveDatabase( ui->comboBox->currentText() );
+}
 
+/*--------------------------------------------------------------------------------------*/
+
+void GCDBSessionManager::setActiveDatabase( const QString &dbName )
+{
   /* If the current root element is not known to the new session, the user must
     confirm whether or not he/she wants the active document to be reset. */
   if( !m_currentRoot.isEmpty() )
@@ -223,6 +227,7 @@ void GCDBSessionManager::setActiveDatabase()
   else
   {
     emit activeDatabaseChanged( dbName );
+    this->accept();
     this->close();
   }
 }
@@ -246,7 +251,7 @@ void GCDBSessionManager::addDBConnection( const QString &dbName )
 
   if( accepted )
   {
-    setActiveDatabase();
+    setActiveDatabase( dbName );
   }
   else
   {

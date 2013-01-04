@@ -162,11 +162,10 @@ private:
 
   bool queryResetDOM( const QString &resetReason );
 
-  void createDBSessionManager();
+  GCDBSessionManager *createDBSessionManager();
 
   Ui::GCMainWindow   *ui;
   QSignalMapper      *m_signalMapper;
-  GCDBSessionManager *m_dbSessionManager;
   QDomDocument       *m_domDoc;
   QTableWidgetItem   *m_activeAttribute;
   QWidget            *m_currentCombo;
