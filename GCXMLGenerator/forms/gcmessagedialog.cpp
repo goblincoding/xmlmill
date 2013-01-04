@@ -38,7 +38,7 @@ GCMessageDialog::GCMessageDialog( bool *remember,
                                   Buttons defaultButton,
                                   Icon icon ) 
     :
-  ui        ( new Ui::GCMessageDialog ),
+  ui( new Ui::GCMessageDialog ),
   m_remember( remember )
 {
   ui->setupUi( this );
@@ -89,9 +89,9 @@ GCMessageDialog::GCMessageDialog( bool *remember,
       ui->iconButton->setIcon( QIcon() );
   }
 
+  connect( ui->checkBox,     SIGNAL( toggled( bool ) ), this, SLOT( setRememberUserChoice( bool ) ) );
   connect( ui->acceptButton, SIGNAL( clicked() ),       this, SLOT( accept() ) );
   connect( ui->rejectButton, SIGNAL( clicked() ),       this, SLOT( reject() ) );
-  connect( ui->checkBox,     SIGNAL( toggled( bool ) ), this, SLOT( setRememberUserChoice( bool ) ) );
 
   setWindowTitle( heading );
 }

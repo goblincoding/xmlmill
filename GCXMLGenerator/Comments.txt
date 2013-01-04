@@ -7,4 +7,3 @@ Settings should remember size of GUI, etc etc
 Context menu - duplicate element (entire element), remove element
 
 Text edit text highlighting...need to find out if there is a way to highlight a specific node, currently the text highlighted is the FIRST text found for any particular string which means that, for nodes that are identical, we highlight the wrong one in the text edit window.
-

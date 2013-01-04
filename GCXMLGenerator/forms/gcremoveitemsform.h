@@ -39,12 +39,7 @@ namespace Ui
 
 class QTreeWidgetItem;
 
-/*------------------------------------------------------------------------------------------
-
-  This form allows the user to remove items from the active database.
-
-------------------------------------------------------------------------------------------*/
-
+/// Allows the user to remove items from the active database.
 class GCRemoveItemsForm : public QDialog
 {
   Q_OBJECT

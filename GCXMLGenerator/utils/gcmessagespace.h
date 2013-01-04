@@ -35,7 +35,7 @@
 /*----------------------------------------------------------------------------------------
 
    GCMessageSpace is responsible for the display of messages that require user input
-   and may be subject to a saved user preference being viable.  In cases where a user
+   where the user may wish to save his/her preference.  In cases where a user
    preference can be saved, GCMessageSpace will persist the changes to whatever medium
    exists on the platform it's running on (Windows registry, Mac XML, Unix ini).
 

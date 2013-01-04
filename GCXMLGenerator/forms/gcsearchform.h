@@ -39,12 +39,7 @@ namespace Ui
 
 class QDomElement;
 
-/*------------------------------------------------------------------------------------------
-
-  Search through the current document for a specific element/attribute/value.
-
-------------------------------------------------------------------------------------------*/
-
+/// Search through the current document for a specific element/attribute/value.
 class GCSearchForm : public QDialog
 {
   Q_OBJECT

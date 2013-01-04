@@ -33,30 +33,40 @@
 #include <QString>
 #include <QDomElement>
 
-/*----------------------------------------------------------------------------------------
+/// QDomElement wrapper class.
 
-  This class wraps a DOM element and provides additional information in the XML Mill
+/**
+  A QDomElement wrapper that provides additional information in the XML Mill
   context regarding whether or not the element or any of its attributes should be excluded
-  from the document.
-
-----------------------------------------------------------------------------------------*/
+  from the DOM document being built.
+*/
 
 class GCDomElementInfo
 {
 public:
-  /* QDomElement's default shallow copying means we'll be working with the element directly. */
+  /*! Constructor. QDomElement's default shallow copying means we'll be working with the element directly. */
   explicit GCDomElementInfo( QDomElement element );
 
+  /*! If "exclude" is true, the element is excluded from the active document. */
   void setExcludeElement( bool exclude );
-  void excludeAttribute ( const QString &attribute );
-  void includeAttribute ( const QString &attribute );
 
+  /*! Excludes "attribute" from the active document. */
+  void excludeAttribute( const QString &attribute );
+
+  /*! Includes "attribute" in the active document. */
+  void includeAttribute( const QString &attribute );
+
+  /*! Returns the element's name. */
   QString elementName() const;
+
+  /*! Returns a list of all the attributes that should be included in the active document. */
   const QStringList &includedAttributes() const;
+
+  /*! Returns "true" if the element should be excluded from the active document, "false" otherwise. */
   bool elementExcluded() const;
 
-  /* Provides a textual representation of the element and its attributes (including brackets
-    and other XML characters). */
+  /*! Provides a string representation of the element, its attributes and attribute values (including brackets
+      and other XML characters). */
   QString toString() const;
 
 private:
@@ -64,7 +74,6 @@ private:
   bool m_elementExcluded;
 
   QStringList m_includedAttributes;
-
 };
 
 #endif // GCDOMELEMENTINFO_H

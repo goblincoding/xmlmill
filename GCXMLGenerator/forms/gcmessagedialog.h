@@ -31,12 +31,7 @@
 
 #include <QDialog>
 
-/*---------------------------------------------------------------------------------------------------
-
-   GCMessageDialog provides a user dialog prompt with the option to remember the user's preference.
-
----------------------------------------------------------------------------------------------------*/
-
+/// Provides a user dialog prompt with the option to save the user's preference.
 namespace Ui
 {
   class GCMessageDialog;

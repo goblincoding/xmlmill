@@ -36,12 +36,7 @@ namespace Ui
   class GCHelpDialog;
 }
 
-/*------------------------------------------------------------------------------------------
-
-  This form simply displays help information.
-
-------------------------------------------------------------------------------------------*/
-
+/// Displays "Help" information.
 class GCHelpDialog : public QDialog
 {
   Q_OBJECT
