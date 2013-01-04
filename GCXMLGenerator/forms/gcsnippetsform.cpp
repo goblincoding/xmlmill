@@ -47,23 +47,19 @@ const int INCRCOLUMN  = 2;
 /*--------------------------------------------------------------------------------------*/
 
 GCSnippetsForm::GCSnippetsForm( const QString &elementName, QDomElement parentElement, QWidget *parent ) :
-  QDialog             ( parent ),
-  ui                  ( new Ui::GCSnippetsForm ),
-  m_parentElement     ( &parentElement ),
-  m_signalMapper      ( new QSignalMapper( this ) ),
-  m_currentCheckBox   ( NULL ),
-  m_domDoc            (),
-  m_treeItemActivated ( false ),
-  m_elementInfo       (),
-  m_treeItemNodes     (),
-  m_attributes        (),
-  m_originalValues    ()
+  QDialog            ( parent ),
+  ui                 ( new Ui::GCSnippetsForm ),
+  m_parentElement    ( &parentElement ),
+  m_domDoc           (),
+  m_treeItemActivated( false ),
+  m_elementInfo      (),
+  m_treeItemNodes    (),
+  m_attributes       (),
+  m_originalValues   ()
 {
   ui->setupUi( this );
   ui->tableWidget->setColumnWidth( INCRCOLUMN, 40 );  // restricted for checkbox
   ui->treeWidget->setColumnWidth ( 0, 50 );  // restricted for checkbox
-
-  connect( m_signalMapper, SIGNAL( mapped( QWidget* ) ), this, SLOT( setCurrentCheckBox( QWidget* ) ) );
 
   populateTreeWidget( elementName );
 
@@ -82,13 +78,6 @@ GCSnippetsForm::~GCSnippetsForm()
 {
   deleteElementInfo();
   delete ui;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCSnippetsForm::setCurrentCheckBox( QWidget *checkBox )
-{
-  m_currentCheckBox = dynamic_cast< QCheckBox* >( checkBox );
 }
 
 /*--------------------------------------------------------------------------------------*/

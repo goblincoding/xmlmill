@@ -41,11 +41,10 @@ namespace Ui
 class GCDomElementInfo;
 class QTreeWidgetItem;
 class QTableWidgetItem;
-class QSignalMapper;
-class QCheckBox;
 
-/*------------------------------------------------------------------------------------------
+/// Allows the user to add whole snippets to the active document.
 
+/**
   This form allows the user to add multiple XML snippets of the same structure with whichever
   default values the user specifies.  It furthermore allows for the option to increment the
   default values for each snippet (i.e. if the user specifies "1" as an attribute value with
@@ -54,26 +53,31 @@ class QCheckBox;
   to the name).  Only one element of each type can be inserted into any specific snippet as it
   makes no sense to insert multiple elements of the same type - for those use cases the user
   must create a smaller snippet subset.
-
-------------------------------------------------------------------------------------------*/
-
+*/
 class GCSnippetsForm : public QDialog
 {
   Q_OBJECT
   
 public:
-  /* QDomElement creates shallow copies by default so we will be manipulating the active
-    DOM document directly via this dialog. */
+  /*! Constructor. QDomElement creates shallow copies by default so we will be manipulating the active
+      DOM document directly via this dialog. 
+      @param elementName - the name of the element that will form the basis of the snippet, i.e. this
+                           element will be at the top of the snippet's DOM hierarchy.
+      @param parentElement - the DOM element in the active document to which the snippet will be added. */
   explicit GCSnippetsForm( const QString &elementName, QDomElement parentElement, QWidget *parent = 0 );
+
+  /*! Destructor. */
   ~GCSnippetsForm();
 
 signals:
+  /*! Informs the listener that a new snippet has been added.  Since we're manipulating the DOM directly,
+      this ensures that other GUI forms using the DOM document is made aware of the fact that the document
+      has changed. */
   void snippetAdded();
 
 private slots:
-  void setCurrentCheckBox( QWidget* checkBox );
-  void elementSelected   ( QTreeWidgetItem *item, int column );
-  void attributeChanged  ( QTableWidgetItem *item );
+  void elementSelected( QTreeWidgetItem *item, int column );
+  void attributeChanged( QTableWidgetItem *item );
   void attributeValueChanged();
   void addSnippet();
   void showHelp();
@@ -88,8 +92,6 @@ private:
 
   Ui::GCSnippetsForm *ui;
   QDomElement        *m_parentElement;
-  QSignalMapper      *m_signalMapper;
-  QCheckBox          *m_currentCheckBox;
   QDomDocument        m_domDoc;
   bool                m_treeItemActivated;
 
