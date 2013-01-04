@@ -29,6 +29,7 @@
 #include "gcmainwindow.h"
 #include "ui_gcmainwindow.h"
 #include "db/gcdatabaseinterface.h"
+#include "db/gcdbsessionmanager.h"
 #include "xml/xmlsyntaxhighlighter.h"
 #include "forms/gcadditemsform.h"
 #include "forms/gcremoveitemsform.h"
@@ -36,7 +37,6 @@
 #include "forms/gcsearchform.h"
 #include "forms/gcsnippetsform.h"
 #include "utils/gccombobox.h"
-#include "utils/gcdbsessionmanager.h"
 #include "utils/gcmessagespace.h"
 #include "utils/gcdomelementinfo.h"
 
@@ -68,8 +68,8 @@ const int VALUESCOLUMN    = 1;
 GCMainWindow::GCMainWindow( QWidget *parent ) :
   QMainWindow           ( parent ),
   ui                    ( new Ui::GCMainWindow ),
-  m_dbSessionManager    ( new GCDBSessionManager( this ) ),
   m_signalMapper        ( new QSignalMapper( this ) ),
+  m_dbSessionManager    ( NULL ),
   m_domDoc              ( NULL ),
   m_activeAttribute     ( NULL ),
   m_currentCombo        ( NULL ),
@@ -131,8 +131,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionAddNewDatabase, SIGNAL( triggered() ), this, SLOT( addNewDatabase() ) );
   connect( ui->actionAddExistingDatabase, SIGNAL( triggered() ), this, SLOT( addExistingDatabase() ) );
   connect( ui->actionRemoveDatabase, SIGNAL( triggered() ), this, SLOT( removeDatabase() ) );
-  connect( m_dbSessionManager, SIGNAL( reset() ), this, SLOT( resetDOM() ) );
-  connect( m_dbSessionManager, SIGNAL( activeDatabaseChanged( QString ) ), this, SLOT( activeDatabaseChanged( QString ) ) );
 
   /* Initialise the database interface and retrieve the list of database names (this will
     include the path references to the ".db" files). */
@@ -143,10 +141,18 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   }
 
   m_domDoc = new QDomDocument;
+  setAttribute( Qt::WA_QuitOnClose );
 
   /* If the interface was successfully initialised, prompt the user to choose a database
     connection for this session. */
-  m_dbSessionManager->initialiseSession();
+  createDBSessionManager();
+  m_dbSessionManager->selectActiveDatabase();
+  QDialog::DialogCode result = static_cast< QDialog::DialogCode >( m_dbSessionManager->exec() );
+
+  if( result == QDialog::Rejected )
+  {
+    QTimer::singleShot( 0, this, SLOT( close() ) );
+  }
 
   /* Everything happens automagically and the text edit takes ownership. */
   XmlSyntaxHighlighter *highLighter = new XmlSyntaxHighlighter( ui->dockWidgetTextEdit );
@@ -559,8 +565,10 @@ bool GCMainWindow::openXMLFile()
   if( !GCDataBaseInterface::instance()->hasActiveSession() )
   {
     QString errMsg( "No active profile set, please set one for this session." );
-    showErrorMessageBox( errMsg );
-    m_dbSessionManager->initialiseSession();
+    showErrorMessageBox( errMsg );    
+    createDBSessionManager();
+    m_dbSessionManager->selectActiveDatabase();
+    m_dbSessionManager->exec();
     return false;
   }
 
@@ -724,8 +732,10 @@ void GCMainWindow::saveXMLFileAs()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::addNewDatabase() const
+void GCMainWindow::addNewDatabase()
 {
+  createDBSessionManager();
+
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
     or not a user is on the verge of messing something up... */
@@ -737,12 +747,16 @@ void GCMainWindow::addNewDatabase() const
   {
     m_dbSessionManager->addNewDatabase( m_domDoc->documentElement().tagName() );
   }
+
+  m_dbSessionManager->exec();
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::addExistingDatabase() const
+void GCMainWindow::addExistingDatabase()
 {
+  createDBSessionManager();
+
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
     or not a user is on the verge of messing something up... */
@@ -754,12 +768,16 @@ void GCMainWindow::addExistingDatabase() const
   {
     m_dbSessionManager->addExistingDatabase( m_domDoc->documentElement().tagName() );
   }
+
+  m_dbSessionManager->exec();
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::removeDatabase() const
+void GCMainWindow::removeDatabase()
 {
+  createDBSessionManager();
+
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
     or not a user is on the verge of messing something up... */
@@ -771,12 +789,16 @@ void GCMainWindow::removeDatabase() const
   {
     m_dbSessionManager->removeDatabase( m_domDoc->documentElement().tagName() );
   }
+
+  m_dbSessionManager->exec();
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::switchActiveDatabase() const
+void GCMainWindow::switchActiveDatabase()
 {
+  createDBSessionManager();
+
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
     or not a user is on the verge of messing something up... */
@@ -788,6 +810,8 @@ void GCMainWindow::switchActiveDatabase() const
   {
     m_dbSessionManager->switchActiveDatabase( m_domDoc->documentElement().tagName() );
   }
+
+  m_dbSessionManager->exec();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1484,6 +1508,18 @@ void GCMainWindow::toggleAddElementWidgets()
     ui->addElementComboBox->setEnabled( true );
     ui->addChildElementButton->setEnabled( true );
     ui->emptyProfileHelpButton->setVisible( false );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::createDBSessionManager()
+{
+  if( !m_dbSessionManager )
+  {
+    m_dbSessionManager = new GCDBSessionManager( this );
+    connect( m_dbSessionManager, SIGNAL( reset() ), this, SLOT( resetDOM() ) );
+    connect( m_dbSessionManager, SIGNAL( activeDatabaseChanged( QString ) ), this, SLOT( activeDatabaseChanged( QString ) ) );
   }
 }
 

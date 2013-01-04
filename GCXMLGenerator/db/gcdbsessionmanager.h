@@ -29,48 +29,50 @@
 #ifndef GCDBSESSIONMANAGER_H
 #define GCDBSESSIONMANAGER_H
 
-#include <QObject>
-#include "forms/gcknowndbform.h"
+#include <QDialog>
 
-/*----------------------------------------------------------------------------------
+namespace Ui
+{
+  class GCDBSessionManager;
+}
 
-   Responsible for managing database connections and active database sessions
-   and will prompt the user to confirm actions or changes that may result in
-   the current DOM doc being reset.
+/// Responsible for managing database connections and active database sessions.
 
-----------------------------------------------------------------------------------*/
-
-class GCDBSessionManager : public QObject
+/**
+   This class is responsible for managing database connections and active database sessions
+   and will prompt the user to confirm actions or changes that may result in the current DOM
+   doc being reset.
+*/
+class GCDBSessionManager : public QDialog
 {
   Q_OBJECT
-
+  
 public:
   explicit GCDBSessionManager( QWidget *parent = 0 );
+  ~GCDBSessionManager();
 
-  void initialiseSession();
+  void selectActiveDatabase();
   void switchActiveDatabase( const QString &currentRoot = QString() );
-  void removeDatabase      ( const QString &currentRoot = QString() );
+  void removeDatabase( const QString &currentRoot = QString() );
 
 public slots:
   void addExistingDatabase( const QString &currentRoot = QString() );
-  void addNewDatabase     ( const QString &currentRoot = QString() );
+  void addNewDatabase( const QString &currentRoot = QString() );
 
 signals:
   void activeDatabaseChanged( QString );
   void reset();
-  
+
 private slots:
-  void removeDBConnection( const QString &dbName );
-  void setActiveDatabase ( const QString &dbName );
+  void removeDBConnection();
+  void setActiveDatabase();
 
 private:
   void showErrorMessageBox( const QString &errorMsg );
-  void addDBConnection    ( const QString &dbName );
-  void showKnownDBForm    ( GCKnownDBForm::Buttons buttons );
-
-  QWidget *m_parentWidget;
-  QString  m_currentRoot;
+  void addDBConnection( const QString &dbName );
   
+  Ui::GCDBSessionManager *ui;
+  QString  m_currentRoot;
 };
 
 #endif // GCDBSESSIONMANAGER_H

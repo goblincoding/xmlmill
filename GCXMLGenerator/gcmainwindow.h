@@ -115,10 +115,10 @@ private slots:
   void saveXMLFileAs();
 
   /* DOM and DB. */
-  void addNewDatabase() const;
-  void addExistingDatabase() const;
-  void removeDatabase() const;
-  void switchActiveDatabase() const;
+  void addNewDatabase();
+  void addExistingDatabase();
+  void removeDatabase();
+  void switchActiveDatabase();
   void importXMLToDatabase();
 
   void deleteElementFromDocument();
@@ -162,9 +162,11 @@ private:
 
   bool queryResetDOM( const QString &resetReason );
 
+  void createDBSessionManager();
+
   Ui::GCMainWindow   *ui;
-  GCDBSessionManager *m_dbSessionManager;
   QSignalMapper      *m_signalMapper;
+  GCDBSessionManager *m_dbSessionManager;
   QDomDocument       *m_domDoc;
   QTableWidgetItem   *m_activeAttribute;
   QWidget            *m_currentCombo;

@@ -27,6 +27,7 @@
  */
 
 #include "gcdbsessionmanager.h"
+#include "ui_gcdbsessionmanager.h"
 #include "db/gcdatabaseinterface.h"
 #include "utils/gcmessagespace.h"
 
@@ -36,17 +37,49 @@
 /*--------------------------------------------------------------------------------------*/
 
 GCDBSessionManager::GCDBSessionManager( QWidget *parent ) :
-  QObject       ( parent ),
-  m_parentWidget( parent ),
-  m_currentRoot ( "" )
+  QDialog      ( parent ),
+  ui           ( new Ui::GCDBSessionManager ),
+  m_currentRoot( "" )
 {
+  ui->setupUi( this );
+
+  QStringList dbList = GCDataBaseInterface::instance()->getDBList();
+
+  if( dbList.empty() )
+  {
+    ui->okButton->setVisible( false );
+    ui->comboBox->addItem( "Let there be profiles! (i.e. you'll have to add some)" );
+  }
+  else
+  {
+    ui->comboBox->addItems( dbList );
+  }
+
+  connect( ui->okButton,          SIGNAL( clicked() ), this, SLOT( setActiveDatabase() ) );
+  connect( ui->addNewButton,      SIGNAL( clicked() ), this, SLOT( addNewDatabase() ) );
+  connect( ui->addExistingButton, SIGNAL( clicked() ), this, SLOT( addExistingDatabase() ) );
+  connect( ui->cancelButton,      SIGNAL( clicked() ), this, SLOT( reject() ) );
+  connect( ui->cancelButton,      SIGNAL( clicked() ), this, SLOT( close() ) );
+
+  setAttribute( Qt::WA_DeleteOnClose );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::initialiseSession()
+GCDBSessionManager::~GCDBSessionManager()
 {
-  showKnownDBForm( GCKnownDBForm::ShowAll );
+  delete ui;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDBSessionManager::selectActiveDatabase()
+{
+  ui->addNewButton->setVisible( true );
+  ui->addExistingButton->setVisible( true );
+
+  disconnect( ui->okButton, SIGNAL( clicked() ), this, SLOT( removeDBConnection() ) );
+  connect   ( ui->okButton, SIGNAL( clicked() ), this, SLOT( setActiveDatabase() ) );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -56,7 +89,7 @@ void GCDBSessionManager::switchActiveDatabase( const QString &currentRoot )
   /* Switching DB sessions while building an XML document could result in all kinds of trouble
     since the items known to the current session may not be known to the next. */
   m_currentRoot = currentRoot;
-  showKnownDBForm( GCKnownDBForm::ShowAll );
+  selectActiveDatabase();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -64,7 +97,11 @@ void GCDBSessionManager::switchActiveDatabase( const QString &currentRoot )
 void GCDBSessionManager::removeDatabase( const QString &currentRoot )
 {
   m_currentRoot = currentRoot;
-  showKnownDBForm( GCKnownDBForm::ToRemove );
+  ui->addNewButton->setVisible( false );
+  ui->addExistingButton->setVisible( false );
+
+  disconnect( ui->okButton, SIGNAL( clicked() ), this, SLOT( setActiveDatabase() ) );
+  connect   ( ui->okButton, SIGNAL( clicked() ), this, SLOT( removeDBConnection() ) );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -73,7 +110,7 @@ void GCDBSessionManager::addExistingDatabase( const QString &currentRoot )
 {
   m_currentRoot = currentRoot;
 
-  QString file = QFileDialog::getOpenFileName( m_parentWidget, "Add Existing Profile", QDir::homePath(), "XML Profiles (*.db)" );
+  QString file = QFileDialog::getOpenFileName( this, "Add Existing Profile", QDir::homePath(), "XML Profiles (*.db)" );
 
   /* If the user clicked "OK". */
   if( !file.isEmpty() )
@@ -88,7 +125,7 @@ void GCDBSessionManager::addNewDatabase( const QString &currentRoot )
 {
   m_currentRoot = currentRoot;
 
-  QString file = QFileDialog::getSaveFileName( m_parentWidget, "Add New Profile", QDir::homePath(), "XML Profiles (*.db)" );
+  QString file = QFileDialog::getSaveFileName( this, "Add New Profile", QDir::homePath(), "XML Profiles (*.db)" );
 
   /* If the user clicked "OK". */
   if( !file.isEmpty() )
@@ -99,7 +136,7 @@ void GCDBSessionManager::addNewDatabase( const QString &currentRoot )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::removeDBConnection( const QString &dbName )
+void GCDBSessionManager::removeDBConnection()
 {
   if( !m_currentRoot.isEmpty() )
   {
@@ -124,6 +161,8 @@ void GCDBSessionManager::removeDBConnection( const QString &dbName )
     }
   }
 
+  QString dbName = ui->comboBox->currentText();
+
   if( !GCDataBaseInterface::instance()->removeDatabase( dbName ) )
   {
     QString error = QString( "Failed to remove profile \"%1\": [%2]" ).arg( dbName )
@@ -139,21 +178,27 @@ void GCDBSessionManager::removeDBConnection( const QString &dbName )
     m_currentRoot = "";
     QString errMsg( "The active profile has been removed, please select another." );
     showErrorMessageBox( errMsg );
-    showKnownDBForm( GCKnownDBForm::ShowAll );
+    selectActiveDatabase();
+  }
+  else
+  {
+    this->close();
   }
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::setActiveDatabase( const QString &dbName )
+void GCDBSessionManager::setActiveDatabase()
 {
+  QString dbName = ui->comboBox->currentText();
+
   /* If the current root element is not known to the new session, the user must
     confirm whether or not he/she wants the active document to be reset. */
   if( !m_currentRoot.isEmpty() )
   {
     if( !GCDataBaseInterface::instance()->containsKnownRootElement( dbName, m_currentRoot ) )
     {
-      QMessageBox::StandardButton accept = QMessageBox::question( m_parentWidget,
+      QMessageBox::StandardButton accept = QMessageBox::question( this,
                                                                   "Unsupported document",
                                                                   "The new profile doesn't support your current document and\n"
                                                                   "will be reset if you continue.",
@@ -178,6 +223,7 @@ void GCDBSessionManager::setActiveDatabase( const QString &dbName )
   else
   {
     emit activeDatabaseChanged( dbName );
+    this->close();
   }
 }
 
@@ -200,38 +246,14 @@ void GCDBSessionManager::addDBConnection( const QString &dbName )
 
   if( accepted )
   {
-    setActiveDatabase( dbName );
+    setActiveDatabase();
   }
   else
   {
     if( !GCDataBaseInterface::instance()->hasActiveSession() )
     {
-      showKnownDBForm( GCKnownDBForm::ShowAll );
+      selectActiveDatabase();
     }
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCDBSessionManager::showKnownDBForm( GCKnownDBForm::Buttons buttons )
-{
-  GCKnownDBForm *knownDBForm = new GCKnownDBForm( GCDataBaseInterface::instance()->getDBList(), buttons, m_parentWidget );
-
-  connect( knownDBForm, SIGNAL( newConnection() ),      this, SLOT( addNewDatabase() ) );
-  connect( knownDBForm, SIGNAL( existingConnection() ), this, SLOT( addExistingDatabase() ) );
-  connect( knownDBForm, SIGNAL( selectedDatabase( QString ) ), this, SLOT( setActiveDatabase( QString ) ) );
-  connect( knownDBForm, SIGNAL( databaseRemoved ( QString ) ), this, SLOT( removeDBConnection( QString ) ) );
-
-  /* If we don't have an active DB session, it's probably at program
-    start-up and the user wishes to exit the application by clicking "Cancel". */
-  if( !GCDataBaseInterface::instance()->hasActiveSession() )
-  {
-    connect( knownDBForm, SIGNAL( userCancelled() ), m_parentWidget, SLOT( close() ) );
-    knownDBForm->show();
-  }
-  else
-  {
-    knownDBForm->exec();
   }
 }
 
@@ -239,7 +261,7 @@ void GCDBSessionManager::showKnownDBForm( GCKnownDBForm::Buttons buttons )
 
 void GCDBSessionManager::showErrorMessageBox( const QString &errorMsg )
 {
-  QMessageBox::critical( m_parentWidget, "Error!", errorMsg );
+  QMessageBox::critical( this, "Error!", errorMsg );
 }
 
 /*--------------------------------------------------------------------------------------*/

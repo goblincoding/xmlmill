@@ -43,10 +43,8 @@ SOURCES += main.cpp\
     gcmainwindow.cpp \
     db/gcbatchprocessorhelper.cpp \    
     xml/xmlsyntaxhighlighter.cpp \
-    forms/gcknowndbform.cpp \
     utils/gccombobox.cpp \
     forms/gcmessagedialog.cpp \
-    utils/gcdbsessionmanager.cpp \
     utils/gcmessagespace.cpp \
     forms/gchelpdialog.cpp \
     forms/gcnewdbwizard.cpp \
@@ -54,17 +52,16 @@ SOURCES += main.cpp\
     forms/gcadditemsform.cpp \
     forms/gcremoveitemsform.cpp \
     forms/gcsnippetsform.cpp \
-    utils/gcdomelementinfo.cpp
+    utils/gcdomelementinfo.cpp \
+    db/gcdbsessionmanager.cpp
 
 HEADERS  += \
     db/gcdatabaseinterface.h \
     gcmainwindow.h \
     db/gcbatchprocessorhelper.h \
     xml/xmlsyntaxhighlighter.h \
-    forms/gcknowndbform.h \
     utils/gccombobox.h \
     forms/gcmessagedialog.h \
-    utils/gcdbsessionmanager.h \
     utils/gcmessagespace.h \
     forms/gchelpdialog.h \
     forms/gcnewdbwizard.h \
@@ -72,18 +69,19 @@ HEADERS  += \
     forms/gcadditemsform.h \
     forms/gcremoveitemsform.h \
     forms/gcsnippetsform.h \
-    utils/gcdomelementinfo.h
+    utils/gcdomelementinfo.h \
+    db/gcdbsessionmanager.h
 
 FORMS    += \
     gcmainwindow.ui \
-    forms/gcknowndbform.ui \
     forms/gcmessagedialog.ui \
     forms/gchelpdialog.ui \
     forms/gcnewdbwizard.ui \
     forms/gcsearchform.ui \
     forms/gcremoveitemsform.ui \
     forms/gcadditemsform.ui \
-    forms/gcsnippetsform.ui
+    forms/gcsnippetsform.ui \
+    db/gcdbsessionmanager.ui
 
 RESOURCES += \
     resources/gcresources.qrc
