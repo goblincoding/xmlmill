@@ -54,16 +54,35 @@ class GCAddItemsForm : public QDialog
   Q_OBJECT
   
 public:
+  /*! Constructor. */
   explicit GCAddItemsForm( QWidget *parent = 0 );
+
+  /*! Destructor. */
   ~GCAddItemsForm();
   
 private slots:
+  /*! Triggered when the "Add" button is clicked.  The new element will be added as a 
+      first level child of the representative selected tree widget item if such an item exists, 
+      or as a new root element if it doesn't. */
   void addElementAndAttributes();
+
+  /*! Displays help specific to this form. */
   void showHelp();
 
 private:
+  /*! Populates the tree widget with element names.  This function starts the recursive process of
+      populating the tree widget with items corresponding to all the document types and corresponding
+      elements known to the active database.  The DOM element hierarchy is preserved in the tree view. */
   void populateTreeWidget();
+
+  /*! Processes individual elements.  This function is called recursively for each element in the active
+      database, creating a representative tree widget item for the element and adding it (the item) to
+      the correct parent.
+      @param element - the name of the element for which a tree widget item must be created.
+      @param parent - the tree widget item that will act as the parent for the newly created item. */
   void processNextElement ( const QString &element, QTreeWidgetItem *parent );
+
+  /*! Display an error message box if any errors are encountered. */
   void showErrorMessageBox( const QString &errorMsg );
 
   Ui::GCAddItemsForm *ui;

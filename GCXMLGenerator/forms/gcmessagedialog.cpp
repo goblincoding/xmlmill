@@ -62,10 +62,12 @@ GCMessageDialog::GCMessageDialog( bool *remember,
   switch( defaultButton )
   {
     case Yes:
+      /* Deliberate fall-through. */
     case OK:
       ui->acceptButton->setDefault( true );
       break;
     case No:
+      /* Deliberate fall-through. */
     case Cancel:
       ui->rejectButton->setDefault( true );
   }

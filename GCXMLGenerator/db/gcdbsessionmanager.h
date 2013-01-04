@@ -48,19 +48,43 @@ class GCDBSessionManager : public QDialog
   Q_OBJECT
   
 public:
+  /*! Constructor. */
   explicit GCDBSessionManager( QWidget *parent = 0 );
+
+  /*! Destructor. */
   ~GCDBSessionManager();
 
+  /*! Select a known database from the dropdown, or add a new or existing database from file. */
   void selectActiveDatabase();
+
+  /*! Switch to a known database from the dropdown, or to a new
+      or existing database from file. 
+      @param currentRoot - used to determine whether or not the change will affect
+                           the active document. */
   void switchActiveDatabase( const QString &currentRoot = QString() );
+
+  /*! Remove a known database from the list.
+      @param currentRoot - used to determine whether or not the change will affect
+                           the active document. */
   void removeDatabase( const QString &currentRoot = QString() );
 
 public slots:
+  /*! Add an existing database from file.
+      @param currentRoot - used to determine whether or not the change will affect
+                           the active document. */
   void addExistingDatabase( const QString &currentRoot = QString() );
+
+  /*! Create and add a new database.
+      @param currentRoot - used to determine whether or not the change will affect
+                           the active document. */
   void addNewDatabase( const QString &currentRoot = QString() );
 
 signals:
+  /*! Emitted whenever the active database session is changed. */
   void activeDatabaseChanged( QString );
+
+  /*! Emitted when the database change affects the current active document and 
+      informs the listener that the document was reset. */
   void reset();
 
 private slots:

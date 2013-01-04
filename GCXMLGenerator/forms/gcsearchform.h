@@ -45,20 +45,48 @@ class GCSearchForm : public QDialog
   Q_OBJECT
   
 public:
+  /*! Constructor.
+      @param elements - a list of all the elements in the active document.
+      @param docContents - the string representation of the active document's DOM content. */
   explicit GCSearchForm( const QList< QDomElement > &elements, const QString &docContents, QWidget *parent = 0 );
+
+  /*! Destructor. */
   ~GCSearchForm();
 
 signals:
+  /*! Emitted when the search string is found in the document.  The element emitted along with this 
+      signal will contain the matched string in either its name, or the name of an associated attribute 
+      or an attribute value. */
   void foundElement( const QDomElement &element );
 
 private slots:
+  /*! Triggered when the user clicks the search button. If a match has already been found,
+      this function will search for the next occurrence of the search string (if any). 
+      Repeatedly triggering this slot will cause the search to cycle through all the
+      matches in the user-specified direction. */
   void search();
+
+  /*! Resets the text edit's cursor to the top or the bottom of the text edit (depending
+      on the direction of the search) so that the user can keep cycling through all the
+      matches (if any). */
   void resetCursor();
+
+  /*! Triggered when the user ticks the "Search Up" checkbox. If checked, the search
+      will try to find a match above the current cursor position, otherwise the search will
+      try to find a match below the cursor position. */
   void searchUp();
+
+  /*! Triggered when the user ticks the "Case Sensitive" checkbox. If checked, the search
+      string's case will be matched exactly. */
   void caseSensitive();
+
+  /*! Triggered when the user ticks the "Whole Words Only" checkbox. If checked, the search
+      string's content will be matched exactly. */
   void wholeWords();
   
 private:
+  /*! Called from within the search function when a match is found and emits the foundElement
+      signal. */
   void foundMatch( const QDomElement &element );
 
   Ui::GCSearchForm *ui;

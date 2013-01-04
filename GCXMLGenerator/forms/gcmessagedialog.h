@@ -43,22 +43,25 @@ class GCMessageDialog : public QDialog
   
 public:
 
+  /*! Determines the type of icon that will be set on the message dialog. */
   enum Icon
   {
-    NoIcon,
-    Information,
-    Warning,
-    Critical,
-    Question
+    NoIcon,       /*!< No icon will be shown. */
+    Information,  /*!< The message is of an informative nature. */
+    Warning,      /*!< The message is a warning. */
+    Critical,     /*!< The message contains critical information. */
+    Question      /*!< The message is a question and requires user input. */
   };
 
+  /*! Determines the combination of buttons that will be shown. */
   enum ButtonCombo
   {
-    OKOnly,
-    YesNo,
-    OKCancel
+    OKOnly,   /*!< Only the "OK" button should be made available. */
+    YesNo,    /*!< The buttons shown should be "Yes" and "No". */
+    OKCancel  /*!< The buttons shown should be "OK" and "Cancel". */
   };
 
+  /*! Represents the individual buttons available. */
   enum Buttons
   {
     Yes,
@@ -67,15 +70,26 @@ public:
     Cancel
   };
 
+  /*! Constructor.
+      @param remember - this flag should be passed in from the calling object and will be set
+                        when the user checks the relevant box
+      @param heading - the message box header
+      @param text - the actual message text
+      @param buttons - the buttons that should be displayed for this particular message
+      @param defaultButton - the button that should be highlighted as the default
+      @param icon - the icon associated with this particular message. */
   explicit GCMessageDialog( bool *remember,
                             const QString &heading,
                             const QString &text,
                             ButtonCombo buttons,
                             Buttons defaultButton,
                             Icon icon = NoIcon );
+
+  /*! Destructor. */
   ~GCMessageDialog();
 
 private slots:
+  /*! Triggered when the user checks or unchecks the "Don't ask me again" box. */
   void setRememberUserChoice( bool remember );
   
 private:

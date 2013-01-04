@@ -56,7 +56,7 @@ public:
   /*! Includes "attribute" in the active document. */
   void includeAttribute( const QString &attribute );
 
-  /*! Returns the element's name. */
+  /*! Returns the wrapped element's name. */
   QString elementName() const;
 
   /*! Returns a list of all the attributes that should be included in the active document. */

@@ -32,8 +32,8 @@
 /*--------------------------------------------------------------------------------------*/
 
 GCDomElementInfo::GCDomElementInfo( QDomElement element ) :
-  m_element           ( element ),
-  m_elementExcluded   ( false ),
+  m_element        ( element ),
+  m_elementExcluded( false ),
   m_includedAttributes()
 {
   QDomNamedNodeMap attributes = m_element.attributes();

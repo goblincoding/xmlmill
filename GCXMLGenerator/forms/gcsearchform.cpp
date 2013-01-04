@@ -88,11 +88,12 @@ void GCSearchForm::search()
   {
     m_wasFound = true;
 
-    /* Highlight the entire node - element, attributes and attribute values. */
+    /* Highlight the entire node (element, attributes and attribute values) 
+      in which the match was found. */
     m_text.moveCursor( QTextCursor::StartOfLine );
     m_text.moveCursor( QTextCursor::EndOfLine, QTextCursor::KeepAnchor );
 
-    /* Remove the special characters. */
+    /* Remove special characters. */
     QString nodeText = m_text.textCursor().selectedText().remove( QRegExp( "<|>|\\/") ).trimmed();
 
     /* Extract the element name, attributes and attribute values. The element's
@@ -128,8 +129,8 @@ void GCSearchForm::search()
       {
         QDomNamedNodeMap attributeNodes = m_elements.at( i ).attributes();
 
-        /* First ensure that this node has exactly the same number of attributes
-          as what we expect. */
+        /* First ensure that this node has exactly the right number of attributes
+          we expect. */
         if( attributeMap.keys().size() == attributeNodes.size() )
         {
           bool exactMatch( true );
@@ -171,7 +172,7 @@ void GCSearchForm::search()
 
 void GCSearchForm::resetCursor()
 {
-  /* Reset cursor so that we may keep cycling through. */
+  /* Reset cursor so that we may keep cycling through the document content. */
   if( ui->searchUpCheckBox->isChecked() )
   {
     m_text.moveCursor( QTextCursor::End );

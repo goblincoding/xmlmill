@@ -42,7 +42,11 @@ class GCHelpDialog : public QDialog
   Q_OBJECT
   
 public:
+  /*! Constructor. 
+      @param text - the "Help" text that should be displayed. */
   explicit GCHelpDialog( const QString &text, QWidget *parent = 0 );
+
+  /*! Destructor. */
   ~GCHelpDialog();
   
 private:

@@ -55,9 +55,9 @@ GCDBSessionManager::GCDBSessionManager( QWidget *parent ) :
     ui->comboBox->addItems( dbList );
   }
 
+  connect( ui->addExistingButton, SIGNAL( clicked() ), this, SLOT( addExistingDatabase() ) );
   connect( ui->okButton,          SIGNAL( clicked() ), this, SLOT( setActiveDatabase() ) );
   connect( ui->addNewButton,      SIGNAL( clicked() ), this, SLOT( addNewDatabase() ) );
-  connect( ui->addExistingButton, SIGNAL( clicked() ), this, SLOT( addExistingDatabase() ) );
   connect( ui->cancelButton,      SIGNAL( clicked() ), this, SLOT( reject() ) );
   connect( ui->cancelButton,      SIGNAL( clicked() ), this, SLOT( close() ) );
 

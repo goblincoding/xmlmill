@@ -72,7 +72,7 @@ public:
   /*! Singleton accessor. */
   static GCDataBaseInterface* instance();
 
-  /*! Call this function before using this interface for the first time to ensure that
+  /*! \warning Call this function before using this interface for the first time to ensure that
       the known databases were initialised successfully. */
   bool initialised();
 
@@ -102,11 +102,13 @@ public:
 
   /*! Updates the list of known attribute values that is associated with "element" and its
       corresponding "attribute" by appending the new attribute values to the existing list
-      (nothing is deleted). */
+      (nothing is deleted). 
+      \sa replaceAttributeValues */
   bool updateAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const;
 
   /*! Updates the list of known attribute values that is associated with "element" and its
-      corresponding "attribute" by replacing all the existing values with those from the new list. */
+      corresponding "attribute" by replacing all the existing values with those from the new list. 
+      \sa updateAttributeValues */
   bool replaceAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const;
 
   /*! Removes "element" from the active database. */
@@ -171,22 +173,38 @@ public slots:
 
 private:
   static GCDataBaseInterface *m_instance;
+
+  /*! Constructor. */
   GCDataBaseInterface();
 
+  /*! Returns a list of known attributes. */
   QStringList knownAttributeKeys() const;
-  QSqlQuery selectElement  ( const QString &element, bool &success ) const;
+
+  /*! Selects "element" from the database.  The active query for the command is returned (the function does not
+      care whether or not the record exists). */      
+  QSqlQuery selectElement( const QString &element, bool &success ) const;
+
+  /*! Selects "attribute" corresponding to "associatedElement" from the database.  The active query for the command 
+      is returned (the function does not care whether or not the record exists). */ 
   QSqlQuery selectAttribute( const QString &attribute, const QString &associatedElement, bool &success ) const;
 
   /* Overloaded for private use. */
   QStringList knownRootElements( QSqlDatabase db ) const;
 
-  /* After batch processing a DOM document, we concatenate new values to existing values
-    in the record fields.  This function removes all duplicates that may have been
-    introduced in this way by consolidating the values and updating the records. */
+  /*!  Removes all duplicates that may have been introduced during batch processing.
+       After batch processing a DOM document, we concatenate new values to existing values
+       in the record fields.  This function removes all duplicates that may have been
+       introduced in this way by consolidating the values and updating the records. */
   bool removeDuplicatesFromFields() const;
 
+  /*! Opens the database connection corresponding to "dbConName".  This function will also close
+      current sessions (if any) before opening the new one. */
   bool openConnection( const QString &dbConName );
+
+  /*! Creates all the relevant database tables. */
   bool createTables() const;
+
+  /*! Saves the list of known databases to a text file. */
   void saveDatabaseFile() const;
 
   QSqlDatabase    m_sessionDB;

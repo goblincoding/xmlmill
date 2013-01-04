@@ -40,28 +40,77 @@ namespace Ui
 class QTreeWidgetItem;
 
 /// Allows the user to remove items from the active database.
+
+/** All changes made via this form are irreversible and will be executed immediately against the
+    active database.
+*/
 class GCRemoveItemsForm : public QDialog
 {
   Q_OBJECT
   
 public:
+  /*! Constructor. */
   explicit GCRemoveItemsForm( QWidget *parent = 0 );
+
+  /*! Destructor. */
   ~GCRemoveItemsForm();
 
 private slots:
+  /*! Triggered when an item in the tree widget is clicked.  The element name corresponding to 
+      the tree widget item is flagged as currently active and the attribute combo box is
+      populated with the element's known associated attributes. */
   void elementSelected( QTreeWidgetItem *item, int column );
-  void attributeActivated    ( const QString &attribute );
-  void deleteElement         ( const QString &element = QString() );
-  void removeChildElement    ();
-  void updateAttributeValues ();
-  void deleteAttribute       ();
-  void showElementHelp       ();
-  void showAttributeHelp     ();
+
+  /*! Triggered when the user clicks the "Delete Element" button. A complete clean-up of everything
+      (first level children, attributes, attribute values, etc) is executed recursively for the
+      deleted element (in other words, everything related to the element is removed, including
+      the entire hierarchy of elements below it). */
+  void deleteElement( const QString &element = QString() );
+
+  /*! Triggered when the "Remove Child" button is clicked. The currently active element
+      (corresponding to the selected tree widget item) is removed as a first level child
+      from its immediate parent element. */
+  void removeChildElement();
+
+  /*! Triggered when the current attribute in the attribute combo box changes.  Activation of
+      an attribute results in the plain text edit being populated with all the attribute's
+      known values. */
+  void attributeActivated( const QString &attribute );
+
+  /*! Triggered when the "Update Values" button is clicked.  The attribute values remaining
+      in the plain text edit after editing is saved against the selected attribute.  This action
+      does not append the values to the existing list, but rather replaces the existing values. */
+  void updateAttributeValues();
+
+  /*! Triggered when the "Delete Attribute" button is clicked.  The attribute selected in the
+      attribute combo box is deleted from the active element's list of associated attributes. */
+  void deleteAttribute();
+
+  /*! Triggered by the "show element help" button.  Displays help information related to actions
+      executed against elements. */
+  void showElementHelp();
+
+  /*! Triggered by the "show attribute help" button.  Displays help information related to actions
+      executed against attributes. */
+  void showAttributeHelp();
   
 private:
+  /*! Populates the tree widget with element names.  This function starts the recursive process of
+      populating the tree widget with items corresponding to all the document types and corresponding
+      elements known to the active database.  The DOM element hierarchy is preserved in the tree view. */
   void populateTreeWidget();
-  void processNextElement ( const QString &element, QTreeWidgetItem *parent );
+
+  /*! Processes individual elements.  This function is called recursively for each element in the active
+      database, creating a representative tree widget item for the element and adding it (the item) to
+      the correct parent.
+      @param element - the name of the element for which a tree widget item must be created.
+      @param parent - the tree widget item that will act as the parent for the newly created item. */
+  void processNextElement( const QString &element, QTreeWidgetItem *parent );
+
+  /*! Display an error message box if any errors are encountered. */
   void showErrorMessageBox( const QString &errorMsg );
+
+  /*! Removes a deleted element from all elements that may have it in their first level child lists. */
   void updateChildLists();  
 
   Ui::GCRemoveItemsForm *ui;

@@ -41,7 +41,7 @@
   The purpose of this class is to (1) extract all the elements and their associated attributes
   and attribute values from the DOM document passed in as parameter to the constructor and
   (2) to consolidate the lot into QVariantLists that can be used as bind variables for prepared
-  queries intended to be executed in batches (wow, that's a mouthful, see "execBatch" in the Qt
+  queries intended to be executed in batches (that's quite a mouthful, see "execBatch" in the Qt
   documentation for more information on this topic).
 
   The idea is not really to have a long-lived instance of this object in the calling object (i.e.
@@ -198,11 +198,22 @@ public:
   QVariantList attributeValuesToUpdate() const;
 
 private:
+  /*! Processes an element by extracting information related to its first level children, associated
+      attributes and the values of these attributes. This function is called recursively in order to traverse
+      the DOM hierarchy.  */
   void processElement( const QDomElement &parentElement );
+
+  /*! Creates an "ElementRecord" from "element".  Called from within processElement, this function
+      creates the records and adds them to the record map without checking for duplicates.
+      \sa sortRecords */
   void createRecord  ( const QDomElement &element );
+
+  /*! Sorts all the element records in the unsorted record map and consolidates values where duplicates
+      are encountered.
+      \sa createRecord */
   void sortRecords();
 
-  QString      m_stringListSeparator;
+  QString m_stringListSeparator;
 
   QStringList  m_knownElements;
   QStringList  m_knownAttributeKeys;
@@ -223,8 +234,8 @@ private:
   QVariantList m_associatedElementsToUpdate;
   QVariantList m_attributeValuesToUpdate;
 
-  /* Represents a single element's associated first level children,
-    attributes and known attribute values. */
+  /*! Represents a single element's associated first level children,
+      attributes and known attribute values. */
   struct ElementRecord
   {
     QStringList children;

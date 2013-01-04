@@ -32,21 +32,29 @@
 #include "forms/gcmessagedialog.h"
 #include <QVariant>
 
-/*----------------------------------------------------------------------------------------
+/// Responsible for the display of messages requiring user input.
 
-   GCMessageSpace is responsible for the display of messages that require user input
-   where the user may wish to save his/her preference.  In cases where a user
-   preference can be saved, GCMessageSpace will persist the changes to whatever medium
-   exists on the platform it's running on (Windows registry, Mac XML, Unix ini).
+/**
+   All message prompts displayed via this namespace contain the option to remember the user's
+   preference.  In cases where a user preference can be saved, GCMessageSpace will persist the changes 
+   to whatever medium exists on the platform it's running on (Windows registry, Mac XML, Unix ini).
 
    This space is not responsible for error messages or messages that must always be shown.
-
-----------------------------------------------------------------------------------------*/
-
+*/
 namespace GCMessageSpace
 {
-  /* This function will return the saved user preference (if there is one),
-    or prompt the user for a decision and return the user's choice. */
+  /*! This function will return the saved user preference (if there is one),
+      or prompt the user for a decision and return the user's choice. 
+      @param uniqueMessageKey - a unique name representing a specific message, this name is saved to 
+                                the registry/xml/ini file
+      @param heading - the message box header
+      @param text - the actual message text
+      @param buttons - the buttons that should be displayed for this particular message
+      @param defaultButton - the button that should be highlighted as the default
+      @param icon - the icon associated with this particular message
+      @param saveCancel - if this value is set to "false", "Cancel"-ed user preferences
+                          will not be saved, irrespective of whether or not the user
+                          ticked the relevant box. */
   bool userAccepted( const QString &uniqueMessageKey,
                      const QString &heading,
                      const QString &text,
@@ -55,6 +63,7 @@ namespace GCMessageSpace
                      GCMessageDialog::Icon icon = GCMessageDialog::NoIcon,
                      bool saveCancel = true );
 
+  /*! Deletes all saved preferences from the registry/XML/ini files. */
   void forgetAllPreferences();
 }
 
