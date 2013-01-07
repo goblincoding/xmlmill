@@ -53,6 +53,7 @@
 #include <QUrl>
 #include <QCloseEvent>
 #include <QFont>
+#include <QScrollBar>
 
 /*--------------------------------------------------------------------------------------*/
 
@@ -1402,6 +1403,7 @@ void GCMainWindow::setTextEditContent( const QDomElement &element )
   {
     ui->dockWidgetTextEdit->find( m_elementInfo.value( m_treeItemNodes.key( element ) )->toString() );
     ui->dockWidgetTextEdit->ensureCursorVisible();
+    ui->dockWidgetTextEdit->horizontalScrollBar()->triggerAction( QScrollBar::SliderToMinimum );
   }
 }
 

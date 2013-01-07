@@ -7,3 +7,8 @@ Settings should remember size of GUI, etc etc
 Context menu - duplicate element (entire element), remove element
 
 Text edit text highlighting...need to find out if there is a way to highlight a specific node, currently the text highlighted is the FIRST text found for any particular string which means that, for nodes that are identical, we highlight the wrong one in the text edit window.
+
+Remove "Super User Mode" info from help.
+Stick help button in to explain <Element> additions.
+Change "Add Child Element" button to only show once doc has been initialised.
+Imported file shouldn't automatically become the active file...or should it?
