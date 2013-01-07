@@ -191,10 +191,10 @@ private:
   /* Overloaded for private use. */
   QStringList knownRootElements( QSqlDatabase db ) const;
 
-  /*!  Removes all duplicates that may have been introduced during batch processing.
-       After batch processing a DOM document, we concatenate new values to existing values
-       in the record fields.  This function removes all duplicates that may have been
-       introduced in this way by consolidating the values and updating the records. */
+  /*! Removes all duplicates that may have been introduced during batch processing.
+      After batch processing a DOM document, we concatenate new values to existing values
+      in the record fields.  This function removes all duplicates that may have been
+      introduced in this way by consolidating the values and updating the records. */
   bool removeDuplicatesFromFields() const;
 
   /*! Opens the database connection corresponding to "dbConName".  This function will also close

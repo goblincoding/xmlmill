@@ -43,6 +43,11 @@ class QTreeWidgetItem;
 
 /** All changes made via this form are irreversible and will be executed immediately against the
     active database.
+
+    The Qt::WA_DeleteOnClose flag is set for all instances of this form.  If you're
+    unfamiliar with Qt, this means that Qt will delete this widget as soon as the widget
+    accepts the close event (i.e. you don't need to worry about clean-up of dynamically
+    created instances of this object).
 */
 class GCRemoveItemsForm : public QDialog
 {

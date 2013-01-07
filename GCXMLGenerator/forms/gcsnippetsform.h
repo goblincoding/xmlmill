@@ -53,6 +53,11 @@ class QTableWidgetItem;
   to the name).  Only one element of each type can be inserted into any specific snippet as it
   makes no sense to insert multiple elements of the same type - for those use cases the user
   must create a smaller snippet subset.
+
+  Alo, the Qt::WA_DeleteOnClose flag is set for all instances of this form.  If you're
+  unfamiliar with Qt, this means that Qt will delete this widget as soon as the widget
+  accepts the close event (i.e. you don't need to worry about clean-up of dynamically
+  created instances of this object).
 */
 class GCSnippetsForm : public QDialog
 {
@@ -76,18 +81,48 @@ signals:
   void snippetAdded();
 
 private slots:
+  /*! Triggered when an element is selected in the tree widget.  This function populates the attributes
+      table with the known attributes and values associated with the selected element. */
   void elementSelected( QTreeWidgetItem *item, int column );
+
+  /*! Triggered whenever a user clicks on an attribute in the attribute table, or changes an attribute's
+      include state. */
   void attributeChanged( QTableWidgetItem *item );
+
+  /*! Triggered whenever an attribute's value changes. */
   void attributeValueChanged();
+
+  /*! Triggered whenever the "Add" button is clicked.  This function builds the snippet(s) that must
+      be added to the active document and furthermore informs all listeners that a snippet has been added
+      via the snippetAdded signal. */
   void addSnippet();
+
+  /*! Displays help information for this form. */
   void showHelp();
   
 private:
+  /*! Populates the tree widget with element names.  This function starts the recursive process of
+      populating the tree widget with items corresponding to all the document types and corresponding
+      elements known to the active database.  The DOM element hierarchy is preserved in the tree view. */
   void populateTreeWidget( const QString &elementName );
-  void processNextElement( const QString &elementName, QTreeWidgetItem *parent, QDomNode parentNode );
-  void updateCheckStates ( QTreeWidgetItem *item );
 
+  /*! Processes individual elements.  This function is called recursively for each element in the active
+      database, creating a representative tree widget item for the element and adding it (the item) to
+      the correct parent.
+      @param element - the name of the element for which a tree widget item must be created.
+      @param parent - the tree widget item that will act as the parent for the newly created item. */
+  void processNextElement( const QString &elementName, QTreeWidgetItem *parent, QDomNode parentNode );
+
+  /*! Whenever a user checks or unchecks an element to include or exclude it from the snippet being built,
+      the element's parent(s) and children need to be updated accordingly.  I.e. including/excluding an 
+      element must also include/exclude all of its children (and their children, etc) as well as its parent
+      (and its parent's parent, etc), for a smooth and intuitive user experience. */
+  void updateCheckStates( QTreeWidgetItem *item );
+
+  /*! Display an error message box if any errors are encountered. */
   void showErrorMessageBox( const QString &errorMsg );
+
+  /*! Deletes all GCElementInfo objects from the map (and clears the map of all remaining pointers). */
   void deleteElementInfo();
 
   Ui::GCSnippetsForm *ui;

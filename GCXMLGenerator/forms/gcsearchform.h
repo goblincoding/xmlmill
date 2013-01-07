@@ -40,6 +40,12 @@ namespace Ui
 class QDomElement;
 
 /// Search through the current document for a specific element/attribute/value.
+
+/** The Qt::WA_DeleteOnClose flag is set for all instances of this form.  If you're
+    unfamiliar with Qt, this means that Qt will delete this widget as soon as the widget
+    accepts the close event (i.e. you don't need to worry about clean-up of dynamically
+    created instances of this object).
+*/
 class GCSearchForm : public QDialog
 {
   Q_OBJECT

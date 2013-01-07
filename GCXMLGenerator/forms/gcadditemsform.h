@@ -42,8 +42,12 @@ class QTreeWidgetItem;
   attribute appears on its own line in the input text edit.  
   
   The user will also be allowed to continue adding elements until "Done" is selected.
-*/
 
+  Finally, the Qt::WA_DeleteOnClose flag is set for all instances of this form.  If you're
+  nfamiliar with Qt, this means that Qt will delete this widget as soon as the widget
+  ccepts the close event (i.e. you don't need to worry about clean-up of dynamically
+  reated instances of this object).
+*/
 namespace Ui
 {
   class GCAddItemsForm;
