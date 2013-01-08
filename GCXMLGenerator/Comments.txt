@@ -12,3 +12,4 @@ Remove "Super User Mode" info from help.
 Stick help button in to explain <Element> additions.
 Change "Add Child Element" button to only show once doc has been initialised.
 Imported file shouldn't automatically become the active file...or should it?
+Really need to do some sort of loading spinner.

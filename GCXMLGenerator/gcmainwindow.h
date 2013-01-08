@@ -145,6 +145,8 @@ private slots:
   void showDOMEditHelp();
   void showMainHelp();
   void goToSite();
+
+  void initialise();
   
 private:
   void processDOMDoc();

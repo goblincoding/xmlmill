@@ -70,7 +70,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   QMainWindow           ( parent ),
   ui                    ( new Ui::GCMainWindow ),
   m_signalMapper        ( new QSignalMapper( this ) ),
-  m_domDoc              ( NULL ),
+  m_domDoc              ( new QDomDocument ),
   m_activeAttribute     ( NULL ),
   m_currentCombo        ( NULL ),
   m_saveTimer           ( NULL ),
@@ -132,33 +132,14 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionAddExistingDatabase, SIGNAL( triggered() ), this, SLOT( addExistingDatabase() ) );
   connect( ui->actionRemoveDatabase, SIGNAL( triggered() ), this, SLOT( removeDatabase() ) );
 
-  /* Initialise the database interface and retrieve the list of database names (this will
-    include the path references to the ".db" files). */
-  if( !GCDataBaseInterface::instance()->initialised() )
-  {
-    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
-    this->close();
-  }
-
-  m_domDoc = new QDomDocument;
-  setAttribute( Qt::WA_QuitOnClose );
-
-  /* If the interface was successfully initialised, prompt the user to choose a database
-    connection for this session. */
-  GCDBSessionManager *manager = createDBSessionManager();
-  manager->selectActiveDatabase();
-  QDialog::DialogCode result = static_cast< QDialog::DialogCode >( manager->exec() );
-
-  if( result == QDialog::Rejected )
-  {
-    QTimer::singleShot( 0, this, SLOT( close() ) );
-  }
+  connect( m_signalMapper, SIGNAL( mapped( QWidget* ) ), this, SLOT( setCurrentComboBox( QWidget* ) ) );
 
   /* Everything happens automagically and the text edit takes ownership. */
   XmlSyntaxHighlighter *highLighter = new XmlSyntaxHighlighter( ui->dockWidgetTextEdit );
   Q_UNUSED( highLighter );
 
-  connect( m_signalMapper, SIGNAL( mapped( QWidget* ) ), this, SLOT( setCurrentComboBox( QWidget* ) ) );
+  /* Wait for the event loop to be initialised before calling this function. */
+  QTimer::singleShot( 0, this, SLOT( initialise() ) );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -168,6 +149,30 @@ GCMainWindow::~GCMainWindow()
   deleteElementInfo();
   delete m_domDoc;
   delete ui;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::initialise()
+{
+  /* Initialise the database interface and retrieve the list of database names (this will
+    include the path references to the ".db" files). */
+  if( !GCDataBaseInterface::instance()->initialised() )
+  {
+    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    this->close();
+  }
+
+  /* If the interface was successfully initialised, prompt the user to choose a database
+    connection for this session. */
+  GCDBSessionManager *manager = createDBSessionManager();
+  manager->selectActiveDatabase();
+  QDialog::DialogCode result = static_cast< QDialog::DialogCode >( manager->exec() );
+
+  if( result == QDialog::Rejected )
+  {
+    this->close();
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -401,7 +406,6 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *item )
     a re-population of the table widget (which results in this slot being called). */
   if( !m_wasTreeItemActivated && !m_newAttributeAdded )
   {
-
     /* When the check state of a table widget item changes, the "itemChagned" signal is emitted
       before the "itemClicked" one and this messes up the logic that follows completely.  Since
       I depend on knowing which attribute is currently active, I needed to insert the following
@@ -824,14 +828,19 @@ void GCMainWindow::importXMLToDatabase()
 
   if( openXMLFile() )
   {
+    QLabel *progress = new QLabel( "Loading...", this, Qt::Popup );
+    progress->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
+    progress->move( window()->frameGeometry().topLeft() + window()->rect().center() /*- progress->rect().center()*/ );
+    progress->show();
+
+    QApplication::processEvents();
+
     if( !GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc ) )
     {
       showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
     }
-    else
-    {
-      processDOMDoc();
-    }
+
+    delete progress;
   }
 
   m_busyImporting = false;
@@ -1308,7 +1317,6 @@ void GCMainWindow::showMainHelp()
 
     /* Qt::WA_DeleteOnClose flag set...no cleanup required. */
     GCHelpDialog *dialog = new GCHelpDialog( fileContent, this );
-
     dialog->show();
   }
 }
