@@ -78,7 +78,7 @@ void GCDBSessionManager::selectActiveDatabase()
   ui->addExistingButton->setVisible( true );
 
   disconnect( ui->okButton, SIGNAL( clicked() ), this, SLOT( removeDBConnection() ) );
-  connect   ( ui->okButton, SIGNAL( clicked() ), this, SLOT( setActiveDatabase() ) );
+  connect   ( ui->okButton, SIGNAL( clicked() ), this, SLOT( setActiveDatabase() ), Qt::UniqueConnection );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -100,7 +100,7 @@ void GCDBSessionManager::removeDatabase( const QString &currentRoot )
   ui->addExistingButton->setVisible( false );
 
   disconnect( ui->okButton, SIGNAL( clicked() ), this, SLOT( setActiveDatabase() ) );
-  connect   ( ui->okButton, SIGNAL( clicked() ), this, SLOT( removeDBConnection() ) );
+  connect   ( ui->okButton, SIGNAL( clicked() ), this, SLOT( removeDBConnection() ), Qt::UniqueConnection );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -226,6 +226,7 @@ void GCDBSessionManager::setActiveDatabase( const QString &dbName )
   }
   else
   {
+    this->hide();
     emit activeDatabaseChanged( dbName );
     this->accept();
     this->close();
