@@ -121,7 +121,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 
   /* Everything table widget related. */
   connect( ui->tableWidget, SIGNAL( itemClicked( QTableWidgetItem* ) ), this, SLOT( attributeSelected( QTableWidgetItem* ) ) );
-  connect( ui->tableWidget, SIGNAL( itemChanged( QTableWidgetItem* ) ), this, SLOT( attributeChanged( QTableWidgetItem* ) ) );  
+  connect( ui->tableWidget, SIGNAL( itemChanged( QTableWidgetItem* ) ), this, SLOT( attributeChanged( QTableWidgetItem* ) ) );
 
   /* Database related. */
   connect( ui->actionAddItems, SIGNAL( triggered() ), this, SLOT( showAddItemsForm() ) );
@@ -179,7 +179,7 @@ void GCMainWindow::initialise()
 
 void GCMainWindow::closeEvent( QCloseEvent *event )
 {
-  if( !m_domDoc->documentElement().isNull() )
+  if( m_fileContentsChanged )
   {
     QMessageBox::StandardButtons accept = QMessageBox::question( this,
                                                                  "Save File?",
@@ -569,7 +569,7 @@ bool GCMainWindow::openXMLFile()
   if( !GCDataBaseInterface::instance()->hasActiveSession() )
   {
     QString errMsg( "No active profile set, please set one for this session." );
-    showErrorMessageBox( errMsg );    
+    showErrorMessageBox( errMsg );
     GCDBSessionManager *manager = createDBSessionManager();
     manager->selectActiveDatabase();
     manager->exec();
@@ -589,10 +589,14 @@ bool GCMainWindow::openXMLFile()
     return false;
   }
 
+  /* Note to future self: although the user would have explicitly saved (or not saved) the file
+    by the time this functionality is encountered, we only reset the document once we have a new,
+    active file to work with since users are fickle and may still change their minds.  In other
+    words, do NOT move this code to before getOpenFileName as previously considered! */
   resetDOM();
+  m_currentXMLFileName = "";
 
-  m_currentXMLFileName = fileName;
-  QFile file( m_currentXMLFileName );
+  QFile file( fileName );
 
   if( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
   {
@@ -600,7 +604,6 @@ bool GCMainWindow::openXMLFile()
                        .arg( fileName )
                        .arg( file.errorString() );
     showErrorMessageBox( errorMsg );
-    m_currentXMLFileName = "";
     return false;
   }
 
@@ -610,10 +613,10 @@ bool GCMainWindow::openXMLFile()
   file.close();
 
   /* This application isn't optimised for dealing with very large XML files (the entire point is that
-      this suite should provide the functionality necessary for the manual manipulation of, e.g. XML config
-      files normally set up by hand via copy and paste exercises), if this file is too large to be handled
-      comfortably, we need to let the user know and also make sure that we don't try to set the DOM content
-      as text in the QTextEdit (QTextEdit is optimised for paragraphs). */
+    this suite should provide the functionality necessary for the manual manipulation of, e.g. XML config
+    files normally set up by hand via copy and paste exercises), if this file is too large to be handled
+    comfortably, we need to let the user know and also make sure that we don't try to set the DOM content
+    as text in the QTextEdit (QTextEdit is optimised for paragraphs). */
   if( fileSize > DOMWARNING &&
       fileSize < DOMLIMIT )
   {
@@ -642,12 +645,14 @@ bool GCMainWindow::openXMLFile()
                        .arg( col );
     showErrorMessageBox( errorMsg );
     resetDOM();
-    m_currentXMLFileName = "";
     return false;
   }
 
+  m_currentXMLFileName = fileName;
+  m_fileContentsChanged = false;    // at first load, nothing has changed
+
   /* If the user is opening an XML file of a kind that isn't supported by the current active DB,
-      we need to warn him/her of this fact and provide them with a couple of options. */
+    we need to warn him/her of this fact and provide them with a couple of options. */
   if( !GCDataBaseInterface::instance()->knownRootElements().contains( m_domDoc->documentElement().tagName() ) )
   {
     /* If we're not already busy importing an XML file, check if the user maybe wants to do so. */
@@ -683,7 +688,10 @@ bool GCMainWindow::openXMLFile()
   {
     /* If the user selected a database that knows of this particular XML profile,
       simply process the document. */
-    processDOMDoc();
+    if( !m_busyImporting )
+    {
+      processDOMDoc();
+    }
   }
 
   return true;
@@ -704,8 +712,8 @@ void GCMainWindow::saveXMLFile()
     if( !file.open( QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text ) )
     {
       QString errMsg = QString( "Failed to save file \"%1\": [%2]." )
-          .arg( m_currentXMLFileName )
-          .arg( file.errorString() );
+                       .arg( m_currentXMLFileName )
+                       .arg( file.errorString() );
       showErrorMessageBox( errMsg );
     }
     else
@@ -838,6 +846,30 @@ void GCMainWindow::importXMLToDatabase()
     if( !GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc ) )
     {
       showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    }
+    else
+    {
+      progress->hide();
+
+      QMessageBox::StandardButtons accept = QMessageBox::question( this,
+                                                                   "Edit file",
+                                                                   "Also load file for editing?",
+                                                                   QMessageBox::Yes | QMessageBox::No,
+                                                                   QMessageBox::Yes );
+
+      if( accept == QMessageBox::Yes )
+      {
+        progress->show();
+        QApplication::processEvents();
+        processDOMDoc();
+      }
+      else
+      {
+        /* DOM was set in the process of opening the XML file and loading its content.  If the user
+          doesn't want to work with the file that was imported, we need to reset it here. */
+        resetDOM();
+        m_currentXMLFileName = "";
+      }
     }
 
     delete progress;
@@ -1156,9 +1188,9 @@ void GCMainWindow::saveDirectEdit()
   if( !doc.setContent( ui->dockWidgetTextEdit->toPlainText(), &xmlErr, &line, &col ) )
   {
     QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3]." )
-        .arg( xmlErr )
-        .arg( line )
-        .arg( col );
+                       .arg( xmlErr )
+                       .arg( line )
+                       .arg( col );
     showErrorMessageBox( errorMsg );
 
     /* Unfortunately the line number returned by the DOM doc doesn't match up with what's
