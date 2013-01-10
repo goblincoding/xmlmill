@@ -473,3 +473,6 @@ GCXMLGenerator/Win32/Debug/gcdomelementinfo.obj
 GCXMLGenerator-build-desktop-Qt_4_8_1_for_Desktop_-_MinGW__Qt_SDK__Debug/ui_gcdbsessionmanager.h
 GCXMLGenerator-build-desktop-Qt_4_8_1_for_Desktop_-_MinGW__Qt_SDK__Debug/Let there be profiles! (i.e. you'll have to add some)
 GCXMLGenerator/resources/spinner.gif
+GCXMLGenerator-build-desktop-Qt_4_8_1_for_Desktop_-_MinGW__Qt_SDK__Debug/debug/gctimerthread.o
+GCXMLGenerator-build-desktop-Qt_4_8_1_for_Desktop_-_MinGW__Qt_SDK__Debug/debug/moc_gctimerthread.cpp
+GCXMLGenerator-build-desktop-Qt_4_8_1_for_Desktop_-_MinGW__Qt_SDK__Debug/debug/moc_gctimerthread.o

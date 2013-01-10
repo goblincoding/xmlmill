@@ -155,6 +155,7 @@ private:
   void setStatusBarMessage( const QString &message );
   void showErrorMessageBox( const QString &errorMsg );
   void setTextEditContent ( const QDomElement &element );
+  void highlightTextElement( const QDomElement &element );
 
   void insertEmptyTableRow();
   void resetTableWidget();
@@ -166,19 +167,19 @@ private:
 
   GCDBSessionManager *createDBSessionManager();
 
-  Ui::GCMainWindow   *ui;
-  QSignalMapper      *m_signalMapper;
-  QDomDocument       *m_domDoc;
-  QTableWidgetItem   *m_activeAttribute;
-  QWidget            *m_currentCombo;
-  QTimer             *m_saveTimer;
-  QLabel             *m_activeSessionLabel;
-  QString             m_currentXMLFileName;
-  QString             m_activeAttributeName;
-  bool                m_wasTreeItemActivated;
-  bool                m_newAttributeAdded;
-  bool                m_busyImporting;
-  bool                m_fileContentsChanged;
+  Ui::GCMainWindow *ui;
+  QSignalMapper    *m_signalMapper;
+  QDomDocument     *m_domDoc;
+  QTableWidgetItem *m_activeAttribute;
+  QWidget          *m_currentCombo;
+  QTimer           *m_saveTimer;
+  QLabel           *m_activeSessionLabel;
+  QString           m_currentXMLFileName;
+  QString           m_activeAttributeName;
+  bool              m_wasTreeItemActivated;
+  bool              m_newAttributeAdded;
+  bool              m_busyImporting;
+  bool              m_fileContentsChanged;
 
   QHash< QTreeWidgetItem*, GCDomElementInfo* > m_elementInfo;
   QHash< QTreeWidgetItem*, QDomElement > m_treeItemNodes;

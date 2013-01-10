@@ -204,11 +204,11 @@ void GCDBSessionManager::setActiveDatabase( const QString &dbName )
     {
       QMessageBox::StandardButton accept = QMessageBox::question( this,
                                                                   "Unsupported document",
-                                                                  "The new profile doesn't support your current document and\n"
-                                                                  "will be reset if you continue.",
+                                                                  "The new profile doesn't support your current document. The\n"
+                                                                  "document will be reset if you continue.",
                                                                   QMessageBox::Ok | QMessageBox::Cancel,
                                                                   QMessageBox::Cancel );
-      if( !accept == QMessageBox::Ok )
+      if( accept != QMessageBox::Ok )
       {
         return;
       }

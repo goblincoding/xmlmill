@@ -40,7 +40,7 @@
 
 #include "xmlsyntaxhighlighter.h"
 
-XmlSyntaxHighlighter::XmlSyntaxHighlighter(QTextEdit *parent)
+XmlSyntaxHighlighter::XmlSyntaxHighlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
 {
     HighlightingRule rule;

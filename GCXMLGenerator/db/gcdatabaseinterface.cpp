@@ -31,6 +31,7 @@
 #include <QStringList>
 #include <QFile>
 #include <QTextStream>
+#include <QApplication>
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlError>
 #include <QtSql/QSqlRecord>
@@ -157,6 +158,8 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument *domDoc ) 
   helper.setKnownAttributes( knownAttributeKeys() );
   helper.createVariantLists();
 
+  qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+
   if( !addRootElement( domDoc->documentElement().tagName() ) )
   {
     /* Last error message is set in "addRootElement". */
@@ -183,6 +186,8 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument *domDoc ) 
         .arg( query.lastError().text() );
     return false;
   }
+
+  qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
 
   /* Batch update all the existing elements by concatenating the new values to the
     existing values. The first '?' represents our string SEPARATOR. */
@@ -216,6 +221,8 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument *domDoc ) 
     return false;
   }
 
+  qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+
   if( !query.prepare( "UPDATE xmlelements "
                       "SET attributes = ( attributes || ? || ? ) "
                       "WHERE element = ?" ) )
@@ -236,6 +243,8 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument *domDoc ) 
     return false;
   }
 
+  qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+
   /* Batch insert all the new attribute values. */
   if( !query.prepare( INSERT_ATTRIBUTEVALUES ) )
   {
@@ -254,6 +263,8 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument *domDoc ) 
         .arg( query.lastError().text() );
     return false;
   }
+
+  qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
 
   /* Batch update all the existing attribute values. */
   if( !query.prepare( "UPDATE xmlattributes "
@@ -1189,6 +1200,8 @@ bool GCDataBaseInterface::removeDuplicatesFromFields() const
               .arg( query.lastError().text() );
           return false;
         }
+
+        qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
       }
     }
     else
@@ -1236,6 +1249,8 @@ bool GCDataBaseInterface::removeDuplicatesFromFields() const
               .arg( query.lastError().text() );
           return false;
         }
+
+        qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
       }
     }
     else

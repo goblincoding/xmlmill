@@ -54,6 +54,7 @@
 #include <QCloseEvent>
 #include <QFont>
 #include <QScrollBar>
+#include <QMovie>
 
 /*--------------------------------------------------------------------------------------*/
 
@@ -135,7 +136,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( m_signalMapper, SIGNAL( mapped( QWidget* ) ), this, SLOT( setCurrentComboBox( QWidget* ) ) );
 
   /* Everything happens automagically and the text edit takes ownership. */
-  XmlSyntaxHighlighter *highLighter = new XmlSyntaxHighlighter( ui->dockWidgetTextEdit );
+  XmlSyntaxHighlighter *highLighter = new XmlSyntaxHighlighter( ui->dockWidgetTextEdit->document() );
   Q_UNUSED( highLighter );
 
   /* Wait for the event loop to be initialised before calling this function. */
@@ -262,7 +263,6 @@ void GCMainWindow::elementChanged( QTreeWidgetItem *item, int column )
           showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
         }
 
-        m_fileContentsChanged = true;
         setTextEditContent( m_treeItemNodes.value( item ).toElement() );
       }
     }
@@ -381,8 +381,7 @@ void GCMainWindow::elementSelected( QTreeWidgetItem *item, int column )
     showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
   }
 
-  ui->dockWidgetTextEdit->moveCursor( QTextCursor::Start );
-  setTextEditContent( element );
+  highlightTextElement( element );
 
   /* The user must not be allowed to add an entire document as a "snippet". */
   if( ui->addElementComboBox->currentText() == m_domDoc->documentElement().tagName() )
@@ -485,7 +484,6 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *item )
     }
 
     m_activeAttributeName = item->text();
-    m_fileContentsChanged = true;
     setTextEditContent( currentElement );
   }
 }
@@ -542,7 +540,6 @@ void GCMainWindow::attributeValueChanged( const QString &value )
       showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
     }
 
-    m_fileContentsChanged = true;
     setTextEditContent( currentElement );
   }
 }
@@ -836,12 +833,18 @@ void GCMainWindow::importXMLToDatabase()
 
   if( openXMLFile() )
   {
-    QLabel *progress = new QLabel( "Loading...", this, Qt::Popup );
-    progress->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
-    progress->move( window()->frameGeometry().topLeft() + window()->rect().center() /*- progress->rect().center()*/ );
+    //QLabel *progress = new QLabel( "Loading...", this, Qt::Popup );
+    QLabel *progress = new QLabel( this, Qt::Popup );
+    progress->setPixmap( QPixmap( ":/resources/goblinicon.jpg" ) );
+    progress->move( window()->frameGeometry().topLeft() + window()->rect().center() - progress->rect().center() );
+
+    QMovie *movie = new QMovie( ":/resources/spinner.gif" );
+    movie->start();
+
+    progress->setMovie( movie );
     progress->show();
 
-    QApplication::processEvents();
+    qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
 
     if( !GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc ) )
     {
@@ -860,7 +863,7 @@ void GCMainWindow::importXMLToDatabase()
       if( accept == QMessageBox::Yes )
       {
         progress->show();
-        QApplication::processEvents();
+        qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
         processDOMDoc();
       }
       else
@@ -872,6 +875,7 @@ void GCMainWindow::importXMLToDatabase()
       }
     }
 
+    delete movie;
     delete progress;
   }
 
@@ -916,7 +920,6 @@ void GCMainWindow::deleteElementFromDocument()
       element is highlighted after the removal. */
     elementSelected( currentItem, 0 );
 
-    m_fileContentsChanged = true;
     setTextEditContent( parentNode.toElement() );
   }
 }
@@ -1012,7 +1015,6 @@ void GCMainWindow::addElementToDocument()
     m_treeItemNodes.insert( newItem, newElement );
     m_elementInfo.insert( newItem, new GCDomElementInfo( newElement ) );
 
-    m_fileContentsChanged = true;
     setTextEditContent( newElement );
     ui->treeWidget->setCurrentItem( newItem, 0 );
     elementSelected( newItem, 0 );
@@ -1417,6 +1419,8 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
     populateTreeWidget( element, item );
     element = element.nextSiblingElement();
   }
+
+  qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1437,13 +1441,26 @@ void GCMainWindow::showErrorMessageBox( const QString &errorMsg )
 
 void GCMainWindow::setTextEditContent( const QDomElement &element )
 {
-  ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
+  m_fileContentsChanged = true;
 
+  /* Squeezing every once of performance out of the text edit...this significantly speeds
+    up the loading of large files. */
+  ui->dockWidgetTextEdit->setUpdatesEnabled( false );
+  ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
+  ui->dockWidgetTextEdit->setUpdatesEnabled( true );
+
+  highlightTextElement( element );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::highlightTextElement( const QDomElement &element )
+{
   if( !element.isNull() )
   {
+    ui->dockWidgetTextEdit->moveCursor( QTextCursor::Start );
     ui->dockWidgetTextEdit->find( m_elementInfo.value( m_treeItemNodes.key( element ) )->toString() );
     ui->dockWidgetTextEdit->ensureCursorVisible();
-    ui->dockWidgetTextEdit->horizontalScrollBar()->triggerAction( QScrollBar::SliderToMinimum );
   }
 }
 

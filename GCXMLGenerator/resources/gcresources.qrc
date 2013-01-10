@@ -27,5 +27,8 @@
         <file>downspinarrow.png</file>
         <file>upspinarrow.png</file>
         <file>emptyprofilehelpcursor.png</file>
+        <file>downspinarrowdisabled.png</file>
+        <file>upspinarrowdisabled.png</file>
+        <file>spinner.gif</file>
     </qresource>
 </RCC>
