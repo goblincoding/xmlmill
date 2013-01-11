@@ -20,7 +20,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Please select a profile for this session...</string>
+   <string>Select a profile for this session...</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../resources/gcresources.qrc">

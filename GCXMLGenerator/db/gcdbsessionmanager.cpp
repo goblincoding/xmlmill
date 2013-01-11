@@ -43,24 +43,13 @@ GCDBSessionManager::GCDBSessionManager( QWidget *parent ) :
 {
   ui->setupUi( this );
 
-  QStringList dbList = GCDataBaseInterface::instance()->getDBList();
-
-  if( dbList.empty() )
-  {
-    ui->okButton->setVisible( false );
-    ui->comboBox->addItem( "Let there be profiles! (i.e. you'll have to add some)" );
-  }
-  else
-  {
-    ui->comboBox->addItems( dbList );
-  }
+  setDBList();
 
   connect( ui->addExistingButton, SIGNAL( clicked() ), this, SLOT( addExistingDatabase() ) );
-  connect( ui->okButton,          SIGNAL( clicked() ), this, SLOT( setActiveDatabase() ) );
   connect( ui->addNewButton,      SIGNAL( clicked() ), this, SLOT( addNewDatabase() ) );
   connect( ui->cancelButton,      SIGNAL( clicked() ), this, SLOT( reject() ) );
-
-  setAttribute( Qt::WA_DeleteOnClose );
+  connect( ui->okButton,          SIGNAL( clicked() ), this, SLOT( setActiveDatabase() ) );
+  connect( ui->okButton,          SIGNAL( clicked() ), this, SLOT( accept() ) );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -74,6 +63,9 @@ GCDBSessionManager::~GCDBSessionManager()
 
 void GCDBSessionManager::selectActiveDatabase()
 {
+  this->setWindowTitle( "Select a profile for this session" );
+  setDBList();
+
   ui->addNewButton->setVisible( true );
   ui->addExistingButton->setVisible( true );
 
@@ -89,18 +81,24 @@ void GCDBSessionManager::switchActiveDatabase( const QString &currentRoot )
     since the items known to the current session may not be known to the next. */
   m_currentRoot = currentRoot;
   selectActiveDatabase();
+
+  this->exec();
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 void GCDBSessionManager::removeDatabase( const QString &currentRoot )
 {
+  this->setWindowTitle( "Remove profile" );
+
   m_currentRoot = currentRoot;
   ui->addNewButton->setVisible( false );
   ui->addExistingButton->setVisible( false );
 
   disconnect( ui->okButton, SIGNAL( clicked() ), this, SLOT( setActiveDatabase() ) );
   connect   ( ui->okButton, SIGNAL( clicked() ), this, SLOT( removeDBConnection() ), Qt::UniqueConnection );
+
+  this->exec();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -179,10 +177,6 @@ void GCDBSessionManager::removeDBConnection()
     showErrorMessageBox( errMsg );
     selectActiveDatabase();
   }
-  else
-  {
-    this->close();
-  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -227,9 +221,8 @@ void GCDBSessionManager::setActiveDatabase( const QString &dbName )
   else
   {
     this->hide();
-    emit activeDatabaseChanged( dbName );
     this->accept();
-    this->close();
+    emit activeDatabaseChanged( dbName );
   }
 }
 
@@ -260,6 +253,25 @@ void GCDBSessionManager::addDBConnection( const QString &dbName )
     {
       selectActiveDatabase();
     }
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDBSessionManager::setDBList()
+{
+  ui->comboBox->clear();
+
+  QStringList dbList = GCDataBaseInterface::instance()->getDBList();
+
+  if( dbList.empty() )
+  {
+    ui->okButton->setVisible( false );
+    ui->comboBox->addItem( "Let there be profiles! (i.e. you'll have to add some)" );
+  }
+  else
+  {
+    ui->comboBox->addItems( dbList );
   }
 }
 

@@ -95,6 +95,7 @@ private:
   void setActiveDatabase( const QString &dbName );
   void showErrorMessageBox( const QString &errorMsg );
   void addDBConnection( const QString &dbName );
+  void setDBList();
   
   Ui::GCDBSessionManager *ui;
   QString  m_currentRoot;

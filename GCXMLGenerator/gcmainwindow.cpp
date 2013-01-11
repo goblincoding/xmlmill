@@ -172,7 +172,7 @@ void GCMainWindow::initialise()
 
   if( result == QDialog::Rejected )
   {
-    this->close();
+    this->close();    // also deletes manager ("this" is parent)
   }
 }
 
@@ -570,6 +570,7 @@ bool GCMainWindow::openXMLFile()
     GCDBSessionManager *manager = createDBSessionManager();
     manager->selectActiveDatabase();
     manager->exec();
+    delete manager;
     return false;
   }
 
@@ -757,7 +758,7 @@ void GCMainWindow::addNewDatabase()
     manager->addNewDatabase( m_domDoc->documentElement().tagName() );
   }
 
-  manager->exec();
+  delete manager;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -778,7 +779,7 @@ void GCMainWindow::addExistingDatabase()
     manager->addExistingDatabase( m_domDoc->documentElement().tagName() );
   }
 
-  manager->exec();
+  delete manager;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -799,7 +800,7 @@ void GCMainWindow::removeDatabase()
     manager->removeDatabase( m_domDoc->documentElement().tagName() );
   }
 
-  manager->exec();
+  delete manager;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -820,7 +821,7 @@ void GCMainWindow::switchActiveDatabase()
     manager->switchActiveDatabase( m_domDoc->documentElement().tagName() );
   }
 
-  manager->exec();
+  delete manager;
 }
 
 /*--------------------------------------------------------------------------------------*/
