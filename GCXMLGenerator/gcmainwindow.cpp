@@ -553,8 +553,8 @@ void GCMainWindow::newXMLFile()
     resetDOM();
     m_currentXMLFileName = "";
     ui->actionCloseFile->setEnabled( true );
-    ui->actionSaveAs->setEnabled   ( true );
-    ui->actionSave->setEnabled     ( true );
+    ui->actionSaveAs->setEnabled( true );
+    ui->actionSave->setEnabled( true );
   }
 }
 
@@ -978,8 +978,8 @@ void GCMainWindow::addElementToDocument()
       it resets the DOM document). */
       m_currentXMLFileName = "";
       ui->actionCloseFile->setEnabled( true );
-      ui->actionSave->setEnabled     ( true );
-      ui->actionSaveAs->setEnabled   ( true );
+      ui->actionSave->setEnabled( true );
+      ui->actionSaveAs->setEnabled( true );
 
       /* Since we don't have any existing nodes if we get to this point, we need to initialise
         the tree widget with its first item. */
@@ -1307,13 +1307,6 @@ void GCMainWindow::forgetMessagePreferences()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::fileContentsChanged()
-{
-  m_fileContentsChanged = true;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 void GCMainWindow::showEmptyProfileHelp()
 {
   QMessageBox::information( this,
@@ -1389,11 +1382,18 @@ void GCMainWindow::processDOMDoc()
 
   /* Enable file save options. */
   ui->actionCloseFile->setEnabled( true );
-  ui->actionSave->setEnabled     ( true );
-  ui->actionSaveAs->setEnabled   ( true );
+  ui->actionSave->setEnabled( true );
+  ui->actionSaveAs->setEnabled( true );
 
   /* Display the DOM content in the text edit. */
   setTextEditContent( QDomElement() );
+
+  /* Generally-speaking, we want the file contents changed flag to be set whenever
+    the text edit content is set (this is done, not surprisingly, in setTextEditContent
+    above).  However, whenever a DOM document is processed for the first time, nothing
+    is changed in it, so to avoid the annoying "Save File" queries when nothing has
+    been done yet, we unset the flag here. */
+  m_fileContentsChanged = false;
 
   ui->treeWidget->setCurrentItem( item, 0 );
   elementSelected( item, 0 );

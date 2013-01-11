@@ -138,7 +138,6 @@ private slots:
   void activeDatabaseChanged( QString dbName );
   void elementFound( const QDomElement &element );
   void forgetMessagePreferences();
-  void fileContentsChanged();
   void searchDocument();
   void insertSnippet();
   void showEmptyProfileHelp();
