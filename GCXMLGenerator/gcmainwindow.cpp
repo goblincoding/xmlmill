@@ -76,6 +76,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_currentCombo        ( NULL ),
   m_saveTimer           ( NULL ),
   m_activeSessionLabel  ( NULL ),
+  m_progressLabel       ( NULL ),
+  m_spinner             ( NULL ),
   m_currentXMLFileName  ( "" ),
   m_activeAttributeName ( "" ),
   m_wasTreeItemActivated( false ),
@@ -834,16 +836,8 @@ void GCMainWindow::importXMLToDatabase()
 
   if( openXMLFile() )
   {
-    //QLabel *progress = new QLabel( "Loading...", this, Qt::Popup );
-    QLabel *progress = new QLabel( this, Qt::Popup );
-    progress->setPixmap( QPixmap( ":/resources/goblinicon.jpg" ) );
-    progress->move( window()->frameGeometry().topLeft() + window()->rect().center() - progress->rect().center() );
-
-    QMovie *movie = new QMovie( ":/resources/spinner.gif" );
-    movie->start();
-
-    progress->setMovie( movie );
-    progress->show();
+    QTimer timer;
+    timer.singleShot( 1000, this, SLOT( createSpinner() ) );
 
     qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
 
@@ -853,7 +847,10 @@ void GCMainWindow::importXMLToDatabase()
     }
     else
     {
-      progress->hide();
+      if( m_progressLabel )
+      {
+        m_progressLabel->hide();
+      }
 
       QMessageBox::StandardButtons accept = QMessageBox::question( this,
                                                                    "Edit file",
@@ -863,7 +860,11 @@ void GCMainWindow::importXMLToDatabase()
 
       if( accept == QMessageBox::Yes )
       {
-        progress->show();
+        if( m_progressLabel )
+        {
+          timer.singleShot( 1000, m_progressLabel, SLOT( show() ) );
+        }
+
         qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
         processDOMDoc();
       }
@@ -876,11 +877,29 @@ void GCMainWindow::importXMLToDatabase()
       }
     }
 
-    delete movie;
-    delete progress;
+    delete m_spinner;
+    m_spinner = NULL;
+
+    delete m_progressLabel;
+    m_progressLabel = NULL;
   }
 
   m_busyImporting = false;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::createSpinner()
+{
+  /* Clean-up must be handled in the calling function. */
+  m_progressLabel = new QLabel( this, Qt::Popup );
+  m_progressLabel->move( window()->frameGeometry().topLeft() + window()->rect().center() - m_progressLabel->rect().center() );
+
+  m_spinner = new QMovie( ":/resources/spinner.gif" );
+  m_spinner->start();
+
+  m_progressLabel->setMovie( m_spinner );
+  m_progressLabel->show();
 }
 
 /*--------------------------------------------------------------------------------------*/

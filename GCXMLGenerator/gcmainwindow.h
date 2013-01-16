@@ -56,6 +56,7 @@ class QDomDocument;
 class QDomElement;
 class QTimer;
 class QLabel;
+class QMovie;
 
 class GCMainWindow : public QMainWindow
 {
@@ -146,6 +147,7 @@ private slots:
   void goToSite();
 
   void initialise();
+  void createSpinner();
   
 private:
   void processDOMDoc();
@@ -173,6 +175,8 @@ private:
   QWidget          *m_currentCombo;
   QTimer           *m_saveTimer;
   QLabel           *m_activeSessionLabel;
+  QLabel           *m_progressLabel;
+  QMovie           *m_spinner;
   QString           m_currentXMLFileName;
   QString           m_activeAttributeName;
   bool              m_wasTreeItemActivated;
