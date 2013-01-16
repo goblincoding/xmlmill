@@ -71,6 +71,8 @@ void GCDBSessionManager::selectActiveDatabase()
 
   disconnect( ui->okButton, SIGNAL( clicked() ), this, SLOT( removeDBConnection() ) );
   connect   ( ui->okButton, SIGNAL( clicked() ), this, SLOT( setActiveDatabase() ), Qt::UniqueConnection );
+
+  this->exec();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -81,8 +83,6 @@ void GCDBSessionManager::switchActiveDatabase( const QString &currentRoot )
     since the items known to the current session may not be known to the next. */
   m_currentRoot = currentRoot;
   selectActiveDatabase();
-
-  this->exec();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -166,17 +166,6 @@ void GCDBSessionManager::removeDBConnection()
                     .arg( GCDataBaseInterface::instance()->getLastError() );
     showErrorMessageBox( error );
   }
-
-  /* If the user removed the active DB for this session, we need to know
-    what he/she intends to replace it with. */
-  if( !GCDataBaseInterface::instance()->hasActiveSession() )
-  {
-    emit reset();
-    m_currentRoot = "";
-    QString errMsg( "The active profile has been removed, please select another." );
-    showErrorMessageBox( errMsg );
-    selectActiveDatabase();
-  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -247,13 +236,8 @@ void GCDBSessionManager::addDBConnection( const QString &dbName )
   {
     setActiveDatabase( dbName );
   }
-  else
-  {
-    if( !GCDataBaseInterface::instance()->hasActiveSession() )
-    {
-      selectActiveDatabase();
-    }
-  }
+
+  setDBList();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -271,6 +255,7 @@ void GCDBSessionManager::setDBList()
   }
   else
   {
+    ui->okButton->setVisible( true );
     ui->comboBox->addItems( dbList );
   }
 }

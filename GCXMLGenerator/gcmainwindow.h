@@ -121,6 +121,7 @@ private slots:
   void removeDatabase();
   void switchActiveDatabase();
   void importXMLFromFile();
+  void querySetActiveSession( QString reason );
 
   void deleteElementFromDocument();
   void addElementToDocument();

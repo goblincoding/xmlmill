@@ -170,7 +170,7 @@ void GCMainWindow::initialise()
     connection for this session. */
   GCDBSessionManager *manager = createDBSessionManager();
   manager->selectActiveDatabase();
-  QDialog::DialogCode result = static_cast< QDialog::DialogCode >( manager->exec() );
+  QDialog::DialogCode result = static_cast< QDialog::DialogCode >( manager->result() );
 
   if( result == QDialog::Rejected )
   {
@@ -568,16 +568,7 @@ void GCMainWindow::newXMLFile()
 bool GCMainWindow::openXMLFile()
 {
   /* Can't open a file if there is no DB profile to describe it. */
-  if( !GCDataBaseInterface::instance()->hasActiveSession() )
-  {
-    QString errMsg( "No active profile set, please set one for this session." );
-    showErrorMessageBox( errMsg );
-    GCDBSessionManager *manager = createDBSessionManager();
-    manager->selectActiveDatabase();
-    manager->exec();
-    delete manager;
-    return false;
-  }
+  querySetActiveSession( QString( "No active profile set, please set one for this session." ) );
 
   if( !queryResetDOM( "Save document before continuing?" ) )
   {
@@ -771,6 +762,9 @@ void GCMainWindow::addNewDatabase()
   }
 
   delete manager;
+
+  /* Ensure that the user sets a database as active for this session. */
+  querySetActiveSession( QString( "No active profile set, please set one for this session." ) );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -792,6 +786,9 @@ void GCMainWindow::addExistingDatabase()
   }
 
   delete manager;
+
+  /* Ensure that the user sets a database as active for this session. */
+  querySetActiveSession( QString( "No active profile set, please set one for this session." ) );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -813,6 +810,10 @@ void GCMainWindow::removeDatabase()
   }
 
   delete manager;
+
+  /* If the user removed the active DB for this session, we need to know
+    what he/she intends to replace it with. */
+  querySetActiveSession( QString( "The active profile has been removed, please select another." ) );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -834,6 +835,19 @@ void GCMainWindow::switchActiveDatabase()
   }
 
   delete manager;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::querySetActiveSession( QString reason )
+{
+  while( !GCDataBaseInterface::instance()->hasActiveSession() )
+  {
+    showErrorMessageBox( reason );
+    GCDBSessionManager *manager = createDBSessionManager();
+    manager->selectActiveDatabase();
+    delete manager;
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
