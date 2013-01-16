@@ -10,3 +10,5 @@ Text edit text highlighting...need to find out if there is a way to highlight a 
 
 Remove "Super User Mode" info from help.
 Change "Add Child Element" button to only show once doc has been initialised.
+
+Add reg exp validation to user input.

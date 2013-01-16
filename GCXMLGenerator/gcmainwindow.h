@@ -120,7 +120,7 @@ private slots:
   void addExistingDatabase();
   void removeDatabase();
   void switchActiveDatabase();
-  void importXMLToDatabase();
+  void importXMLFromFile();
 
   void deleteElementFromDocument();
   void addElementToDocument();
@@ -158,11 +158,13 @@ private:
   void setTextEditContent ( const QDomElement &element );
   void highlightTextElement( const QDomElement &element );
 
+  void importXMLToDatabase();
   void insertEmptyTableRow();
   void resetTableWidget();
   void deleteElementInfo();
   void startSaveTimer();
   void toggleAddElementWidgets();
+  void deleteSpinner();
 
   bool queryResetDOM( const QString &resetReason );
 

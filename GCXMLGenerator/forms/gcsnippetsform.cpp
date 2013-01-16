@@ -168,7 +168,7 @@ void GCSnippetsForm::attributeChanged( QTableWidgetItem *item )
     GCDomElementInfo *info = const_cast< GCDomElementInfo* >( m_elementInfo.value( treeItem ) );
 
     GCComboBox *attributeValueCombo = dynamic_cast< GCComboBox* >( ui->tableWidget->cellWidget( item->row(), 1 ) );
-    QDomElement currentElement = m_treeItemNodes.value( treeItem );
+    QDomElement currentElement = m_treeItemNodes.value( treeItem );  // shallow copy
 
     if( item->checkState() == Qt::Checked )
     {
@@ -267,7 +267,7 @@ void GCSnippetsForm::addSnippet()
       QString elementName = elementNames.at( j );
 
       /* There will only ever be one element with this name the way this class has been implemented. */
-      QDomElement element = doc.elementsByTagName( elementName ).at( 0 ).toElement();
+      QDomElement element = doc.elementsByTagName( elementName ).at( 0 ).toElement();  // shallow copy
       QDomNamedNodeMap attributes = element.attributes();
 
       /* Required so that we do not end up manipulating the map itself (each time an attribute is removed,

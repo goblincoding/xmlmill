@@ -129,7 +129,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   /* Database related. */
   connect( ui->actionAddItems, SIGNAL( triggered() ), this, SLOT( showAddItemsForm() ) );
   connect( ui->actionRemoveItems, SIGNAL( triggered() ), this, SLOT( showRemoveItemsForm() ) );
-  connect( ui->actionImportXMLToDatabase, SIGNAL( triggered() ), this, SLOT( importXMLToDatabase() ) );
+  connect( ui->actionImportXMLToDatabase, SIGNAL( triggered() ), this, SLOT( importXMLFromFile() ) );
   connect( ui->actionSwitchSessionDatabase, SIGNAL( triggered() ), this, SLOT( switchActiveDatabase() ) );
   connect( ui->actionAddNewDatabase, SIGNAL( triggered() ), this, SLOT( addNewDatabase() ) );
   connect( ui->actionAddExistingDatabase, SIGNAL( triggered() ), this, SLOT( addExistingDatabase() ) );
@@ -216,6 +216,7 @@ void GCMainWindow::elementChanged( QTreeWidgetItem *item, int column )
 
     if( newName.isEmpty() )
     {
+      /* Reset if the user failed to specify a valid name. */
       item->setText( column, previousName );
     }
     else
@@ -229,40 +230,45 @@ void GCMainWindow::elementChanged( QTreeWidgetItem *item, int column )
 
         for( int i = 0; i < elementList.count(); ++i )
         {
-          QDomElement element( elementList.at( i ).toElement() );
+          QDomElement element( elementList.at( i ).toElement() ); // shallow copy
           element.setTagName( newName );
           const_cast< QTreeWidgetItem* >( m_treeItemNodes.key( element ) )->setText( column, newName );
         }
 
-        /* The name change may introduce a new element to so we can safely call "addElement" below as
+        /* The name change may introduce a new element too so we can safely call "addElement" below as
           it doesn't do anything if the element already exists in the database, yet it will obviously
-          add the element if it doesn't.  In the latter case, the children associated with the old
-          name will be assigned to the new element in the process. */
+          add the element if it doesn't.  In the latter case, the children  and attributes associated with
+          the old name will be assigned to the new element in the process. */
         bool success( false );
         QStringList attributes = GCDataBaseInterface::instance()->attributes( previousName, success );
-
-        if( !GCDataBaseInterface::instance()->addElement( newName,
-                                                          GCDataBaseInterface::instance()->children( previousName, success ),
-                                                          attributes ) )
-        {
-          showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
-        }
-
-        /* If we are, in fact, dealing with a new element, we also want the "new" element to be automatically
-          associated with the attributes connected to the previous name (as well as the attributes' known values). */
-        foreach( QString attribute, attributes )
-        {
-          if( !GCDataBaseInterface::instance()->updateAttributeValues( newName,
-                                                                       attribute,
-                                                                       GCDataBaseInterface::instance()->attributeValues( previousName, attribute, success ) ) )
-          {
-            showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
-          }
-        }
 
         if( !success )
         {
           showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+        }
+
+        QStringList children = GCDataBaseInterface::instance()->children( previousName, success );
+
+        if( !success )
+        {
+          showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+        }
+
+        if( !GCDataBaseInterface::instance()->addElement( newName, children, attributes ) )
+        {
+          showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+        }
+
+        /* If we are, in fact, dealing with a new element, we also want the "new" element's associated attributes
+          to be updated with the known values of these attributes. */
+        foreach( QString attribute, attributes )
+        {
+          QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( previousName, attribute, success );
+
+          if( !GCDataBaseInterface::instance()->updateAttributeValues( newName, attribute, attributeValues ) )
+          {
+            showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+          }
         }
 
         setTextEditContent( m_treeItemNodes.value( item ).toElement() );
@@ -284,7 +290,7 @@ void GCMainWindow::elementSelected( QTreeWidgetItem *item, int column )
   resetTableWidget();
 
   bool success( false );
-  QDomElement element = m_treeItemNodes.value( item );
+  QDomElement element = m_treeItemNodes.value( item );      // shallow copy
   QString elementName = element.tagName();
   QStringList attributeNames = GCDataBaseInterface::instance()->attributes( elementName, success );
 
@@ -366,6 +372,12 @@ void GCMainWindow::elementSelected( QTreeWidgetItem *item, int column )
   ui->addElementComboBox->clear();
   ui->addElementComboBox->addItems( GCDataBaseInterface::instance()->children( elementName, success ) );
 
+  /* This is more for debugging than for end-user functionality. */
+  if( !success )
+  {
+    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+  }
+
   /* The following will be used to allow the user to add an element of the current type to
     its parent (this should improve the user experience as they do not have to explicitly
     navigate back up to a parent when adding multiple items of the same type).  We also don't
@@ -376,13 +388,6 @@ void GCMainWindow::elementSelected( QTreeWidgetItem *item, int column )
   }
 
   toggleAddElementWidgets();
-
-  /* This is more for debugging than for end-user functionality. */
-  if( !success )
-  {
-    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
-  }
-
   highlightTextElement( element );
 
   /* The user must not be allowed to add an entire document as a "snippet". */
@@ -407,7 +412,7 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *item )
     a re-population of the table widget (which results in this slot being called). */
   if( !m_wasTreeItemActivated && !m_newAttributeAdded )
   {
-    /* When the check state of a table widget item changes, the "itemChagned" signal is emitted
+    /* When the check state of a table widget item changes, the "itemChanged" signal is emitted
       before the "itemClicked" one and this messes up the logic that follows completely.  Since
       I depend on knowing which attribute is currently active, I needed to insert the following
       odd little check (the other alternative is probably to subclass QTableWidgetItem but I'm
@@ -420,7 +425,7 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *item )
     /* All attribute name changes will be assumed to be additions, removing an attribute
       with a specific name has to be done explicitly. */
     QTreeWidgetItem *treeItem = ui->treeWidget->currentItem();
-    QDomElement currentElement = m_treeItemNodes.value( treeItem );
+    QDomElement currentElement = m_treeItemNodes.value( treeItem ); // shallow copy
 
     /* See if an existing attribute's name changed or if a new attribute was added. */
     if( item->text() != m_activeAttributeName )
@@ -453,7 +458,7 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *item )
         }
         else
         {
-          /* If this is an entirely new attribute, insert another new "empty" row so that the user may add
+          /* If this is an entirely new attribute, insert an "empty" row so that the user may add
             even more attributes if he/she wishes to do so. */
           m_newAttributeAdded = true;
           item->setFlags( item->flags() | Qt::ItemIsUserCheckable );
@@ -468,7 +473,7 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *item )
       }
     }
 
-    /* Is this attribute included to excluded? */
+    /* Is this attribute included or excluded? */
     GCComboBox *attributeValueCombo = dynamic_cast< GCComboBox* >( ui->tableWidget->cellWidget( item->row(), VALUESCOLUMN ) );
     GCDomElementInfo *info = const_cast< GCDomElementInfo* >( m_elementInfo.value( treeItem ) );
 
@@ -514,10 +519,8 @@ void GCMainWindow::attributeValueChanged( const QString &value )
   if( !m_wasTreeItemActivated )
   {
     QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
-    QDomElement currentElement = m_treeItemNodes.value( currentItem );
+    QDomElement currentElement = m_treeItemNodes.value( currentItem );  // shallow copy
 
-    /* The current attribute will be displayed in the first column (next to the
-    combo box which will be the actual current item). */
     QString currentAttributeName = ui->tableWidget->item( m_comboBoxes.value( m_currentCombo ), ATTRIBUTECOLUMN )->text();
     currentElement.setAttribute( currentAttributeName, value );
 
@@ -592,7 +595,7 @@ bool GCMainWindow::openXMLFile()
   /* Note to future self: although the user would have explicitly saved (or not saved) the file
     by the time this functionality is encountered, we only reset the document once we have a new,
     active file to work with since users are fickle and may still change their minds.  In other
-    words, do NOT move this code to before getOpenFileName as previously considered! */
+    words, do NOT move this code to before "getOpenFileName" as previously considered! */
   resetDOM();
   m_currentXMLFileName = "";
 
@@ -667,14 +670,21 @@ bool GCMainWindow::openXMLFile()
 
       if( accepted )
       {
+        QTimer timer;
+        timer.singleShot( 1000, this, SLOT( createSpinner() ) );
+        qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+
         if( !GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc ) )
         {
           showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
         }
         else
         {
+          qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
           processDOMDoc();
         }
+
+        deleteSpinner();
       }
       else
       {
@@ -828,60 +838,15 @@ void GCMainWindow::switchActiveDatabase()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::importXMLToDatabase()
+void GCMainWindow::importXMLFromFile()
 {
-  /* Set this flag in case the user doesn't have an active DOM document to import
-    and wishes to open an XML file (the flag's status is used in "openXMLFile"). */
+  /* This flag is used in "openXMLFile" to distinguish between an explicit import
+    and a simple file opening operation. */
   m_busyImporting = true;
 
   if( openXMLFile() )
   {
-    QTimer timer;
-    timer.singleShot( 1000, this, SLOT( createSpinner() ) );
-
-    qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
-
-    if( !GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc ) )
-    {
-      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
-    }
-    else
-    {
-      if( m_progressLabel )
-      {
-        m_progressLabel->hide();
-      }
-
-      QMessageBox::StandardButtons accept = QMessageBox::question( this,
-                                                                   "Edit file",
-                                                                   "Also load file for editing?",
-                                                                   QMessageBox::Yes | QMessageBox::No,
-                                                                   QMessageBox::Yes );
-
-      if( accept == QMessageBox::Yes )
-      {
-        if( m_progressLabel )
-        {
-          timer.singleShot( 1000, m_progressLabel, SLOT( show() ) );
-        }
-
-        qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
-        processDOMDoc();
-      }
-      else
-      {
-        /* DOM was set in the process of opening the XML file and loading its content.  If the user
-          doesn't want to work with the file that was imported, we need to reset it here. */
-        resetDOM();
-        m_currentXMLFileName = "";
-      }
-    }
-
-    delete m_spinner;
-    m_spinner = NULL;
-
-    delete m_progressLabel;
-    m_progressLabel = NULL;
+    importXMLToDatabase();
   }
 
   m_busyImporting = false;
@@ -889,9 +854,61 @@ void GCMainWindow::importXMLToDatabase()
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCMainWindow::importXMLToDatabase()
+{
+  QTimer timer;
+  timer.singleShot( 1000, this, SLOT( createSpinner() ) );
+  qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+
+  if( !GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc ) )
+  {
+    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+  }
+  else
+  {
+    if( m_progressLabel )
+    {
+      m_progressLabel->hide();
+    }
+
+    QMessageBox::StandardButtons accept = QMessageBox::question( this,
+                                                                 "Edit file",
+                                                                 "Also load file for editing?",
+                                                                 QMessageBox::Yes | QMessageBox::No,
+                                                                 QMessageBox::Yes );
+
+    if( accept == QMessageBox::Yes )
+    {
+      if( m_progressLabel )
+      {
+        timer.singleShot( 1000, m_progressLabel, SLOT( show() ) );
+      }
+
+      qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+      processDOMDoc();
+    }
+    else
+    {
+      /* DOM was set in the process of opening the XML file and loading its content.  If the user
+        doesn't want to work with the file that was imported, we need to reset it here. */
+      resetDOM();
+      m_currentXMLFileName = "";
+    }
+  }
+
+  deleteSpinner();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCMainWindow::createSpinner()
 {
-  /* Clean-up must be handled in the calling function. */
+  /* Clean-up must be handled in the calling function, but just in case. */
+  if( m_spinner || m_progressLabel )
+  {
+    deleteSpinner();
+  }
+
   m_progressLabel = new QLabel( this, Qt::Popup );
   m_progressLabel->move( window()->frameGeometry().topLeft() + window()->rect().center() - m_progressLabel->rect().center() );
 
@@ -904,10 +921,27 @@ void GCMainWindow::createSpinner()
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCMainWindow::deleteSpinner()
+{
+  if( m_spinner )
+  {
+    delete m_spinner;
+    m_spinner = NULL;
+  }
+
+  if( m_progressLabel )
+  {
+    delete m_progressLabel;
+    m_progressLabel = NULL;
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCMainWindow::deleteElementFromDocument()
 {
   QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
-  QDomElement currentElement = m_treeItemNodes.value( currentItem );
+  QDomElement currentElement = m_treeItemNodes.value( currentItem );  // shallow copy
 
   /* If all we have is a document root element, reset everything. */
   if( currentElement == m_domDoc->documentElement() )
@@ -987,7 +1021,7 @@ void GCMainWindow::addElementToDocument()
       /* Expand the item's parent for convenience. */
       ui->treeWidget->expandItem( parentItem );
 
-      QDomElement parent = m_treeItemNodes.value( parentItem );
+      QDomElement parent = m_treeItemNodes.value( parentItem ); // shallow copy
       parent.appendChild( newElement );
     }
     else
@@ -1007,7 +1041,7 @@ void GCMainWindow::addElementToDocument()
       ui->addSnippetButton->setEnabled( true );
     }
 
-    /* Add the known attributes associated with this element. */
+    /* Add all the known attributes associated with this element name to the new element. */
     bool success( false );
     QStringList attributes = GCDataBaseInterface::instance()->attributes( elementName, success );
 
@@ -1050,6 +1084,7 @@ void GCMainWindow::addSnippetToDocument()
   /* Check if we're inserting snippets as children, or as siblings. */
   if( elementName.contains( QRegExp( "<|>" ) ) )
   {
+    /* Qt::WA_DeleteOnClose flag set. */
     GCSnippetsForm *dialog = new GCSnippetsForm( elementName.remove( QRegExp( "<|>" ) ),
                                                  m_treeItemNodes.value( ui->treeWidget->currentItem()->parent() ),
                                                  this );
@@ -1058,6 +1093,7 @@ void GCMainWindow::addSnippetToDocument()
   }
   else
   {
+    /* Qt::WA_DeleteOnClose flag set. */
     GCSnippetsForm *dialog = new GCSnippetsForm( elementName,
                                                  m_treeItemNodes.value( ui->treeWidget->currentItem() ),
                                                  this );
@@ -1079,7 +1115,7 @@ void GCMainWindow::insertSnippet()
 
 bool GCMainWindow::queryResetDOM( const QString &resetReason )
 {
-  /* There are a number of places and opportunities for reset DOM to be called,
+  /* There are a number of places and opportunities for "resetDOM" to be called,
     if there is an active document, check if it's content has changed since the
     last time it had changed and make sure we don't accidentally delete anything. */
   if( m_fileContentsChanged )
@@ -1170,7 +1206,7 @@ void GCMainWindow::showAddItemsForm()
 {
   if( !GCDataBaseInterface::instance()->hasActiveSession() )
   {
-    showErrorMessageBox( "No active profile." );
+    showErrorMessageBox( "No active profile, please set one (Edit->Switch Profile)." );
     return;
   }
 
@@ -1204,8 +1240,8 @@ void GCMainWindow::saveDirectEdit()
   int     line  ( -1 );
   int     col   ( -1 );
 
-  /* The reason for creating a temporary document is so that we do not mess with the contents
-    of the tree item node map if the new XML is broken. */
+  /* Create a temporary document so that we do not mess with the contents
+    of the tree item node map and current DOM if the new XML is broken. */
   QDomDocument doc;
   if( !doc.setContent( ui->dockWidgetTextEdit->toPlainText(), &xmlErr, &line, &col ) )
   {
@@ -1237,6 +1273,9 @@ void GCMainWindow::saveDirectEdit()
   else
   {
     m_domDoc->setContent( ui->dockWidgetTextEdit->toPlainText() );
+
+    /* The reason we import the saved XML to the database is that the user may have
+      added elements and/or attributes that we don't know about. */
     importXMLToDatabase();
   }
 }
@@ -1408,7 +1447,7 @@ void GCMainWindow::processDOMDoc()
   setTextEditContent( QDomElement() );
 
   /* Generally-speaking, we want the file contents changed flag to be set whenever
-    the text edit content is set (this is done, not surprisingly, in setTextEditContent
+    the text edit content is set (this is done, not surprisingly, in "setTextEditContent"
     above).  However, whenever a DOM document is processed for the first time, nothing
     is changed in it, so to avoid the annoying "Save File" queries when nothing has
     been done yet, we unset the flag here. */
@@ -1593,7 +1632,7 @@ void GCMainWindow::toggleAddElementWidgets()
 
 GCDBSessionManager *GCMainWindow::createDBSessionManager()
 {
-  /* Clean-up is handled by the manager itself - Qt::WA_DeleteOnClose flag is set. */
+  /* Clean-up is the responsibility of the calling function. */
   GCDBSessionManager *manager = new GCDBSessionManager( this );
   connect( manager, SIGNAL( reset() ), this, SLOT( resetDOM() ) );
   connect( manager, SIGNAL( activeDatabaseChanged( QString ) ), this, SLOT( activeDatabaseChanged( QString ) ) );
