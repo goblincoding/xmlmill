@@ -1326,7 +1326,7 @@ void GCMainWindow::activeDatabaseChanged( QString dbName )
 
     if( accepted == QMessageBox::Yes )
     {
-      importXMLToDatabase();
+      importXMLFromFile();
     }
     else
     {
