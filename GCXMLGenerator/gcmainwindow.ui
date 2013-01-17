@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="resources/gcresources.qrc">
-    <normaloff>:/resources/goblinicon.jpg</normaloff>:/resources/goblinicon.jpg</iconset>
+    <normaloff>:/resources/goblinicon.png</normaloff>:/resources/goblinicon.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
@@ -585,8 +585,8 @@
   </action>
   <action name="actionVisitOfficialSite">
    <property name="icon">
-    <iconset resource="resources/gcresources.qrc">
-     <normaloff>:/resources/goblinicon.jpg</normaloff>:/resources/goblinicon.jpg</iconset>
+    <iconset>
+     <normaloff>:/resources/goblin.png</normaloff>:/resources/goblin.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Visit Official Website</string>

@@ -69,14 +69,16 @@ public:
       and other XML characters). */
   QString toString() const;
 
+  /*! Returns the index associated with this element.  Indices in this context are rough indications
+      of an element's relative position within the DOM document (approximating "line numbers"). */
   int index() const;
 
 private:
   QDomElement m_element;
   bool m_elementExcluded;
   int  m_index;
-  static int m_indexCount;
 
+  static int m_indexCount;
   QStringList m_includedAttributes;
 };
 

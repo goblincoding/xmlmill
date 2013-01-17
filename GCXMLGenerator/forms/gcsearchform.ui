@@ -18,7 +18,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../resources/gcresources.qrc">
-    <normaloff>:/resources/goblinicon.jpg</normaloff>:/resources/goblinicon.jpg</iconset>
+    <normaloff>:/resources/goblinicon.png</normaloff>:/resources/goblinicon.png</iconset>
   </property>
   <property name="modal">
    <bool>true</bool>

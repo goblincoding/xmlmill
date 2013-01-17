@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/resources">
-        <file>goblinicon.jpg</file>
+        <file>goblinicon.png</file>
         <file>close.png</file>
         <file>undock.png</file>
         <file>downarrow.png</file>

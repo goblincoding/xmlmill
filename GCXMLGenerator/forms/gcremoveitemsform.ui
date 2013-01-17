@@ -18,7 +18,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../resources/gcresources.qrc">
-    <normaloff>:/resources/goblinicon.jpg</normaloff>:/resources/goblinicon.jpg</iconset>
+    <normaloff>:/resources/goblin.png</normaloff>:/resources/goblin.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
@@ -111,7 +111,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="layoutWidget">
+     <widget class="QWidget" name="layoutWidget1">
       <layout class="QVBoxLayout" name="attributeLayout">
        <item>
         <widget class="QComboBox" name="comboBox">
