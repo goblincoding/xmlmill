@@ -1384,8 +1384,8 @@ void GCMainWindow::showEmptyProfileHelp()
 {
   QMessageBox::information( this,
                             "Empty Profile",
-                            "The active profile is empty.  You can either import XML from file\n"
-                            "via \"Edit -> Import XML to Profile\" or you can populate the\n"
+                            "The active profile is empty.  You can either import XML from file "
+                            "via \"Edit -> Import XML to Profile\" or you can populate the "
                             "profile from scratch via \"Edit -> Edit Profile -> Add Items\"." );
 }
 
@@ -1397,7 +1397,8 @@ void GCMainWindow::showDOMEditHelp()
                             "Direct Edits",
                             "Changes to manually edited XML can only be reverted before you hit \"Save\". "
                             "In other words, it isn't an \"undo\" function so please make sure you don't "
-                            "save unless you're absolutely sure of your changes." );
+                            "save unless you're absolutely sure of your changes.  Please also note that these "
+                            "buttons are ONLY relevant for MANUAL changes to the document." );
 }
 
 /*--------------------------------------------------------------------------------------*/

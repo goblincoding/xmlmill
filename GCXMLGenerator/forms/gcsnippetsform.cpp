@@ -59,7 +59,7 @@ GCSnippetsForm::GCSnippetsForm( const QString &elementName, QDomElement parentEl
 {
   ui->setupUi( this );
   ui->tableWidget->setColumnWidth( INCRCOLUMN, 40 );  // restricted for checkbox
-  ui->treeWidget->setColumnWidth ( 0, 50 );  // restricted for checkbox
+  ui->treeWidget->setColumnWidth ( 0, 50 );           // restricted for checkbox
 
   populateTreeWidget( elementName );
 
@@ -335,6 +335,8 @@ void GCSnippetsForm::populateTreeWidget( const QString &elementName )
   processNextElement( elementName, item, m_domDoc );
 
   ui->treeWidget->expandAll();
+  ui->treeWidget->setCurrentItem( item );
+  elementSelected( item, 0 );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -455,18 +457,19 @@ void GCSnippetsForm::showHelp()
 {
   QMessageBox::information( this,
                             "How this works...",
-                            "Use this form to create XML snippets with the default values\n"
-                            "you specify.\n\n"
-                            "Ticking \"Exclude\" next to any specific element will exclude it\n"
-                            "(and all of its children) from the snippet.\n\n"
-                            "If you tick the \"Incr\" option in the first column, then the\n"
-                            "default integer value will be incremented with \"1\" for however many\n"
-                            "snippets you generate.\n\n"
-                            "For example, if you specify \"10\" as an attribute value, then the \n"
-                            "first snippet will assign \"10\" to the attribute in question,\n"
-                            "the second will have \"11\", the third, \"12\", etc.\n\n"
-                            "Strings will have the incremented value appended to the name, but all\n"
-                            "other data types will be left as they are.\n" );
+                            "Use this form to create XML snippets with the default values "
+                            "you specify. \n\n"
+                            "Unchecking an element will exclude it (and all of its children) from "
+                            "the snippet (similarly, check attributes that you want to be included in "
+                            "your snippet(s)). \n\n"
+                            "If you tick the \"Incr\" (increment) option next to an attribute value, then the "
+                            "value you provided will be incremented with \"1\" for however many "
+                            "snippets you generate. \n\n"
+                            "For example, if you specify \"10\" as an attribute value, then the "
+                            "first snippet will assign \"10\" to the attribute in question, "
+                            "the second will have \"11\", the third, \"12\", etc. \n\n"
+                            "Strings will have the incremented value appended to the name (\"true\" "
+                            "and \"false\" values are treated as strings, so be careful)." );
 }
 
 /*--------------------------------------------------------------------------------------*/

@@ -357,17 +357,17 @@ void GCRemoveItemsForm::showElementHelp()
 {
   QMessageBox::information( this,
                             "How this works...",
-                            "\"Remove Child\" will remove the currently highlighted element\n"
-                            "from its parent element's child list, i.e. it will only\n"
-                            "affect the relationship between the two elements, the element\n"
-                            "itself is not deleted in the process.\n\n"
-                            "\"Delete Element\" will delete the element, the element's children,\n"
-                            "the chlidren's children (etc, etc), its associated attributes, the\n"
-                            "associated attributes of its children (and their children, etc, etc), all\n"
-                            "the known values for all the attributes thus deleted and finally also\n"
-                            "remove the element (and its children and the children's children, etc etc)\n"
+                            "\"Remove Child\" will remove the currently highlighted element "
+                            "from its parent element's child list, i.e. it will only "
+                            "affect the relationship between the two elements, the element "
+                            "itself is not deleted in the process. \n\n"
+                            "\"Delete Element\" will delete the element, the element's children, "
+                            "the chlidren's children (etc, etc), its associated attributes, the "
+                            "associated attributes of its children (and their children, etc, etc), all "
+                            "the known values for all the attributes thus deleted and finally also "
+                            "remove the element (and its children and the children's children, etc etc) "
                             "from every single child list that contains it.\n\n"
-                            "Intense, right? And no, none of this can be undone.\n" );
+                            "Intense, right? And no, none of this can be undone. " );
 }
 
 /*--------------------------------------------------------------------------------------*/

@@ -1,4 +1,3 @@
-Dumb down use - don't choose where to put db's.
 Settings should remember size of GUI, etc etc
 
 Context menu - duplicate element (entire element), remove element
