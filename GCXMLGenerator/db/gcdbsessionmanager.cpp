@@ -141,9 +141,9 @@ void GCDBSessionManager::removeDBConnection()
                                     "that the profile you are removing just happens to know "
                                     "of the same document style you're currently working on), "
                                     "then you can safely ignore this message.",
-                                    GCMessageDialog::OKCancel,
-                                    GCMessageDialog::Cancel,
-                                    GCMessageDialog::Warning );
+                                    GCMessageSpace::OKCancel,
+                                    GCMessageSpace::Cancel,
+                                    GCMessageSpace::Warning );
 
       if( !accepted )
       {
@@ -222,9 +222,9 @@ void GCDBSessionManager::addDBConnection( const QString &dbName )
   bool accepted = GCMessageSpace::userAccepted( "SwitchActiveSession",
                                                 "Switch Session",
                                                 "Would you like to switch to the new profile?",
-                                                GCMessageDialog::YesNo,
-                                                GCMessageDialog::Yes,
-                                                GCMessageDialog::Question );
+                                                GCMessageSpace::YesNo,
+                                                GCMessageSpace::Yes,
+                                                GCMessageSpace::Question );
 
   if( accepted )
   {

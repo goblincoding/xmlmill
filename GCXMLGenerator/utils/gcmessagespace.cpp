@@ -27,12 +27,122 @@
  */
 
 #include "gcmessagespace.h"
+#include "ui_gcmessagedialog.h"
+
 #include <QSettings>
+#include <QDialog>
+
+/// Provides a user dialog prompt with the option to save the user's preference.
+class GCMessageDialog : public QDialog
+{
+  Q_OBJECT
+public:
+
+  /*! Constructor.
+      @param remember - this flag should be passed in from the calling object and will be set
+                        when the user checks the relevant box
+      @param heading - the message box header
+      @param text - the actual message text
+      @param buttons - the buttons that should be displayed for this particular message
+      @param defaultButton - the button that should be highlighted as the default
+      @param icon - the icon associated with this particular message. */
+  explicit GCMessageDialog( bool *remember,
+                            const QString &heading,
+                            const QString &text,
+                            GCMessageSpace::ButtonCombo buttons,
+                            GCMessageSpace::Buttons defaultButton,
+                            GCMessageSpace::Icon icon = GCMessageSpace::NoIcon )
+    :
+      ui( new Ui::GCMessageDialog ),
+      m_remember( remember )
+  {
+    ui->setupUi( this );
+    ui->plainTextEdit->setPlainText( text );
+
+    switch( buttons )
+    {
+    case GCMessageSpace::YesNo:
+      ui->acceptButton->setText( "Yes" );
+      ui->rejectButton->setText( "No" );
+      break;
+    case GCMessageSpace::OKCancel:
+      ui->acceptButton->setText( "OK" );
+      ui->rejectButton->setText( "Cancel" );
+      break;
+    case GCMessageSpace::OKOnly:
+      ui->acceptButton->setText( "OK" );
+      ui->rejectButton->setVisible( false );
+    }
+
+    switch( defaultButton )
+    {
+    case GCMessageSpace::Yes:
+      /* Deliberate fall-through. */
+    case GCMessageSpace::OK:
+      ui->acceptButton->setDefault( true );
+      break;
+    case GCMessageSpace::No:
+      /* Deliberate fall-through. */
+    case GCMessageSpace::Cancel:
+      ui->rejectButton->setDefault( true );
+    }
+
+    switch( icon )
+    {
+    case GCMessageSpace::Information:
+      ui->iconButton->setIcon( style()->standardIcon( QStyle::SP_MessageBoxInformation ) );
+      break;
+    case GCMessageSpace::Warning:
+      ui->iconButton->setIcon( style()->standardIcon( QStyle::SP_MessageBoxWarning ) );
+      break;
+    case GCMessageSpace::Critical:
+      ui->iconButton->setIcon( style()->standardIcon( QStyle::SP_MessageBoxCritical ) );
+      break;
+    case GCMessageSpace::Question:
+      ui->iconButton->setIcon( style()->standardIcon( QStyle::SP_MessageBoxQuestion ) );
+      break;
+    case GCMessageSpace::NoIcon:
+    default:
+      ui->iconButton->setIcon( QIcon() );
+    }
+
+    connect( ui->checkBox,     SIGNAL( toggled( bool ) ), this, SLOT( setRememberUserChoice( bool ) ) );
+    connect( ui->acceptButton, SIGNAL( clicked() ),       this, SLOT( accept() ) );
+    connect( ui->rejectButton, SIGNAL( clicked() ),       this, SLOT( reject() ) );
+
+    setWindowTitle( heading );
+  }
+
+  /*! Destructor. */
+  ~GCMessageDialog()
+  {
+    /* The variable that "m_remember" points to is owned externally. */
+    delete ui;
+  }
+
+private slots:
+  /*! Triggered when the user checks or unchecks the "Don't ask me again" box. */
+  void setRememberUserChoice( bool remember )
+  {
+    *m_remember = remember;
+  }
+
+private:
+  Ui::GCMessageDialog *ui;
+  bool *m_remember;
+};
+
+/* Standard trick for classes defined in .cpp files (resolves "Undefiend Reference
+  to Vtable for xxx issue). The file that seems "missing" at the moment is generated
+  by MOC when qMake is run. Must include after class definition. */
+#include "gcmessagespace.moc"
 
 /*--------------------------------------------------------------------------------------*/
 
 namespace GCMessageSpace
 {
+
+
   /* Hides our "member" variables. */
   namespace
   {
@@ -47,9 +157,9 @@ namespace GCMessageSpace
   bool userAccepted( const QString &uniqueMessageKey,
                      const QString &heading,
                      const QString &text,
-                     GCMessageDialog::ButtonCombo buttons,
-                     GCMessageDialog::Buttons defaultButton,
-                     GCMessageDialog::Icon icon,
+                     ButtonCombo buttons,
+                     Buttons defaultButton,
+                     Icon icon,
                      bool saveCancel )
   {
     if( !settingsInitialised )

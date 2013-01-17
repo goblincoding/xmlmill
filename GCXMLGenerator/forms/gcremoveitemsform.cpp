@@ -286,9 +286,9 @@ void GCRemoveItemsForm::updateAttributeValues()
                                                   "Update with empty attribute values?",
                                                   "All known values were removed. "
                                                   "Would you like to remove the attribute completely?",
-                                                  GCMessageDialog::YesNo,
-                                                  GCMessageDialog::No,
-                                                  GCMessageDialog::Question );
+                                                  GCMessageSpace::YesNo,
+                                                  GCMessageSpace::No,
+                                                  GCMessageSpace::Question );
 
     if( accepted )
     {

@@ -655,9 +655,9 @@ bool GCMainWindow::openXMLFile()
       bool accepted = GCMessageSpace::userAccepted( "QueryImportXML",
                                                     "Import document?",
                                                     "Unknown XML - import to active profile?",
-                                                    GCMessageDialog::YesNo,
-                                                    GCMessageDialog::No,
-                                                    GCMessageDialog::Question );
+                                                    GCMessageSpace::YesNo,
+                                                    GCMessageSpace::No,
+                                                    GCMessageSpace::Question );
 
       if( accepted )
       {

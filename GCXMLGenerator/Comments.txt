@@ -5,3 +5,5 @@ Context menu - duplicate element (entire element), remove element
 Change "Add Child Element" button to only show once doc has been initialised.
 
 Add reg exp validation to user input.
+
+Remember to name page "xmlmill" as in http://www.goblincoding.com/xmlmill

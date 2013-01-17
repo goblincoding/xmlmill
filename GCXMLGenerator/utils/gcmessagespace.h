@@ -29,8 +29,7 @@
 #ifndef GCMESSAGESPACE_H
 #define GCMESSAGESPACE_H
 
-#include "forms/gcmessagedialog.h"
-#include <QVariant>
+#include <QString>
 
 /// Responsible for the display of messages requiring user input.
 
@@ -42,7 +41,34 @@
    This space is not responsible for error messages or messages that must always be shown.
 */
 namespace GCMessageSpace
-{
+{  
+  /*! Determines the type of icon that will be set on the message dialog. */
+  enum Icon
+  {
+    NoIcon,       /*!< No icon will be shown. */
+    Information,  /*!< The message is of an informative nature. */
+    Warning,      /*!< The message is a warning. */
+    Critical,     /*!< The message contains critical information. */
+    Question      /*!< The message is a question and requires user input. */
+  };
+
+  /*! Determines the combination of buttons that will be shown. */
+  enum ButtonCombo
+  {
+    OKOnly,   /*!< Only the "OK" button should be made available. */
+    YesNo,    /*!< The buttons shown should be "Yes" and "No". */
+    OKCancel  /*!< The buttons shown should be "OK" and "Cancel". */
+  };
+
+  /*! Represents the individual buttons available. */
+  enum Buttons
+  {
+    Yes,
+    No,
+    OK,
+    Cancel
+  };
+
   /*! This function will return the saved user preference (if there is one),
       or prompt the user for a decision and return the user's choice. 
       @param uniqueMessageKey - a unique name representing a specific message, this name is saved to 
@@ -58,9 +84,9 @@ namespace GCMessageSpace
   bool userAccepted( const QString &uniqueMessageKey,
                      const QString &heading,
                      const QString &text,
-                     GCMessageDialog::ButtonCombo buttons,
-                     GCMessageDialog::Buttons defaultButton,
-                     GCMessageDialog::Icon icon = GCMessageDialog::NoIcon,
+                     ButtonCombo buttons,
+                     Buttons defaultButton,
+                     Icon icon = NoIcon,
                      bool saveCancel = true );
 
   /*! Deletes all saved preferences from the registry/XML/ini files. */

@@ -44,7 +44,6 @@ SOURCES += main.cpp\
     db/gcbatchprocessorhelper.cpp \    
     xml/xmlsyntaxhighlighter.cpp \
     utils/gccombobox.cpp \
-    forms/gcmessagedialog.cpp \
     utils/gcmessagespace.cpp \
     forms/gchelpdialog.cpp \
     forms/gcnewdbwizard.cpp \
@@ -61,7 +60,6 @@ HEADERS  += \
     db/gcbatchprocessorhelper.h \
     xml/xmlsyntaxhighlighter.h \
     utils/gccombobox.h \
-    forms/gcmessagedialog.h \
     utils/gcmessagespace.h \
     forms/gchelpdialog.h \
     forms/gcnewdbwizard.h \
