@@ -156,7 +156,7 @@ private:
 
   void setStatusBarMessage( const QString &message );
   void showErrorMessageBox( const QString &errorMsg );
-  void setTextEditContent ( const QDomElement &element );
+  void setTextEditContent( const QDomElement &element );
   void highlightTextElement( const QDomElement &element );
 
   void importXMLToDatabase();

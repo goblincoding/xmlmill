@@ -31,9 +31,14 @@
 
 /*--------------------------------------------------------------------------------------*/
 
+int GCDomElementInfo::m_indexCount = 1;
+
+/*--------------------------------------------------------------------------------------*/
+
 GCDomElementInfo::GCDomElementInfo( QDomElement element ) :
   m_element        ( element ),
   m_elementExcluded( false ),
+  m_index          ( m_indexCount ),
   m_includedAttributes()
 {
   QDomNamedNodeMap attributes = m_element.attributes();
@@ -42,6 +47,8 @@ GCDomElementInfo::GCDomElementInfo( QDomElement element ) :
   {
     m_includedAttributes.append( attributes.item( i ).toAttr().name() );
   }
+
+  m_indexCount++;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -135,6 +142,13 @@ QString GCDomElementInfo::toString() const
   }
 
   return text;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+int GCDomElementInfo::index() const
+{
+  return m_index;
 }
 
 /*--------------------------------------------------------------------------------------*/

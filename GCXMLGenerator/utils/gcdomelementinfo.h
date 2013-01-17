@@ -69,9 +69,13 @@ public:
       and other XML characters). */
   QString toString() const;
 
+  int index() const;
+
 private:
   QDomElement m_element;
   bool m_elementExcluded;
+  int  m_index;
+  static int m_indexCount;
 
   QStringList m_includedAttributes;
 };

@@ -1531,8 +1531,36 @@ void GCMainWindow::highlightTextElement( const QDomElement &element )
 {
   if( !element.isNull() )
   {
+    QString stringToMatch = m_elementInfo.value( m_treeItemNodes.key( element ) )->toString();
+    QList< QTreeWidgetItem* > identicalItems = ui->treeWidget->findItems( element.tagName(), Qt::MatchExactly | Qt::MatchRecursive );
+    QList< int > indices;
+
+    /* If there are multiple nodes with the same element name (more likely than not), check which
+      of these nodes are exact duplicates with regards to attributes, values, etc. */
+    foreach( QTreeWidgetItem* item, identicalItems )
+    {
+      QString node = m_elementInfo.value( item )->toString();
+
+      if( node == stringToMatch )
+      {
+        indices.append( m_elementInfo.value( item )->index() );
+      }
+    }
+
+    /* Now that we have a list of all the indices matching identical nodes (indices are a rough
+      indication of an element's position in the DOM and closely matches the "line numbers" of the
+      items in the tree widget), we can determine the position of the selected DOM element relative
+      to its doppelgangers and highlight its text representation in the text edit area. */
+    qSort( indices.begin(), indices.end() );
     ui->dockWidgetTextEdit->moveCursor( QTextCursor::Start );
-    ui->dockWidgetTextEdit->find( m_elementInfo.value( m_treeItemNodes.key( element ) )->toString() );
+
+    int elementIndex = m_elementInfo.value( m_treeItemNodes.key( element ) )->index();
+
+    for( int i = 0; i <= indices.indexOf( elementIndex ); ++i )
+    {
+      ui->dockWidgetTextEdit->find( stringToMatch );
+    }
+
     ui->dockWidgetTextEdit->ensureCursorVisible();
   }
 }
