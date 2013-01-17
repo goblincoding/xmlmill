@@ -54,16 +54,12 @@ public:
   /*! Destructor. */
   ~GCDBSessionManager();
 
-  /*! Select a known database from the dropdown, or add a new or existing database from file. */
-  void selectActiveDatabase();
-
-  /*! Switch to a known database from the dropdown, or to a new
-      or existing database from file. 
+  /*! Select a known database from the dropdown, or add a new or existing database from file.
       @param currentRoot - used to determine whether or not the change will affect
                            the active document. */
-  void switchActiveDatabase( const QString &currentRoot = QString() );
+  void selectActiveDatabase(  const QString &currentRoot = QString() );
 
-  /*! Remove a known database from the list.
+  /*! Display the list of known databases that can be removed.
       @param currentRoot - used to determine whether or not the change will affect
                            the active document. */
   void removeDatabase( const QString &currentRoot = QString() );
@@ -88,13 +84,24 @@ signals:
   void reset();
 
 private slots:
+  /*! Triggered when the user selection is completed. Removes the selected database
+      via GCDatabaseInterface. */
   void removeDBConnection();
+
+  /*! Triggered when the user selection is completed. */
   void setActiveDatabase();
 
 private:
+  /*! Sets the active database session to "dbName" via GCDatabaseInterface. */
   void setActiveDatabase( const QString &dbName );
+
+  /*! Display an error message box if any errors are encountered. */
   void showErrorMessageBox( const QString &errorMsg );
+
+  /*! Adds "dbName" to the list of known databases via GCDatabaseInterface. */
   void addDBConnection( const QString &dbName );
+
+  /*! Sets the list of known database names on the combo box. */
   void setDBList();
   
   Ui::GCDBSessionManager *ui;

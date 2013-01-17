@@ -61,8 +61,12 @@ GCDBSessionManager::~GCDBSessionManager()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::selectActiveDatabase()
+void GCDBSessionManager::selectActiveDatabase( const QString &currentRoot )
 {
+  /* Switching DB sessions while building an XML document could result in all kinds of trouble
+    since the items known to the current session may not be known to the next. */
+  m_currentRoot = currentRoot;
+
   this->setWindowTitle( "Select a profile for this session" );
   setDBList();
 
@@ -73,16 +77,6 @@ void GCDBSessionManager::selectActiveDatabase()
   connect   ( ui->okButton, SIGNAL( clicked() ), this, SLOT( setActiveDatabase() ), Qt::UniqueConnection );
 
   this->exec();
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCDBSessionManager::switchActiveDatabase( const QString &currentRoot )
-{
-  /* Switching DB sessions while building an XML document could result in all kinds of trouble
-    since the items known to the current session may not be known to the next. */
-  m_currentRoot = currentRoot;
-  selectActiveDatabase();
 }
 
 /*--------------------------------------------------------------------------------------*/

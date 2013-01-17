@@ -188,7 +188,7 @@ private:
       is returned (the function does not care whether or not the record exists). */ 
   QSqlQuery selectAttribute( const QString &attribute, const QString &associatedElement, bool &success ) const;
 
-  /* Overloaded for private use. */
+  /*! Overloaded for private use. */
   QStringList knownRootElements( QSqlDatabase db ) const;
 
   /*! Removes all duplicates that may have been introduced during batch processing.

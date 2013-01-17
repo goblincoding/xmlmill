@@ -173,8 +173,8 @@ public:
   QVariantList newAttributeValuesToAdd() const;
 
   /*! Returns a list of all the new attributes that should be added to the database. 
-			\sa associatedElementsToUpdate()
-			\sa attributeValuesToUpdate() */
+      \sa associatedElementsToUpdate()
+      \sa attributeValuesToUpdate() */
   QVariantList attributeKeysToUpdate() const;
 
   /*! Returns a list of all the associated elements corresponding to existing attribute keys
@@ -183,7 +183,7 @@ public:
       Each item in this list is the specific element associated with an attribute in the "attribute keys to
       update" list. 
       \sa attributeKeysToUpdate() 
-			\sa attributeValuesToUpdate() */
+      \sa attributeValuesToUpdate() */
   QVariantList associatedElementsToUpdate() const;
 
   /*! Returns a list of lists of all attribute values associated with existing attributes that should be 
@@ -194,7 +194,7 @@ public:
       all these known values concatenated into a single string value with the individuals
       separated by the unique string separator that was passed in as constructor parameter. 
       \sa attributeKeysToUpdate() 
-			\sa associatedElementsToUpdate() */
+      \sa associatedElementsToUpdate() */
   QVariantList attributeValuesToUpdate() const;
 
 private:

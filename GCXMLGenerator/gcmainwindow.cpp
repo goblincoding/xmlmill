@@ -827,11 +827,11 @@ void GCMainWindow::switchActiveDatabase()
     or not a user is on the verge of messing something up... */
   if( m_domDoc->documentElement().isNull() )
   {
-    manager->switchActiveDatabase();
+    manager->selectActiveDatabase();
   }
   else
   {
-    manager->switchActiveDatabase( m_domDoc->documentElement().tagName() );
+    manager->selectActiveDatabase( m_domDoc->documentElement().tagName() );
   }
 
   delete manager;
@@ -870,8 +870,7 @@ void GCMainWindow::importXMLFromFile()
 
 void GCMainWindow::importXMLToDatabase()
 {
-  QTimer timer;
-  timer.singleShot( 1000, this, SLOT( createSpinner() ) );
+  createSpinner();
   qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
 
   if( !GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc ) )
@@ -893,6 +892,8 @@ void GCMainWindow::importXMLToDatabase()
 
     if( accept == QMessageBox::Yes )
     {
+      QTimer timer;
+
       if( m_progressLabel )
       {
         timer.singleShot( 1000, m_progressLabel, SLOT( show() ) );
