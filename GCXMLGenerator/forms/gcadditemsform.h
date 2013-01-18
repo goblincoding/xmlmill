@@ -31,6 +31,11 @@
 
 #include <QDialog>
 
+namespace Ui
+{
+  class GCAddItemsForm;
+}
+
 class QTreeWidgetItem;
 
 /// Form to add elements and attributes to the active database.
@@ -48,11 +53,6 @@ class QTreeWidgetItem;
   ccepts the close event (i.e. you don't need to worry about clean-up of dynamically
   reated instances of this object).
 */
-namespace Ui
-{
-  class GCAddItemsForm;
-}
-
 class GCAddItemsForm : public QDialog
 {
   Q_OBJECT

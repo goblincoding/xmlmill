@@ -47,6 +47,12 @@ GCAddItemsForm::GCAddItemsForm( QWidget *parent ) :
   populateTreeWidget();
   ui->treeWidget->expandAll();
 
+  if( ui->treeWidget->topLevelItemCount() != 0 )
+  {
+    ui->treeWidget->setCurrentItem( ui->treeWidget->topLevelItem( 0 ) );
+  }
+
+  ui->lineEdit->setFocus();
   setAttribute( Qt::WA_DeleteOnClose );
 }
 
@@ -176,7 +182,7 @@ void GCAddItemsForm::showHelp()
                             "Although you can only add one element at a time, you can add all the "
                             "element's attributes in one go: simply stick each of them on a separate "
                             "line in the text edit area and hit \"Add\" when you're done.\n\n"
-                            "(oh, and if the element doesn't have associated attributes, just "
+                            "(if the element doesn't have associated attributes, just "
                             "leave the text edit area empty)" );
 }
 
