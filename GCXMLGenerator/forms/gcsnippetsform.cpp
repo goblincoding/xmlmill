@@ -429,12 +429,12 @@ void GCSnippetsForm::updateCheckStates( QTreeWidgetItem *item )
   else
   {
     const_cast< GCDomElementInfo* >( m_elementInfo.value( item ) )->setExcludeElement( true );
-  }
 
-  for( int i = 0; i < item->childCount(); ++i )
-  {
-    item->child( i )->setCheckState( 0, item->checkState( 0 ) );
-    updateCheckStates( item->child( i ) );
+    for( int i = 0; i < item->childCount(); ++i )
+    {
+      item->child( i )->setCheckState( 0, item->checkState( 0 ) );
+      updateCheckStates( item->child( i ) );
+    }
   }
 }
 
