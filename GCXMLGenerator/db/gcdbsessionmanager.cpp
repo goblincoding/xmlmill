@@ -129,30 +129,24 @@ void GCDBSessionManager::addNewDatabase( const QString &currentRoot )
 
 void GCDBSessionManager::removeDBConnection()
 {
-  if( !m_currentRoot.isEmpty() )
-  {
-    if( GCDataBaseInterface::instance()->knownRootElements().contains( m_currentRoot ) )
-    {
-      bool accepted = GCMessageSpace::userAccepted( "RemoveActiveSessionWarning",
-                                    "Warning!",
-                                    "Removing the active profile will cause the current "
-                                    "document to be reset and your work will be lost.\n\n "
-                                    "If you are not removing the current profile (it could be "
-                                    "that the profile you are removing just happens to know "
-                                    "of the same document style you're currently working on), "
-                                    "then you can safely ignore this message.",
-                                    GCMessageSpace::OKCancel,
-                                    GCMessageSpace::Cancel,
-                                    GCMessageSpace::Warning );
+  QString dbName = ui->comboBox->currentText();
 
-      if( !accepted )
-      {
-        return;
-      }
+  if( !m_currentRoot.isEmpty() &&
+      GCDataBaseInterface::instance()->activeSessionName() == dbName )
+  {
+    bool accepted = GCMessageSpace::userAccepted( "RemoveActiveSessionWarning",
+                                                  "Warning!",
+                                                  "Removing the active profile will cause the current "
+                                                  "document to be reset and your work will be lost! ",
+                                                  GCMessageSpace::OKCancel,
+                                                  GCMessageSpace::Cancel,
+                                                  GCMessageSpace::Warning );
+
+    if( !accepted )
+    {
+      return;
     }
   }
-
-  QString dbName = ui->comboBox->currentText();
 
   if( !GCDataBaseInterface::instance()->removeDatabase( dbName ) )
   {
@@ -175,24 +169,22 @@ void GCDBSessionManager::setActiveDatabase( const QString &dbName )
 {
   /* If the current root element is not known to the new session, the user must
     confirm whether or not he/she wants the active document to be reset. */
-  if( !m_currentRoot.isEmpty() )
+  if( !m_currentRoot.isEmpty() &&
+      !GCDataBaseInterface::instance()->containsKnownRootElement( dbName, m_currentRoot ) )
   {
-    if( !GCDataBaseInterface::instance()->containsKnownRootElement( dbName, m_currentRoot ) )
+    QMessageBox::StandardButton accept = QMessageBox::question( this,
+                                                                "Unsupported document",
+                                                                "The selected profile doesn't support your current document. Your "
+                                                                "document will be reset if you continue.",
+                                                                QMessageBox::Ok | QMessageBox::Cancel,
+                                                                QMessageBox::Cancel );
+    if( accept != QMessageBox::Ok )
     {
-      QMessageBox::StandardButton accept = QMessageBox::question( this,
-                                                                  "Unsupported document",
-                                                                  "The new profile doesn't support your current document. The\n"
-                                                                  "document will be reset if you continue.",
-                                                                  QMessageBox::Ok | QMessageBox::Cancel,
-                                                                  QMessageBox::Cancel );
-      if( accept != QMessageBox::Ok )
-      {
-        return;
-      }
-
-      emit reset();
-      m_currentRoot = "";
+      return;
     }
+
+    emit reset();
+    m_currentRoot = "";
   }
 
   if( !GCDataBaseInterface::instance()->setActiveDatabase( dbName ) )

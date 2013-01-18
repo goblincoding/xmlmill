@@ -786,6 +786,18 @@ bool GCDataBaseInterface::hasActiveSession() const
 
 /*--------------------------------------------------------------------------------------*/
 
+QString GCDataBaseInterface::activeSessionName() const
+{
+  if( m_hasActiveSession )
+  {
+    return m_sessionDB.connectionName();
+  }
+
+  return QString();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 bool GCDataBaseInterface::profileEmpty() const
 {
   return knownRootElements().isEmpty();

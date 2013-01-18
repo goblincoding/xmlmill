@@ -131,8 +131,13 @@ public:
   /*! Returns the last known error message. */
   QString getLastError() const;
 
-  /*! Returns "true" if an active database session exists, "false" if not. */
+  /*! Returns "true" if an active database session exists, "false" if not.
+      \sa activeSessionName() */
   bool hasActiveSession() const;
+
+  /*! Returns the active database session (if one exists) or an empty string if not.
+      \sa hasActiveSession */
+  QString activeSessionName() const;
 
   /*! Returns "true" if the active database is empty, "false" if not. */
   bool profileEmpty() const;
