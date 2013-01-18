@@ -68,7 +68,8 @@ HEADERS  += \
     forms/gcremoveitemsform.h \
     forms/gcsnippetsform.h \
     utils/gcdomelementinfo.h \
-    db/gcdbsessionmanager.h
+    db/gcdbsessionmanager.h \
+    utils/gcglobals.h
 
 FORMS    += \
     gcmainwindow.ui \

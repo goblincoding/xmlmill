@@ -28,6 +28,7 @@
 
 #include "gcmessagespace.h"
 #include "ui_gcmessagedialog.h"
+#include "utils/gcglobals.h"
 
 #include <QSettings>
 #include <QDialog>
@@ -133,7 +134,7 @@ private:
 };
 
 /* Standard trick for classes defined in .cpp files (resolves "Undefiend Reference
-  to Vtable for xxx issue). The file that seems "missing" at the moment is generated
+  to vtable for xxx issue). The file that seems "missing" at the moment is generated
   by MOC when qMake is run. Must include after class definition. */
 #include "gcmessagespace.moc"
 
@@ -146,7 +147,7 @@ namespace GCMessageSpace
   /* Hides our "member" variables. */
   namespace
   {
-    QSettings settings( "William Hallatt", "XML Mill" );
+    QSettings settings( ORGANISATION, APPLICATION );
     bool settingsInitialised( false );
   }
 
@@ -164,13 +165,13 @@ namespace GCMessageSpace
   {
     if( !settingsInitialised )
     {
-      settings.setValue( "Messages", "Save dialog prompt user preferences." );
+      settings.setValue( "dialogPreferences", "" );
       settingsInitialised = true;
     }
 
     /* Check if the user previously requested that his/her choice must be saved. */
-    QString key = QString( "Messages/%1" ).arg( uniqueMessageKey );
-    QString valueKey = QString( key + "/Preference" );
+    QString key = QString( "dialogPreferences/%1" ).arg( uniqueMessageKey );
+    QString valueKey = QString( key + "/preference" );
 
     bool remembered = settings.value( key, false ).toBool();
 
@@ -221,7 +222,7 @@ namespace GCMessageSpace
 
   void forgetAllPreferences()
   {
-    settings.beginGroup( "Messages" );
+    settings.beginGroup( "dialogPreferences" );
     settings.remove( "" );
     settings.endGroup();
   }

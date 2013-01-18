@@ -158,6 +158,7 @@ private:
   void showErrorMessageBox( const QString &errorMsg );
   void setTextEditContent( const QDomElement &element );
   void highlightTextElement( const QDomElement &element );
+  bool queryResetDOM( const QString &resetReason );
 
   void importXMLToDatabase();
   void insertEmptyTableRow();
@@ -166,8 +167,8 @@ private:
   void startSaveTimer();
   void toggleAddElementWidgets();
   void deleteSpinner();
-
-  bool queryResetDOM( const QString &resetReason );
+  void readSettings();
+  void saveSettings();
 
   GCDBSessionManager *createDBSessionManager();
 

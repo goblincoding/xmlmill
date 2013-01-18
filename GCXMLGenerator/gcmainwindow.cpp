@@ -39,6 +39,7 @@
 #include "utils/gccombobox.h"
 #include "utils/gcmessagespace.h"
 #include "utils/gcdomelementinfo.h"
+#include "utils/gcglobals.h"
 
 #include <QDesktopServices>
 #include <QSignalMapper>
@@ -55,6 +56,7 @@
 #include <QFont>
 #include <QScrollBar>
 #include <QMovie>
+#include <QSettings>
 
 /*--------------------------------------------------------------------------------------*/
 
@@ -141,6 +143,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   XmlSyntaxHighlighter *highLighter = new XmlSyntaxHighlighter( ui->dockWidgetTextEdit->document() );
   Q_UNUSED( highLighter );
 
+  readSettings();
+
   /* Wait for the event loop to be initialised before calling this function. */
   QTimer::singleShot( 0, this, SLOT( initialise() ) );
 }
@@ -200,6 +204,8 @@ void GCMainWindow::closeEvent( QCloseEvent *event )
       return;
     }
   }
+
+  saveSettings();
 
   QMainWindow::closeEvent( event );
 }
@@ -949,6 +955,47 @@ void GCMainWindow::deleteSpinner()
     delete m_progressLabel;
     m_progressLabel = NULL;
   }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::readSettings()
+{
+  QSettings settings( ORGANISATION, APPLICATION );
+  restoreGeometry( settings.value( "geometry" ).toByteArray() );
+  restoreState( settings.value( "windowState" ).toByteArray() );
+
+  if( settings.contains( "saveWindowInformation" ) )
+  {
+    ui->actionRememberWindowGeometry->setChecked( settings.value( "saveWindowInformation" ).toBool() );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::saveSettings()
+{
+  QSettings settings( ORGANISATION, APPLICATION );
+
+  if( ui->actionRememberWindowGeometry->isChecked() )
+  {
+    settings.setValue( "geometry", saveGeometry() );
+    settings.setValue( "windowState", saveState() );
+  }
+  else
+  {
+    if( settings.contains( "geometry" ) )
+    {
+      settings.remove( "geometry" );
+    }
+
+    if( settings.contains( "windowState" ) )
+    {
+      settings.remove( "windowState" );
+    }
+  }
+
+  settings.setValue( "saveWindowInformation", ui->actionRememberWindowGeometry->isChecked() );
 }
 
 /*--------------------------------------------------------------------------------------*/

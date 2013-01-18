@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Goblin Coding's XML Mill</string>
+   <string>GoblinCoding's XML Mill</string>
   </property>
   <property name="windowIcon">
    <iconset resource="resources/gcresources.qrc">
@@ -253,6 +253,7 @@
      <string>&amp;Options</string>
     </property>
     <addaction name="actionForgetPreferences"/>
+    <addaction name="actionRememberWindowGeometry"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -542,12 +543,15 @@
    </property>
   </action>
   <action name="actionForgetPreferences">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="resources/gcresources.qrc">
      <normaloff>:/resources/clear.png</normaloff>:/resources/clear.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Reset Message Preferences</string>
+    <string>Forget Message Preferences</string>
    </property>
    <property name="whatsThis">
     <string>Forget all saved preferences regarding messages/warnings/queries.</string>
@@ -662,6 +666,17 @@
    </property>
    <property name="whatsThis">
     <string>Edit elements and attributes in the active profile.</string>
+   </property>
+  </action>
+  <action name="actionRememberWindowGeometry">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Remember Window Geometry</string>
    </property>
   </action>
  </widget>
