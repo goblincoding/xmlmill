@@ -30,10 +30,13 @@
 
 /*--------------------------------- MEMBER FUNCTIONS ----------------------------------*/
 
-GCBatchProcessorHelper::GCBatchProcessorHelper( const QDomDocument *domDoc, const QString &stringListSeparator ) :
+GCBatchProcessorHelper::GCBatchProcessorHelper( const QDomDocument *domDoc,
+                                                const QString &stringListSeparator,
+                                                const QStringList &knownElements,
+                                                const QStringList &knownAttributes ) :
   m_stringListSeparator       ( stringListSeparator ),
-  m_knownElements             (),
-  m_knownAttributeKeys        (),
+  m_knownElements             ( knownElements ),
+  m_knownAttributeKeys        ( knownAttributes ),
   m_newElementsToAdd          (),
   m_newElementChildrenToAdd   (),
   m_newElementAttributesToAdd (),
@@ -53,6 +56,7 @@ GCBatchProcessorHelper::GCBatchProcessorHelper( const QDomDocument *domDoc, cons
   createRecord( root );
   processElement( root );   // kicks off a chain of recursive DOM element traversals
   sortRecords();
+  createVariantLists();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -301,97 +305,83 @@ void GCBatchProcessorHelper::createVariantLists()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCBatchProcessorHelper::setKnownElements( const QStringList &elements )
-{
-  m_knownElements = elements;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCBatchProcessorHelper::setKnownAttributes( const QStringList &attributeKeys )
-{
-  m_knownAttributeKeys = attributeKeys;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-QVariantList GCBatchProcessorHelper::newElementsToAdd() const
+const QVariantList &GCBatchProcessorHelper::newElementsToAdd() const
 {
   return m_newElementsToAdd;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-QVariantList GCBatchProcessorHelper::newElementChildrenToAdd() const
+const QVariantList &GCBatchProcessorHelper::newElementChildrenToAdd() const
 {
   return m_newElementChildrenToAdd;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-QVariantList GCBatchProcessorHelper::newElementAttributesToAdd() const
+const QVariantList &GCBatchProcessorHelper::newElementAttributesToAdd() const
 {
   return m_newElementAttributesToAdd;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-QVariantList GCBatchProcessorHelper::elementsToUpdate() const
+const QVariantList &GCBatchProcessorHelper::elementsToUpdate() const
 {
   return m_elementsToUpdate;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-QVariantList GCBatchProcessorHelper::elementChildrenToUpdate() const
+const QVariantList &GCBatchProcessorHelper::elementChildrenToUpdate() const
 {
   return m_elementChildrenToUpdate;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-QVariantList GCBatchProcessorHelper::elementAttributesToUpdate() const
+const QVariantList &GCBatchProcessorHelper::elementAttributesToUpdate() const
 {
   return m_elementAttributesToUpdate;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-QVariantList GCBatchProcessorHelper::newAttributeKeysToAdd() const
+const QVariantList &GCBatchProcessorHelper::newAttributeKeysToAdd() const
 {
   return m_newAttributeKeysToAdd;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-QVariantList GCBatchProcessorHelper::newAssociatedElementsToAdd() const
+const QVariantList &GCBatchProcessorHelper::newAssociatedElementsToAdd() const
 {
   return m_newAssociatedElementsToAdd;
 }
 /*--------------------------------------------------------------------------------------*/
 
-QVariantList GCBatchProcessorHelper::newAttributeValuesToAdd() const
+const QVariantList &GCBatchProcessorHelper::newAttributeValuesToAdd() const
 {
   return m_newAttributeValuesToAdd;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-QVariantList GCBatchProcessorHelper::attributeKeysToUpdate() const
+const QVariantList &GCBatchProcessorHelper::attributeKeysToUpdate() const
 {
   return m_attributeKeysToUpdate;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-QVariantList GCBatchProcessorHelper::associatedElementsToUpdate() const
+const QVariantList &GCBatchProcessorHelper::associatedElementsToUpdate() const
 {
   return m_associatedElementsToUpdate;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-QVariantList GCBatchProcessorHelper::attributeValuesToUpdate() const
+const QVariantList &GCBatchProcessorHelper::attributeValuesToUpdate() const
 {
   return m_attributeValuesToUpdate;
 }

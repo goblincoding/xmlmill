@@ -153,10 +153,10 @@ bool GCDataBaseInterface::initialised()
 
 bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument *domDoc ) const
 {
-  GCBatchProcessorHelper helper( domDoc, SEPARATOR );
-  helper.setKnownElements  ( knownElements() );
-  helper.setKnownAttributes( knownAttributeKeys() );
-  helper.createVariantLists();
+  GCBatchProcessorHelper helper( domDoc,
+                                 SEPARATOR,
+                                 knownElements(),
+                                 knownAttributeKeys() );
 
   qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
 
