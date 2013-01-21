@@ -129,8 +129,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->tableWidget, SIGNAL( itemChanged( QTableWidgetItem* ) ), this, SLOT( attributeChanged( QTableWidgetItem* ) ) );
 
   /* Database related. */
-  connect( ui->actionAddItems, SIGNAL( triggered() ), this, SLOT( showAddItemsForm() ) );
-  connect( ui->actionRemoveItems, SIGNAL( triggered() ), this, SLOT( showRemoveItemsForm() ) );
+  connect( ui->actionAddItems, SIGNAL( triggered() ), this, SLOT( addItemsToDB() ) );
+  connect( ui->actionRemoveItems, SIGNAL( triggered() ), this, SLOT( removeItemsFromDB() ) );
   connect( ui->actionImportXMLToDatabase, SIGNAL( triggered() ), this, SLOT( importXMLFromFile() ) );
   connect( ui->actionSwitchSessionDatabase, SIGNAL( triggered() ), this, SLOT( switchActiveDatabase() ) );
   connect( ui->actionAddNewDatabase, SIGNAL( triggered() ), this, SLOT( addNewDatabase() ) );
@@ -160,30 +160,6 @@ GCMainWindow::~GCMainWindow()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::initialise()
-{
-  /* Initialise the database interface and retrieve the list of database names (this will
-    include the path references to the ".db" files). */
-  if( !GCDataBaseInterface::instance()->initialised() )
-  {
-    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
-    this->close();
-  }
-
-  /* If the interface was successfully initialised, prompt the user to choose a database
-    connection for this session. */
-  GCDBSessionManager *manager = createDBSessionManager();
-  manager->selectActiveDatabase();
-  QDialog::DialogCode result = static_cast< QDialog::DialogCode >( manager->result() );
-
-  if( result == QDialog::Rejected )
-  {
-    this->close();    // also deletes manager ("this" is parent)
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 void GCMainWindow::closeEvent( QCloseEvent *event )
 {
   if( m_fileContentsChanged )
@@ -206,8 +182,31 @@ void GCMainWindow::closeEvent( QCloseEvent *event )
   }
 
   saveSettings();
-
   QMainWindow::closeEvent( event );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::initialise()
+{
+  /* Initialise the database interface and retrieve the list of database names (this will
+    include the path references to the ".db" files). */
+  if( !GCDataBaseInterface::instance()->initialised() )
+  {
+    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    this->close();
+  }
+
+  /* If the interface was successfully initialised, prompt the user to choose a database
+    connection for this session. */
+  GCDBSessionManager *manager = createDBSessionManager();
+  manager->selectActiveDatabase();
+  QDialog::DialogCode result = static_cast< QDialog::DialogCode >( manager->result() );
+
+  if( result == QDialog::Rejected )
+  {
+    this->close();    // also deletes manager ("this" is parent)
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -511,13 +510,6 @@ void GCMainWindow::attributeSelected( QTableWidgetItem *item )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::setCurrentComboBox( QWidget *combo )
-{
-  m_currentCombo = combo;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 void GCMainWindow::attributeValueChanged( const QString &value )
 {
   /* Don't execute the logic if a tree widget item's activation is triggering
@@ -557,16 +549,9 @@ void GCMainWindow::attributeValueChanged( const QString &value )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::newXMLFile()
+void GCMainWindow::setCurrentComboBox( QWidget *combo )
 {
-  if( queryResetDOM( "Save document before continuing?" ) )
-  {
-    resetDOM();
-    m_currentXMLFileName = "";
-    ui->actionCloseFile->setEnabled( true );
-    ui->actionSaveAs->setEnabled( true );
-    ui->actionSave->setEnabled( true );
-  }
+  m_currentCombo = combo;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -702,6 +687,20 @@ bool GCMainWindow::openXMLFile()
   }
 
   return true;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::newXMLFile()
+{
+  if( queryResetDOM( "Save document before continuing?" ) )
+  {
+    resetDOM();
+    m_currentXMLFileName = "";
+    ui->actionCloseFile->setEnabled( true );
+    ui->actionSaveAs->setEnabled( true );
+    ui->actionSave->setEnabled( true );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -845,14 +844,42 @@ void GCMainWindow::switchActiveDatabase()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::querySetActiveSession( QString reason )
+void GCMainWindow::activeDatabaseChanged( QString dbName )
 {
-  while( !GCDataBaseInterface::instance()->hasActiveSession() )
+  if( m_domDoc->documentElement().isNull() )
   {
-    showErrorMessageBox( reason );
-    GCDBSessionManager *manager = createDBSessionManager();
-    manager->selectActiveDatabase();
-    delete manager;
+    resetDOM();
+  }
+
+  /* If the user set an empty database, prompt to populate it.  This message must
+    always be shown (i.e. we don't have to show the custom dialog box that provides
+    the \"Don't show this again\" option). */
+  if( GCDataBaseInterface::instance()->profileEmpty() )
+  {
+    QMessageBox::StandardButton accepted = QMessageBox::warning( this,
+                                                                 "Empty Profile",
+                                                                 "Empty profile selected. Import XML from file?",
+                                                                 QMessageBox::Yes | QMessageBox::No,
+                                                                 QMessageBox::Yes );
+
+    if( accepted == QMessageBox::Yes )
+    {
+      importXMLFromFile();
+    }
+    else
+    {
+      addItemsToDB();
+    }
+  }
+
+  if( !m_activeSessionLabel )
+  {
+    m_activeSessionLabel = new QLabel( QString( "Active Session Name: %1" ).arg( dbName ) );
+    statusBar()->addWidget( m_activeSessionLabel );
+  }
+  else
+  {
+    m_activeSessionLabel->setText( QString( "Active Session Name: %1" ).arg( dbName ) );
   }
 }
 
@@ -920,84 +947,6 @@ bool GCMainWindow::importXMLToDatabase()
 
   deleteSpinner();
   return true;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::createSpinner()
-{
-  /* Clean-up must be handled in the calling function, but just in case. */
-  if( m_spinner || m_progressLabel )
-  {
-    deleteSpinner();
-  }
-
-  m_progressLabel = new QLabel( this, Qt::Popup );
-  m_progressLabel->move( window()->frameGeometry().topLeft() + window()->rect().center() - m_progressLabel->rect().center() );
-
-  m_spinner = new QMovie( ":/resources/spinner.gif" );
-  m_spinner->start();
-
-  m_progressLabel->setMovie( m_spinner );
-  m_progressLabel->show();
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::deleteSpinner()
-{
-  if( m_spinner )
-  {
-    delete m_spinner;
-    m_spinner = NULL;
-  }
-
-  if( m_progressLabel )
-  {
-    delete m_progressLabel;
-    m_progressLabel = NULL;
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::readSettings()
-{
-  QSettings settings( ORGANISATION, APPLICATION );
-  restoreGeometry( settings.value( "geometry" ).toByteArray() );
-  restoreState( settings.value( "windowState" ).toByteArray() );
-
-  if( settings.contains( "saveWindowInformation" ) )
-  {
-    ui->actionRememberWindowGeometry->setChecked( settings.value( "saveWindowInformation" ).toBool() );
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::saveSettings()
-{
-  QSettings settings( ORGANISATION, APPLICATION );
-
-  if( ui->actionRememberWindowGeometry->isChecked() )
-  {
-    settings.setValue( "geometry", saveGeometry() );
-    settings.setValue( "windowState", saveState() );
-  }
-  else
-  {
-    if( settings.contains( "geometry" ) )
-    {
-      settings.remove( "geometry" );
-    }
-
-    if( settings.contains( "windowState" ) )
-    {
-      settings.remove( "windowState" );
-    }
-  }
-
-  settings.setValue( "saveWindowInformation", ui->actionRememberWindowGeometry->isChecked() );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1177,67 +1126,7 @@ void GCMainWindow::insertSnippet()
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCMainWindow::queryResetDOM( const QString &resetReason )
-{
-  /* There are a number of places and opportunities for "resetDOM" to be called,
-    if there is an active document, check if it's content has changed since the
-    last time it had changed and make sure we don't accidentally delete anything. */
-  if( m_fileContentsChanged )
-  {
-    QMessageBox::StandardButtons accept = QMessageBox::question( this,
-                                                                 "Save file?",
-                                                                 resetReason,
-                                                                 QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
-                                                                 QMessageBox::Yes );
-
-    if( accept == QMessageBox::Yes )
-    {
-      saveXMLFile();
-    }
-    else if( accept == QMessageBox::No )
-    {
-      m_fileContentsChanged = false;
-    }
-    else
-    {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::resetDOM()
-{
-  m_domDoc->clear();
-  m_treeItemNodes.clear();
-  ui->treeWidget->clear();
-  ui->dockWidgetTextEdit->clear();
-  resetTableWidget();
-  deleteElementInfo();
-
-  ui->addElementComboBox->clear();
-  ui->addElementComboBox->addItems( GCDataBaseInterface::instance()->knownRootElements() );
-  toggleAddElementWidgets();
-
-  ui->addSnippetButton->setEnabled( false );
-
-  m_currentCombo = NULL;
-  m_activeAttributeName = "";
-
-  /* The timer will be reactivated as soon as work starts again on a legitimate
-    document and the user saves it for the first time. */
-  if( m_saveTimer )
-  {
-    m_saveTimer->stop();
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::showRemoveItemsForm()
+void GCMainWindow::removeItemsFromDB()
 {
   if( !GCDataBaseInterface::instance()->hasActiveSession() )
   {
@@ -1264,9 +1153,10 @@ void GCMainWindow::showRemoveItemsForm()
   dialog->exec();
 }
 
+
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::showAddItemsForm()
+void GCMainWindow::addItemsToDB()
 {
   if( !GCDataBaseInterface::instance()->hasActiveSession() )
   {
@@ -1287,6 +1177,26 @@ void GCMainWindow::showAddItemsForm()
     ui->addElementComboBox->addItems( GCDataBaseInterface::instance()->knownRootElements() );
     toggleAddElementWidgets();
   }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::searchDocument()
+{
+  /* Delete on close flag set (no clean-up needed). */
+  GCSearchForm *form = new GCSearchForm( m_treeItemNodes.values(), m_domDoc->toString(), this );
+  connect( form, SIGNAL( foundElement( QDomElement ) ), this, SLOT( elementFound( QDomElement ) ) );
+  form->exec();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::elementFound( const QDomElement &element )
+{
+  QTreeWidgetItem *item = m_treeItemNodes.key( element );
+  ui->treeWidget->expandAll();
+  ui->treeWidget->setCurrentItem( item );
+  elementSelected( item, 0 );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1348,58 +1258,6 @@ void GCMainWindow::saveDirectEdit()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::elementFound( const QDomElement &element )
-{
-  QTreeWidgetItem *item = m_treeItemNodes.key( element );
-  ui->treeWidget->expandAll();
-  ui->treeWidget->setCurrentItem( item );
-  elementSelected( item, 0 );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::activeDatabaseChanged( QString dbName )
-{
-  if( m_domDoc->documentElement().isNull() )
-  {
-    resetDOM();
-  }
-
-  /* If the user set an empty database, prompt to populate it.  This message must
-    always be shown (i.e. we don't have to show the custom dialog box that provides
-    the \"Don't show this again\" option). */
-  if( GCDataBaseInterface::instance()->profileEmpty() )
-  {
-    QMessageBox::StandardButton accepted = QMessageBox::warning( this,
-                                                                 "Empty Profile",
-                                                                 "Empty profile selected. Import XML from file?",
-                                                                 QMessageBox::Yes | QMessageBox::No,
-                                                                 QMessageBox::Yes );
-
-    if( accepted == QMessageBox::Yes )
-    {
-      importXMLFromFile();
-    }
-    else
-    {
-      showAddItemsForm();
-    }
-  }
-
-  if( !m_activeSessionLabel )
-  {
-    m_activeSessionLabel = new QLabel( QString( "Active Session Name: %1" ).arg( dbName ) );
-    statusBar()->addWidget( m_activeSessionLabel );
-  }
-  else
-  {
-    m_activeSessionLabel->setText( QString( "Active Session Name: %1" ).arg( dbName ) );
-  }
-}
-
-
-/*--------------------------------------------------------------------------------------*/
-
 void GCMainWindow::collapseOrExpandTreeWidget( bool checked )
 {
   if( checked )
@@ -1414,19 +1272,106 @@ void GCMainWindow::collapseOrExpandTreeWidget( bool checked )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::searchDocument()
+void GCMainWindow::forgetMessagePreferences()
 {
-  /* Delete on close flag set (no clean-up needed). */
-  GCSearchForm *form = new GCSearchForm( m_treeItemNodes.values(), m_domDoc->toString(), this );
-  connect( form, SIGNAL( foundElement( QDomElement ) ), this, SLOT( elementFound( QDomElement ) ) );
-  form->exec();
+  GCMessageSpace::forgetAllPreferences();
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::forgetMessagePreferences()
+void GCMainWindow::createSpinner()
 {
-  GCMessageSpace::forgetAllPreferences();
+  /* Clean-up must be handled in the calling function, but just in case. */
+  if( m_spinner || m_progressLabel )
+  {
+    deleteSpinner();
+  }
+
+  m_progressLabel = new QLabel( this, Qt::Popup );
+  m_progressLabel->move( window()->frameGeometry().topLeft() + window()->rect().center() - m_progressLabel->rect().center() );
+
+  m_spinner = new QMovie( ":/resources/spinner.gif" );
+  m_spinner->start();
+
+  m_progressLabel->setMovie( m_spinner );
+  m_progressLabel->show();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::deleteSpinner()
+{
+  if( m_spinner )
+  {
+    delete m_spinner;
+    m_spinner = NULL;
+  }
+
+  if( m_progressLabel )
+  {
+    delete m_progressLabel;
+    m_progressLabel = NULL;
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::resetDOM()
+{
+  m_domDoc->clear();
+  m_treeItemNodes.clear();
+  ui->treeWidget->clear();
+  ui->dockWidgetTextEdit->clear();
+  resetTableWidget();
+  deleteElementInfo();
+
+  ui->addElementComboBox->clear();
+  ui->addElementComboBox->addItems( GCDataBaseInterface::instance()->knownRootElements() );
+  toggleAddElementWidgets();
+
+  ui->addSnippetButton->setEnabled( false );
+
+  m_currentCombo = NULL;
+  m_activeAttributeName = "";
+
+  /* The timer will be reactivated as soon as work starts again on a legitimate
+    document and the user saves it for the first time. */
+  if( m_saveTimer )
+  {
+    m_saveTimer->stop();
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCMainWindow::queryResetDOM( const QString &resetReason )
+{
+  /* There are a number of places and opportunities for "resetDOM" to be called,
+    if there is an active document, check if it's content has changed since the
+    last time it had changed and make sure we don't accidentally delete anything. */
+  if( m_fileContentsChanged )
+  {
+    QMessageBox::StandardButtons accept = QMessageBox::question( this,
+                                                                 "Save file?",
+                                                                 resetReason,
+                                                                 QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+                                                                 QMessageBox::Yes );
+
+    if( accept == QMessageBox::Yes )
+    {
+      saveXMLFile();
+    }
+    else if( accept == QMessageBox::No )
+    {
+      m_fileContentsChanged = false;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1729,6 +1674,60 @@ GCDBSessionManager *GCMainWindow::createDBSessionManager()
   connect( manager, SIGNAL( reset() ), this, SLOT( resetDOM() ) );
   connect( manager, SIGNAL( activeDatabaseChanged( QString ) ), this, SLOT( activeDatabaseChanged( QString ) ) );
   return manager;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::querySetActiveSession( QString reason )
+{
+  while( !GCDataBaseInterface::instance()->hasActiveSession() )
+  {
+    showErrorMessageBox( reason );
+    GCDBSessionManager *manager = createDBSessionManager();
+    manager->selectActiveDatabase();
+    delete manager;
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::readSettings()
+{
+  QSettings settings( ORGANISATION, APPLICATION );
+  restoreGeometry( settings.value( "geometry" ).toByteArray() );
+  restoreState( settings.value( "windowState" ).toByteArray() );
+
+  if( settings.contains( "saveWindowInformation" ) )
+  {
+    ui->actionRememberWindowGeometry->setChecked( settings.value( "saveWindowInformation" ).toBool() );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::saveSettings()
+{
+  QSettings settings( ORGANISATION, APPLICATION );
+
+  if( ui->actionRememberWindowGeometry->isChecked() )
+  {
+    settings.setValue( "geometry", saveGeometry() );
+    settings.setValue( "windowState", saveState() );
+  }
+  else
+  {
+    if( settings.contains( "geometry" ) )
+    {
+      settings.remove( "geometry" );
+    }
+
+    if( settings.contains( "windowState" ) )
+    {
+      settings.remove( "windowState" );
+    }
+  }
+
+  settings.setValue( "saveWindowInformation", ui->actionRememberWindowGeometry->isChecked() );
 }
 
 /*--------------------------------------------------------------------------------------*/
