@@ -334,14 +334,14 @@
        <item>
         <widget class="QPushButton" name="textSaveButton">
          <property name="text">
-          <string>Save Changes</string>
+          <string>Save Manual Changes</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="textRevertButton">
          <property name="text">
-          <string>Revert</string>
+          <string>Revert Manual Changes</string>
          </property>
         </widget>
        </item>

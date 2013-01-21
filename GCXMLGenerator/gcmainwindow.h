@@ -160,7 +160,7 @@ private:
   void highlightTextElement( const QDomElement &element );
   bool queryResetDOM( const QString &resetReason );
 
-  void importXMLToDatabase();
+  bool importXMLToDatabase();
   void insertEmptyTableRow();
   void resetTableWidget();
   void deleteElementInfo();

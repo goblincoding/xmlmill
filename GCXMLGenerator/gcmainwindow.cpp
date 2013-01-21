@@ -866,7 +866,39 @@ void GCMainWindow::importXMLFromFile()
 
   if( openXMLFile() )
   {
-    importXMLToDatabase();
+    if( importXMLToDatabase() )
+    {
+      if( m_progressLabel )
+      {
+        m_progressLabel->hide();
+      }
+
+      QMessageBox::StandardButtons accept = QMessageBox::question( this,
+                                                                   "Edit file",
+                                                                   "Also load file for editing?",
+                                                                   QMessageBox::Yes | QMessageBox::No,
+                                                                   QMessageBox::Yes );
+
+      if( accept == QMessageBox::Yes )
+      {
+        QTimer timer;
+
+        if( m_progressLabel )
+        {
+          timer.singleShot( 1000, m_progressLabel, SLOT( show() ) );
+        }
+
+        qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+        processDOMDoc();
+      }
+      else
+      {
+        /* DOM was set in the process of opening the XML file and loading its content.  If the user
+            doesn't want to work with the file that was imported, we need to reset it here. */
+        resetDOM();
+        m_currentXMLFileName = "";
+      }
+    }
   }
 
   m_busyImporting = false;
@@ -874,7 +906,7 @@ void GCMainWindow::importXMLFromFile()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::importXMLToDatabase()
+bool GCMainWindow::importXMLToDatabase()
 {
   createSpinner();
   qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
@@ -882,42 +914,12 @@ void GCMainWindow::importXMLToDatabase()
   if( !GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc ) )
   {
     showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
-  }
-  else
-  {
-    if( m_progressLabel )
-    {
-      m_progressLabel->hide();
-    }
-
-    QMessageBox::StandardButtons accept = QMessageBox::question( this,
-                                                                 "Edit file",
-                                                                 "Also load file for editing?",
-                                                                 QMessageBox::Yes | QMessageBox::No,
-                                                                 QMessageBox::Yes );
-
-    if( accept == QMessageBox::Yes )
-    {
-      QTimer timer;
-
-      if( m_progressLabel )
-      {
-        timer.singleShot( 1000, m_progressLabel, SLOT( show() ) );
-      }
-
-      qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
-      processDOMDoc();
-    }
-    else
-    {
-      /* DOM was set in the process of opening the XML file and loading its content.  If the user
-        doesn't want to work with the file that was imported, we need to reset it here. */
-      resetDOM();
-      m_currentXMLFileName = "";
-    }
+    deleteSpinner();
+    return false;
   }
 
   deleteSpinner();
+  return true;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1337,7 +1339,9 @@ void GCMainWindow::saveDirectEdit()
     m_domDoc->setContent( ui->dockWidgetTextEdit->toPlainText() );
 
     /* The reason we import the saved XML to the database is that the user may have
-      added elements and/or attributes that we don't know about. */
+      added elements and/or attributes that we don't know about.  If we don't do this,
+      the current document and active profile will be out of sync and all kinds of chaos
+      will ensue. */
     importXMLToDatabase();
   }
 }
@@ -1442,10 +1446,7 @@ void GCMainWindow::showDOMEditHelp()
 {
   QMessageBox::information( this,
                             "Direct Edits",
-                            "Changes to manually edited XML can only be reverted before you hit \"Save\". "
-                            "In other words, it isn't an \"undo\" function so please make sure you don't "
-                            "save unless you're absolutely sure of your changes.  Please also note that these "
-                            "buttons are ONLY relevant for MANUAL changes to the document." );
+                            "Changes to manually edited XML can only be reverted BEFORE you save." );
 }
 
 /*--------------------------------------------------------------------------------------*/
