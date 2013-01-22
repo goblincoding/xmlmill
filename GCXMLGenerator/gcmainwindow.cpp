@@ -1398,7 +1398,7 @@ void GCMainWindow::showDOMEditHelp()
 
 void GCMainWindow::showMainHelp()
 {
-  QFile file( ":/resources/Help.txt" );
+  QFile file( ":/resources/help/Help.txt" );
 
   if( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
   {

@@ -157,7 +157,7 @@ QCheckBox::indicator
        </property>
        <property name="icon">
         <iconset resource="../resources/gcresources.qrc">
-         <normaloff>:/resources/helpcursor.png</normaloff>:/resources/helpcursor.png</iconset>
+         <normaloff>:/resources/helpicon.png</normaloff>:/resources/helpicon.png</iconset>
        </property>
       </widget>
      </item>

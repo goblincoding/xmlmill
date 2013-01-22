@@ -175,10 +175,9 @@ void GCAddItemsForm::showHelp()
 {
   QMessageBox::information( this,
                             "How this works...",
-                            "If the active profile is empty, the new element will be added as a "
-                            "root (main document) element for the current profile, otherwise it "
-                            "will be added as a child of the element highlighted in the \"Element "
-                            "Hierarchy\" tree.\n\n"
+                            "The new element will be added as a a child of the element highlighted in the \"Element "
+                            "Hierarchy\" tree (if the active profile is empty, the new element will become "
+                            "the root/main document element for the current profile).\n\n"
                             "Although you can only add one element at a time, you can add all the "
                             "element's attributes in one go: simply stick each of them on a separate "
                             "line in the text edit area and hit \"Add\" when you're done.\n\n"

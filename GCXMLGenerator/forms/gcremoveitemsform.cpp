@@ -376,12 +376,12 @@ void GCRemoveItemsForm::showAttributeHelp()
 {
   QMessageBox::information( this,
                             "How this works...",
-                            "1. Deleting an attribute will also delete all its known values.\n"
-                            "2. Only those values remaining in the text edit below will be\n"
-                            "   saved against the attribute shown in the drop down (this\n"
-                            "   effectively means that you could also add new values to the\n"
-                            "   attribute).  Just make sure that all the values you want to\n"
-                            "   associate with the attribute appear on separate lines." );
+                            "\"Delete Attribute\" will also delete all its known values.\n\n"
+                            "\"Update Values\" - Only those values remaining in the text edit when "
+                            "\"Update Values\" is clicked will be saved against the attribute shown "
+                            "in the drop down (this effectively means that you could also add new values "
+                            "to the attribute if you wish).  Just make sure that all the values you want to "
+                            "associate with the attribute when you're done appear on separate lines." );
 }
 
 /*--------------------------------------------------------------------------------------*/

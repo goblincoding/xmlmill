@@ -44,7 +44,7 @@
       </property>
       <column>
        <property name="text">
-        <string>Element Hierarchy:</string>
+        <string>Existing Element Hierarchy:</string>
        </property>
       </column>
      </widget>
@@ -53,7 +53,7 @@
        <item>
         <widget class="QGroupBox" name="elementGroupBox">
          <property name="title">
-          <string>Element Name:</string>
+          <string>New Element Name:</string>
          </property>
          <layout class="QHBoxLayout" name="elementLayout">
           <item>
@@ -62,7 +62,7 @@
              <string>Enter the new element's name here.</string>
             </property>
             <property name="placeholderText">
-             <string extracomment="Enter new element name here..."/>
+             <string extracomment="Enter new element name here...">Enter the new element's name here.</string>
             </property>
            </widget>
           </item>
@@ -76,7 +76,7 @@
             </property>
             <property name="icon">
              <iconset resource="../resources/gcresources.qrc">
-              <normaloff>:/resources/helpcursor.png</normaloff>:/resources/helpcursor.png</iconset>
+              <normaloff>:/resources/helpicon.png</normaloff>:/resources/helpicon.png</iconset>
             </property>
            </widget>
           </item>
@@ -86,7 +86,7 @@
        <item>
         <widget class="QGroupBox" name="attributesGroupBox">
          <property name="title">
-          <string>Attribute Names:</string>
+          <string>Associated Attributes:</string>
          </property>
          <layout class="QVBoxLayout" name="attributesLayout">
           <item>

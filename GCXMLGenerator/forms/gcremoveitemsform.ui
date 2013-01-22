@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>609</width>
-    <height>445</height>
+    <width>991</width>
+    <height>550</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../resources/gcresources.qrc">
-    <normaloff>:/resources/goblin.png</normaloff>:/resources/goblin.png</iconset>
+    <normaloff>:/resources/goblinicon.png</normaloff>:/resources/goblinicon.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
@@ -53,7 +53,7 @@
          </property>
          <column>
           <property name="text">
-           <string>Element Hierarchy:</string>
+           <string>Existing Element Hierarchy:</string>
           </property>
          </column>
         </widget>
@@ -103,7 +103,7 @@
            </property>
            <property name="icon">
             <iconset resource="../resources/gcresources.qrc">
-             <normaloff>:/resources/helpcursor.png</normaloff>:/resources/helpcursor.png</iconset>
+             <normaloff>:/resources/helpicon.png</normaloff>:/resources/helpicon.png</iconset>
            </property>
           </widget>
          </item>
@@ -114,12 +114,26 @@
      <widget class="QWidget" name="layoutWidget1">
       <layout class="QVBoxLayout" name="attributeLayout">
        <item>
+        <widget class="QLabel" name="attributesLabel">
+         <property name="text">
+          <string>Associated Attributes:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QComboBox" name="comboBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="attributeValueLabel">
+         <property name="text">
+          <string>Known Attribute Values:</string>
          </property>
         </widget>
        </item>
@@ -171,7 +185,7 @@
            </property>
            <property name="icon">
             <iconset resource="../resources/gcresources.qrc">
-             <normaloff>:/resources/helpcursor.png</normaloff>:/resources/helpcursor.png</iconset>
+             <normaloff>:/resources/helpicon.png</normaloff>:/resources/helpicon.png</iconset>
            </property>
           </widget>
          </item>

@@ -13,9 +13,11 @@
 
 <p>What this means is that, the next time you build your XML config document, you can do it via a graphical user interface without the need to remember which elements are children of which other elements, which attributes go with these elements or which possible values (or value types) the various attributes can and cannot have.  You will furthermore be restricted to working within the bounds of the known relationships (similar to what an XML schema does) so that you do not accidentally mess up parent/child relationships or assign the wrong attributes to elements.</p>
 
-<p>A word of advice, however: Do not mix XML styles that are vastly different from each other.  Rather create a profile for each type (or closely related) type of XML document you generally work with, i.e. a "MyXmlProfile" for "MyXmlConfig" (and even maybe "MyXmlConfigSlightlyDifferent") is recommended.  Of course, you can do what you want, but this application was designed to work best under these conditions.</p>
+<p>A word of advice, however: Do not mix XML styles that are vastly different from each other.  Rather create a profile for each type (or closely related type) of XML document you generally work with, i.e. a "MyXmlProfile" for "MyXmlConfig" (and even maybe "MyXmlConfigSlightlyDifferent") is recommended.  Of course, you can do what you want, but this application was designed to work best under these conditions.</p>
 
 <h3><a name="ElementNames">Unique Element Names</a></h3>
 <p>Profiles rely on unique element names to keep track of everything (pay attention, this is very important).  What this means is that, in order for everything to work as you would expect, you will have to make sure that you do not re-use element names in your XML in conflicting ways.  This of course does not mean that you cannot use an element name more than once in a document (that would just be daft) but rather that all elements of the same name should "do the same thing".  If you don't adhere to this advice, things will most probably not work out as well as it could.</p>
 
 <h3><a name="QuickTutorial">Quick Tutorial</a></h3>
+
+<p><img class="displayed" src=":/resources/goblinicon.png" align="middle" /></p>

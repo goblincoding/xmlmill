@@ -15,20 +15,20 @@
         <file>save.png</file>
         <file>checkbox.png</file>
         <file>checkon.png</file>
-        <file>helpcursor.png</file>
         <file>adddatabase.png</file>
         <file>opendatabase.png</file>
         <file>removedatabase.png</file>
         <file>switch.png</file>
         <file>importxml.png</file>
-        <file>Help.txt</file>
         <file>clear.png</file>
         <file>StyleSheet.txt</file>
         <file>downspinarrow.png</file>
         <file>upspinarrow.png</file>
-        <file>emptyprofilehelpcursor.png</file>
         <file>downspinarrowdisabled.png</file>
         <file>upspinarrowdisabled.png</file>
         <file>spinner.gif</file>
+        <file>help/Help.txt</file>
+        <file>helpicon.png</file>
+        <file>emptyprofilehelpicon.png</file>
     </qresource>
 </RCC>
