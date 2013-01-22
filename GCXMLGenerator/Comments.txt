@@ -7,3 +7,5 @@ Change "Add Child Element" button to only show once doc has been initialised.
 Add reg exp validation to user input.
 
 Remember to name page "xmlmill" as in http://www.goblincoding.com/xmlmill
+
+Careful of saving XML at 5 min intervals, might save things the user doesn't want to save...rather save to tmp file and at exit query the user to save.

@@ -750,6 +750,72 @@ void GCMainWindow::saveXMLFileAs()
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCMainWindow::importXMLFromFile()
+{
+  /* This flag is used in "openXMLFile" to distinguish between an explicit import
+    and a simple file opening operation. */
+  m_busyImporting = true;
+
+  if( openXMLFile() )
+  {
+    if( importXMLToDatabase() )
+    {
+      if( m_progressLabel )
+      {
+        m_progressLabel->hide();
+      }
+
+      QMessageBox::StandardButtons accept = QMessageBox::question( this,
+                                                                   "Edit file",
+                                                                   "Also load file for editing?",
+                                                                   QMessageBox::Yes | QMessageBox::No,
+                                                                   QMessageBox::Yes );
+
+      if( accept == QMessageBox::Yes )
+      {
+        QTimer timer;
+
+        if( m_progressLabel )
+        {
+          timer.singleShot( 1000, m_progressLabel, SLOT( show() ) );
+        }
+
+        qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+        processDOMDoc();
+      }
+      else
+      {
+        /* DOM was set in the process of opening the XML file and loading its content.  If the user
+            doesn't want to work with the file that was imported, we need to reset it here. */
+        resetDOM();
+        m_currentXMLFileName = "";
+      }
+    }
+  }
+
+  m_busyImporting = false;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCMainWindow::importXMLToDatabase()
+{
+  createSpinner();
+  qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+
+  if( !GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc ) )
+  {
+    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    deleteSpinner();
+    return false;
+  }
+
+  deleteSpinner();
+  return true;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCMainWindow::addNewDatabase()
 {
   GCDBSessionManager *manager = createDBSessionManager();
@@ -881,72 +947,6 @@ void GCMainWindow::activeDatabaseChanged( QString dbName )
   {
     m_activeSessionLabel->setText( QString( "Active Session Name: %1" ).arg( dbName ) );
   }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::importXMLFromFile()
-{
-  /* This flag is used in "openXMLFile" to distinguish between an explicit import
-    and a simple file opening operation. */
-  m_busyImporting = true;
-
-  if( openXMLFile() )
-  {
-    if( importXMLToDatabase() )
-    {
-      if( m_progressLabel )
-      {
-        m_progressLabel->hide();
-      }
-
-      QMessageBox::StandardButtons accept = QMessageBox::question( this,
-                                                                   "Edit file",
-                                                                   "Also load file for editing?",
-                                                                   QMessageBox::Yes | QMessageBox::No,
-                                                                   QMessageBox::Yes );
-
-      if( accept == QMessageBox::Yes )
-      {
-        QTimer timer;
-
-        if( m_progressLabel )
-        {
-          timer.singleShot( 1000, m_progressLabel, SLOT( show() ) );
-        }
-
-        qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
-        processDOMDoc();
-      }
-      else
-      {
-        /* DOM was set in the process of opening the XML file and loading its content.  If the user
-            doesn't want to work with the file that was imported, we need to reset it here. */
-        resetDOM();
-        m_currentXMLFileName = "";
-      }
-    }
-  }
-
-  m_busyImporting = false;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-bool GCMainWindow::importXMLToDatabase()
-{
-  createSpinner();
-  qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
-
-  if( !GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc ) )
-  {
-    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
-    deleteSpinner();
-    return false;
-  }
-
-  deleteSpinner();
-  return true;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1425,6 +1425,17 @@ void GCMainWindow::goToSite()
 
 /*--------------------------------------------------------------------------------------*/
 
+GCDBSessionManager *GCMainWindow::createDBSessionManager()
+{
+  /* Clean-up is the responsibility of the calling function. */
+  GCDBSessionManager *manager = new GCDBSessionManager( this );
+  connect( manager, SIGNAL( reset() ), this, SLOT( resetDOM() ) );
+  connect( manager, SIGNAL( activeDatabaseChanged( QString ) ), this, SLOT( activeDatabaseChanged( QString ) ) );
+  return manager;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCMainWindow::processDOMDoc()
 {
   ui->treeWidget->clear(); // also deletes current items
@@ -1663,17 +1674,6 @@ void GCMainWindow::toggleAddElementWidgets()
     ui->addChildElementButton->setEnabled( true );
     ui->emptyProfileHelpButton->setVisible( false );
   }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-GCDBSessionManager *GCMainWindow::createDBSessionManager()
-{
-  /* Clean-up is the responsibility of the calling function. */
-  GCDBSessionManager *manager = new GCDBSessionManager( this );
-  connect( manager, SIGNAL( reset() ), this, SLOT( resetDOM() ) );
-  connect( manager, SIGNAL( activeDatabaseChanged( QString ) ), this, SLOT( activeDatabaseChanged( QString ) ) );
-  return manager;
 }
 
 /*--------------------------------------------------------------------------------------*/
