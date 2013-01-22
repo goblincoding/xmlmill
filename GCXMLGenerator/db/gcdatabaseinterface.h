@@ -33,6 +33,8 @@
 #include <QMap>
 #include <QtSql/QSqlQuery>
 
+class QDomDocument;
+
 /// This class manages and interfaces with the SQLite databases used to profile XML documents.
 
 /**
@@ -61,9 +63,6 @@
                         database in question, the database will have all their root elements listed
                         in this table.
 */
-
-class QDomDocument;
-
 class GCDataBaseInterface : public QObject
 {
   Q_OBJECT
