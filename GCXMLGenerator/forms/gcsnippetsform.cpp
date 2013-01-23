@@ -341,7 +341,7 @@ void GCSnippetsForm::populateTreeWidget( const QString &elementName )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCSnippetsForm::processNextElement( const QString &elementName, QTreeWidgetItem *parent, QDomNode parentNode )
+void GCSnippetsForm::processNextElement( const QString &elementName, QTreeWidgetItem *parentItem, QDomNode parentNode )
 {
   bool success( false );
 
@@ -349,8 +349,8 @@ void GCSnippetsForm::processNextElement( const QString &elementName, QTreeWidget
 
   /* This looks weird, but remember that the "parent" tree widget item is on the same level
     as the QDomElement. */
-  m_treeItemNodes.insert( parent, element );
-  m_elementInfo.insert( parent, new GCDomElementInfo( element ) );
+  m_treeItemNodes.insert( parentItem, element );
+  m_elementInfo.insert( parentItem, new GCDomElementInfo( element ) );
 
   /* This will only be the case the first time this function is called. */
   if( parentNode.isNull() )
@@ -386,7 +386,7 @@ void GCSnippetsForm::processNextElement( const QString &elementName, QTreeWidget
       QTreeWidgetItem *item = new QTreeWidgetItem;
       item->setText( 0, child );
       item->setCheckState( 0, Qt::Checked );
-      parent->addChild( item );  // takes ownership
+      parentItem->addChild( item );  // takes ownership
 
       /* Since it isn't illegal to have elements with children of the same name, we cannot
         block it in the DB, however, if we DO have elements with children of the same name,

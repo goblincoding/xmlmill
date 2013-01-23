@@ -43,6 +43,12 @@
 
 #include <QtGui/QSyntaxHighlighter>
 
+/*!
+    Original class was obtained here:
+    http://qt.gitorious.org/qt/qt/blobs/HEAD/examples/xmlpatterns/shared/xmlsyntaxhighlighter.h
+
+    This version has some alterations made to the regular expressions.
+*/
 class XmlSyntaxHighlighter : public QSyntaxHighlighter
 {
     public:

@@ -1,9 +1,8 @@
-<h1>So how does it all work?</h1>
+<h1>Overview</h1>
 
 <ol>
 <li><a href="#ProfilesLink">Profiles</a></li>
 <li><a href="#ElementNames">Unique Element Names</a></li>
-<li><a href="#QuickTutorial">Quick Tutorial</a></li>
 </ol>
 
 <h2><a name="ProfilesLink">Profiles</a></h2>
@@ -17,7 +16,3 @@
 
 <h3><a name="ElementNames">Unique Element Names</a></h3>
 <p>Profiles rely on unique element names to keep track of everything (pay attention, this is very important).  What this means is that, in order for everything to work as you would expect, you will have to make sure that you do not re-use element names in your XML in conflicting ways.  This of course does not mean that you cannot use an element name more than once in a document (that would just be daft) but rather that all elements of the same name should "do the same thing".  If you don't adhere to this advice, things will most probably not work out as well as it could.</p>
-
-<h3><a name="QuickTutorial">Quick Tutorial</a></h3>
-
-<p><img class="displayed" src=":/resources/goblinicon.png" align="middle" /></p>

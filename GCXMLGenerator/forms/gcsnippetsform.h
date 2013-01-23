@@ -109,9 +109,10 @@ private:
   /*! Processes individual elements.  This function is called recursively for each element in the active
       database, creating a representative tree widget item for the element and adding it (the item) to
       the correct parent.
-      @param element - the name of the element for which a tree widget item must be created.
-      @param parent - the tree widget item that will act as the parent for the newly created item. */
-  void processNextElement( const QString &elementName, QTreeWidgetItem *parent, QDomNode parentNode );
+      @param elementName - the name of the element for which a tree widget item must be created.
+      @param parentItem - the item that will act as the parent for the new tree widget item
+      @param parentNode - the tree widget item that will act as the parent for the newly created item. */
+  void processNextElement( const QString &elementName, QTreeWidgetItem *parentItem, QDomNode parentNode );
 
   /*! Whenever a user checks or unchecks an element to include or exclude it from the snippet being built,
       the element's parent(s) and children need to be updated accordingly.  I.e. including/excluding an 

@@ -49,6 +49,25 @@ class QTimer;
 class QLabel;
 class QMovie;
 
+/*! \mainpage Goblin Coding's XML Mill
+
+    \section intro_sec Introduction
+
+    If you want to know more, the <a href="http://goblincoding.com/xmlmill/">official site</a>
+    contains all the information about this application.
+
+    Please also feel free to <a href="http://goblincoding.com/contact">contact me</a> for any
+    reason whatsoever.
+ 
+    \section download Download
+
+    If you haven't yet, please see the <a href="http://goblincoding.com/xmlmilldownload">download page</a>
+    for a list of possible download options.
+
+    If you find any bugs or errors in the code, or typo's in the documentation, please 
+    use the contact form above to let me know.
+*/
+
 /// The main application window class.
 
 /*!
@@ -226,7 +245,7 @@ private slots:
   /*! Connected to the "Add Child Element" button's "clicked()" signal. This function adds the new
       element (selected in the combo box) as a child to the current element or as a sibling in the
       case where the element of the same name and with the angular bracket syntax is selected in the
-      combo.  In other words, if the current element is "MyElement, then selecting "<MyElement>" from
+      combo.  In other words, if the current element is "MyElement", then selecting "\<MyElement\>" from
       the combo will add another MyElement element as a sibling to the currently active element.
       \sa deleteElementFromDocument
       \sa addSnippetToDocument
