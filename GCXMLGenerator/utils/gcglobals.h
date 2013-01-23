@@ -31,12 +31,23 @@
 
 #include <QString>
 
-/// Used to define the settings saved to registry/ini/xml
+/// Contains values used throughout the application.
 
 /*--------------------------------------------------------------------------------------*/
 
+/*! Used when saving and loading settings to registry/XML/ini, used in GCMainWindow and GCMessageSpace. */
 const QString ORGANISATION = "William Hallatt";
+
+/*! Used when saving and loading settings to registry/XML/ini, used in GCMainWindow and GCMessageSpace. */
 const QString APPLICATION  = "XML Mill";
+
+/*--------------------------------------------------------------------------------------*/
+
+/*! Default font when displaying XML content, used in GCMainWindow and GCRestoreFilesForm. */
+const QString FONT = "Courier New";
+
+/*! Default font when displaying XML content, used in GCMainWindow and GCRestoreFilesForm. */
+const int FONTSIZE = 10;
 
 /*--------------------------------------------------------------------------------------*/
 

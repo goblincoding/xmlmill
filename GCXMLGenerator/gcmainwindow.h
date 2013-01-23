@@ -191,6 +191,10 @@ private slots:
       \sa importXMLFromFile */
   void saveXMLFileAs();
 
+  /*! Saves a temporary file at 5 min intervals (when an active file is being edited) for auto-recovery purposes.
+      \sa deleteTempFile */
+  void saveTempFile();
+
   /*! Triggered by the "Import XML to Profile" UI action.
       \sa openXMLFile
       \sa newXMLFile
@@ -400,6 +404,15 @@ private:
   /*! Deletes the "busy loading" spinner.
       \sa createSpinner */
   void deleteSpinner();
+
+  /*! If temporary files exists, it may be that the application (unlikely) or Windows (more likely)
+      crashed while the user was working on a file.  In this case, as the user if he/she would like to
+      recover their work. */
+  void queryRestoreFiles();
+
+  /*! Delete the auto-recover temporary file every time the user changes or explicitly saves the active file.
+      \sa saveTempFile */
+  void deleteTempFile();
 
   Ui::GCMainWindow *ui;
   QSignalMapper    *m_signalMapper;

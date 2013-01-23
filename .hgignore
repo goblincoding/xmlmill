@@ -761,3 +761,7 @@ GCXMLGenerator/docs/latex/index.tex
 GCXMLGenerator/docs/latex/struct_g_c_batch_processor_helper_1_1_element_record.tex
 GCXMLGenerator/docs/latex/struct_xml_syntax_highlighter_1_1_highlighting_rule.tex
 GCXMLGenerator_MinGW/release/gcmessagespace.moc
+GCXMLGenerator_MinGW/debug/gcrestorefilesform.o
+GCXMLGenerator_MinGW/debug/moc_gcrestorefilesform.cpp
+GCXMLGenerator_MinGW/debug/moc_gcrestorefilesform.o
+GCXMLGenerator_MinGW/ui_gcrestorefilesform.h

@@ -52,7 +52,8 @@ SOURCES += main.cpp\
     forms/gcremoveitemsform.cpp \
     forms/gcsnippetsform.cpp \
     utils/gcdomelementinfo.cpp \
-    db/gcdbsessionmanager.cpp
+    db/gcdbsessionmanager.cpp \
+    forms/gcrestorefilesform.cpp
 
 HEADERS  += \
     db/gcdatabaseinterface.h \
@@ -69,7 +70,8 @@ HEADERS  += \
     forms/gcsnippetsform.h \
     utils/gcdomelementinfo.h \
     db/gcdbsessionmanager.h \
-    utils/gcglobals.h
+    utils/gcglobals.h \
+    forms/gcrestorefilesform.h
 
 FORMS    += \
     gcmainwindow.ui \
@@ -80,7 +82,8 @@ FORMS    += \
     forms/gcremoveitemsform.ui \
     forms/gcadditemsform.ui \
     forms/gcsnippetsform.ui \
-    db/gcdbsessionmanager.ui
+    db/gcdbsessionmanager.ui \
+    forms/gcrestorefilesform.ui
 
 RESOURCES += \
     resources/gcresources.qrc

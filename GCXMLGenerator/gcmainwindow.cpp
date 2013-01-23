@@ -36,6 +36,7 @@
 #include "forms/gchelpdialog.h"
 #include "forms/gcsearchform.h"
 #include "forms/gcsnippetsform.h"
+#include "forms/gcrestorefilesform.h"
 #include "utils/gccombobox.h"
 #include "utils/gcmessagespace.h"
 #include "utils/gcdomelementinfo.h"
@@ -92,7 +93,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 {
   ui->setupUi( this );
   ui->emptyProfileHelpButton->setVisible( false );
-  ui->dockWidgetTextEdit->setFont( QFont( "Courier New", 10 ) );
+  ui->dockWidgetTextEdit->setFont( QFont( FONT, FONTSIZE ) );
 
   connect( ui->emptyProfileHelpButton, SIGNAL( clicked() ), this, SLOT( showEmptyProfileHelp() ) );
 
@@ -181,6 +182,7 @@ void GCMainWindow::closeEvent( QCloseEvent *event )
     }
   }
 
+  deleteTempFile();
   saveSettings();
   QMainWindow::closeEvent( event );
 }
@@ -207,6 +209,8 @@ void GCMainWindow::initialise()
   {
     this->close();    // also deletes manager ("this" is parent)
   }
+
+  queryRestoreFiles();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -729,6 +733,7 @@ void GCMainWindow::saveXMLFile()
       file.close();
 
       m_fileContentsChanged = false;
+      deleteTempFile();
       startSaveTimer();
     }
   }
@@ -1637,7 +1642,7 @@ void GCMainWindow::startSaveTimer()
   if( !m_saveTimer )
   {
     m_saveTimer = new QTimer( this );
-    connect( m_saveTimer, SIGNAL( timeout() ), this, SLOT( saveXMLFile() ) );
+    connect( m_saveTimer, SIGNAL( timeout() ), this, SLOT( saveTempFile() ) );
     m_saveTimer->start( 300000 );
   }
   else
@@ -1728,6 +1733,65 @@ void GCMainWindow::saveSettings()
   }
 
   settings.setValue( "saveWindowInformation", ui->actionRememberWindowGeometry->isChecked() );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::queryRestoreFiles()
+{
+  QDir dir = QDir::current();
+  QStringList tempFiles = QDir::current()
+                          .entryList( QDir::Files )
+                          .filter( QString( "%1_temp" )
+                                   .arg( GCDataBaseInterface::instance()->activeSessionName().remove( ".db" ) ) );
+
+  if( !tempFiles.isEmpty() )
+  {
+    QMessageBox::StandardButton accept = QMessageBox::information( this,
+                                                                   "Found recovery files",
+                                                                   "Found auto-recover files related to this profile. Would you like to view and save?",
+                                                                   QMessageBox::Ok | QMessageBox::Cancel,
+                                                                   QMessageBox::Ok );
+
+    if( accept == QMessageBox::Ok )
+    {
+      /* "Delete on close" flag set. */
+      GCRestoreFilesForm *restore = new GCRestoreFilesForm( tempFiles, this );
+      restore->exec();
+    }
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::saveTempFile()
+{
+  QFile file( QDir::currentPath() +
+              QString( "/%1_%2_temp" )
+              .arg( m_currentXMLFileName.split( "/" ).last() )
+              .arg( GCDataBaseInterface::instance()->activeSessionName().remove( ".db" ) ) );
+
+  /* Since this is an attempt at auto-saving, we aim for a "best case" scenario and don't display
+    error messages if encountered. */
+  if( file.open( QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text ) )
+  {
+    QTextStream outStream( &file );
+    outStream << m_domDoc->toString( 2 );
+    file.close();
+    startSaveTimer();
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::deleteTempFile()
+{
+  QFile file( QDir::currentPath() +
+              QString( "/%1_%2_temp" )
+              .arg( m_currentXMLFileName.split( "/" ).last() )
+              .arg( GCDataBaseInterface::instance()->activeSessionName().remove( ".db" ) ) );
+
+  file.remove();
 }
 
 /*--------------------------------------------------------------------------------------*/
