@@ -119,6 +119,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionHelpContents, SIGNAL( triggered() ), this, SLOT( showMainHelp() ) );
   connect( ui->actionVisitOfficialSite, SIGNAL( triggered() ), this, SLOT( goToSite() ) );
   connect( ui->expandAllCheckBox, SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
+  connect( ui->wrapTextCheckBox, SIGNAL( clicked( bool ) ), this, SLOT( wrapText( bool ) ) );
 
   /* Everything tree widget related. */
   connect( ui->treeWidget, SIGNAL( itemClicked ( QTreeWidgetItem*, int ) ), this, SLOT( elementSelected( QTreeWidgetItem*, int ) ) );
@@ -1272,6 +1273,20 @@ void GCMainWindow::collapseOrExpandTreeWidget( bool checked )
   else
   {
     ui->treeWidget->collapseAll();
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::wrapText( bool wrap )
+{
+  if( wrap )
+  {
+    ui->dockWidgetTextEdit->setLineWrapMode( QPlainTextEdit::WidgetWidth );
+  }
+  else
+  {
+    ui->dockWidgetTextEdit->setLineWrapMode( QPlainTextEdit::NoWrap );
   }
 }
 

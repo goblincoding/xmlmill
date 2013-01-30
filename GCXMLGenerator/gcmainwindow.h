@@ -308,6 +308,10 @@ private slots:
       of UI tree widget. */
   void collapseOrExpandTreeWidget( bool checked );
 
+  /*! Connected to the "Wrap Text" checkbox's "clicked( bool )" signal.  Sets the necessary flags on the text edit
+      to wrap or unwrap text as per user preference. */
+  void wrapText( bool wrap );
+
   /*! Connected to the "Forget Message Preferences" UI action.  This slot will reset all saved user preferences
       regarding user input via message dialogs and prompts. */
   void forgetMessagePreferences();

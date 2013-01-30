@@ -14,7 +14,7 @@
    <string>New Profile Wizard</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../resources/gcresources.qrc">
+   <iconset>
     <normaloff>:/resources/goblinicon.jpg</normaloff>:/resources/goblinicon.jpg</iconset>
   </property>
   <property name="styleSheet">
@@ -86,7 +86,7 @@ To get started, enter the new profile's name below (we suggest you choose someth
       <property name="plainText">
        <string>The new profile is still empty and needs to be populated.  
 
-The only way to do this is by importing an existing XML file of the type you wish this profile to represent.
+The easiest way to do this is by importing an existing XML file of the type you wish this profile to represent.
 
 &quot;XML Mill&quot; will extract the information it needs from the file you specify below (you can import more files later should you wish to).</string>
       </property>
@@ -119,8 +119,6 @@ The only way to do this is by importing an existing XML file of the type you wis
    </layout>
   </widget>
  </widget>
- <resources>
-  <include location="../resources/gcresources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

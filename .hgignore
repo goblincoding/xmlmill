@@ -765,3 +765,6 @@ GCXMLGenerator_MinGW/debug/gcrestorefilesform.o
 GCXMLGenerator_MinGW/debug/moc_gcrestorefilesform.cpp
 GCXMLGenerator_MinGW/debug/moc_gcrestorefilesform.o
 GCXMLGenerator_MinGW/ui_gcrestorefilesform.h
+GCXMLGenerator_MinGW/release/gcrestorefilesform.o
+GCXMLGenerator_MinGW/release/moc_gcrestorefilesform.cpp
+GCXMLGenerator_MinGW/release/moc_gcrestorefilesform.o
