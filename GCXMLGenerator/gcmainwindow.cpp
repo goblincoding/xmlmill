@@ -196,7 +196,7 @@ void GCMainWindow::initialise()
     include the path references to the ".db" files). */
   if( !GCDataBaseInterface::instance()->initialised() )
   {
-    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
     this->close();
   }
 
@@ -254,19 +254,19 @@ void GCMainWindow::elementChanged( QTreeWidgetItem *item, int column )
 
         if( !success )
         {
-          showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+          GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
         }
 
         QStringList children = GCDataBaseInterface::instance()->children( previousName, success );
 
         if( !success )
         {
-          showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+          GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
         }
 
         if( !GCDataBaseInterface::instance()->addElement( newName, children, attributes ) )
         {
-          showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+          GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
         }
 
         /* If we are, in fact, dealing with a new element, we also want the "new" element's associated attributes
@@ -277,7 +277,7 @@ void GCMainWindow::elementChanged( QTreeWidgetItem *item, int column )
 
           if( !GCDataBaseInterface::instance()->updateAttributeValues( newName, attribute, attributeValues ) )
           {
-            showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+            GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
           }
         }
 
@@ -307,7 +307,7 @@ void GCMainWindow::elementSelected( QTreeWidgetItem *item, int column )
   /* This is more for debugging than for end-user functionality. */
   if( !success )
   {
-    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
   }
 
   /* Add all the associated attribute names to the first column of the table widget,
@@ -340,7 +340,7 @@ void GCMainWindow::elementSelected( QTreeWidgetItem *item, int column )
     /* This is more for debugging than for end-user functionality. */
     if( !success )
     {
-      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
     }
 
     /* If we are still in the process of building the document, the attribute value will
@@ -385,7 +385,7 @@ void GCMainWindow::elementSelected( QTreeWidgetItem *item, int column )
   /* This is more for debugging than for end-user functionality. */
   if( !success )
   {
-    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
   }
 
   /* The following will be used to allow the user to add an element of the current type to
@@ -458,12 +458,12 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *item )
           {
             if( !GCDataBaseInterface::instance()->updateAttributeValues( currentElement.tagName(), item->text(), attributeValues ) )
             {
-              showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+              GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
             }
           }
           else
           {
-            showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+            GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
           }
         }
         else
@@ -479,7 +479,7 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *item )
       }
       else
       {
-        showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
       }
     }
 
@@ -539,13 +539,13 @@ void GCMainWindow::attributeValueChanged( const QString &value )
                                                                      currentAttributeName,
                                                                      QStringList( value ) ) )
         {
-          showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+          GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
         }
       }
     }
     else
     {
-      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
     }
 
     setTextEditContent( currentElement );
@@ -593,7 +593,7 @@ bool GCMainWindow::openXMLFile()
     QString errorMsg = QString( "Failed to open file \"%1\": [%2]" )
                        .arg( fileName )
                        .arg( file.errorString() );
-    showErrorMessageBox( errorMsg );
+    GCMessageSpace::showErrorMessageBox( this, errorMsg );
     return false;
   }
 
@@ -633,7 +633,7 @@ bool GCMainWindow::openXMLFile()
                        .arg( xmlErr )
                        .arg( line )
                        .arg( col );
-    showErrorMessageBox( errorMsg );
+    GCMessageSpace::showErrorMessageBox( this, errorMsg );
     resetDOM();
     return false;
   }
@@ -663,7 +663,7 @@ bool GCMainWindow::openXMLFile()
 
         if( !GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc ) )
         {
-          showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+          GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
         }
         else
         {
@@ -725,7 +725,7 @@ void GCMainWindow::saveXMLFile()
       QString errMsg = QString( "Failed to save file \"%1\": [%2]." )
                        .arg( m_currentXMLFileName )
                        .arg( file.errorString() );
-      showErrorMessageBox( errMsg );
+      GCMessageSpace::showErrorMessageBox( this, errMsg );
     }
     else
     {
@@ -811,7 +811,7 @@ bool GCMainWindow::importXMLToDatabase()
 
   if( !GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc ) )
   {
-    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
     deleteSpinner();
     return false;
   }
@@ -1073,7 +1073,7 @@ void GCMainWindow::addElementToDocument()
     }
     else
     {
-      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
     }
 
     /* Check if the user provided a comment. */
@@ -1136,7 +1136,7 @@ void GCMainWindow::removeItemsFromDB()
 {
   if( !GCDataBaseInterface::instance()->hasActiveSession() )
   {
-    showErrorMessageBox( "No active profile." );
+    GCMessageSpace::showErrorMessageBox( this, "No active profile." );
     return;
   }
 
@@ -1150,7 +1150,7 @@ void GCMainWindow::removeItemsFromDB()
 
   if( !m_domDoc->documentElement().isNull() )
   {
-    showErrorMessageBox( "\"Save\" and \"Close\" the current document before continuing.");
+    GCMessageSpace::showErrorMessageBox( this, "\"Save\" and \"Close\" the current document before continuing.");
     return;
   }
 
@@ -1166,7 +1166,7 @@ void GCMainWindow::addItemsToDB()
 {
   if( !GCDataBaseInterface::instance()->hasActiveSession() )
   {
-    showErrorMessageBox( "No active profile, please set one (Edit->Switch Profile)." );
+    GCMessageSpace::showErrorMessageBox( this, "No active profile, please set one (Edit->Switch Profile)." );
     return;
   }
 
@@ -1229,7 +1229,7 @@ void GCMainWindow::saveDirectEdit()
                        .arg( xmlErr )
                        .arg( line )
                        .arg( col );
-    showErrorMessageBox( errorMsg );
+    GCMessageSpace::showErrorMessageBox( this, errorMsg );
 
     /* Unfortunately the line number returned by the DOM doc doesn't match up with what's
       visible in the QTextEdit.  It seems as if it's mostly off by two lines.  For now it's a
@@ -1422,7 +1422,7 @@ void GCMainWindow::showMainHelp()
 
   if( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
   {
-    showErrorMessageBox( QString( "Failed to open \"Help\" file: [%1]" ).arg( file.errorString() ) );
+    GCMessageSpace::showErrorMessageBox( this, QString( "Failed to open \"Help\" file: [%1]" ).arg( file.errorString() ) );
   }
   else
   {
@@ -1527,13 +1527,6 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
 void GCMainWindow::setStatusBarMessage( const QString &message )
 {
   // TODO.
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::showErrorMessageBox( const QString &errorMsg )
-{
-  QMessageBox::critical( this, "Error!", errorMsg );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1702,7 +1695,7 @@ void GCMainWindow::querySetActiveSession( QString reason )
 {
   while( !GCDataBaseInterface::instance()->hasActiveSession() )
   {
-    showErrorMessageBox( reason );
+    GCMessageSpace::showErrorMessageBox( this, reason );
     GCDBSessionManager *manager = createDBSessionManager();
     manager->selectActiveDatabase();
     delete manager;

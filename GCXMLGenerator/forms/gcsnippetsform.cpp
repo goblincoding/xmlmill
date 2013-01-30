@@ -31,6 +31,7 @@
 #include "db/gcdatabaseinterface.h"
 #include "utils/gccombobox.h"
 #include "utils/gcdomelementinfo.h"
+#include "utils/gcmessagespace.h"
 
 #include <QCheckBox>
 #include <QMessageBox>
@@ -97,7 +98,7 @@ void GCSnippetsForm::elementSelected( QTreeWidgetItem *item, int column )
   /* This is more for debugging than for end-user functionality. */
   if( !success )
   {
-    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
   }
 
   /* Create and add the "increment" checkbox to the first column of the table widget, add all the
@@ -144,7 +145,7 @@ void GCSnippetsForm::elementSelected( QTreeWidgetItem *item, int column )
     /* This is more for debugging than for end-user functionality. */
     if( !success )
     {
-      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
     }
 
     ui->tableWidget->setCellWidget( i, COMBOCOLUMN, attributeCombo );
@@ -367,7 +368,7 @@ void GCSnippetsForm::processNextElement( const QString &elementName, QTreeWidget
   /* This is more for debugging than for end-user functionality. */
   if( !success )
   {
-    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
   }
 
   /* Create all the possible attributes for the element here, they can be changed
@@ -400,7 +401,7 @@ void GCSnippetsForm::processNextElement( const QString &elementName, QTreeWidget
   }
   else
   {
-    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
   }
 }
 
@@ -470,13 +471,6 @@ void GCSnippetsForm::showHelp()
                             "the second will have \"11\", the third, \"12\", etc. \n\n"
                             "Strings will have the incremented value appended to the name (\"true\" "
                             "and \"false\" values are treated as strings, so be careful)." );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCSnippetsForm::showErrorMessageBox( const QString &errorMsg )
-{
-  QMessageBox::critical( this, "Error!", errorMsg );
 }
 
 /*--------------------------------------------------------------------------------------*/

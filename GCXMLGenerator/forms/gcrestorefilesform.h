@@ -63,9 +63,6 @@ private:
   /*! Loads and displays the current temp file in the text edit. */
   void loadFile( const QString& fileName );
 
-  /*! Displays an error message box. */
-  void showErrorMessageBox( const QString &errorMsg );
-
   Ui::GCRestoreFilesForm *ui;
   QStringList m_tempFiles;
   QString     m_fileName;

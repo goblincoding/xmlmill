@@ -31,14 +31,17 @@
 
 #include <QString>
 
-/// Responsible for the display of messages requiring user input.
+class QWidget;
+
+/// Responsible for the display of messages..
 
 /**
-   All message prompts displayed via this namespace contain the option to remember the user's
+   Some message prompts displayed via this namespace contain the option to remember the user's
    preference.  In cases where a user preference can be saved, GCMessageSpace will persist the changes 
    to whatever medium exists on the platform it's running on (Windows registry, Mac XML, Unix ini).
 
-   This space is not responsible for error messages or messages that must always be shown.
+   This space is furthermore responsible for the display of all error messages, but not ALL messages
+   (some messages always need to be shown and make more sense implemented in their respective classes)
 */
 namespace GCMessageSpace
 {  
@@ -91,6 +94,9 @@ namespace GCMessageSpace
 
   /*! Deletes all saved preferences from the registry/XML/ini files. */
   void forgetAllPreferences();
+
+  /*! Displays a modal error message box with "message". */
+  void showErrorMessageBox( QWidget *parent, const QString &message );
 }
 
 #endif // GCMESSAGESPACE_H

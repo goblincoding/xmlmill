@@ -86,9 +86,6 @@ private:
       @param parent - the tree widget item that will act as the parent for the newly created item. */
   void processNextElement ( const QString &element, QTreeWidgetItem *parent );
 
-  /*! Display an error message box if any errors are encountered. */
-  void showErrorMessageBox( const QString &errorMsg );
-
   Ui::GCAddItemsForm *ui;
 };
 

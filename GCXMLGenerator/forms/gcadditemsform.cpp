@@ -29,6 +29,7 @@
 #include "gcadditemsform.h"
 #include "ui_gcadditemsform.h"
 #include "db/gcdatabaseinterface.h"
+#include "utils/gcmessagespace.h"
 
 #include <QMessageBox>
 
@@ -108,7 +109,7 @@ void GCAddItemsForm::processNextElement( const QString &element, QTreeWidgetItem
   }
   else
   {
-    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
   }
 }
 
@@ -125,7 +126,7 @@ void GCAddItemsForm::addElementAndAttributes()
     {
       if( !GCDataBaseInterface::instance()->addRootElement( element ) )
       {
-        showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
       }
 
       QTreeWidgetItem *item = new QTreeWidgetItem;
@@ -141,7 +142,7 @@ void GCAddItemsForm::addElementAndAttributes()
         if( !GCDataBaseInterface::instance()->updateElementChildren( ui->treeWidget->currentItem()->text( 0 ),
                                                                      QStringList( element ) ) )
         {
-          showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+          GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
         }
 
         QTreeWidgetItem *item = new QTreeWidgetItem;
@@ -150,7 +151,7 @@ void GCAddItemsForm::addElementAndAttributes()
       }
       else
       {
-        showErrorMessageBox( "Please select a parent element in the tree." );
+        GCMessageSpace::showErrorMessageBox( this, "Please select a parent element in the tree." );
         return;
       }
     }
@@ -160,7 +161,7 @@ void GCAddItemsForm::addElementAndAttributes()
 
     if( !GCDataBaseInterface::instance()->addElement( element, QStringList(), attributes ) )
     {
-      showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
     }
   }
 
@@ -183,13 +184,6 @@ void GCAddItemsForm::showHelp()
                             "line in the text edit area and hit \"Add\" when you're done.\n\n"
                             "(if the element doesn't have associated attributes, just "
                             "leave the text edit area empty)" );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCAddItemsForm::showErrorMessageBox( const QString &errorMsg )
-{
-  QMessageBox::critical( this, "Error!", errorMsg );
 }
 
 /*--------------------------------------------------------------------------------------*/

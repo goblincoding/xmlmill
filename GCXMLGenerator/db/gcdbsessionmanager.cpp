@@ -152,7 +152,7 @@ void GCDBSessionManager::removeDBConnection()
   {
     QString error = QString( "Failed to remove profile \"%1\": [%2]" ).arg( dbName )
                     .arg( GCDataBaseInterface::instance()->getLastError() );
-    showErrorMessageBox( error );
+    GCMessageSpace::showErrorMessageBox( this, error );
   }
 }
 
@@ -191,7 +191,7 @@ void GCDBSessionManager::setActiveDatabase( const QString &dbName )
   {
     QString error = QString( "Failed to set session \"%1\" as active - [%2]" ).arg( dbName )
                     .arg( GCDataBaseInterface::instance()->getLastError() );
-    showErrorMessageBox( error );
+    GCMessageSpace::showErrorMessageBox( this, error );
   }
   else
   {
@@ -207,7 +207,7 @@ void GCDBSessionManager::addDBConnection( const QString &dbName )
 {
   if( !GCDataBaseInterface::instance()->addDatabase( dbName ) )
   {
-    showErrorMessageBox( GCDataBaseInterface::instance()->getLastError() );
+    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
     return;
   }
 
@@ -244,13 +244,6 @@ void GCDBSessionManager::setDBList()
     ui->okButton->setVisible( true );
     ui->comboBox->addItems( dbList );
   }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCDBSessionManager::showErrorMessageBox( const QString &errorMsg )
-{
-  QMessageBox::critical( this, "Error!", errorMsg );
 }
 
 /*--------------------------------------------------------------------------------------*/

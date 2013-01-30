@@ -120,9 +120,6 @@ private:
       (and its parent's parent, etc), for a smooth and intuitive user experience. */
   void updateCheckStates( QTreeWidgetItem *item );
 
-  /*! Display an error message box if any errors are encountered. */
-  void showErrorMessageBox( const QString &errorMsg );
-
   /*! Deletes all GCElementInfo objects from the map (and clears the map of all remaining pointers). */
   void deleteElementInfo();
 

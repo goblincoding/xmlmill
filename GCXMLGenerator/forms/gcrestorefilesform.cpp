@@ -31,6 +31,7 @@
 #include "xml/xmlsyntaxhighlighter.h"
 #include "db/gcdatabaseinterface.h"
 #include "utils/gcglobals.h"
+#include "utils/gcmessagespace.h"
 
 #include <QFile>
 #include <QDomDocument>
@@ -85,7 +86,7 @@ void GCRestoreFilesForm::saveFile()
       QString errMsg = QString( "Failed to save file \"%1\": [%2]." )
                        .arg( fileName )
                        .arg( file.errorString() );
-      showErrorMessageBox( errMsg );
+      GCMessageSpace::showErrorMessageBox( this, errMsg );
     }
     else
     {
@@ -158,7 +159,7 @@ void GCRestoreFilesForm::loadFile( const QString &fileName )
                          .arg( line )
                          .arg( col );
 
-      showErrorMessageBox( errorMsg );
+      GCMessageSpace::showErrorMessageBox( this, errorMsg );
 
       /* Unfortunately the line number returned by the DOM doc doesn't match up with what's
         visible in the QTextEdit.  It seems as if it's mostly off by two lines.  For now it's a
@@ -182,15 +183,8 @@ void GCRestoreFilesForm::loadFile( const QString &fileName )
   }
   else
   {
-    showErrorMessageBox( "Failed to open file. Cannot recover." );
+    GCMessageSpace::showErrorMessageBox( this, "Failed to open file. Cannot recover." );
   }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCRestoreFilesForm::showErrorMessageBox( const QString &errorMsg )
-{
-  QMessageBox::critical( this, "Error!", errorMsg );
 }
 
 /*--------------------------------------------------------------------------------------*/

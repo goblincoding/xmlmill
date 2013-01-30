@@ -95,9 +95,6 @@ private:
   /*! Sets the active database session to "dbName" via GCDatabaseInterface. */
   void setActiveDatabase( const QString &dbName );
 
-  /*! Display an error message box if any errors are encountered. */
-  void showErrorMessageBox( const QString &errorMsg );
-
   /*! Adds "dbName" to the list of known databases via GCDatabaseInterface. */
   void addDBConnection( const QString &dbName );
 

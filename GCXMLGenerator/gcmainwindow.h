@@ -355,9 +355,6 @@ private:
   /*! Displays a message in the status bar. */
   void setStatusBarMessage( const QString &message );
 
-  /*! Displays an error message box. */
-  void showErrorMessageBox( const QString &errorMsg );
-
   /*! Displays the DOM document's content in the text edit area.
       \sa highlightTextElement */
   void setTextEditContent( const QDomElement &element );

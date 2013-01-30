@@ -32,6 +32,7 @@
 
 #include <QSettings>
 #include <QDialog>
+#include <QMessageBox>
 
 /// Provides a user dialog prompt with the option to save the user's preference.
 class GCMessageDialog : public QDialog
@@ -225,5 +226,12 @@ namespace GCMessageSpace
     settings.beginGroup( "dialogPreferences" );
     settings.remove( "" );
     settings.endGroup();
+  }
+
+  /*------------------------------------------------------------------------------------*/
+
+  void showErrorMessageBox( QWidget *parent, const QString &message )
+  {
+    QMessageBox::critical( parent, "Error!", message );
   }
 }
