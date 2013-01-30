@@ -28,7 +28,8 @@ QDialog
 
 QMessageBox
 {
-  background-color: rgba(120, 120, 120, 255);
+  background-color: rgb(180, 180, 180);
+  selection-background-color: rgb(98, 96, 122);
 }
 
 QPushButton
