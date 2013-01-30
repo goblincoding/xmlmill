@@ -91,6 +91,9 @@ private slots:
   /*! Triggered when the user selection is completed. */
   void setActiveDatabase();
 
+  /*! Displays help specific to this form. */
+  void showHelp();
+
 private:
   /*! Sets the active database session to "dbName" via GCDatabaseInterface. */
   void setActiveDatabase( const QString &dbName );

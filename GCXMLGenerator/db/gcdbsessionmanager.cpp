@@ -44,12 +44,14 @@ GCDBSessionManager::GCDBSessionManager( QWidget *parent ) :
   ui->setupUi( this );
 
   setDBList();
+  ui->showHelpButton->setVisible( false );
 
   connect( ui->addExistingButton, SIGNAL( clicked() ), this, SLOT( addExistingDatabase() ) );
   connect( ui->addNewButton,      SIGNAL( clicked() ), this, SLOT( addNewDatabase() ) );
   connect( ui->cancelButton,      SIGNAL( clicked() ), this, SLOT( reject() ) );
   connect( ui->okButton,          SIGNAL( clicked() ), this, SLOT( setActiveDatabase() ) );
   connect( ui->okButton,          SIGNAL( clicked() ), this, SLOT( accept() ) );
+  connect( ui->showHelpButton,    SIGNAL( clicked() ), this, SLOT( showHelp() ) );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -161,6 +163,18 @@ void GCDBSessionManager::removeDBConnection()
 void GCDBSessionManager::setActiveDatabase()
 {
   setActiveDatabase( ui->comboBox->currentText() );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDBSessionManager::showHelp()
+{
+  QMessageBox::information( this,
+                            "How this works...",
+                            "Currently you don't have any known profiles. Profiles are used "
+                            "to store information about XML files, so please create a new "
+                            "profile for the type of XML you are going to work with (I suggest "
+                            "using a name that closely resembles the XML files it will represent)." );
 }
 
 /*--------------------------------------------------------------------------------------*/
