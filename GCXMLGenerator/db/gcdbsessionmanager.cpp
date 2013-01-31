@@ -252,7 +252,7 @@ void GCDBSessionManager::setDBList()
   if( dbList.empty() )
   {
     ui->okButton->setVisible( false );
-    ui->comboBox->addItem( "No Known Profiles" );
+    ui->comboBox->addItem( "You don't have any known profiles..." );
     ui->showHelpButton->setVisible( true );
   }
   else

@@ -78,7 +78,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_activeAttribute     ( NULL ),
   m_currentCombo        ( NULL ),
   m_saveTimer           ( NULL ),
-  m_activeSessionLabel  ( NULL ),
+  m_activeProfileLabel  ( NULL ),
   m_progressLabel       ( NULL ),
   m_spinner             ( NULL ),
   m_currentXMLFileName  ( "" ),
@@ -945,14 +945,14 @@ void GCMainWindow::activeDatabaseChanged( QString dbName )
     }
   }
 
-  if( !m_activeSessionLabel )
+  if( !m_activeProfileLabel )
   {
-    m_activeSessionLabel = new QLabel( QString( "Active Session Name: %1" ).arg( dbName ) );
-    statusBar()->addWidget( m_activeSessionLabel );
+    m_activeProfileLabel = new QLabel( QString( "Active Profile: %1" ).arg( dbName ) );
+    statusBar()->addWidget( m_activeProfileLabel );
   }
   else
   {
-    m_activeSessionLabel->setText( QString( "Active Session Name: %1" ).arg( dbName ) );
+    m_activeProfileLabel->setText( QString( "Active Profile: %1" ).arg( dbName ) );
   }
 }
 

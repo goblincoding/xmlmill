@@ -427,7 +427,7 @@ private:
   QTableWidgetItem *m_activeAttribute;
   QWidget          *m_currentCombo;
   QTimer           *m_saveTimer;
-  QLabel           *m_activeSessionLabel;
+  QLabel           *m_activeProfileLabel;
   QLabel           *m_progressLabel;
   QMovie           *m_spinner;
   QString           m_currentXMLFileName;
