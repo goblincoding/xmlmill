@@ -1423,7 +1423,7 @@ void GCMainWindow::showCommentHelp()
                             "Adding Comments",
                             "Comments are automatically added to newly created elements (if provided).\n\n"
                             "To add a comment to an existing element, select the relevant element in the tree, "
-                            "provide the comment text and \"Enter\".");
+                            "provide the comment text and press \"Enter\".");
 }
 
 /*--------------------------------------------------------------------------------------*/
