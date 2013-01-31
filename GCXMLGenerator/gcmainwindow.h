@@ -332,11 +332,17 @@ private slots:
   /*! Displays a brief message related to manual changes to the active document (via the text editor). */
   void showDOMEditHelp();
 
+  /*! Displays a brief message about adding comments to the XML. */
+  void showCommentHelp();
+
   /*! Connected to the "Help Contents" action.  Displays the main help page. */
   void showMainHelp();
 
   /*! Opens this application's website. */
   void goToSite();
+
+  /*! Adds an XML comment to the currently highlighted element. */
+  void addComment();
   
 private:
   /*! Creates a new GCDBSessionManager and connects its signals to the relevant slots.

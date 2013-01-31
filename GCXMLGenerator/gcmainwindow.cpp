@@ -95,8 +95,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   ui->emptyProfileHelpButton->setVisible( false );
   ui->dockWidgetTextEdit->setFont( QFont( FONT, FONTSIZE ) );
 
-  connect( ui->emptyProfileHelpButton, SIGNAL( clicked() ), this, SLOT( showEmptyProfileHelp() ) );
-
   /* XML File related. */
   connect( ui->actionNew, SIGNAL( triggered() ), this, SLOT( newXMLFile() ) );
   connect( ui->actionOpen, SIGNAL( triggered() ), this, SLOT( openXMLFile() ) );
@@ -120,6 +118,9 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionVisitOfficialSite, SIGNAL( triggered() ), this, SLOT( goToSite() ) );
   connect( ui->expandAllCheckBox, SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
   connect( ui->wrapTextCheckBox, SIGNAL( clicked( bool ) ), this, SLOT( wrapText( bool ) ) );
+  connect( ui->emptyProfileHelpButton, SIGNAL( clicked() ), this, SLOT( showEmptyProfileHelp() ) );
+  connect( ui->showCommentHelpButton, SIGNAL( clicked() ), this, SLOT( showCommentHelp() ) );
+  connect( ui->commentLineEdit, SIGNAL( returnPressed() ), this, SLOT( addComment() ) );
 
   /* Everything tree widget related. */
   connect( ui->treeWidget, SIGNAL( itemClicked ( QTreeWidgetItem*, int ) ), this, SLOT( elementSelected( QTreeWidgetItem*, int ) ) );
@@ -1080,7 +1081,7 @@ void GCMainWindow::addElementToDocument()
     if( !ui->commentLineEdit->text().isEmpty() )
     {
       QDomComment comment = m_domDoc->createComment( ui->commentLineEdit->text() );
-      m_domDoc->insertBefore( comment, newElement );
+      newElement.parentNode().insertBefore( comment, newElement );
       ui->commentLineEdit->clear();
     }
 
@@ -1416,6 +1417,17 @@ void GCMainWindow::showDOMEditHelp()
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCMainWindow::showCommentHelp()
+{
+  QMessageBox::information( this,
+                            "Adding Comments",
+                            "Comments are automatically added to newly created elements (if provided).\n\n"
+                            "To add a comment to an existing element, select the relevant element in the tree, "
+                            "provide the comment text and \"Enter\".");
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCMainWindow::showMainHelp()
 {
   QFile file( ":/resources/help/Help.txt" );
@@ -1441,6 +1453,20 @@ void GCMainWindow::showMainHelp()
 void GCMainWindow::goToSite()
 {
   QDesktopServices::openUrl( QUrl( "http://goblincoding.com" ) );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::addComment()
+{
+  if( !ui->commentLineEdit->text().isEmpty() )
+  {
+    QDomElement currentElement = m_treeItemNodes.value( ui->treeWidget->currentItem() );
+    QDomComment comment = m_domDoc->createComment( ui->commentLineEdit->text() );
+    currentElement.parentNode().insertBefore( comment, currentElement );
+    ui->commentLineEdit->clear();
+    setTextEditContent( currentElement );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1669,6 +1695,8 @@ void GCMainWindow::toggleAddElementWidgets()
   {
     ui->addElementComboBox->setEnabled( false );
     ui->addChildElementButton->setEnabled( false );
+    ui->commentLineEdit->setEnabled( false );
+    ui->showCommentHelpButton->setEnabled( false );
 
     /* Check if the element combo box is empty due to an empty profile
       being active. */
@@ -1685,6 +1713,8 @@ void GCMainWindow::toggleAddElementWidgets()
   {
     ui->addElementComboBox->setEnabled( true );
     ui->addChildElementButton->setEnabled( true );
+    ui->commentLineEdit->setEnabled( true );
+    ui->showCommentHelpButton->setEnabled( true );
     ui->emptyProfileHelpButton->setVisible( false );
   }
 }
