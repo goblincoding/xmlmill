@@ -1,9 +1,19 @@
 <h1>Overview</h1>
 
 <ol>
+<li><a href="#QuickStart">Quick Start</a></li>
 <li><a href="#ProfilesLink">Profiles</a></li>
 <li><a href="#ElementNames">Unique Element Names</a></li>
 </ol>
+
+<h2><a name="QuickStart">Quick Start</a></h2>
+<p>
+<ol>
+<li>Create a profile (at first run via the provided form or via Edit -> Create New Profile)</li>
+<li>Populate the profile by importing existing XML files of the type you wish to build (Edit -> Import XML to Profile), or manually (Edit -> Edit Profile -> Add Items)</li>
+<li>Create a new document (File -> New File) and start building your new document.</li>
+</ol>
+</p>
 
 <h2><a name="ProfilesLink">Profiles</a></h2>
 <p>Profiles are used to define the relationships between elements, associated attributes and known attribute values for a specific XML "style" (the way a specific type of XML document is always built).  This idea is best explained with the help of an example: let's say that you have an XML config file that you are forever copying and pasting and tweaking for a new project/system/data packet, etc.  Not only is this a tedious and rather silly way of doing things, it is also a sure way to introduce errors into your XML.</p>
