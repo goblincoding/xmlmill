@@ -343,6 +343,9 @@ private slots:
 
   /*! Adds an XML comment to the currently highlighted element. */
   void addComment();
+
+  /*! Sets the style sheet on the application. */
+  void useDarkTheme( bool use );
   
 private:
   /*! Creates a new GCDBSessionManager and connects its signals to the relevant slots.
@@ -391,11 +394,11 @@ private:
       database (profile) is selected as active. */
   void querySetActiveSession( QString reason );
 
-  /*! Reads the saved window state and geometry from the registry/XML/ini file.
+  /*! Reads the saved window state, geometry and theme settings from the registry/XML/ini file.
       \sa saveSettings */
   void readSettings();
 
-  /*! Saves the window state and geometry to the registry/XML/ini file.
+  /*! Saves the window state, geometry and theme settings to the registry/XML/ini file.
       \sa readSettings */
   void saveSettings();
 

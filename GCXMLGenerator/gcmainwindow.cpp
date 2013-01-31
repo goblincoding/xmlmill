@@ -121,6 +121,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->emptyProfileHelpButton, SIGNAL( clicked() ), this, SLOT( showEmptyProfileHelp() ) );
   connect( ui->showCommentHelpButton, SIGNAL( clicked() ), this, SLOT( showCommentHelp() ) );
   connect( ui->commentLineEdit, SIGNAL( returnPressed() ), this, SLOT( addComment() ) );
+  connect( ui->actionUseDarkTheme, SIGNAL( triggered( bool ) ), this, SLOT( useDarkTheme( bool ) ) );
 
   /* Everything tree widget related. */
   connect( ui->treeWidget, SIGNAL( itemClicked ( QTreeWidgetItem*, int ) ), this, SLOT( elementSelected( QTreeWidgetItem*, int ) ) );
@@ -1471,6 +1472,25 @@ void GCMainWindow::addComment()
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCMainWindow::useDarkTheme( bool use )
+{
+  if( use )
+  {
+    QFile file( ":resources/StyleSheet.txt" );
+    file.open( QIODevice::ReadOnly | QIODevice::Text );
+    QTextStream stream( &file );
+
+    qApp->setStyleSheet( stream.readAll() );
+    file.close();
+  }
+  else
+  {
+    qApp->setStyleSheet( QString() );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 GCDBSessionManager *GCMainWindow::createDBSessionManager()
 {
   /* Clean-up is the responsibility of the calling function. */
@@ -1744,6 +1764,11 @@ void GCMainWindow::readSettings()
   {
     ui->actionRememberWindowGeometry->setChecked( settings.value( "saveWindowInformation" ).toBool() );
   }
+
+  if( settings.contains( "useDarkTheme" ) )
+  {
+    ui->actionUseDarkTheme->setChecked( settings.value( "useDarkTheme" ).toBool() );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1771,6 +1796,7 @@ void GCMainWindow::saveSettings()
   }
 
   settings.setValue( "saveWindowInformation", ui->actionRememberWindowGeometry->isChecked() );
+  settings.setValue( "useDarkTheme", ui->actionUseDarkTheme->isChecked() );
 }
 
 /*--------------------------------------------------------------------------------------*/

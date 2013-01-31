@@ -30,6 +30,8 @@
 #define GCGLOBALS_H
 
 #include <QString>
+#include <QFile>
+#include <QTextStream>
 
 /// Contains values used throughout the application.
 

@@ -414,7 +414,7 @@ QTreeView
   border: 1px solid black;
   color: rgba(10, 10, 10, 255);
   background-color: rgb(200,200,200);
-  alternate-background-color: rgba(120, 120, 130, 255);
+  alternate-background-color: rgba(170, 170, 180, 255);
   selection-background-color: rgba(130, 130, 140, 200);
   font: 13px;
 }

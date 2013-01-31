@@ -29,18 +29,22 @@
 #include <QtGui/QApplication>
 #include <QFile>
 #include <QTextStream>
+#include <QSettings>
+
 #include "gcmainwindow.h"
+#include "utils/gcglobals.h"
 
 /*--------------------------------------------------------------------------------------*/
 
 QString styleSheet()
 {
   QFile file( ":resources/StyleSheet.txt" );
-
   file.open( QIODevice::ReadOnly | QIODevice::Text );
-
   QTextStream stream( &file );
-  return stream.readAll();
+  QString style = stream.readAll();
+  file.close();
+
+  return style;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -48,7 +52,14 @@ QString styleSheet()
 int main(int argc, char *argv[])
 {
   QApplication a(argc, argv);
-  a.setStyleSheet( styleSheet() );
+
+  QSettings settings( ORGANISATION, APPLICATION );
+  QVariant useDark = settings.value( "useDarkTheme", true );
+
+  if( useDark.toBool() )
+  {
+    a.setStyleSheet( styleSheet() );
+  }
 
   GCMainWindow w;
   w.show();
