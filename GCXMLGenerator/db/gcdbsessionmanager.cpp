@@ -172,9 +172,10 @@ void GCDBSessionManager::showHelp()
   QMessageBox::information( this,
                             "How this works...",
                             "Currently you don't have any known profiles. Profiles are used "
-                            "to store information about XML files, so please create a new "
-                            "profile for the type of XML you are going to work with (I suggest "
-                            "using a name that closely resembles the XML files it will represent)." );
+                            "to store information about XML files, so please: \n\n"
+                            "1. Create a new profile for the type of XML you are going to work with (I suggest "
+                            "using a name that closely resembles the XML files it will represent), or\n"
+                            "2. Add an existing profile(s) if you have any.");
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -251,12 +252,14 @@ void GCDBSessionManager::setDBList()
   if( dbList.empty() )
   {
     ui->okButton->setVisible( false );
-    ui->comboBox->addItem( "Let there be profiles! (i.e. you'll have to add some)" );
+    ui->comboBox->addItem( "No Known Profiles" );
+    ui->showHelpButton->setVisible( true );
   }
   else
   {
     ui->okButton->setVisible( true );
     ui->comboBox->addItems( dbList );
+    ui->showHelpButton->setVisible( false );
   }
 }
 

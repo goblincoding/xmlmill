@@ -88,7 +88,7 @@
         <string>Add a new XML profile.</string>
        </property>
        <property name="text">
-        <string>Add New</string>
+        <string>Create New</string>
        </property>
       </widget>
      </item>
