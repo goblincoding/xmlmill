@@ -775,7 +775,7 @@ void GCMainWindow::importXMLFromFile()
 
       QMessageBox::StandardButtons accept = QMessageBox::question( this,
                                                                    "Edit file",
-                                                                   "Also load file for editing?",
+                                                                   "Also view file for editing?",
                                                                    QMessageBox::Yes | QMessageBox::No,
                                                                    QMessageBox::Yes );
 
@@ -1424,7 +1424,7 @@ void GCMainWindow::showCommentHelp()
                             "Adding Comments",
                             "Comments are automatically added to newly created elements (if provided).\n\n"
                             "To add a comment to an existing element, select the relevant element in the tree, "
-                            "provide the comment text and press \"Enter\".");
+                            "provide the comment text and press \"Enter\"." );
 }
 
 /*--------------------------------------------------------------------------------------*/
