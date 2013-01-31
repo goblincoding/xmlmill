@@ -87,3 +87,5 @@ FORMS    += \
 
 RESOURCES += \
     resources/gcresources.qrc
+
+RC_FILE = resources/appicon/goblinappico.rc

@@ -791,3 +791,4 @@ GCXMLGenerator_MSVC2008/ui_gcrestorefilesform.h
 GCXMLGenerator_MSVC2008/ui_gcsearchform.h
 GCXMLGenerator_MSVC2008/ui_gcsnippetsform.h
 GCXMLGenerator_MSVC2008/vc90.pdb
+GCXMLGenerator_MinGW/release/goblinappico_res.o

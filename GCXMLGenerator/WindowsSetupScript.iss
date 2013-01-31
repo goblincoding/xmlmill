@@ -11,7 +11,7 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{19937454-0576-45E7-B546-87F1D5182643}
+AppId={{239AB750-FAF4-4DCA-A942-1C0F6350FF84}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
@@ -19,7 +19,7 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={pf}\XML Mill
+DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 LicenseFile=C:\Documents\Personal\XML Mill Test\GNUGPL.txt
@@ -43,13 +43,11 @@ Source: "C:\Documents\Personal\XML Mill Test\QtCore4.dll"; DestDir: "{app}"; Fla
 Source: "C:\Documents\Personal\XML Mill Test\QtGui4.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Documents\Personal\XML Mill Test\QtSql4.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Documents\Personal\XML Mill Test\QtXml4.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents\Personal\XML Mill Test\sqldrivers\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Documents\Personal\XML Mill Test\sqldrivers\*"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{group}\{cm:ProgramOnTheWeb,{#MyAppName}}"; Filename: "{#MyAppURL}"
-Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: quicklaunchicon
 
