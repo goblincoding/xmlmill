@@ -59,7 +59,7 @@ public:
       m_remember( remember )
   {
     ui->setupUi( this );
-    ui->plainTextEdit->setPlainText( text );
+    ui->textLabel->setText( text );
 
     switch( buttons )
     {
@@ -92,20 +92,20 @@ public:
     switch( icon )
     {
     case GCMessageSpace::Information:
-      ui->iconButton->setIcon( style()->standardIcon( QStyle::SP_MessageBoxInformation ) );
+      ui->iconLabel->setPixmap( style()->standardIcon( QStyle::SP_MessageBoxInformation ).pixmap( 32, 32 ) );
       break;
     case GCMessageSpace::Warning:
-      ui->iconButton->setIcon( style()->standardIcon( QStyle::SP_MessageBoxWarning ) );
+      ui->iconLabel->setPixmap( style()->standardIcon( QStyle::SP_MessageBoxWarning ).pixmap( 32, 32 ) );
       break;
     case GCMessageSpace::Critical:
-      ui->iconButton->setIcon( style()->standardIcon( QStyle::SP_MessageBoxCritical ) );
+      ui->iconLabel->setPixmap( style()->standardIcon( QStyle::SP_MessageBoxCritical ).pixmap( 32, 32 ) );
       break;
     case GCMessageSpace::Question:
-      ui->iconButton->setIcon( style()->standardIcon( QStyle::SP_MessageBoxQuestion ) );
+      ui->iconLabel->setPixmap( style()->standardIcon( QStyle::SP_MessageBoxQuestion ).pixmap( 32, 32 ) );
       break;
     case GCMessageSpace::NoIcon:
     default:
-      ui->iconButton->setIcon( QIcon() );
+      ui->iconLabel->setPixmap( QPixmap() );
     }
 
     connect( ui->checkBox,     SIGNAL( toggled( bool ) ), this, SLOT( setRememberUserChoice( bool ) ) );
