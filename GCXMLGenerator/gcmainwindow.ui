@@ -126,7 +126,7 @@
            <bool>true</bool>
           </property>
           <attribute name="headerVisible">
-           <bool>true</bool>
+           <bool>false</bool>
           </attribute>
           <column>
            <property name="text">
@@ -145,7 +145,7 @@
            <number>2</number>
           </property>
           <attribute name="horizontalHeaderVisible">
-           <bool>true</bool>
+           <bool>false</bool>
           </attribute>
           <attribute name="horizontalHeaderCascadingSectionResizes">
            <bool>true</bool>
@@ -751,7 +751,7 @@
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Use Dark Theme</string>

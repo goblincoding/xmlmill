@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
   QApplication a(argc, argv);
 
   QSettings settings( ORGANISATION, APPLICATION );
-  QVariant useDark = settings.value( "useDarkTheme", true );
+  QVariant useDark = settings.value( "useDarkTheme", false );
 
   if( useDark.toBool() )
   {
