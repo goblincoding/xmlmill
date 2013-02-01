@@ -775,7 +775,7 @@ void GCMainWindow::importXMLFromFile()
 
       QMessageBox::StandardButtons accept = QMessageBox::question( this,
                                                                    "Edit file",
-                                                                   "Also view file for editing?",
+                                                                   "Also open file for editing?",
                                                                    QMessageBox::Yes | QMessageBox::No,
                                                                    QMessageBox::Yes );
 
