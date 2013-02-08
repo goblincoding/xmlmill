@@ -18,18 +18,7 @@
     <normaloff>:/resources/goblinicon.png</normaloff>:/resources/goblinicon.png</iconset>
   </property>
   <property name="styleSheet">
-   <string notr="true">/* Overrides main style sheet. */
-QCheckBox
-{
-  border-radius: 1px;
-}
-
-QCheckBox::indicator
-{
-  subcontrol-position: center;
-  padding-left: 7;
-  border-radius: 1px;
-}</string>
+   <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
