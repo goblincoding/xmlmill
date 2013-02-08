@@ -7,5 +7,3 @@ Add reg exp validation to user input.
 Remember to name page "xmlmill" as in http://www.goblincoding.com/xmlmill
 
 Still have to write main page (documentation).
-
-Importing is not that obvious...assumption is that, when importing, it should automatically open xml change "Load file for editing?" to "Would you like to open this file" or "View file for edit"

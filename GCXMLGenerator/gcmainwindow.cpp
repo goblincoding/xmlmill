@@ -993,7 +993,7 @@ void GCMainWindow::deleteElementFromDocument()
 
     /* Repopulate the table widget with values from whichever
       element is highlighted after the removal. */
-    elementSelected( currentItem, 0 );
+    elementSelected( parentItem, 0 );
 
     setTextEditContent( parentNode.toElement() );
   }
