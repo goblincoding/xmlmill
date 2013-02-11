@@ -406,10 +406,12 @@ void GCMainWindow::elementSelected( QTreeWidgetItem *item, int column )
   if( ui->addElementComboBox->currentText() == m_domDoc->documentElement().tagName() )
   {
     ui->addSnippetButton->setEnabled( false );
+    ui->addChildElementButton->setText( "Add Root" );
   }
   else
   {
     ui->addSnippetButton->setEnabled( true );
+    ui->addChildElementButton->setText( "Add Child" );
   }
 
   /* Unset flag. */
@@ -1060,6 +1062,7 @@ void GCMainWindow::addElementToDocument()
       ui->treeWidget->invisibleRootItem()->addChild( newItem );  // takes ownership
       m_domDoc->appendChild( newElement );
       ui->addSnippetButton->setEnabled( true );
+      ui->addChildElementButton->setText( "Add Child" );
     }
 
     /* Add all the known attributes associated with this element name to the new element. */
@@ -1352,6 +1355,7 @@ void GCMainWindow::resetDOM()
   toggleAddElementWidgets();
 
   ui->addSnippetButton->setEnabled( false );
+  ui->addChildElementButton->setText( "Add Root" );
 
   m_currentCombo = NULL;
   m_activeAttributeName = "";
@@ -1523,6 +1527,7 @@ void GCMainWindow::processDOMDoc()
   /* Now we can recursively stick the rest of the elements into the tree widget. */
   populateTreeWidget( root, item );
   ui->addSnippetButton->setEnabled( true );
+  ui->addChildElementButton->setText( "Add Child" );
 
   /* Enable file save options. */
   ui->actionCloseFile->setEnabled( true );

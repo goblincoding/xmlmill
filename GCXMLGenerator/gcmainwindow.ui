@@ -44,16 +44,16 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="addChildElementButton">
+          <widget class="QPushButton" name="addSnippetButton">
            <property name="text">
-            <string>Add Child Element</string>
+            <string>Add Snippet</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="addSnippetButton">
+          <widget class="QPushButton" name="addChildElementButton">
            <property name="text">
-            <string>Add Snippet</string>
+            <string>Add Child</string>
            </property>
           </widget>
          </item>
@@ -762,7 +762,6 @@
  <tabstops>
   <tabstop>addElementComboBox</tabstop>
   <tabstop>addChildElementButton</tabstop>
-  <tabstop>addSnippetButton</tabstop>
   <tabstop>treeWidget</tabstop>
   <tabstop>tableWidget</tabstop>
   <tabstop>expandAllCheckBox</tabstop>
