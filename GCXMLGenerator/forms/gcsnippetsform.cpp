@@ -112,8 +112,8 @@ void GCSnippetsForm::elementSelected( QTreeWidgetItem *item, int column )
     QCheckBox *checkBox = new QCheckBox;
 
     /* Overrides main style sheet. */
-    //checkBox->setStyleSheet( "QCheckBox{border-radius: 1px;}"
-    //                         "QCheckBox::indicator{subcontrol-position: center; padding-left: 7; border-radius: 1px;}");
+    checkBox->setStyleSheet( "QCheckBox{ padding-right: 1px; }"
+                             "QCheckBox::indicator{ subcontrol-position: center; width: 15px; height: 15px; }" );
 
     ui->tableWidget->setCellWidget( i, INCRCOLUMN, checkBox );
     connect( checkBox, SIGNAL( clicked() ), this, SLOT( attributeValueChanged() ) );

@@ -345,7 +345,7 @@ private slots:
   void addComment();
 
   /*! Sets the style sheet on the application. */
-  void useDarkTheme( bool use );
+  void useDarkTheme( bool dark );
   
 private:
   /*! Creates a new GCDBSessionManager and connects its signals to the relevant slots.

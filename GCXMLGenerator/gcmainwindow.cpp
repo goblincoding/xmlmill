@@ -1472,9 +1472,9 @@ void GCMainWindow::addComment()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::useDarkTheme( bool use )
+void GCMainWindow::useDarkTheme( bool dark )
 {
-  if( use )
+  if( dark )
   {
     QFile file( ":resources/StyleSheet.txt" );
     file.open( QIODevice::ReadOnly | QIODevice::Text );

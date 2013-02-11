@@ -238,9 +238,8 @@ QCheckBox
   color: rgb(0, 0, 0);
   background-color: rgba(140, 140, 140, 200);
   border-width: 1px;
-  border-radius: 6px;
+  border-radius: 5px;
   padding-right: 9px;
-  spacing: 10px;
   min-height: 20px;
   min-width: 20px;
   icon-size: 20px;
