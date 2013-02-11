@@ -757,20 +757,6 @@ bool GCDataBaseInterface::removeRootElement( const QString &element ) const
 
 /*--------------------------------------------------------------------------------------*/
 
-QStringList GCDataBaseInterface::getDBList() const
-{
-  return m_dbMap.keys();
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-QString GCDataBaseInterface::getLastError() const
-{
-  return m_lastErrorMsg;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 bool GCDataBaseInterface::hasActiveSession() const
 {
   return m_hasActiveSession;
@@ -797,6 +783,24 @@ bool GCDataBaseInterface::profileEmpty() const
 
 /*--------------------------------------------------------------------------------------*/
 
+bool GCDataBaseInterface::isUniqueChildElement( const QString &parentElement, const QString &element ) const
+{
+  QSqlQuery query = selectAllElements();
+
+  while( query.next() )
+  {
+    if( query.record().field( "element" ).value().toString() != parentElement &&
+        query.record().value( "children" ).toString().split( SEPARATOR ).contains( element ) )
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 QStringList GCDataBaseInterface::knownElements() const
 {
   QSqlQuery query = selectAllElements();
@@ -806,6 +810,8 @@ QStringList GCDataBaseInterface::knownElements() const
     /* Last error set in selectAllElements. */
     return QStringList();
   }
+
+  m_lastErrorMsg = "";
 
   QStringList elementNames;
 
@@ -833,6 +839,8 @@ QStringList GCDataBaseInterface::children( const QString &element ) const
     return QStringList();
   }
 
+  m_lastErrorMsg = "";
+
   QStringList children = query.record().value( "children" ).toString().split( SEPARATOR );
   cleanList( children );
   children.sort();
@@ -853,6 +861,8 @@ QStringList GCDataBaseInterface::attributes( const QString &element ) const
     return QStringList();
   }
 
+  m_lastErrorMsg = "";
+
   QStringList attributes = query.record().value( "attributes" ).toString().split( SEPARATOR );
   cleanList( attributes );
   return attributes;
@@ -871,6 +881,8 @@ QStringList GCDataBaseInterface::attributeValues( const QString &element, const 
         .arg( attribute );
     return QStringList();
   }
+
+  m_lastErrorMsg = "";
 
   QStringList attributeValues = query.record().value( "attributeValues" ).toString().split( SEPARATOR );
   cleanList( attributeValues );
@@ -897,6 +909,8 @@ QStringList GCDataBaseInterface::knownRootElements( QSqlDatabase db ) const
         .arg( query.lastError().text() );
     return QStringList();
   }
+
+  m_lastErrorMsg = "";
 
   QStringList rootElements;
 
@@ -936,6 +950,20 @@ bool GCDataBaseInterface::containsKnownRootElement( const QString &dbName, const
   }
 
   return false;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+QStringList GCDataBaseInterface::getDBList() const
+{
+  return m_dbMap.keys();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+QString GCDataBaseInterface::getLastError() const
+{
+  return m_lastErrorMsg;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1063,6 +1091,8 @@ QStringList GCDataBaseInterface::knownAttributeKeys() const
     return QStringList();
   }
 
+  m_lastErrorMsg = "";
+
   QStringList attributeNames;
 
   while( query.next() )
@@ -1101,7 +1131,6 @@ QSqlQuery GCDataBaseInterface::selectElement( const QString &element ) const
         .arg( query.lastError().text() );
   }
 
-  m_lastErrorMsg = "";
   return query;
 }
 

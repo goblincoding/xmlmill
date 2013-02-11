@@ -124,22 +124,19 @@ public:
       in the active database. */
   bool removeAttribute( const QString &element, const QString &attribute ) const;
 
-  /*! Returns a list of known database connections. */
-  QStringList getDBList() const;
-
-  /*! Returns the last known error message. */
-  QString getLastError() const;
-
   /*! Returns "true" if an active database session exists, "false" if not.
       \sa activeSessionName() */
   bool hasActiveSession() const;
 
-  /*! Returns the active database session (if one exists) or an empty string if not.
-      \sa hasActiveSession */
-  QString activeSessionName() const;
-
   /*! Returns "true" if the active database is empty, "false" if not. */
   bool profileEmpty() const;
+
+  /*! Returns true if the database named "dbName" knows about "root". */
+  bool containsKnownRootElement( const QString &dbName, const QString &root ) const;
+
+  /*! Returns true if "element" is a child of "parentElement" only (i.e. it doesn't exist
+      on any other first level child list). */
+  bool isUniqueChildElement( const QString &parentElement, const QString &element ) const;
 
   /*! Returns a sorted (case sensitive, ascending) list of all the element names known to
       the current database connection (the active session). */
@@ -163,8 +160,15 @@ public:
       known to the the active database. */
   QStringList knownRootElements() const;
 
-  /*! Returns true if the database named "dbName" knows about "root". */
-  bool containsKnownRootElement( const QString &dbName, const QString &root ) const;
+  /*! Returns a list of known database connections. */
+  QStringList getDBList() const;
+
+  /*! Returns the last known error message. */
+  QString getLastError() const;
+
+  /*! Returns the active database session (if one exists) or an empty string if not.
+      \sa hasActiveSession */
+  QString activeSessionName() const;
   
 public slots:
   /*! Sets the database corresponding to "dbName" as the active database. */
