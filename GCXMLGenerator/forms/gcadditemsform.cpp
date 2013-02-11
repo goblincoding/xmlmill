@@ -147,7 +147,7 @@ void GCAddItemsForm::addElementAndAttributes()
 
         QTreeWidgetItem *item = new QTreeWidgetItem;
         item->setText( 0, element );
-        ui->treeWidget->currentItem()->addChild( item );      // takes ownership
+        ui->treeWidget->currentItem()->insertChild( 0, item );      // takes ownership
       }
       else
       {
