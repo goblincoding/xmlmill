@@ -251,17 +251,16 @@ void GCMainWindow::elementChanged( QTreeWidgetItem *item, int column )
           it doesn't do anything if the element already exists in the database, yet it will obviously
           add the element if it doesn't.  In the latter case, the children  and attributes associated with
           the old name will be assigned to the new element in the process. */
-        bool success( false );
-        QStringList attributes = GCDataBaseInterface::instance()->attributes( previousName, success );
+        QStringList attributes = GCDataBaseInterface::instance()->attributes( previousName );
 
-        if( !success )
+        if( attributes.isEmpty() )
         {
           GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
         }
 
-        QStringList children = GCDataBaseInterface::instance()->children( previousName, success );
+        QStringList children = GCDataBaseInterface::instance()->children( previousName );
 
-        if( !success )
+        if( children.isEmpty() )
         {
           GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
         }
@@ -275,7 +274,7 @@ void GCMainWindow::elementChanged( QTreeWidgetItem *item, int column )
           to be updated with the known values of these attributes. */
         foreach( QString attribute, attributes )
         {
-          QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( previousName, attribute, success );
+          QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( previousName, attribute );
 
           if( !GCDataBaseInterface::instance()->updateAttributeValues( newName, attribute, attributeValues ) )
           {
@@ -301,16 +300,9 @@ void GCMainWindow::elementSelected( QTreeWidgetItem *item, int column )
 
   resetTableWidget();
 
-  bool success( false );
   QDomElement element = m_treeItemNodes.value( item );      // shallow copy
   QString elementName = element.tagName();
-  QStringList attributeNames = GCDataBaseInterface::instance()->attributes( elementName, success );
-
-  /* This is more for debugging than for end-user functionality. */
-  if( !success )
-  {
-    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
-  }
+  QStringList attributeNames = GCDataBaseInterface::instance()->attributes( elementName );
 
   /* Add all the associated attribute names to the first column of the table widget,
     create and populate combo boxes with the attributes' known values and insert the
@@ -336,14 +328,8 @@ void GCMainWindow::elementSelected( QTreeWidgetItem *item, int column )
     ui->tableWidget->setRowCount( i + 1 );
     ui->tableWidget->setItem( i, 0, label );
 
-    attributeCombo->addItems( GCDataBaseInterface::instance()->attributeValues( elementName, attributeNames.at( i ), success ) );
+    attributeCombo->addItems( GCDataBaseInterface::instance()->attributeValues( elementName, attributeNames.at( i ) ) );
     attributeCombo->setEditable( true );
-
-    /* This is more for debugging than for end-user functionality. */
-    if( !success )
-    {
-      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
-    }
 
     /* If we are still in the process of building the document, the attribute value will
       be empty since it has never been set before.  For this particular case, calling
@@ -382,13 +368,7 @@ void GCMainWindow::elementSelected( QTreeWidgetItem *item, int column )
   /* Populate the "add child element" combo box with the known first level children of the
     current highlighted element (highlighted in the tree widget, of course). */
   ui->addElementComboBox->clear();
-  ui->addElementComboBox->addItems( GCDataBaseInterface::instance()->children( elementName, success ) );
-
-  /* This is more for debugging than for end-user functionality. */
-  if( !success )
-  {
-    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
-  }
+  ui->addElementComboBox->addItems( GCDataBaseInterface::instance()->children( elementName ) );
 
   /* The following will be used to allow the user to add an element of the current type to
     its parent (this should improve the user experience as they do not have to explicitly
@@ -453,19 +433,10 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *item )
           currentElement.removeAttribute( m_activeAttributeName );
 
           /* Retrieve the list of values associated with the previous name and insert it against the new name. */
-          bool success;
           QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( currentElement.tagName(),
-                                                                                          m_activeAttributeName,
-                                                                                          success );
+                                                                                          m_activeAttributeName );
 
-          if( success )
-          {
-            if( !GCDataBaseInterface::instance()->updateAttributeValues( currentElement.tagName(), item->text(), attributeValues ) )
-            {
-              GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
-            }
-          }
-          else
+          if( !GCDataBaseInterface::instance()->updateAttributeValues( currentElement.tagName(), item->text(), attributeValues ) )
           {
             GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
           }
@@ -532,24 +503,16 @@ void GCMainWindow::attributeValueChanged( const QString &value )
     currentElement.setAttribute( currentAttributeName, value );
 
     /* If we don't know about this value, we need to add it to the DB. */
-    bool success( false );
-    QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( currentElement.tagName(), currentAttributeName, success );
+    QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( currentElement.tagName(), currentAttributeName );
 
-    if( success )
+    if( !attributeValues.contains( value ) )
     {
-      if( !attributeValues.contains( value ) )
+      if( !GCDataBaseInterface::instance()->updateAttributeValues( currentElement.tagName(),
+                                                                   currentAttributeName,
+                                                                   QStringList( value ) ) )
       {
-        if( !GCDataBaseInterface::instance()->updateAttributeValues( currentElement.tagName(),
-                                                                     currentAttributeName,
-                                                                     QStringList( value ) ) )
-        {
-          GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
-        }
+        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
       }
-    }
-    else
-    {
-      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
     }
 
     setTextEditContent( currentElement );
@@ -1066,19 +1029,11 @@ void GCMainWindow::addElementToDocument()
     }
 
     /* Add all the known attributes associated with this element name to the new element. */
-    bool success( false );
-    QStringList attributes = GCDataBaseInterface::instance()->attributes( elementName, success );
+    QStringList attributes = GCDataBaseInterface::instance()->attributes( elementName );
 
-    if( success )
+    for( int i = 0; i < attributes.size(); ++i )
     {
-      for( int i = 0; i < attributes.size(); ++i )
-      {
-        newElement.setAttribute( attributes.at( i ), QString( "" ) );
-      }
-    }
-    else
-    {
-      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+      newElement.setAttribute( attributes.at( i ), QString( "" ) );
     }
 
     /* Check if the user provided a comment. */
@@ -1347,6 +1302,7 @@ void GCMainWindow::resetDOM()
   m_treeItemNodes.clear();
   ui->treeWidget->clear();
   ui->dockWidgetTextEdit->clear();
+
   resetTableWidget();
   deleteElementInfo();
 
@@ -1359,6 +1315,7 @@ void GCMainWindow::resetDOM()
 
   m_currentCombo = NULL;
   m_activeAttributeName = "";
+  m_fileContentsChanged = false;
 
   /* The timer will be reactivated as soon as work starts again on a legitimate
     document and the user saves it for the first time. */

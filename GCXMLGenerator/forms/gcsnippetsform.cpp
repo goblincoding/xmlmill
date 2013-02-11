@@ -91,15 +91,8 @@ void GCSnippetsForm::elementSelected( QTreeWidgetItem *item, int column )
   ui->tableWidget->setRowCount( 0 );
 
   /* Populate the table widget with the attributes and values associated with the element selected. */
-  bool success( false );
   QString elementName = item->text( column );
-  QStringList attributeNames = GCDataBaseInterface::instance()->attributes( elementName, success );
-
-  /* This is more for debugging than for end-user functionality. */
-  if( !success )
-  {
-    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
-  }
+  QStringList attributeNames = GCDataBaseInterface::instance()->attributes( elementName );
 
   /* Create and add the "increment" checkbox to the first column of the table widget, add all the
     known attribute names to the cells in the second column of the table widget, create and populate
@@ -125,7 +118,7 @@ void GCSnippetsForm::elementSelected( QTreeWidgetItem *item, int column )
     ui->tableWidget->setItem( i, LABELCOLUMN, label );
 
     GCComboBox *attributeCombo = new GCComboBox;
-    attributeCombo->addItems( GCDataBaseInterface::instance()->attributeValues( elementName, attributeNames.at( i ), success ) );
+    attributeCombo->addItems( GCDataBaseInterface::instance()->attributeValues( elementName, attributeNames.at( i ) ) );
     attributeCombo->setEditable( true );
     attributeCombo->setCurrentIndex( attributeCombo->findText(
                                        m_domDoc
@@ -145,12 +138,6 @@ void GCSnippetsForm::elementSelected( QTreeWidgetItem *item, int column )
     {
       label->setCheckState( Qt::Unchecked );
       attributeCombo->setEnabled( false );
-    }
-
-    /* This is more for debugging than for end-user functionality. */
-    if( !success )
-    {
-      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
     }
 
     ui->tableWidget->setCellWidget( i, COMBOCOLUMN, attributeCombo );
@@ -349,8 +336,6 @@ void GCSnippetsForm::populateTreeWidget( const QString &elementName )
 
 void GCSnippetsForm::processNextElement( const QString &elementName, QTreeWidgetItem *parentItem, QDomNode parentNode )
 {
-  bool success( false );
-
   QDomElement element = m_domDoc.createElement( elementName );
 
   /* This looks weird, but remember that the "parent" tree widget item is on the same level
@@ -368,45 +353,32 @@ void GCSnippetsForm::processNextElement( const QString &elementName, QTreeWidget
     parentNode.appendChild( element );
   }
 
-  QStringList attributeNames = GCDataBaseInterface::instance()->attributes( elementName, success );
-
-  /* This is more for debugging than for end-user functionality. */
-  if( !success )
-  {
-    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
-  }
-
   /* Create all the possible attributes for the element here, they can be changed
     later on. */
+  QStringList attributeNames = GCDataBaseInterface::instance()->attributes( elementName );
+
   for( int i = 0; i < attributeNames.count(); ++i )
   {
     element.setAttribute( attributeNames.at( i ), "" );
   }
 
-  QStringList children = GCDataBaseInterface::instance()->children( elementName, success );
+  QStringList children = GCDataBaseInterface::instance()->children( elementName );
 
-  if( success )
+  foreach( QString child, children )
   {
-    foreach( QString child, children )
-    {
-      QTreeWidgetItem *item = new QTreeWidgetItem;
-      item->setText( 0, child );
-      item->setCheckState( 0, Qt::Checked );
-      parentItem->addChild( item );  // takes ownership
+    QTreeWidgetItem *item = new QTreeWidgetItem;
+    item->setText( 0, child );
+    item->setCheckState( 0, Qt::Checked );
+    parentItem->addChild( item );  // takes ownership
 
-      /* Since it isn't illegal to have elements with children of the same name, we cannot
+    /* Since it isn't illegal to have elements with children of the same name, we cannot
         block it in the DB, however, if we DO have elements with children of the same name,
         this recursive call enters an infinite loop, so we need to make sure that doesn't
         happen. */
-      if( child != elementName )
-      {
-        processNextElement( child, item, element );
-      }
+    if( child != elementName )
+    {
+      processNextElement( child, item, element );
     }
-  }
-  else
-  {
-    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
   }
 }
 

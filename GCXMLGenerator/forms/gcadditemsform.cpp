@@ -85,31 +85,23 @@ void GCAddItemsForm::populateTreeWidget()
 
 void GCAddItemsForm::processNextElement( const QString &element, QTreeWidgetItem *parent )
 {
-  bool success( false );
-  QStringList children = GCDataBaseInterface::instance()->children( element, success );
+  QStringList children = GCDataBaseInterface::instance()->children( element );
 
-  if( success )
+  foreach( QString child, children )
   {
-    foreach( QString child, children )
-    {
-      QTreeWidgetItem *item = new QTreeWidgetItem;
-      item->setText( 0, child );
+    QTreeWidgetItem *item = new QTreeWidgetItem;
+    item->setText( 0, child );
 
-      parent->addChild( item );  // takes ownership
+    parent->addChild( item );  // takes ownership
 
-      /* Since it isn't illegal to have elements with children of the same name, we cannot
+    /* Since it isn't illegal to have elements with children of the same name, we cannot
         block it in the DB, however, if we DO have elements with children of the same name,
         this recursive call enters an infinite loop, so we need to make sure that doesn't
         happen. */
-      if( child != element )
-      {
-        processNextElement( child, item );
-      }
+    if( child != element )
+    {
+      processNextElement( child, item );
     }
-  }
-  else
-  {
-    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
   }
 }
 

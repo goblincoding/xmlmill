@@ -122,7 +122,7 @@ public:
 
   /*! Removes "attribute" from the list of attributes associated with "element" 
       in the active database. */
-  bool removeAttribute   ( const QString &element, const QString &attribute ) const;
+  bool removeAttribute( const QString &element, const QString &attribute ) const;
 
   /*! Returns a list of known database connections. */
   QStringList getDBList() const;
@@ -146,17 +146,18 @@ public:
   QStringList knownElements() const;
 
   /*! Returns a sorted (case sensitive, ascending) list of all the children associated with
-      "element" in the active database. */
-  QStringList children( const QString &element, bool &success ) const;
+      "element" in the active database or an empty QStringList if unsuccessful. */
+  QStringList children( const QString &element ) const;
 
   /*! Returns an UNSORTED list of all the attributes associated with "element" in the active
       database (the reason this list is unsorted is that all the other lists are used to populate 
-      combo boxes, where ordering makes sense, but this particular list is used to populate a table). */
-  QStringList attributes( const QString &element, bool &success ) const;
+      combo boxes, where ordering makes sense, but this particular list is used to populate a table)
+      or an empty QStringList if unsuccessful. */
+  QStringList attributes( const QString &element ) const;
 
   /*! Returns a sorted (case sensitive, ascending) list of all the attribute values associated with
-      "element" and its corresponding "attribute" in the active database. */
-  QStringList attributeValues( const QString &element, const QString &attribute, bool &success ) const;
+      "element" and its corresponding "attribute" in the active database or an empty QStringList if unsuccessful. */
+  QStringList attributeValues( const QString &element, const QString &attribute ) const;
 
   /*! Returns a sorted (case sensitive, ascending) list of all the document root elements
       known to the the active database. */
@@ -186,11 +187,17 @@ private:
 
   /*! Selects "element" from the database.  The active query for the command is returned (the function does not
       care whether or not the record exists). */      
-  QSqlQuery selectElement( const QString &element, bool &success ) const;
+  QSqlQuery selectElement( const QString &element ) const;
+
+  /*! Selects all the known elements from the database and returns the active query. */
+  QSqlQuery selectAllElements() const;
 
   /*! Selects "attribute" corresponding to "associatedElement" from the database.  The active query for the command 
       is returned (the function does not care whether or not the record exists). */ 
-  QSqlQuery selectAttribute( const QString &attribute, const QString &associatedElement, bool &success ) const;
+  QSqlQuery selectAttribute( const QString &attribute, const QString &associatedElement ) const;
+
+  /*! Selects all the known attributes from the database and returns the active query. */
+  QSqlQuery selectAllAttributes() const;
 
   /*! Overloaded for private use. */
   QStringList knownRootElements( QSqlDatabase db ) const;

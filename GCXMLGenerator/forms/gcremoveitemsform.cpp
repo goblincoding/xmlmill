@@ -89,31 +89,23 @@ void GCRemoveItemsForm::populateTreeWidget()
 
 void GCRemoveItemsForm::processNextElement( const QString &element, QTreeWidgetItem *parent )
 {
-  bool success( false );
-  QStringList children = GCDataBaseInterface::instance()->children( element, success );
+  QStringList children = GCDataBaseInterface::instance()->children( element );
 
-  if( success )
+  foreach( QString child, children )
   {
-    foreach( QString child, children )
-    {
-      QTreeWidgetItem *item = new QTreeWidgetItem;
-      item->setText( 0, child );
+    QTreeWidgetItem *item = new QTreeWidgetItem;
+    item->setText( 0, child );
 
-      parent->addChild( item );  // takes ownership
+    parent->addChild( item );  // takes ownership
 
-      /* Since it isn't illegal to have elements with children of the same name, we cannot
+    /* Since it isn't illegal to have elements with children of the same name, we cannot
         block it in the DB, however, if we DO have elements with children of the same name,
         this recursive call enters an infinite loop, so we need to make sure that doesn't
         happen. */
-      if( child != element )
-      {
-        processNextElement( child, item );
-      }
+    if( child != element )
+    {
+      processNextElement( child, item );
     }
-  }
-  else
-  {
-    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
   }
 }
 
@@ -140,40 +132,24 @@ void GCRemoveItemsForm::elementSelected( QTreeWidgetItem *item, int column )
     ui->deleteElementButton->setEnabled( true );
   }
 
-  bool success( false );
-  QStringList attributes = GCDataBaseInterface::instance()->attributes( m_currentElement, success );
+  QStringList attributes = GCDataBaseInterface::instance()->attributes( m_currentElement );
 
-  if( success )
-  {
-    ui->comboBox->clear();
-    ui->comboBox->addItems( attributes );
-  }
-  else
-  {
-    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
-  }
+  ui->comboBox->clear();
+  ui->comboBox->addItems( attributes );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 void GCRemoveItemsForm::attributeActivated( const QString &attribute )
 {
-  bool success( false );
   m_currentAttribute = attribute;
-  QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( m_currentElement, m_currentAttribute, success );
+  QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( m_currentElement, m_currentAttribute );
 
-  if( success )
-  {
-    ui->plainTextEdit->clear();
+  ui->plainTextEdit->clear();
 
-    foreach( QString value, attributeValues )
-    {
-      ui->plainTextEdit->insertPlainText( QString( "%1\n" ).arg( value ) );
-    }
-  }
-  else
+  foreach( QString value, attributeValues )
   {
-    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+    ui->plainTextEdit->insertPlainText( QString( "%1\n" ).arg( value ) );
   }
 }
 
@@ -187,72 +163,57 @@ void GCRemoveItemsForm::deleteElement( const QString &element )
     the first element to be removed is the current one (set in "elementSelected"). */
   QString currentElement = ( element.isEmpty() ) ? m_currentElement : element;
 
-  bool success( false );
-  QStringList children = GCDataBaseInterface::instance()->children( currentElement, success );
+  QStringList children = GCDataBaseInterface::instance()->children( currentElement );
   m_deletedElements.clear();
 
-  if( success )
-  {
-    /* Attributes and values must be removed before we can remove elements and we must also
+  /* Attributes and values must be removed before we can remove elements and we must also
       ensure that children are removed before their parents.  To achieve this, we need to ensure
       that we clean the element tree from "the bottom up". */
-    if( !children.isEmpty() )
+  if( !children.isEmpty() )
+  {
+    foreach( QString child, children )
     {
-      foreach( QString child, children )
-      {
-        deleteElement( child );
-      }
+      deleteElement( child );
     }
+  }
 
-    /* Remove all the attributes (and their known values) associated with this element. */
-    QStringList attributes = GCDataBaseInterface::instance()->attributes( currentElement, success );
+  /* Remove all the attributes (and their known values) associated with this element. */
+  QStringList attributes = GCDataBaseInterface::instance()->attributes( currentElement );
 
-    if( success )
-    {
-      foreach( QString attribute, attributes )
-      {
-        if( !GCDataBaseInterface::instance()->removeAttribute( currentElement, attribute ) )
-        {
-          GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
-        }
-      }
-
-      /* Now we can remove the element itself. */
-      if( !GCDataBaseInterface::instance()->removeElement( currentElement ) )
-      {
-        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
-      }
-      else
-      {
-        m_deletedElements.append( currentElement );
-      }
-
-      /* Check if the user removed a root element. */
-      if( GCDataBaseInterface::instance()->knownRootElements().contains( currentElement ) )
-      {
-        if( !GCDataBaseInterface::instance()->removeRootElement( currentElement ) )
-        {
-          GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
-        }
-      }
-    }
-    else
+  foreach( QString attribute, attributes )
+  {
+    if( !GCDataBaseInterface::instance()->removeAttribute( currentElement, attribute ) )
     {
       GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
     }
-
-    /* Remove the element from all its parents' first level child lists. */
-    updateChildLists();
-
-    ui->comboBox->clear();
-    ui->plainTextEdit->clear();
-    populateTreeWidget();
-    ui->treeWidget->expandAll();
   }
-  else
+
+  /* Now we can remove the element itself. */
+  if( !GCDataBaseInterface::instance()->removeElement( currentElement ) )
   {
     GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
   }
+  else
+  {
+    m_deletedElements.append( currentElement );
+  }
+
+  /* Check if the user removed a root element. */
+  if( GCDataBaseInterface::instance()->knownRootElements().contains( currentElement ) )
+  {
+    if( !GCDataBaseInterface::instance()->removeRootElement( currentElement ) )
+    {
+      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+    }
+  }
+
+  /* Remove the element from all its parents' first level child lists. */
+  updateChildLists();
+
+  ui->comboBox->clear();
+  ui->plainTextEdit->clear();
+  populateTreeWidget();
+  ui->treeWidget->expandAll();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -324,14 +285,13 @@ void GCRemoveItemsForm::deleteAttribute()
 
 void GCRemoveItemsForm::updateChildLists()
 {
-  bool success( false );
   QStringList knownElements = GCDataBaseInterface::instance()->knownElements();
 
   foreach( QString element, knownElements )
   {
-    QStringList children = GCDataBaseInterface::instance()->children( element, success );
+    QStringList children = GCDataBaseInterface::instance()->children( element );
 
-    if( success && !children.isEmpty() )
+    if( !children.isEmpty() )
     {
       foreach( QString deletedElement, m_deletedElements )
       {
@@ -343,10 +303,6 @@ void GCRemoveItemsForm::updateChildLists()
           }
         }
       }
-    }
-    else if( !success )
-    {
-      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
     }
   }
 }
@@ -360,7 +316,7 @@ void GCRemoveItemsForm::showElementHelp()
                             "\"Remove Child\" will remove the currently highlighted element "
                             "from its parent element's child list, i.e. it will only "
                             "affect the relationship between the two elements, the element "
-                            "itself is not deleted in the process. \n\n"
+                            "itself is not deleted in the process and will remain in the profile. \n\n"
                             "\"Delete Element\" will delete the element, the element's children, "
                             "the chlidren's children (etc, etc), its associated attributes, the "
                             "associated attributes of its children (and their children, etc, etc), all "
