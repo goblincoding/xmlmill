@@ -400,6 +400,7 @@ void GCSnippetsForm::updateCheckStates( QTreeWidgetItem *item )
 
     while( parent && parent->checkState( 0 ) != Qt::Checked )
     {
+      const_cast< GCDomElementInfo* >( m_elementInfo.value( parent ) )->setExcludeElement( false );
       parent->setCheckState( 0, Qt::Checked );
       parent = parent->parent();
     }
