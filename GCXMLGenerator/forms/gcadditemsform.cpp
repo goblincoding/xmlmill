@@ -174,7 +174,7 @@ void GCAddItemsForm::showHelp()
                             "Although you can only add one element at a time, you can add all the "
                             "element's attributes in one go: simply stick each of them on a separate "
                             "line in the text edit area and hit \"Add\" when you're done.\n\n"
-                            "(if the element doesn't have associated attributes, just "
+                            "(If the element doesn't have associated attributes, just "
                             "leave the text edit area empty)" );
 }
 

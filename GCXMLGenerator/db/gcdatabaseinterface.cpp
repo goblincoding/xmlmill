@@ -303,6 +303,12 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument *domDoc ) 
 
 bool GCDataBaseInterface::addElement( const QString &element, const QStringList &children, const QStringList &attributes ) const
 {
+  if( element.isEmpty() )
+  {
+    m_lastErrorMsg = QString( "Trying to add an empty element name." );
+    return false;
+  }
+
   QSqlQuery query = selectElement( element );
 
   /* If we don't have an existing record, add it. */
@@ -337,6 +343,12 @@ bool GCDataBaseInterface::addElement( const QString &element, const QStringList 
 
 bool GCDataBaseInterface::addRootElement( const QString &root ) const
 {
+  if( root.isEmpty() )
+  {
+    m_lastErrorMsg = QString( "Trying to add an empty root element name." );
+    return false;
+  }
+
   QSqlQuery query( m_sessionDB );
 
   if( !query.prepare( "SELECT * FROM rootelements WHERE root = ? ") )
@@ -387,6 +399,12 @@ bool GCDataBaseInterface::addRootElement( const QString &root ) const
 
 bool GCDataBaseInterface::updateElementChildren( const QString &element, const QStringList &children ) const
 {
+  if( element.isEmpty() )
+  {
+    m_lastErrorMsg = QString( "Invalid element name provided." );
+    return false;
+  }
+
   QSqlQuery query = selectElement( element );
 
   /* Update the existing record (if we have one). */
@@ -429,6 +447,12 @@ bool GCDataBaseInterface::updateElementChildren( const QString &element, const Q
 
 bool GCDataBaseInterface::updateElementAttributes( const QString &element, const QStringList &attributes ) const
 {
+  if( element.isEmpty() )
+  {
+    m_lastErrorMsg = QString( "Invalid element name provided." );
+    return false;
+  }
+
   QSqlQuery query = selectElement( element );
 
   /* Update the existing record (if we have one). */
@@ -471,6 +495,12 @@ bool GCDataBaseInterface::updateElementAttributes( const QString &element, const
 
 bool GCDataBaseInterface::updateAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const
 {
+  if( element.isEmpty() || attribute.isEmpty() )
+  {
+    m_lastErrorMsg = QString( "Invalid element or attribute values provided." );
+    return false;
+  }
+
   QSqlQuery query = selectAttribute( attribute, element );
 
   /* If we don't have an existing record, add it, otherwise update the existing one. */
@@ -535,6 +565,12 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
 
 bool GCDataBaseInterface::replaceAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const
 {
+  if( element.isEmpty() || attribute.isEmpty() )
+  {
+    m_lastErrorMsg = QString( "Invalid element or attribute values provided." );
+    return false;
+  }
+
   QSqlQuery query = selectAttribute( attribute, element );
 
   /* Only continue if we have an existing record. */

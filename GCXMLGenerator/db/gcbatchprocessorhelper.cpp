@@ -168,7 +168,9 @@ void GCBatchProcessorHelper::sortRecords()
     {
       /* If we only have one entry for this particular element name, we can
         safely insert it into the sorted map. */
-      m_records.insert( element, duplicateRecords.at( 0 ) );
+      ElementRecord record = duplicateRecords.at( 0 );
+      record.children.removeDuplicates();
+      m_records.insert( element, record );
     }
   }
 }
