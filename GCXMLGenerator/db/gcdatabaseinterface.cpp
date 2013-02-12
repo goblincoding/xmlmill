@@ -47,7 +47,7 @@ static const QLatin1String INSERT_ATTRIBUTEVALUES(
     "INSERT INTO xmlattributes( attribute, associatedElement, attributeValues ) VALUES( ?, ?, ? )" );
 
 static const QLatin1String UPDATE_CHILDREN(
-    "UPDATE xmlelements SET children   = ? WHERE element = ?" );
+    "UPDATE xmlelements SET children = ? WHERE element = ?" );
 
 static const QLatin1String UPDATE_ATTRIBUTES(
     "UPDATE xmlelements SET attributes = ? WHERE element = ?" );
@@ -789,6 +789,57 @@ bool GCDataBaseInterface::isUniqueChildElement( const QString &parentElement, co
 
 /*--------------------------------------------------------------------------------------*/
 
+bool GCDataBaseInterface::isDocumentCompatible( const QDomDocument *doc ) const
+{
+  GCBatchProcessorHelper helper( doc,
+                                 SEPARATOR,
+                                 knownElements(),
+                                 knownAttributeKeys() );
+
+  qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+
+  /* If there are any new elements or attributes to add, the document is incompatible. */
+  if( !helper.newAssociatedElementsToAdd().isEmpty() ||
+      !helper.newAttributeKeysToAdd().isEmpty() ||
+      !helper.newAttributeValuesToAdd().isEmpty() ||
+      !helper.newElementAttributesToAdd().isEmpty() ||
+      !helper.newElementChildrenToAdd().isEmpty() ||
+      !helper.newElementsToAdd().isEmpty() )
+  {
+    return false;
+  }
+
+  /* If there are no new items, we may still have previously unknown relationships which we
+    need to check.  This is slightly more involved than simply checking for empty lists.
+    Also remember that the lists returned by GCBatchProcessorHelper are all synchronised
+    with regards to their indices (which is the only reason why we can loop through the
+    lists like this). */
+  for( int i = 0; i < helper.elementsToUpdate().size(); ++i )
+  {
+    /* If any new element children were added, we have an incompatible document. */
+    QStringList knownChildren = children( helper.elementsToUpdate().at( i ).toString() );
+    QStringList allChildren = QStringList() << knownChildren << helper.elementChildrenToUpdate().at( i ).toString().split( SEPARATOR );
+
+    if( allChildren.size() > knownChildren.size() )
+    {
+      return false;
+    }
+
+    /* If any new attributes were added, we also have an incompatible document. */
+    QStringList knownAttributes = attributes( helper.elementsToUpdate().at( i ).toString() );
+    QStringList allAttributes = QStringList() << knownAttributes << helper.elementAttributesToUpdate().at( i ).toString().split( SEPARATOR );
+
+    if( allAttributes.size() > knownAttributes.size() )
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 QStringList GCDataBaseInterface::knownElements() const
 {
   QSqlQuery query = selectAllElements();
@@ -1065,7 +1116,7 @@ bool GCDataBaseInterface::setActiveDatabase( const QString &dbName )
 
 QStringList GCDataBaseInterface::knownAttributeKeys() const
 {
-  QSqlQuery query( m_sessionDB );
+  QSqlQuery query = selectAllAttributes();
 
   m_lastErrorMsg = "";
 
@@ -1175,17 +1226,19 @@ QSqlQuery GCDataBaseInterface::selectAllAttributes() const
 bool GCDataBaseInterface::removeDuplicatesFromFields() const
 {
   /* Remove duplicates and update the element records. */
-  QSqlQuery query = selectAllElements();
+  QStringList elementNames = knownElements();
+  QString element( "" );
 
-  /* Not checking for query validity since the table may still be empty when
-    this funciton gets called (i.e. there is a potentially valid reason for cases
-    where no valid records exist). */
-  while( query.next() )
+  for( int i = 0; i < elementNames.size(); ++i )
   {
-    /* Does a record for this element exist? */
+    element = elementNames.at( i );
+    QSqlQuery query = selectElement( element );
+
+    /* Not checking for query validity since the table may still be empty when
+      this funciton gets called (i.e. there is a potentially valid reason for cases
+      where no valid records exist). */
     if( query.first() )
     {
-      QString element = query.record().field( "element" ).value().toString();
       QStringList allChildren  ( query.record().field( "children" ).value().toString().split( SEPARATOR ) );
       QStringList allAttributes( query.record().field( "attributes" ).value().toString().split( SEPARATOR ) );
 
@@ -1232,18 +1285,20 @@ bool GCDataBaseInterface::removeDuplicatesFromFields() const
   }
 
   /* Remove duplicates and update the attribute values records. */
-  query = selectAllAttributes();
+  QStringList attributeKeys = knownAttributeKeys();
 
   /* Not checking for query validity since the table may still be empty when
     this funciton gets called (i.e. there is a potentially valid reason for cases
     where no valid records exist). */
-  while( query.next() )
+  for( int i = 0; i < attributeKeys.size(); ++i )
   {
+    QString attribute         = attributeKeys.at( i ).split( "!" ).at( 0 );
+    QString associatedElement = attributeKeys.at( i ).split( "!" ).at( 1 );
+    QSqlQuery query = selectAttribute( attribute, associatedElement );
+
     /* Does a record for this attribute exist? */
     if( query.first() )
     {
-      QString associatedElement = query.record().field( "associatedElement" ).value().toString();
-      QString attribute = query.record().field( "attribute" ).value().toString();
       QStringList allValues( query.record().field( "attributeValues" ).value().toString().split( SEPARATOR ) );
 
       if( !query.prepare( UPDATE_ATTRIBUTEVALUES ) )

@@ -163,7 +163,7 @@ public:
       \sa newAssociatedElementsToAdd() */
   const QVariantList &newAttributeValuesToAdd() const;
 
-  /*! Returns a list of all the new attributes that should be added to the database. 
+  /*! Returns a list of all the attribute keys that should be updated.
       \sa associatedElementsToUpdate()
       \sa attributeValuesToUpdate() */
   const QVariantList &attributeKeysToUpdate() const;

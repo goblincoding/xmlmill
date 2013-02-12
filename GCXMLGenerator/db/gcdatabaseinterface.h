@@ -138,6 +138,10 @@ public:
       on any other first level child list). */
   bool isUniqueChildElement( const QString &parentElement, const QString &element ) const;
 
+  /*! Call with the document's root element, recursively scans the document's element hierarchy
+      to ensure that all document elements are known to the active profile. */
+  bool isDocumentCompatible( const QDomDocument *doc ) const;
+
   /*! Returns a sorted (case sensitive, ascending) list of all the element names known to
       the current database connection (the active session). */
   QStringList knownElements() const;

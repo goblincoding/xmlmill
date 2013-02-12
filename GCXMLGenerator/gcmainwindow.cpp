@@ -615,16 +615,15 @@ bool GCMainWindow::openXMLFile()
   m_currentXMLFileName = fileName;
   m_fileContentsChanged = false;    // at first load, nothing has changed
 
-  /* If the user is opening an XML file of a kind that isn't supported by the current active DB,
-    we need to warn him/her of this fact and provide them with a couple of options. */
-  if( !GCDataBaseInterface::instance()->knownRootElements().contains( m_domDoc->documentElement().tagName() ) )
+  if( !m_busyImporting )
   {
-    /* If we're not already busy importing an XML file, check if the user maybe wants to do so. */
-    if( !m_busyImporting )
+    /* If the user is opening an XML file of a kind that isn't supported by the current active DB,
+        we need to warn him/her of this fact and provide them with a couple of options. */
+    if( !GCDataBaseInterface::instance()->isDocumentCompatible( m_domDoc ) )
     {
       bool accepted = GCMessageSpace::userAccepted( "QueryImportXML",
                                                     "Import document?",
-                                                    "Unknown XML - import to active profile?",
+                                                    "Incompatible document - import differences to active profile?",
                                                     GCMessageSpace::YesNo,
                                                     GCMessageSpace::No,
                                                     GCMessageSpace::Question );
@@ -654,13 +653,10 @@ bool GCMainWindow::openXMLFile()
         m_currentXMLFileName = "";
       }
     }
-  }
-  else
-  {
-    /* If the user selected a database that knows of this particular XML profile,
-      simply process the document. */
-    if( !m_busyImporting )
+    else
     {
+      /* If the user selected a database that knows of this particular XML profile,
+          simply process the document. */
       processDOMDoc();
     }
   }
