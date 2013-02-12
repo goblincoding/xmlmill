@@ -302,6 +302,9 @@ void GCSnippetsForm::addSnippet()
 
             element.setAttribute( attr.name(), attributeValue );
           }
+
+          /* This call does nothing if the attribute value already exists. */
+          GCDataBaseInterface::instance()->updateAttributeValues( elementName, attr.name(), QStringList( attributeValue ) );
         }
       }
 
