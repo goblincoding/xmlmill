@@ -164,6 +164,7 @@ private slots:
       \sa newXMLFile
       \sa saveXMLFile
       \sa saveXMLFileAs
+      \sa closeXMLFile
       \sa importXMLFromFile */
   bool openXMLFile();
 
@@ -171,6 +172,7 @@ private slots:
       \sa openXMLFile
       \sa saveXMLFile
       \sa saveXMLFileAs
+      \sa closeXMLFile
       \sa importXMLFromFile */
   void newXMLFile();
 
@@ -180,16 +182,27 @@ private slots:
       \sa newXMLFile
       \sa openXMLFile
       \sa saveXMLFileAs
+      \sa closeXMLFile
       \sa importXMLFromFile */
-  void saveXMLFile();
+  bool saveXMLFile();
 
   /*! Triggered whenever the user explicitly wishes to save the current document with a specific
       name and also whenever the file save operation is requested without an active document name.
+      Returns "false" when the file save operation is unsuccessful OR cancelled.
       \sa newXMLFile
       \sa saveXMLFile
       \sa openXMLFile
+      \sa closeXMLFile
       \sa importXMLFromFile */
-  void saveXMLFileAs();
+  bool saveXMLFileAs();
+
+  /*! Triggered whenever the user explicitly wishes to close the current document.
+      \sa newXMLFile
+      \sa saveXMLFile
+      \sa saveXMLFileAs
+      \sa openXMLFile
+      \sa importXMLFromFile */
+  void closeXMLFile();
 
   /*! Saves a temporary file at 5 min intervals (when an active file is being edited) for auto-recovery purposes.
       \sa deleteTempFile */

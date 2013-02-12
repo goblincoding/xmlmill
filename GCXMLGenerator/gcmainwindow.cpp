@@ -100,7 +100,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionOpen, SIGNAL( triggered() ), this, SLOT( openXMLFile() ) );
   connect( ui->actionSave, SIGNAL( triggered() ), this, SLOT( saveXMLFile() ) );
   connect( ui->actionSaveAs, SIGNAL( triggered() ), this, SLOT( saveXMLFileAs() ) );
-  connect( ui->actionCloseFile, SIGNAL( triggered() ), this, SLOT( resetDOM() ) );
+  connect( ui->actionCloseFile, SIGNAL( triggered() ), this, SLOT( closeXMLFile() ) );
 
   /* Build/Edit XML. */
   connect( ui->deleteElementButton, SIGNAL( clicked() ), this, SLOT( deleteElementFromDocument() ) );
@@ -406,6 +406,13 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *item )
     a re-population of the table widget (which results in this slot being called). */
   if( !m_wasTreeItemActivated && !m_newAttributeAdded )
   {
+    /* Also don't allow for empty attribute names. */
+    if( item->text().isEmpty() )
+    {
+      item->setText( m_activeAttributeName );
+      return;
+    }
+
     /* When the check state of a table widget item changes, the "itemChanged" signal is emitted
       before the "itemClicked" one and this messes up the logic that follows completely.  Since
       I depend on knowing which attribute is currently active, I needed to insert the following
@@ -677,11 +684,11 @@ void GCMainWindow::newXMLFile()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::saveXMLFile()
+bool GCMainWindow::saveXMLFile()
 {
   if( m_currentXMLFileName.isEmpty() )
   {
-    saveXMLFileAs();
+    return saveXMLFileAs();
   }
   else
   {
@@ -693,6 +700,7 @@ void GCMainWindow::saveXMLFile()
                        .arg( m_currentXMLFileName )
                        .arg( file.errorString() );
       GCMessageSpace::showErrorMessageBox( this, errMsg );
+      return false;
     }
     else
     {
@@ -705,11 +713,13 @@ void GCMainWindow::saveXMLFile()
       startSaveTimer();
     }
   }
+
+  return true;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::saveXMLFileAs()
+bool GCMainWindow::saveXMLFileAs()
 {
   QString file = QFileDialog::getSaveFileName( this, "Save As", QDir::homePath(), "XML Files (*.*)" );
 
@@ -717,7 +727,23 @@ void GCMainWindow::saveXMLFileAs()
   if( !file.isEmpty() )
   {
     m_currentXMLFileName = file;
-    saveXMLFile();
+    return saveXMLFile();
+  }
+  else
+  {
+    /* Return false when the file save operation is cancelled so that "queryResetDom" does
+      not inadvertently caused a file to be reset by accident when the user changes his/her mind. */
+    return false;
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::closeXMLFile()
+{
+  if( queryResetDOM( "Save document before continuing?" ) )
+  {
+    resetDOM();
   }
 }
 
@@ -1342,7 +1368,7 @@ bool GCMainWindow::queryResetDOM( const QString &resetReason )
 
     if( accept == QMessageBox::Yes )
     {
-      saveXMLFile();
+      return saveXMLFile();
     }
     else if( accept == QMessageBox::No )
     {
