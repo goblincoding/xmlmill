@@ -171,8 +171,7 @@ void GCDBSessionManager::showHelp()
 {
   QMessageBox::information( this,
                             "How this works...",
-                            "Currently you don't have any known profiles. Profiles are used "
-                            "to store information about XML files, so please: \n\n"
+                            "Profiles are used to store information about XML files, so please: \n\n"
                             "1. Create a new profile for the type of XML you are going to work with (I suggest "
                             "using a name that closely resembles the XML files it will represent), or\n"
                             "2. Add an existing profile(s) if you have any.");

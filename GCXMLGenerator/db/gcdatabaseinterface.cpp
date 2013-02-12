@@ -305,12 +305,6 @@ bool GCDataBaseInterface::addElement( const QString &element, const QStringList 
 {
   QSqlQuery query = selectElement( element );
 
-  if( !query.isValid() )
-  {
-    /* The last error message has been set in selectElement. */
-    return false;
-  }
-
   /* If we don't have an existing record, add it. */
   if( !query.first() )
   {
@@ -395,12 +389,6 @@ bool GCDataBaseInterface::updateElementChildren( const QString &element, const Q
 {
   QSqlQuery query = selectElement( element );
 
-  if( !query.isValid() )
-  {
-    /* The last error message has been set in selectElement. */
-    return false;
-  }
-
   /* Update the existing record (if we have one). */
   if( query.first() )
   {
@@ -443,12 +431,6 @@ bool GCDataBaseInterface::updateElementAttributes( const QString &element, const
 {
   QSqlQuery query = selectElement( element );
 
-  if( !query.isValid() )
-  {
-    /* The last error message has been set in selectElement. */
-    return false;
-  }
-
   /* Update the existing record (if we have one). */
   if( query.first() )
   {
@@ -490,12 +472,6 @@ bool GCDataBaseInterface::updateElementAttributes( const QString &element, const
 bool GCDataBaseInterface::updateAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const
 {
   QSqlQuery query = selectAttribute( attribute, element );
-
-  if( !query.isValid() )
-  {
-    /* The last error message has been set in selectElement. */
-    return false;
-  }
 
   /* If we don't have an existing record, add it, otherwise update the existing one. */
   if( !query.first() )
@@ -561,12 +537,6 @@ bool GCDataBaseInterface::replaceAttributeValues( const QString &element, const 
 {
   QSqlQuery query = selectAttribute( attribute, element );
 
-  if( !query.isValid() )
-  {
-    /* The last error message has been set in selectElement. */
-    return false;
-  }
-
   /* Only continue if we have an existing record. */
   if( query.first() )
   {
@@ -606,12 +576,6 @@ bool GCDataBaseInterface::removeElement( const QString &element ) const
 {
   QSqlQuery query = selectElement( element );
 
-  if( !query.isValid() )
-  {
-    /* The last error message has been set in selectElement. */
-    return false;
-  }
-
   /* Only continue if we have an existing record. */
   if( query.first() )
   {
@@ -648,12 +612,6 @@ bool GCDataBaseInterface::removeChildElement( const QString &element, const QStr
     this approach and see if I can't refactor these functions somehow. */
   QSqlQuery query = selectElement( element );
 
-  if( !query.isValid() )
-  {
-    /* The last error message has been set in selectElement. */
-    return false;
-  }
-
   /* Update the existing record (if we have one). */
   if( query.first() )
   {
@@ -689,12 +647,6 @@ bool GCDataBaseInterface::removeChildElement( const QString &element, const QStr
 bool GCDataBaseInterface::removeAttribute( const QString &element, const QString &attribute ) const
 {    
   QSqlQuery query = selectAttribute( attribute, element );
-
-  if( !query.isValid() )
-  {
-    /* The last error message has been set in selectElement. */
-    return false;
-  }
 
   /* Only continue if we have an existing record. */
   if( query.first() )
@@ -805,12 +757,6 @@ QStringList GCDataBaseInterface::knownElements() const
 {
   QSqlQuery query = selectAllElements();
 
-  if( !query.isValid() )
-  {
-    /* Last error set in selectAllElements. */
-    return QStringList();
-  }
-
   m_lastErrorMsg = "";
 
   QStringList elementNames;
@@ -832,7 +778,7 @@ QStringList GCDataBaseInterface::children( const QString &element ) const
   QSqlQuery query = selectElement( element );
 
   /* There should be only one record corresponding to this element. */
-  if( !query.isValid() || !query.first() )
+  if( !query.first() )
   {
     m_lastErrorMsg = QString( "Failed to obtain the list of children for element \"%1\"" )
         .arg( element );
@@ -854,7 +800,7 @@ QStringList GCDataBaseInterface::attributes( const QString &element ) const
   QSqlQuery query = selectElement( element );
 
   /* There should be only one record corresponding to this element. */
-  if( !query.isValid() || !query.first() )
+  if( !query.first() )
   {
     m_lastErrorMsg = QString( "Failed to obtain the list of attributes for element \"%1\"" )
         .arg( element );
@@ -875,7 +821,7 @@ QStringList GCDataBaseInterface::attributeValues( const QString &element, const 
   QSqlQuery query = selectAttribute( attribute, element );
 
   /* There should be only one record corresponding to this element. */
-  if( !query.isValid() || !query.first() )
+  if( !query.first() )
   {
     m_lastErrorMsg = QString( "Failed to obtain the list of attribute values for attribute \"%1\"" )
         .arg( attribute );
@@ -1085,12 +1031,6 @@ QStringList GCDataBaseInterface::knownAttributeKeys() const
 {
   QSqlQuery query( m_sessionDB );
 
-  if( !query.isValid() )
-  {
-    /* Last error set in selectAllAttributes. */
-    return QStringList();
-  }
-
   m_lastErrorMsg = "";
 
   QStringList attributeNames;
@@ -1201,12 +1141,9 @@ bool GCDataBaseInterface::removeDuplicatesFromFields() const
   /* Remove duplicates and update the element records. */
   QSqlQuery query = selectAllElements();
 
-  if( !query.isValid() )
-  {
-    /* Last error set in selectAllElements. */
-    return false;
-  }
-
+  /* Not checking for query validity since the table may still be empty when
+    this funciton gets called (i.e. there is a potentially valid reason for cases
+    where no valid records exist). */
   while( query.next() )
   {
     /* Does a record for this element exist? */
@@ -1261,12 +1198,9 @@ bool GCDataBaseInterface::removeDuplicatesFromFields() const
   /* Remove duplicates and update the attribute values records. */
   query = selectAllAttributes();
 
-  if( !query.isValid() )
-  {
-    /* Last error set in selectAllAttributes. */
-    return false;
-  }
-
+  /* Not checking for query validity since the table may still be empty when
+    this funciton gets called (i.e. there is a potentially valid reason for cases
+    where no valid records exist). */
   while( query.next() )
   {
     /* Does a record for this attribute exist? */
