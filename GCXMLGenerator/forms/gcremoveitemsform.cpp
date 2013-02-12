@@ -173,7 +173,10 @@ void GCRemoveItemsForm::deleteElement( const QString &element )
   {
     foreach( QString child, children )
     {
-      deleteElement( child );
+      if( GCDataBaseInterface::instance()->isUniqueChildElement( currentElement, child ) )
+      {
+        deleteElement( child );
+      }
     }
   }
 
