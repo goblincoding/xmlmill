@@ -798,10 +798,11 @@ bool GCDataBaseInterface::isDocumentCompatible( const QDomDocument *doc ) const
 
   qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
 
-  /* If there are any new elements or attributes to add, the document is incompatible. */
+  /* If there are any new elements or attributes to add, the document is incompatible (not checking
+    for new attribute values since new values don't affect XML relationships, i.e. it isn't important
+    enough to import entire documents each time an unknown value is encountered) */
   if( !helper.newAssociatedElementsToAdd().isEmpty() ||
       !helper.newAttributeKeysToAdd().isEmpty() ||
-      !helper.newAttributeValuesToAdd().isEmpty() ||
       !helper.newElementAttributesToAdd().isEmpty() ||
       !helper.newElementChildrenToAdd().isEmpty() ||
       !helper.newElementsToAdd().isEmpty() )
@@ -819,7 +820,9 @@ bool GCDataBaseInterface::isDocumentCompatible( const QDomDocument *doc ) const
     /* If any new element children were added, we have an incompatible document. */
     QStringList knownChildren = children( helper.elementsToUpdate().at( i ).toString() );
     QStringList allChildren = QStringList() << knownChildren << helper.elementChildrenToUpdate().at( i ).toString().split( SEPARATOR );
+    cleanList( allChildren );
 
+    /* Check for larger since we only care about added items. */
     if( allChildren.size() > knownChildren.size() )
     {
       return false;
@@ -828,6 +831,7 @@ bool GCDataBaseInterface::isDocumentCompatible( const QDomDocument *doc ) const
     /* If any new attributes were added, we also have an incompatible document. */
     QStringList knownAttributes = attributes( helper.elementsToUpdate().at( i ).toString() );
     QStringList allAttributes = QStringList() << knownAttributes << helper.elementAttributesToUpdate().at( i ).toString().split( SEPARATOR );
+    cleanList( allAttributes );
 
     if( allAttributes.size() > knownAttributes.size() )
     {
