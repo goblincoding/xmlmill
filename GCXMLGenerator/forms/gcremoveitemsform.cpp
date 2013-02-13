@@ -321,12 +321,12 @@ void GCRemoveItemsForm::showElementHelp()
                             "affect the relationship between the two elements, the element "
                             "itself is not deleted in the process and will remain in the profile. \n\n"
                             "\"Delete Element\" will delete the element, the element's children, "
-                            "the chlidren's children (etc, etc), its associated attributes, the "
+                            "the children's children (etc, etc), its associated attributes, the "
                             "associated attributes of its children (and their children, etc, etc), all "
                             "the known values for all the attributes thus deleted and finally also "
                             "remove the element (and its children and the children's children, etc etc) "
                             "from every single child list that contains it.\n\n"
-                            "Intense, right? And no, none of this can be undone. " );
+                            "None of this can be undone. " );
 }
 
 /*--------------------------------------------------------------------------------------*/

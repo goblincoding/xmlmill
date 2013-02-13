@@ -1110,7 +1110,7 @@ void GCMainWindow::insertSnippet( const QDomElement *element )
   /* Since we directly manipulated the existing DOM through the "insert snippets" form,
     all we have to do here is to update the tree and the text edit. */
   processDOMDoc();
-  elementFound( *element );
+  elementFound( element->lastChildElement() );
   m_fileContentsChanged = true;
 }
 

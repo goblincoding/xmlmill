@@ -316,7 +316,7 @@ void GCSnippetsForm::addSnippet()
   }
 
   m_parentElement->appendChild( doc.documentElement().cloneNode() );
-  emit snippetAdded( &m_parentElement->lastChildElement() );
+  emit snippetAdded( m_parentElement );
 }
 
 /*--------------------------------------------------------------------------------------*/
