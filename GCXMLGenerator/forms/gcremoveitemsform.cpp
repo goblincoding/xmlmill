@@ -57,7 +57,6 @@ GCRemoveItemsForm::GCRemoveItemsForm( QWidget *parent ) :
   connect( ui->comboBox,   SIGNAL( currentIndexChanged( QString ) ),      this, SLOT( attributeActivated( QString ) ) );
 
   populateTreeWidget();
-  ui->treeWidget->expandAll();
 
   setAttribute( Qt::WA_DeleteOnClose );
 }
@@ -83,6 +82,8 @@ void GCRemoveItemsForm::populateTreeWidget()
     ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
     processNextElement( element, item );
   }
+
+  ui->treeWidget->expandAll();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -216,7 +217,6 @@ void GCRemoveItemsForm::deleteElement( const QString &element )
   ui->comboBox->clear();
   ui->plainTextEdit->clear();
   populateTreeWidget();
-  ui->treeWidget->expandAll();
 }
 
 /*--------------------------------------------------------------------------------------*/
