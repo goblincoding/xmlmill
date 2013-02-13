@@ -282,7 +282,7 @@ private slots:
       \sa addElementToDocument
       \sa addSnippetToDocument
       \sa deleteElementFromDocument */
-  void insertSnippet();
+  void insertSnippet( const QDomElement *element );
 
   /*! Triggered by the "Remove Items" UI action. This function creates and displays an instance of
       GCRemoveItemsForm to allow the user to remove elements and/or attributes from the active database.

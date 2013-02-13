@@ -214,7 +214,7 @@ void GCSnippetsForm::addSnippet()
 {
   /* Create a duplicate DOM doc so that we do not remove the elements in their
     entirety...when the user changes the snippet structure, the original DOM must
-    be accessible (the DOM containing all known elements). */
+    still be accessible (the DOM containing all known elements). */
   QDomDocument doc = m_domDoc.cloneNode().toDocument();
   QStringList elementNames;
 
@@ -222,7 +222,7 @@ void GCSnippetsForm::addSnippet()
   {
     if( m_elementInfo.value( item )->elementExcluded() )
     {
-      /* There will only ever be one element with this name the way this class has been implemented. */
+      /* The way this class has been implemented there will only ever be one element with this name. */
       QDomNode parent = doc.elementsByTagName( m_treeItemNodes.value( item ).tagName() ).at( 0 ).parentNode();
       parent.removeChild( doc.elementsByTagName( m_treeItemNodes.value( item ).tagName() ).at( 0 ) );
     }
@@ -312,11 +312,11 @@ void GCSnippetsForm::addSnippet()
       {
         element.removeAttribute( attribute );
       }
-    }
-
-    m_parentElement->appendChild( doc.documentElement().cloneNode() );
-    emit snippetAdded();
+    }    
   }
+
+  m_parentElement->appendChild( doc.documentElement().cloneNode() );
+  emit snippetAdded( &m_parentElement->lastChildElement() );
 }
 
 /*--------------------------------------------------------------------------------------*/

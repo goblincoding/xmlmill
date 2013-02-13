@@ -78,7 +78,7 @@ signals:
   /*! Informs the listener that a new snippet has been added.  Since we're manipulating the DOM directly,
       this ensures that other GUI forms using the DOM document is made aware of the fact that the document
       has changed. */
-  void snippetAdded();
+  void snippetAdded( const QDomElement* );
 
 private slots:
   /*! Triggered when an element is selected in the tree widget.  This function populates the attributes

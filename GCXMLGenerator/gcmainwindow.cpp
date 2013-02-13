@@ -1089,7 +1089,7 @@ void GCMainWindow::addSnippetToDocument()
     GCSnippetsForm *dialog = new GCSnippetsForm( elementName.remove( QRegExp( "<|>" ) ),
                                                  m_treeItemNodes.value( ui->treeWidget->currentItem()->parent() ),
                                                  this );
-    connect( dialog, SIGNAL( snippetAdded() ), this, SLOT( insertSnippet() ) );
+    connect( dialog, SIGNAL( snippetAdded( const QDomElement* ) ), this, SLOT( insertSnippet( const QDomElement* ) ) );
     dialog->exec();
   }
   else
@@ -1098,18 +1098,20 @@ void GCMainWindow::addSnippetToDocument()
     GCSnippetsForm *dialog = new GCSnippetsForm( elementName,
                                                  m_treeItemNodes.value( ui->treeWidget->currentItem() ),
                                                  this );
-    connect( dialog, SIGNAL( snippetAdded() ), this, SLOT( insertSnippet() ) );
+    connect( dialog, SIGNAL( snippetAdded( const QDomElement* ) ), this, SLOT( insertSnippet( const QDomElement* ) ) );
     dialog->exec();
   }
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::insertSnippet()
+void GCMainWindow::insertSnippet( const QDomElement *element )
 {
   /* Since we directly manipulated the existing DOM through the "insert snippets" form,
     all we have to do here is to update the tree and the text edit. */
   processDOMDoc();
+  elementFound( *element );
+  m_fileContentsChanged = true;
 }
 
 /*--------------------------------------------------------------------------------------*/
