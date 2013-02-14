@@ -32,7 +32,7 @@
 #include <QSettings>
 
 #include "gcmainwindow.h"
-#include "utils/gcglobals.h"
+#include "utils/gcglobalspace.h"
 
 /*--------------------------------------------------------------------------------------*/
 
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 {
   QApplication a(argc, argv);
 
-  QSettings settings( ORGANISATION, APPLICATION );
+  QSettings settings( GCGlobalSpace::ORGANISATION, GCGlobalSpace::APPLICATION );
   QVariant useDark = settings.value( "useDarkTheme", false );
 
   if( useDark.toBool() )

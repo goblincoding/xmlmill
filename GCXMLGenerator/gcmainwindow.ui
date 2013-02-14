@@ -21,7 +21,7 @@
    <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_2">
+   <layout class="QHBoxLayout" name="centralLayout">
     <item>
      <widget class="QFrame" name="frame">
       <property name="frameShape">
@@ -30,9 +30,9 @@
       <property name="frameShadow">
        <enum>QFrame::Sunken</enum>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <layout class="QVBoxLayout" name="mainFrameLayout">
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
+        <layout class="QHBoxLayout" name="elementComboLayout">
          <item>
           <widget class="QComboBox" name="addElementComboBox">
            <property name="sizePolicy">
@@ -58,7 +58,18 @@
           </widget>
          </item>
          <item>
-          <widget class="QToolButton" name="emptyProfileHelpButton">
+          <widget class="QToolButton" name="showAddElementHelpButton">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="resources/gcresources.qrc">
+             <normaloff>:/resources/helpicon.png</normaloff>:/resources/helpicon.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="showEmptyProfileHelpButton">
            <property name="text">
             <string/>
            </property>
@@ -71,7 +82,7 @@
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <layout class="QHBoxLayout" name="addCommentLayout">
          <item>
           <widget class="QLineEdit" name="commentLineEdit">
            <property name="toolTip">
@@ -173,7 +184,7 @@
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="buildXMLAddDeleteLayout">
+        <layout class="QHBoxLayout" name="removeElementLayout">
          <item>
           <widget class="QCheckBox" name="expandAllCheckBox">
            <property name="text">
@@ -195,7 +206,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="deleteElementButton">
+          <widget class="QPushButton" name="removeElementButton">
            <property name="text">
             <string>Remove Highlighted Element</string>
            </property>
@@ -266,9 +277,11 @@
     <property name="title">
      <string>&amp;Options</string>
     </property>
-    <addaction name="actionForgetPreferences"/>
     <addaction name="actionRememberWindowGeometry"/>
+    <addaction name="actionShowHelpButtons"/>
     <addaction name="actionUseDarkTheme"/>
+    <addaction name="separator"/>
+    <addaction name="actionForgetPreferences"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -320,9 +333,9 @@
     <number>2</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
-    <layout class="QVBoxLayout" name="verticalLayout_3">
+    <layout class="QVBoxLayout" name="dockWidgetMainLayout">
      <item>
-      <widget class="QFrame" name="frame_2">
+      <widget class="QFrame" name="dockWidgetFrame">
        <property name="sizePolicy">
         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -335,7 +348,7 @@
        <property name="frameShadow">
         <enum>QFrame::Plain</enum>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <layout class="QVBoxLayout" name="dockWidgetFrameLayout">
         <item>
          <widget class="QPlainTextEdit" name="dockWidgetTextEdit">
           <property name="sizePolicy">
@@ -410,7 +423,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QToolButton" name="domEditHelpButton">
+           <widget class="QToolButton" name="showDomEditHelpButton">
             <property name="text">
              <string/>
             </property>
@@ -757,6 +770,17 @@
     <string>Use Dark Theme</string>
    </property>
   </action>
+  <action name="actionShowHelpButtons">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Help Buttons</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
@@ -765,11 +789,11 @@
   <tabstop>treeWidget</tabstop>
   <tabstop>tableWidget</tabstop>
   <tabstop>expandAllCheckBox</tabstop>
-  <tabstop>deleteElementButton</tabstop>
+  <tabstop>removeElementButton</tabstop>
   <tabstop>dockWidgetTextEdit</tabstop>
   <tabstop>textSaveButton</tabstop>
   <tabstop>textRevertButton</tabstop>
-  <tabstop>domEditHelpButton</tabstop>
+  <tabstop>showDomEditHelpButton</tabstop>
  </tabstops>
  <resources>
   <include location="resources/gcresources.qrc"/>

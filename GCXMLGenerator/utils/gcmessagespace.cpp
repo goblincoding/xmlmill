@@ -28,7 +28,7 @@
 
 #include "gcmessagespace.h"
 #include "ui_gcmessagedialog.h"
-#include "utils/gcglobals.h"
+#include "utils/gcglobalspace.h"
 
 #include <QSettings>
 #include <QDialog>
@@ -148,7 +148,7 @@ namespace GCMessageSpace
   /* Hides our "member" variables. */
   namespace
   {
-    QSettings settings( ORGANISATION, APPLICATION );
+    QSettings settings( GCGlobalSpace::ORGANISATION, GCGlobalSpace::APPLICATION );
     bool settingsInitialised( false );
   }
 

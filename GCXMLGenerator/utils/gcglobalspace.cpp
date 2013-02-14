@@ -26,31 +26,25 @@
  *                    <http://www.gnu.org/licenses/>
  */
 
-#ifndef GCGLOBALS_H
-#define GCGLOBALS_H
+#include "utils/gcglobalspace.h"
+#include <QSettings>
 
-#include <QString>
-#include <QFile>
-#include <QTextStream>
+namespace GCGlobalSpace
+{
+  namespace
+  {
+    const QString HELP = "showHelpButtons";
+  }
 
-/// Contains values used throughout the application.
+  bool showHelpButtons()
+  {
+    QSettings settings( GCGlobalSpace::ORGANISATION, GCGlobalSpace::APPLICATION );
+    return settings.value( HELP, true ).toBool();
+  }
 
-/*--------------------------------------------------------------------------------------*/
-
-/*! Used when saving and loading settings to registry/XML/ini, used in GCMainWindow and GCMessageSpace. */
-const QString ORGANISATION = "William Hallatt";
-
-/*! Used when saving and loading settings to registry/XML/ini, used in GCMainWindow and GCMessageSpace. */
-const QString APPLICATION  = "XML Mill";
-
-/*--------------------------------------------------------------------------------------*/
-
-/*! Default font when displaying XML content, used in GCMainWindow and GCRestoreFilesForm. */
-const QString FONT = "Courier New";
-
-/*! Default font when displaying XML content, used in GCMainWindow and GCRestoreFilesForm. */
-const int FONTSIZE = 10;
-
-/*--------------------------------------------------------------------------------------*/
-
-#endif // GCGLOBALS_H
+  void setShowHelpButtons( bool show )
+  {
+    QSettings settings( GCGlobalSpace::ORGANISATION, GCGlobalSpace::APPLICATION );
+    settings.setValue( HELP, show );
+  }
+}

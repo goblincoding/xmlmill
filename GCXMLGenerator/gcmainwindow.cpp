@@ -40,7 +40,7 @@
 #include "utils/gccombobox.h"
 #include "utils/gcmessagespace.h"
 #include "utils/gcdomelementinfo.h"
-#include "utils/gcglobals.h"
+#include "utils/gcglobalspace.h"
 
 #include <QDesktopServices>
 #include <QSignalMapper>
@@ -92,8 +92,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_comboBoxes          ()
 {
   ui->setupUi( this );
-  ui->emptyProfileHelpButton->setVisible( false );
-  ui->dockWidgetTextEdit->setFont( QFont( FONT, FONTSIZE ) );
+  ui->showEmptyProfileHelpButton->setVisible( false );
+  ui->dockWidgetTextEdit->setFont( QFont( GCGlobalSpace::FONT, GCGlobalSpace::FONTSIZE ) );
 
   /* XML File related. */
   connect( ui->actionNew, SIGNAL( triggered() ), this, SLOT( newXMLFile() ) );
@@ -103,12 +103,12 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionCloseFile, SIGNAL( triggered() ), this, SLOT( closeXMLFile() ) );
 
   /* Build/Edit XML. */
-  connect( ui->deleteElementButton, SIGNAL( clicked() ), this, SLOT( deleteElementFromDocument() ) );
+  connect( ui->removeElementButton, SIGNAL( clicked() ), this, SLOT( deleteElementFromDocument() ) );
   connect( ui->addChildElementButton, SIGNAL( clicked() ), this, SLOT( addElementToDocument() ) );
   connect( ui->addSnippetButton, SIGNAL( clicked() ), this, SLOT( addSnippetToDocument() ) );
   connect( ui->textSaveButton, SIGNAL( clicked() ), this, SLOT( saveDirectEdit() ) );
   connect( ui->textRevertButton, SIGNAL( clicked() ), this, SLOT( revertDirectEdit() ) );
-  connect( ui->domEditHelpButton, SIGNAL( clicked() ), this, SLOT( showDOMEditHelp() ) );
+  connect( ui->showDomEditHelpButton, SIGNAL( clicked() ), this, SLOT( showDOMEditHelp() ) );
 
   /* Various other actions. */
   connect( ui->actionExit, SIGNAL( triggered() ), this, SLOT( close() ) );
@@ -118,10 +118,11 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionVisitOfficialSite, SIGNAL( triggered() ), this, SLOT( goToSite() ) );
   connect( ui->expandAllCheckBox, SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
   connect( ui->wrapTextCheckBox, SIGNAL( clicked( bool ) ), this, SLOT( wrapText( bool ) ) );
-  connect( ui->emptyProfileHelpButton, SIGNAL( clicked() ), this, SLOT( showEmptyProfileHelp() ) );
+  connect( ui->showEmptyProfileHelpButton, SIGNAL( clicked() ), this, SLOT( showEmptyProfileHelp() ) );
   connect( ui->showCommentHelpButton, SIGNAL( clicked() ), this, SLOT( showCommentHelp() ) );
   connect( ui->commentLineEdit, SIGNAL( returnPressed() ), this, SLOT( addComment() ) );
   connect( ui->actionUseDarkTheme, SIGNAL( triggered( bool ) ), this, SLOT( useDarkTheme( bool ) ) );
+  connect( ui->actionShowHelpButtons, SIGNAL( triggered( bool ) ), this, SLOT( setShowHelpButtons( bool ) ) );
 
   /* Everything tree widget related. */
   connect( ui->treeWidget, SIGNAL( itemClicked ( QTreeWidgetItem*, int ) ), this, SLOT( elementSelected( QTreeWidgetItem*, int ) ) );
@@ -1476,6 +1477,16 @@ void GCMainWindow::useDarkTheme( bool dark )
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCMainWindow::setShowHelpButtons( bool show )
+{
+  GCGlobalSpace::setShowHelpButtons( show );
+  ui->showAddElementHelpButton->setVisible( show );
+  ui->showCommentHelpButton->setVisible( show );
+  ui->showDomEditHelpButton->setVisible( show );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 GCDBSessionManager *GCMainWindow::createDBSessionManager()
 {
   /* Clean-up is the responsibility of the calling function. */
@@ -1708,11 +1719,11 @@ void GCMainWindow::toggleAddElementWidgets()
       being active. */
     if( GCDataBaseInterface::instance()->profileEmpty() )
     {
-      ui->emptyProfileHelpButton->setVisible( true );
+      ui->showEmptyProfileHelpButton->setVisible( true );
     }
     else
     {
-      ui->emptyProfileHelpButton->setVisible( false );
+      ui->showEmptyProfileHelpButton->setVisible( false );
     }
   }
   else
@@ -1721,7 +1732,7 @@ void GCMainWindow::toggleAddElementWidgets()
     ui->addChildElementButton->setEnabled( true );
     ui->commentLineEdit->setEnabled( true );
     ui->showCommentHelpButton->setEnabled( true );
-    ui->emptyProfileHelpButton->setVisible( false );
+    ui->showEmptyProfileHelpButton->setVisible( false );
   }
 }
 
@@ -1742,26 +1753,22 @@ void GCMainWindow::querySetActiveSession( QString reason )
 
 void GCMainWindow::readSettings()
 {
-  QSettings settings( ORGANISATION, APPLICATION );
+  QSettings settings( GCGlobalSpace::ORGANISATION, GCGlobalSpace::APPLICATION );
   restoreGeometry( settings.value( "geometry" ).toByteArray() );
   restoreState( settings.value( "windowState" ).toByteArray() );
 
-  if( settings.contains( "saveWindowInformation" ) )
-  {
-    ui->actionRememberWindowGeometry->setChecked( settings.value( "saveWindowInformation" ).toBool() );
-  }
+  setShowHelpButtons( GCGlobalSpace::showHelpButtons() );
 
-  if( settings.contains( "useDarkTheme" ) )
-  {
-    ui->actionUseDarkTheme->setChecked( settings.value( "useDarkTheme" ).toBool() );
-  }
+  ui->actionRememberWindowGeometry->setChecked( settings.value( "saveWindowInformation", true ).toBool() );
+  ui->actionUseDarkTheme->setChecked( settings.value( "useDarkTheme", false ).toBool() );
+  ui->actionShowHelpButtons->setChecked( GCGlobalSpace::showHelpButtons() );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 void GCMainWindow::saveSettings()
 {
-  QSettings settings( ORGANISATION, APPLICATION );
+  QSettings settings( GCGlobalSpace::ORGANISATION, GCGlobalSpace::APPLICATION );
 
   if( ui->actionRememberWindowGeometry->isChecked() )
   {

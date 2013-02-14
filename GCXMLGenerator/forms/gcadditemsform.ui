@@ -133,7 +133,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QToolButton" name="helpToolButton">
+          <widget class="QToolButton" name="showHelpButton">
            <property name="whatsThis">
             <string>Display a detailed &quot;How To&quot;.</string>
            </property>

@@ -30,6 +30,7 @@
 #include "ui_gcadditemsform.h"
 #include "db/gcdatabaseinterface.h"
 #include "utils/gcmessagespace.h"
+#include "utils/gcglobalspace.h"
 
 #include <QMessageBox>
 
@@ -44,10 +45,11 @@ GCAddItemsForm::GCAddItemsForm( QWidget *parent ) :
   ui     ( new Ui::GCAddItemsForm )
 {
   ui->setupUi( this );
+  ui->showHelpButton->setVisible( GCGlobalSpace::showHelpButtons() );
 
   connect( ui->addNewButton,   SIGNAL( clicked() ), this, SLOT( addElementAndAttributes() ) );
   connect( ui->donePushButton, SIGNAL( clicked() ), this, SLOT( close() ) );
-  connect( ui->helpToolButton, SIGNAL( clicked() ), this, SLOT( showHelp() ) );
+  connect( ui->showHelpButton, SIGNAL( clicked() ), this, SLOT( showHelp() ) );
   connect( ui->comboBox,       SIGNAL( activated( QString ) ), this, SLOT( comboValueChanged( QString ) ) );
 
   populateCombo();

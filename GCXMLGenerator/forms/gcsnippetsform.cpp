@@ -32,6 +32,7 @@
 #include "utils/gccombobox.h"
 #include "utils/gcdomelementinfo.h"
 #include "utils/gcmessagespace.h"
+#include "utils/gcglobalspace.h"
 
 #include <QCheckBox>
 #include <QMessageBox>
@@ -61,6 +62,7 @@ GCSnippetsForm::GCSnippetsForm( const QString &elementName, QDomElement parentEl
   ui->setupUi( this );
   ui->tableWidget->setColumnWidth( INCRCOLUMN, 40 );  // restricted for checkbox
   ui->treeWidget->setColumnWidth ( 0, 50 );           // restricted for checkbox
+  ui->showHelpButton->setVisible( GCGlobalSpace::showHelpButtons() );
 
   populateTreeWidget( elementName );
 

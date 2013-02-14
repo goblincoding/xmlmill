@@ -30,7 +30,7 @@
 #include "ui_gcrestorefilesform.h"
 #include "xml/xmlsyntaxhighlighter.h"
 #include "db/gcdatabaseinterface.h"
-#include "utils/gcglobals.h"
+#include "utils/gcglobalspace.h"
 #include "utils/gcmessagespace.h"
 
 #include <QFile>
@@ -48,7 +48,7 @@ GCRestoreFilesForm::GCRestoreFilesForm( QStringList &tempFiles, QWidget *parent 
   m_fileName ( "" )
 {
   ui->setupUi( this );
-  ui->plainTextEdit->setFont( QFont( FONT, FONTSIZE ) );
+  ui->plainTextEdit->setFont( QFont( GCGlobalSpace::FONT, GCGlobalSpace::FONTSIZE ) );
   setAttribute( Qt::WA_DeleteOnClose );
 
   connect( ui->saveButton, SIGNAL( clicked() ), this, SLOT( saveFile() ) );

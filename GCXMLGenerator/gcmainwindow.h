@@ -359,6 +359,9 @@ private slots:
 
   /*! Sets the style sheet on the application. */
   void useDarkTheme( bool dark );
+
+  /*! Decides whether or not to display help buttons throughout the entire application. */
+  void setShowHelpButtons( bool show );
   
 private:
   /*! Creates a new GCDBSessionManager and connects its signals to the relevant slots.

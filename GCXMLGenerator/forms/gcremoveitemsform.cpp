@@ -30,6 +30,7 @@
 #include "ui_gcremoveitemsform.h"
 #include "db/gcdatabaseinterface.h"
 #include "utils/gcmessagespace.h"
+#include "utils/gcglobalspace.h"
 
 #include <QMessageBox>
 #include <QTreeWidgetItem>
@@ -45,13 +46,15 @@ GCRemoveItemsForm::GCRemoveItemsForm( QWidget *parent ) :
   m_deletedElements     ()
 {
   ui->setupUi( this );
+  ui->showAttributeHelpButton->setVisible( GCGlobalSpace::showHelpButtons() );
+  ui->showElementHelpButton->setVisible( GCGlobalSpace::showHelpButtons() );
 
-  connect( ui->elementHelpButton,     SIGNAL( clicked() ), this, SLOT( showElementHelp() ) );
-  connect( ui->attributeHelpButton,   SIGNAL( clicked() ), this, SLOT( showAttributeHelp() ) );
-  connect( ui->updateValuesButton,    SIGNAL( clicked() ), this, SLOT( updateAttributeValues() ) );
-  connect( ui->deleteAttributeButton, SIGNAL( clicked() ), this, SLOT( deleteAttribute() ) );
-  connect( ui->deleteElementButton,   SIGNAL( clicked() ), this, SLOT( deleteElement() ) );
-  connect( ui->removeChildButton,     SIGNAL( clicked() ), this, SLOT( removeChildElement() ) );
+  connect( ui->showElementHelpButton,   SIGNAL( clicked() ), this, SLOT( showElementHelp() ) );
+  connect( ui->showAttributeHelpButton, SIGNAL( clicked() ), this, SLOT( showAttributeHelp() ) );
+  connect( ui->updateValuesButton,      SIGNAL( clicked() ), this, SLOT( updateAttributeValues() ) );
+  connect( ui->deleteAttributeButton,   SIGNAL( clicked() ), this, SLOT( deleteAttribute() ) );
+  connect( ui->deleteElementButton,     SIGNAL( clicked() ), this, SLOT( deleteElement() ) );
+  connect( ui->removeChildButton,       SIGNAL( clicked() ), this, SLOT( removeChildElement() ) );
 
   connect( ui->treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ), this, SLOT( elementSelected( QTreeWidgetItem*,int ) ) );
   connect( ui->comboBox,   SIGNAL( currentIndexChanged( QString ) ),      this, SLOT( attributeActivated( QString ) ) );
