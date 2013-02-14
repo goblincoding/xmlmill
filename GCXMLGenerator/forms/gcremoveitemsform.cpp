@@ -231,6 +231,23 @@ void GCRemoveItemsForm::removeChildElement()
     }
     else
     {
+      if( GCDataBaseInterface::instance()->isUniqueChildElement( m_currentElementParent, m_currentElement ) )
+      {
+        bool accepted = GCMessageSpace::userAccepted( "RemoveUnlistedElement",
+                                                      "Element not used",
+                                                      QString( "\"%1\" is not assigned to any other element (i.e. "
+                                                               "it isn't used anywhere else in the profile).\n"
+                                                               "Would you like to remove the element completely?" ).arg( m_currentElement ),
+                                                      GCMessageSpace::YesNo,
+                                                      GCMessageSpace::No,
+                                                      GCMessageSpace::Question );
+
+        if( accepted )
+        {
+          deleteElement();
+        }
+      }
+
       ui->comboBox->clear();
       ui->plainTextEdit->clear();
       populateTreeWidget();
@@ -243,6 +260,7 @@ void GCRemoveItemsForm::removeChildElement()
 void GCRemoveItemsForm::updateAttributeValues()
 {
   QStringList attributes = ui->plainTextEdit->toPlainText().split( "\n" );
+  attributes.removeAll( "" );
 
   if( attributes.isEmpty() )
   {
@@ -263,7 +281,7 @@ void GCRemoveItemsForm::updateAttributeValues()
   {
     /* All existing values will be replaced with whatever remained in the text edit by the time the
       user was done. */
-    if( !GCDataBaseInterface::instance()->replaceAttributeValues( m_currentElement, m_currentAttribute, attributes ) )
+    if( !GCDataBaseInterface::instance()->updateAttributeValues( m_currentElement, m_currentAttribute, attributes, true ) )
     {
       GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
     }
