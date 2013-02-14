@@ -397,7 +397,7 @@ bool GCDataBaseInterface::addRootElement( const QString &root ) const
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::updateElementChildren( const QString &element, const QStringList &children ) const
+bool GCDataBaseInterface::updateElementChildren( const QString &element, const QStringList &children, bool replace ) const
 {
   if( element.isEmpty() )
   {
@@ -410,8 +410,12 @@ bool GCDataBaseInterface::updateElementChildren( const QString &element, const Q
   /* Update the existing record (if we have one). */
   if( query.first() )
   {
-    QStringList allChildren( query.record().field( "children" ).value().toString().split( SEPARATOR ) );
-    allChildren.append( children );
+    QStringList allChildren( children );
+
+    if( !replace )
+    {
+      allChildren.append( query.record().field( "children" ).value().toString().split( SEPARATOR ) );
+    }
 
     if( !query.prepare( UPDATE_CHILDREN ) )
     {
@@ -445,7 +449,7 @@ bool GCDataBaseInterface::updateElementChildren( const QString &element, const Q
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::updateElementAttributes( const QString &element, const QStringList &attributes ) const
+bool GCDataBaseInterface::updateElementAttributes( const QString &element, const QStringList &attributes, bool replace ) const
 {
   if( element.isEmpty() )
   {
@@ -458,8 +462,12 @@ bool GCDataBaseInterface::updateElementAttributes( const QString &element, const
   /* Update the existing record (if we have one). */
   if( query.first() )
   {
-    QStringList allAttributes( query.record().field( "attributes" ).value().toString().split( SEPARATOR ) );
-    allAttributes.append( attributes );
+    QStringList allAttributes( attributes );
+
+    if( !replace )
+    {
+      allAttributes.append( query.record().field( "attributes" ).value().toString().split( SEPARATOR ) );
+    }
 
     if( !query.prepare( UPDATE_ATTRIBUTES ) )
     {
@@ -493,7 +501,7 @@ bool GCDataBaseInterface::updateElementAttributes( const QString &element, const
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::updateAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const
+bool GCDataBaseInterface::updateAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues, bool replace ) const
 {
   if( element.isEmpty() || attribute.isEmpty() )
   {
@@ -528,8 +536,12 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
   }
   else
   {
-    QStringList existingValues( query.record().field( "attributeValues" ).value().toString().split( SEPARATOR ) );
-    existingValues.append( attributeValues );
+    QStringList existingValues( attributeValues );
+
+    if( !replace )
+    {
+      existingValues.append( query.record().field( "attributeValues" ).value().toString().split( SEPARATOR ) );
+    }
 
     /* The reason for not using concatenating values here is that we don't simply want to add
       all the supposed new values, we want to make sure they are all unique by removing all duplicates
@@ -544,51 +556,6 @@ bool GCDataBaseInterface::updateAttributeValues( const QString &element, const Q
     }
 
     query.addBindValue( cleanAndJoinListElements( existingValues ) );
-    query.addBindValue( attribute );
-    query.addBindValue( element );
-
-    if( !query.exec() )
-    {
-      m_lastErrorMsg = QString( "UPDATE attribute values failed for element \"%1\" and attribute [%2]: [%3]" )
-          .arg( element )
-          .arg( attribute )
-          .arg( query.lastError().text() );
-      return false;
-    }
-  }
-
-  m_lastErrorMsg = "";
-  return true;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-bool GCDataBaseInterface::replaceAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const
-{
-  if( element.isEmpty() || attribute.isEmpty() )
-  {
-    m_lastErrorMsg = QString( "Invalid element or attribute values provided." );
-    return false;
-  }
-
-  QSqlQuery query = selectAttribute( attribute, element );
-
-  /* Only continue if we have an existing record. */
-  if( query.first() )
-  {
-    /* Create a duplicate list that we can safely manipulate locally. */
-    QStringList attributeValuesToClean( attributeValues );
-
-    if( !query.prepare( UPDATE_ATTRIBUTEVALUES ) )
-    {
-      m_lastErrorMsg = QString( "Prepare UPDATE attribute values failed for element \"%1\" and attribute \"%2\": [%3]" )
-          .arg( element )
-          .arg( attribute )
-          .arg( query.lastError().text() );
-      return false;
-    }
-
-    query.addBindValue( cleanAndJoinListElements( attributeValuesToClean ) );
     query.addBindValue( attribute );
     query.addBindValue( element );
 
@@ -642,10 +609,6 @@ bool GCDataBaseInterface::removeElement( const QString &element ) const
 
 bool GCDataBaseInterface::removeChildElement( const QString &element, const QString &child ) const
 {
-  /* This function is virtually exactly the same as "updateElementChildren" with the only
-    exception being that we do not append the child to the known children, but remove it from
-    the list and replace the previous DB entry with the updated one...I'll have to rethink
-    this approach and see if I can't refactor these functions somehow. */
   QSqlQuery query = selectElement( element );
 
   /* Update the existing record (if we have one). */
@@ -653,25 +616,7 @@ bool GCDataBaseInterface::removeChildElement( const QString &element, const QStr
   {
     QStringList allChildren( query.record().field( "children" ).value().toString().split( SEPARATOR ) );
     allChildren.removeAll( child );
-
-    if( !query.prepare( UPDATE_CHILDREN ) )
-    {
-      m_lastErrorMsg = QString( "Prepare REMOVE element child failed for element \"%1\": [%2]" )
-          .arg( element )
-          .arg( query.lastError().text() );
-      return false;
-    }
-
-    query.addBindValue( cleanAndJoinListElements( allChildren ) );
-    query.addBindValue( element );
-
-    if( !query.exec() )
-    {
-      m_lastErrorMsg = QString( "REMOVE child failed for element \"%1\": [%2]" )
-          .arg( element )
-          .arg( query.lastError().text() );
-      return false;
-    }
+    updateElementChildren( element, allChildren, true );
   }
 
   m_lastErrorMsg = "";
@@ -710,6 +655,11 @@ bool GCDataBaseInterface::removeAttribute( const QString &element, const QString
       return false;
     }
   }
+
+  query = selectElement( element );
+  QStringList allAttributes = attributes( element );
+  allAttributes.removeAll( attribute );
+  updateElementAttributes( element, allAttributes, true );
 
   m_lastErrorMsg = "";
   return true;

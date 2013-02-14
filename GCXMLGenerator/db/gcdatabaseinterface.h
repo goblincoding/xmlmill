@@ -92,23 +92,20 @@ public:
   bool addRootElement( const QString &root ) const;
 
   /*! Updates the list of known first level children associated with "element" by appending
-      the new children to the existing list (nothing is deleted). */
-  bool updateElementChildren( const QString &element, const QStringList &children ) const;
+      the new children to the existing list (nothing is deleted). If "replace" is true, the
+      existing values are replaced by those in the parameter list. */
+  bool updateElementChildren( const QString &element, const QStringList &children, bool replace = false ) const;
 
   /*! Updates the list of known attributes associated with "element" by appending
-      the new attributes to the existing list (nothing is deleted). */
-  bool updateElementAttributes( const QString &element, const QStringList &attributes ) const;
+      the new attributes to the existing list (nothing is deleted).  If "replace" is
+      true, the existing values are replaced by those in the parameter list. */
+  bool updateElementAttributes( const QString &element, const QStringList &attributes, bool replace = false ) const;
 
   /*! Updates the list of known attribute values that is associated with "element" and its
       corresponding "attribute" by appending the new attribute values to the existing list
-      (nothing is deleted). 
-      \sa replaceAttributeValues */
-  bool updateAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const;
-
-  /*! Updates the list of known attribute values that is associated with "element" and its
-      corresponding "attribute" by replacing all the existing values with those from the new list. 
-      \sa updateAttributeValues */
-  bool replaceAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues ) const;
+      (nothing is deleted). If "replace" is true, the existing values are replaced by those
+      in the parameter list*/
+  bool updateAttributeValues( const QString &element, const QString &attribute, const QStringList &attributeValues, bool replace = false ) const;
 
   /*! Removes "element" from the active database. */
   bool removeElement( const QString &element ) const;
