@@ -70,6 +70,9 @@ private slots:
       or as a new root element if it doesn't. */
   void addElementAndAttributes();
 
+  /*! Disables the line edit when an existing element is selected in the drop down. */
+  void comboValueChanged( QString element );
+
   /*! Displays help specific to this form. */
   void showHelp();
 
@@ -85,6 +88,9 @@ private:
       @param element - the name of the element for which a tree widget item must be created.
       @param parent - the tree widget item that will act as the parent for the newly created item. */
   void processNextElement ( const QString &element, QTreeWidgetItem *parent );
+
+  /*! Populates the combo box with the known element names. */
+  void populateCombo();
 
   Ui::GCAddItemsForm *ui;
 };
