@@ -348,8 +348,14 @@ private slots:
   /*! Displays a brief message about adding comments to the XML. */
   void showCommentHelp();
 
+  /*! Displays a brief message about adding elements to a document. */
+  void showElementHelp();
+
   /*! Connected to the "Help Contents" action.  Displays the main help page. */
   void showMainHelp();
+
+  /*! Decides whether or not to display help buttons throughout the entire application. */
+  void setShowHelpButtons( bool show );
 
   /*! Opens this application's website. */
   void goToSite();
@@ -359,9 +365,6 @@ private slots:
 
   /*! Sets the style sheet on the application. */
   void useDarkTheme( bool dark );
-
-  /*! Decides whether or not to display help buttons throughout the entire application. */
-  void setShowHelpButtons( bool show );
   
 private:
   /*! Creates a new GCDBSessionManager and connects its signals to the relevant slots.

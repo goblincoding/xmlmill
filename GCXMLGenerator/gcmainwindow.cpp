@@ -117,12 +117,15 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionHelpContents, SIGNAL( triggered() ), this, SLOT( showMainHelp() ) );
   connect( ui->actionVisitOfficialSite, SIGNAL( triggered() ), this, SLOT( goToSite() ) );
   connect( ui->expandAllCheckBox, SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
-  connect( ui->wrapTextCheckBox, SIGNAL( clicked( bool ) ), this, SLOT( wrapText( bool ) ) );
-  connect( ui->showEmptyProfileHelpButton, SIGNAL( clicked() ), this, SLOT( showEmptyProfileHelp() ) );
-  connect( ui->showCommentHelpButton, SIGNAL( clicked() ), this, SLOT( showCommentHelp() ) );
+  connect( ui->wrapTextCheckBox, SIGNAL( clicked( bool ) ), this, SLOT( wrapText( bool ) ) );  
   connect( ui->commentLineEdit, SIGNAL( returnPressed() ), this, SLOT( addComment() ) );
   connect( ui->actionUseDarkTheme, SIGNAL( triggered( bool ) ), this, SLOT( useDarkTheme( bool ) ) );
+
+  /* Help related. */
   connect( ui->actionShowHelpButtons, SIGNAL( triggered( bool ) ), this, SLOT( setShowHelpButtons( bool ) ) );
+  connect( ui->showEmptyProfileHelpButton, SIGNAL( clicked() ), this, SLOT( showEmptyProfileHelp() ) );
+  connect( ui->showCommentHelpButton, SIGNAL( clicked() ), this, SLOT( showCommentHelp() ) );
+  connect( ui->showAddElementHelpButton, SIGNAL( clicked() ), this, SLOT( showElementHelp() ) );
 
   /* Everything tree widget related. */
   connect( ui->treeWidget, SIGNAL( itemClicked ( QTreeWidgetItem*, int ) ), this, SLOT( elementSelected( QTreeWidgetItem*, int ) ) );
@@ -1175,7 +1178,8 @@ void GCMainWindow::addItemsToDB()
 void GCMainWindow::searchDocument()
 {
   /* Delete on close flag set (no clean-up needed). */
-  GCSearchForm *form = new GCSearchForm( m_treeItemNodes.values(), m_domDoc->toString(), this );
+  //GCSearchForm *form = new GCSearchForm( m_treeItemNodes.values(), m_domDoc->toString(), this );
+  GCSearchForm *form = new GCSearchForm( m_elementInfo.values(), ui->dockWidgetTextEdit, this );
   connect( form, SIGNAL( foundElement( QDomElement ) ), this, SLOT( elementFound( QDomElement ) ) );
   form->exec();
 }
@@ -1411,6 +1415,16 @@ void GCMainWindow::showCommentHelp()
                             "Comments are automatically added to newly created elements (if provided).\n\n"
                             "To add a comment to an existing element, select the relevant element in the tree, "
                             "provide the comment text and press \"Enter\"." );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::showElementHelp()
+{
+  QMessageBox::information( this,
+                            "Adding Elements",
+                            "Elements bracketed by \"<>\" are added as siblings of the element "
+                            "selected in the element hierarchy tree." );
 }
 
 /*--------------------------------------------------------------------------------------*/
