@@ -314,11 +314,11 @@ void GCSnippetsForm::addSnippet()
       {
         element.removeAttribute( attribute );
       }
-    }    
-  }
+    }
 
-  m_parentElement->appendChild( doc.documentElement().cloneNode() );
-  emit snippetAdded( m_parentElement );
+    m_parentElement->appendChild( doc.documentElement().cloneNode() );
+    emit snippetAdded( m_parentElement );
+  }  
 }
 
 /*--------------------------------------------------------------------------------------*/
