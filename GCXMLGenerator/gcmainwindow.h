@@ -31,6 +31,7 @@
 
 #include <QMainWindow>
 #include <QHash>
+#include "utils/gcelementinfocontainer.h"
 
 namespace Ui
 {
@@ -38,7 +39,6 @@ namespace Ui
 }
 
 class GCDBSessionManager;
-class GCDomElementInfo;
 class QSignalMapper;
 class QTreeWidgetItem;
 class QTableWidgetItem;
@@ -385,11 +385,11 @@ private:
 
   /*! Displays the DOM document's content in the text edit area.
       \sa highlightTextElement */
-  void setTextEditContent( const QDomElement &element );
+  void setTextEditContent( QTreeWidgetItem *item = 0 );
 
   /*! Highlights the currently active DOM element in the text edit area.
       \sa setTextEditContent */
-  void highlightTextElement( const QDomElement &element );
+  void highlightTextElement( QTreeWidgetItem *item );
 
   /*! Creates an additional table row that the user can use to add new attributes to the
       active element. */
@@ -397,9 +397,6 @@ private:
 
   /*! Cleans up and clears the table widget. */
   void resetTableWidget();
-
-  /*! Cleans up and clears the element info map. */
-  void deleteElementInfo();
 
   /*! Starts the timer responsible for the automatic saving of the current document. */
   void startSaveTimer();
@@ -459,9 +456,8 @@ private:
   bool              m_busyImporting;
   bool              m_fileContentsChanged;
 
-  QHash< QTreeWidgetItem*, GCDomElementInfo* > m_elementInfo;
-  QHash< QTreeWidgetItem*, QDomElement > m_treeItemNodes;
-  QHash< QWidget*, int/* table row*/ >   m_comboBoxes;
+  QHash< QWidget*, int/* table row*/ > m_comboBoxes;
+  GCElementInfoContainer m_elementContainer;
 
 };
 

@@ -87,9 +87,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_newAttributeAdded   ( false ),
   m_busyImporting       ( false ),
   m_fileContentsChanged ( false ),
-  m_elementInfo         (),
-  m_treeItemNodes       (),
-  m_comboBoxes          ()
+  m_comboBoxes          (),
+  m_elementContainer    ()
 {
   ui->setupUi( this );
   ui->showEmptyProfileHelpButton->setVisible( false );
@@ -161,7 +160,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 
 GCMainWindow::~GCMainWindow()
 {
-  deleteElementInfo();
+  m_elementContainer.clear();
   delete m_domDoc;
   delete ui;
 }
@@ -225,10 +224,10 @@ void GCMainWindow::initialise()
 void GCMainWindow::elementChanged( QTreeWidgetItem *item, int column )
 {
   /* This check is probably redundant, but rather safe than sorry... */
-  if( m_treeItemNodes.contains( item ) )
+  if( m_elementContainer.contains( item ) )
   {
     QString newName  = item->text( column );
-    QString previousName = m_treeItemNodes.value( item ).tagName();
+    QString previousName = m_elementContainer.element( item ).tagName();
 
     if( newName.isEmpty() )
     {
@@ -248,7 +247,7 @@ void GCMainWindow::elementChanged( QTreeWidgetItem *item, int column )
         {
           QDomElement element( elementList.at( i ).toElement() ); // shallow copy
           element.setTagName( newName );
-          const_cast< QTreeWidgetItem* >( m_treeItemNodes.key( element ) )->setText( column, newName );
+          const_cast< QTreeWidgetItem* >( m_elementContainer.treeWidgetItem( element ) )->setText( column, newName );
         }
 
         /* The name change may introduce a new element too so we can safely call "addElement" below as
@@ -286,7 +285,7 @@ void GCMainWindow::elementChanged( QTreeWidgetItem *item, int column )
           }
         }
 
-        setTextEditContent( m_treeItemNodes.value( item ).toElement() );
+        setTextEditContent( item );
       }
     }
   }
@@ -304,7 +303,7 @@ void GCMainWindow::elementSelected( QTreeWidgetItem *item, int column )
 
   resetTableWidget();
 
-  QDomElement element = m_treeItemNodes.value( item );      // shallow copy
+  QDomElement element = m_elementContainer.element( item );      // shallow copy
   QString elementName = element.tagName();
   QStringList attributeNames = GCDataBaseInterface::instance()->attributes( elementName );
 
@@ -318,7 +317,7 @@ void GCMainWindow::elementSelected( QTreeWidgetItem *item, int column )
     QTableWidgetItem *label = new QTableWidgetItem( attributeNames.at( i ) );
     label->setFlags( label->flags() | Qt::ItemIsUserCheckable );
 
-    if( m_elementInfo.value( item )->includedAttributes().contains( attributeNames.at( i ) ) )
+    if( m_elementContainer.elementInfo( item )->includedAttributes().contains( attributeNames.at( i ) ) )
     {
       label->setCheckState( Qt::Checked );
       attributeCombo->setEnabled( true );
@@ -384,7 +383,7 @@ void GCMainWindow::elementSelected( QTreeWidgetItem *item, int column )
   }
 
   toggleAddElementWidgets();
-  highlightTextElement( element );
+  highlightTextElement( item );
 
   /* The user must not be allowed to add an entire document as a "snippet". */
   if( ui->addElementComboBox->currentText() == m_domDoc->documentElement().tagName() )
@@ -430,7 +429,7 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *item )
     /* All attribute name changes will be assumed to be additions, removing an attribute
       with a specific name has to be done explicitly. */
     QTreeWidgetItem *treeItem = ui->treeWidget->currentItem();
-    QDomElement currentElement = m_treeItemNodes.value( treeItem ); // shallow copy
+    QDomElement currentElement = m_elementContainer.element( treeItem ); // shallow copy
 
     /* See if an existing attribute's name changed or if a new attribute was added. */
     if( item->text() != m_activeAttributeName )
@@ -471,7 +470,7 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *item )
 
     /* Is this attribute included or excluded? */
     GCComboBox *attributeValueCombo = dynamic_cast< GCComboBox* >( ui->tableWidget->cellWidget( item->row(), VALUESCOLUMN ) );
-    GCDomElementInfo *info = const_cast< GCDomElementInfo* >( m_elementInfo.value( treeItem ) );
+    GCDomElementInfo *info = m_elementContainer.elementInfo( treeItem );
 
     if( item->checkState() == Qt::Checked )
     {
@@ -487,7 +486,7 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *item )
     }
 
     m_activeAttributeName = item->text();
-    setTextEditContent( currentElement );
+    setTextEditContent( treeItem );
   }
 }
 
@@ -508,7 +507,7 @@ void GCMainWindow::attributeValueChanged( const QString &value )
   if( !m_wasTreeItemActivated )
   {
     QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
-    QDomElement currentElement = m_treeItemNodes.value( currentItem );  // shallow copy
+    QDomElement currentElement = m_elementContainer.element( currentItem );  // shallow copy
 
     QString currentAttributeName = ui->tableWidget->item( m_comboBoxes.value( m_currentCombo ), ATTRIBUTECOLUMN )->text();
     currentElement.setAttribute( currentAttributeName, value );
@@ -526,7 +525,7 @@ void GCMainWindow::attributeValueChanged( const QString &value )
       }
     }
 
-    setTextEditContent( currentElement );
+    setTextEditContent( currentItem );
   }
 }
 
@@ -953,7 +952,7 @@ void GCMainWindow::activeDatabaseChanged( QString dbName )
 void GCMainWindow::deleteElementFromDocument()
 {
   QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
-  QDomElement currentElement = m_treeItemNodes.value( currentItem );  // shallow copy
+  QDomElement currentElement = m_elementContainer.element( currentItem );  // shallow copy
 
   /* If all we have is a document root element, reset everything. */
   if( currentElement == m_domDoc->documentElement() )
@@ -967,26 +966,15 @@ void GCMainWindow::deleteElementFromDocument()
     parentNode.removeChild( currentElement );
 
     /* Now we can whack it from the tree widget and map. */
-    m_treeItemNodes.remove( currentItem );
-
-    GCDomElementInfo *info = m_elementInfo.value( currentItem );
-
-    if( info )
-    {
-      delete info;
-      info = NULL;
-    }
-
-    m_elementInfo.remove( currentItem );
+    m_elementContainer.remove( currentItem );
 
     QTreeWidgetItem *parentItem = currentItem->parent();
     parentItem->removeChild( currentItem );
 
     /* Repopulate the table widget with values from whichever
       element is highlighted after the removal. */
-    elementSelected( parentItem, 0 );
-
-    setTextEditContent( parentNode.toElement() );
+    elementSelected( ui->treeWidget->currentItem(), 0 );
+    setTextEditContent( ui->treeWidget->currentItem() );
   }
 }
 
@@ -1000,7 +988,7 @@ void GCMainWindow::addElementToDocument()
     parent item is currently highlighted in the tree widget. */
   QTreeWidgetItem *parentItem( NULL );
 
-  if( !m_treeItemNodes.isEmpty() )
+  if( !m_elementContainer.isEmpty() )
   {
     parentItem = ui->treeWidget->currentItem();
   }
@@ -1033,7 +1021,7 @@ void GCMainWindow::addElementToDocument()
       /* Expand the item's parent for convenience. */
       ui->treeWidget->expandItem( parentItem );
 
-      QDomElement parent = m_treeItemNodes.value( parentItem ); // shallow copy
+      QDomElement parent = m_elementContainer.element( parentItem ); // shallow copy
       parent.appendChild( newElement );
     }
     else
@@ -1071,10 +1059,9 @@ void GCMainWindow::addElementToDocument()
     }
 
     /* Keep everything in sync in the maps. */
-    m_treeItemNodes.insert( newItem, newElement );
-    m_elementInfo.insert( newItem, new GCDomElementInfo( newElement ) );
+    m_elementContainer.insert( newItem, newElement );
 
-    setTextEditContent( newElement );
+    setTextEditContent( newItem );
     ui->treeWidget->setCurrentItem( newItem, 0 );
     elementSelected( newItem, 0 );
   }
@@ -1091,7 +1078,7 @@ void GCMainWindow::addSnippetToDocument()
   {
     /* Qt::WA_DeleteOnClose flag set. */
     GCSnippetsForm *dialog = new GCSnippetsForm( elementName.remove( QRegExp( "<|>" ) ),
-                                                 m_treeItemNodes.value( ui->treeWidget->currentItem()->parent() ),
+                                                 m_elementContainer.element( ui->treeWidget->currentItem()->parent() ),
                                                  this );
     connect( dialog, SIGNAL( snippetAdded( const QDomElement* ) ), this, SLOT( insertSnippet( const QDomElement* ) ) );
     dialog->exec();
@@ -1100,7 +1087,7 @@ void GCMainWindow::addSnippetToDocument()
   {
     /* Qt::WA_DeleteOnClose flag set. */
     GCSnippetsForm *dialog = new GCSnippetsForm( elementName,
-                                                 m_treeItemNodes.value( ui->treeWidget->currentItem() ),
+                                                 m_elementContainer.element( ui->treeWidget->currentItem() ),
                                                  this );
     connect( dialog, SIGNAL( snippetAdded( const QDomElement* ) ), this, SLOT( insertSnippet( const QDomElement* ) ) );
     dialog->exec();
@@ -1178,7 +1165,7 @@ void GCMainWindow::addItemsToDB()
 void GCMainWindow::searchDocument()
 {
   /* Delete on close flag set (no clean-up needed). */
-  GCSearchForm *form = new GCSearchForm( m_treeItemNodes.values(), m_domDoc->toString(), this );
+  GCSearchForm *form = new GCSearchForm( m_elementContainer.elements(), m_domDoc->toString(), this );
   connect( form, SIGNAL( foundElement( QDomElement ) ), this, SLOT( elementFound( QDomElement ) ) );
   form->exec();
 }
@@ -1187,7 +1174,7 @@ void GCMainWindow::searchDocument()
 
 void GCMainWindow::elementFound( const QDomElement &element )
 {
-  QTreeWidgetItem *item = m_treeItemNodes.key( element );
+  QTreeWidgetItem *item = m_elementContainer.treeWidgetItem( element );
   ui->treeWidget->expandAll();
   ui->treeWidget->setCurrentItem( item );
   elementSelected( item, 0 );
@@ -1197,7 +1184,7 @@ void GCMainWindow::elementFound( const QDomElement &element )
 
 void GCMainWindow::revertDirectEdit()
 {
-  setTextEditContent( QDomElement() );
+  setTextEditContent();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1327,12 +1314,11 @@ void GCMainWindow::deleteSpinner()
 void GCMainWindow::resetDOM()
 {
   m_domDoc->clear();
-  m_treeItemNodes.clear();
+  m_elementContainer.clear();
   ui->treeWidget->clear();
   ui->dockWidgetTextEdit->clear();
 
   resetTableWidget();
-  deleteElementInfo();
 
   ui->addElementComboBox->clear();
   ui->addElementComboBox->addItems( GCDataBaseInterface::instance()->knownRootElements() );
@@ -1461,11 +1447,11 @@ void GCMainWindow::addComment()
 {
   if( !ui->commentLineEdit->text().isEmpty() )
   {
-    QDomElement currentElement = m_treeItemNodes.value( ui->treeWidget->currentItem() );
+    QDomElement currentElement = m_elementContainer.element( ui->treeWidget->currentItem() );
     QDomComment comment = m_domDoc->createComment( ui->commentLineEdit->text() );
     currentElement.parentNode().insertBefore( comment, currentElement );
     ui->commentLineEdit->clear();
-    setTextEditContent( currentElement );
+    setTextEditContent( ui->treeWidget->currentItem() );
   }
 }
 
@@ -1514,8 +1500,7 @@ GCDBSessionManager *GCMainWindow::createDBSessionManager()
 void GCMainWindow::processDOMDoc()
 {
   ui->treeWidget->clear(); // also deletes current items
-  m_treeItemNodes.clear();
-  deleteElementInfo();
+  m_elementContainer.clear();
   resetTableWidget();
 
   QDomElement root = m_domDoc->documentElement();
@@ -1526,8 +1511,7 @@ void GCMainWindow::processDOMDoc()
   item->setFlags( item->flags() | Qt::ItemIsEditable );
 
   ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
-  m_treeItemNodes.insert( item, root );
-  m_elementInfo.insert  ( item, new GCDomElementInfo( root ) );
+  m_elementContainer.insert( item, root );
 
   /* Now we can recursively stick the rest of the elements into the tree widget. */
   populateTreeWidget( root, item );
@@ -1540,7 +1524,7 @@ void GCMainWindow::processDOMDoc()
   ui->actionSaveAs->setEnabled( true );
 
   /* Display the DOM content in the text edit. */
-  setTextEditContent( QDomElement() );
+  setTextEditContent();
 
   /* Generally-speaking, we want the file contents changed flag to be set whenever
     the text edit content is set (this is done, not surprisingly, in "setTextEditContent"
@@ -1568,8 +1552,7 @@ void GCMainWindow::populateTreeWidget( const QDomElement &parentElement, QTreeWi
     item->setFlags( item->flags() | Qt::ItemIsEditable );
 
     parentItem->addChild( item );  // takes ownership
-    m_treeItemNodes.insert( item, element );
-    m_elementInfo.insert  ( item, new GCDomElementInfo( element ) );
+    m_elementContainer.insert( item, element );
 
     populateTreeWidget( element, item );
     element = element.nextSiblingElement();
@@ -1587,7 +1570,7 @@ void GCMainWindow::setStatusBarMessage( const QString &message )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::setTextEditContent( const QDomElement &element )
+void GCMainWindow::setTextEditContent( QTreeWidgetItem *item )
 {
   m_fileContentsChanged = true;
 
@@ -1597,28 +1580,28 @@ void GCMainWindow::setTextEditContent( const QDomElement &element )
   ui->dockWidgetTextEdit->setPlainText( m_domDoc->toString( 2 ) );
   ui->dockWidgetTextEdit->setUpdatesEnabled( true );
 
-  highlightTextElement( element );
+  highlightTextElement( item );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::highlightTextElement( const QDomElement &element )
+void GCMainWindow::highlightTextElement( QTreeWidgetItem *item )
 {
-  if( !element.isNull() )
+  if( item )
   {
-    QString stringToMatch = m_elementInfo.value( m_treeItemNodes.key( element ) )->toString();
-    QList< QTreeWidgetItem* > identicalItems = ui->treeWidget->findItems( element.tagName(), Qt::MatchExactly | Qt::MatchRecursive );
+    QString stringToMatch = m_elementContainer.elementInfo( item )->toString();
+    QList< QTreeWidgetItem* > identicalItems = ui->treeWidget->findItems( item->text( 0 ), Qt::MatchExactly | Qt::MatchRecursive );
     QList< int > indices;
 
     /* If there are multiple nodes with the same element name (more likely than not), check which
       of these nodes are exact duplicates with regards to attributes, values, etc. */
     foreach( QTreeWidgetItem* item, identicalItems )
     {
-      QString node = m_elementInfo.value( item )->toString();
+      QString node = m_elementContainer.elementInfo( item )->toString();
 
       if( node == stringToMatch )
       {
-        indices.append( m_elementInfo.value( item )->index() );
+        indices.append( m_elementContainer.elementInfo( item )->index() );
       }
     }
 
@@ -1629,7 +1612,7 @@ void GCMainWindow::highlightTextElement( const QDomElement &element )
     qSort( indices.begin(), indices.end() );
     ui->dockWidgetTextEdit->moveCursor( QTextCursor::Start );
 
-    int elementIndex = m_elementInfo.value( m_treeItemNodes.key( element ) )->index();
+    int elementIndex = m_elementContainer.elementInfo( item )->index();
 
     for( int i = 0; i <= indices.indexOf( elementIndex ); ++i )
     {
@@ -1683,19 +1666,6 @@ void GCMainWindow::resetTableWidget()
 
   ui->tableWidget->clearContents();   // also deletes current items
   ui->tableWidget->setRowCount( 0 );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::deleteElementInfo()
-{
-  foreach( GCDomElementInfo *info, m_elementInfo.values() )
-  {
-    delete info;
-    info = NULL;
-  }
-
-  m_elementInfo.clear();
 }
 
 /*--------------------------------------------------------------------------------------*/
