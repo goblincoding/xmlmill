@@ -1178,8 +1178,7 @@ void GCMainWindow::addItemsToDB()
 void GCMainWindow::searchDocument()
 {
   /* Delete on close flag set (no clean-up needed). */
-  //GCSearchForm *form = new GCSearchForm( m_treeItemNodes.values(), m_domDoc->toString(), this );
-  GCSearchForm *form = new GCSearchForm( m_elementInfo.values(), ui->dockWidgetTextEdit, this );
+  GCSearchForm *form = new GCSearchForm( m_treeItemNodes.values(), m_domDoc->toString(), this );
   connect( form, SIGNAL( foundElement( QDomElement ) ), this, SLOT( elementFound( QDomElement ) ) );
   form->exec();
 }
