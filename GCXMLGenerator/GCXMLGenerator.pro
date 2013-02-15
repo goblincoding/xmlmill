@@ -54,7 +54,8 @@ SOURCES += main.cpp\
     utils/gcdomelementinfo.cpp \
     db/gcdbsessionmanager.cpp \
     forms/gcrestorefilesform.cpp \
-    utils/gcglobalspace.cpp
+    utils/gcglobalspace.cpp \
+    utils/gcelementinfocontainer.cpp
 
 HEADERS  += \
     db/gcdatabaseinterface.h \
@@ -72,7 +73,8 @@ HEADERS  += \
     utils/gcdomelementinfo.h \
     db/gcdbsessionmanager.h \
     forms/gcrestorefilesform.h \
-    utils/gcglobalspace.h
+    utils/gcglobalspace.h \
+    utils/gcelementinfocontainer.h
 
 FORMS    += \
     gcmainwindow.ui \
