@@ -30,7 +30,7 @@
 #include "ui_gcsnippetsform.h"
 #include "db/gcdatabaseinterface.h"
 #include "utils/gccombobox.h"
-#include "utils/gcdomelementinfo.h"
+#include "utils/gcelementinfo.h"
 #include "utils/gcmessagespace.h"
 #include "utils/gcglobalspace.h"
 
@@ -143,6 +143,15 @@ void GCSnippetsForm::elementSelected( QTreeWidgetItem *item, int column )
     }
 
     ui->tableWidget->setCellWidget( i, COMBOCOLUMN, attributeCombo );
+
+    if( item->checkState( 0 ) == Qt::Unchecked )
+    {
+      ui->tableWidget->setEnabled( false );
+    }
+    else
+    {
+      ui->tableWidget->setEnabled( true );
+    }
   }
 
   updateCheckStates( item );
@@ -160,7 +169,7 @@ void GCSnippetsForm::attributeChanged( QTableWidgetItem *item )
   if( !m_treeItemActivated )
   {
     QTreeWidgetItem *treeItem = ui->treeWidget->currentItem();
-    GCDomElementInfo *info = const_cast< GCDomElementInfo* >( m_elementInfo.value( treeItem ) );
+    GCElementInfo *info = const_cast< GCElementInfo* >( m_elementInfo.value( treeItem ) );
 
     GCComboBox *attributeValueCombo = dynamic_cast< GCComboBox* >( ui->tableWidget->cellWidget( item->row(), 1 ) );
     QDomElement currentElement = m_treeItemNodes.value( treeItem );  // shallow copy
@@ -346,7 +355,7 @@ void GCSnippetsForm::processNextElement( const QString &elementName, QTreeWidget
   /* This looks weird, but remember that the "parent" tree widget item is on the same level
     as the QDomElement. */
   m_treeItemNodes.insert( parentItem, element );
-  m_elementInfo.insert( parentItem, new GCDomElementInfo( element ) );
+  m_elementInfo.insert( parentItem, new GCElementInfo( element ) );
 
   /* This will only be the case the first time this function is called. */
   if( parentNode.isNull() )
@@ -394,7 +403,7 @@ void GCSnippetsForm::updateCheckStates( QTreeWidgetItem *item )
   /* Checking or unchecking an item must recursively update its children as well. */
   if( item->checkState( 0 ) == Qt::Checked )
   {
-    const_cast< GCDomElementInfo* >( m_elementInfo.value( item ) )->setExcludeElement( false );
+    const_cast< GCElementInfo* >( m_elementInfo.value( item ) )->setExcludeElement( false );
 
     /* When a low-level child is activated, we need to also update its parent tree all the way
       up to the root element since including a child automatically implies that the parent
@@ -405,14 +414,14 @@ void GCSnippetsForm::updateCheckStates( QTreeWidgetItem *item )
 
     while( parent && parent->checkState( 0 ) != Qt::Checked )
     {
-      const_cast< GCDomElementInfo* >( m_elementInfo.value( parent ) )->setExcludeElement( false );
+      const_cast< GCElementInfo* >( m_elementInfo.value( parent ) )->setExcludeElement( false );
       parent->setCheckState( 0, Qt::Checked );
       parent = parent->parent();
     }
   }
   else
   {
-    const_cast< GCDomElementInfo* >( m_elementInfo.value( item ) )->setExcludeElement( true );
+    const_cast< GCElementInfo* >( m_elementInfo.value( item ) )->setExcludeElement( true );
 
     for( int i = 0; i < item->childCount(); ++i )
     {
@@ -426,7 +435,7 @@ void GCSnippetsForm::updateCheckStates( QTreeWidgetItem *item )
 
 void GCSnippetsForm::deleteElementInfo()
 {
-  foreach( GCDomElementInfo *info, m_elementInfo.values() )
+  foreach( GCElementInfo *info, m_elementInfo.values() )
   {
     delete info;
     info = NULL;

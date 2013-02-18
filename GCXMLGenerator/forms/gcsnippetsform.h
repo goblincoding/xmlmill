@@ -38,7 +38,7 @@ namespace Ui
   class GCSnippetsForm;
 }
 
-class GCDomElementInfo;
+class GCElementInfo;
 class QTreeWidgetItem;
 class QTableWidgetItem;
 
@@ -128,7 +128,7 @@ private:
   QDomDocument        m_domDoc;
   bool                m_treeItemActivated;
 
-  QHash< QTreeWidgetItem*, GCDomElementInfo* > m_elementInfo;
+  QHash< QTreeWidgetItem*, GCElementInfo* > m_elementInfo;
   QHash< QTreeWidgetItem*, QDomElement >       m_treeItemNodes;
 
   QHash< QString /*attr*/, bool /*increment*/ > m_attributes;
