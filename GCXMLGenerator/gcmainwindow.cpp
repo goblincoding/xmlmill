@@ -39,7 +39,7 @@
 #include "forms/gcrestorefilesform.h"
 #include "utils/gccombobox.h"
 #include "utils/gcmessagespace.h"
-#include "utils/gcdomelementinfo.h"
+#include "utils/gcelementinfo.h"
 #include "utils/gcglobalspace.h"
 
 #include <QDesktopServices>
@@ -346,7 +346,7 @@ void GCMainWindow::elementSelected( QTreeWidgetItem *item, int column )
     }
     else
     {
-      attributeCombo->setCurrentIndex( 0 );
+      attributeCombo->setCurrentIndex( -1 );
     }
 
     /* Attempting the connection before we've set the current index above causes the
@@ -470,7 +470,7 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *item )
 
     /* Is this attribute included or excluded? */
     GCComboBox *attributeValueCombo = dynamic_cast< GCComboBox* >( ui->tableWidget->cellWidget( item->row(), VALUESCOLUMN ) );
-    GCDomElementInfo *info = m_elementContainer.elementInfo( treeItem );
+    GCElementInfo *info = m_elementContainer.elementInfo( treeItem );
 
     if( item->checkState() == Qt::Checked )
     {

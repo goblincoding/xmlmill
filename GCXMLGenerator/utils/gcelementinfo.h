@@ -26,8 +26,8 @@
  *                    <http://www.gnu.org/licenses/>
  */
 
-#ifndef GCDOMELEMENTINFO_H
-#define GCDOMELEMENTINFO_H
+#ifndef GCELEMENTINFO_H
+#define GCELEMENTINFO_H
 
 #include <QStringList>
 #include <QString>
@@ -41,11 +41,11 @@
   from the DOM document being built.
 */
 
-class GCDomElementInfo
+class GCElementInfo
 {
 public:
   /*! Constructor. QDomElement's default shallow copying means we'll be working with the element directly. */
-  explicit GCDomElementInfo( QDomElement element );
+  explicit GCElementInfo( QDomElement element );
 
   /*! If "exclude" is true, the element is excluded from the active document. */
   void setExcludeElement( bool exclude );
@@ -82,4 +82,4 @@ private:
   QStringList m_includedAttributes;
 };
 
-#endif // GCDOMELEMENTINFO_H
+#endif // GCELEMENTINFO_H

@@ -33,12 +33,12 @@
 
 class QTreeWidgetItem;
 class QDomElement;
-class GCDomElementInfo;
+class GCElementInfo;
 
 /// A container class in charge of mapping QTreeWidgetItems to their corresponding QDomElements.
 
 /*! This class is responsible for managing relationships between QTreeWidgetItems, QDomElements and
-    GCDomElementInfo objects.  This class does not own any objects other than the element info wrappers
+    GCElementInfo objects.  This class does not own any objects other than the element info wrappers
     (hence the non-const return values of all the getters), but simply provides convenient mappings and
     easy access to the various objects. */
 class GCElementInfoContainer
@@ -49,7 +49,7 @@ public:
 
   QTreeWidgetItem *treeWidgetItem( QDomElement element ) const;
   QDomElement element( QTreeWidgetItem *item ) const;
-  GCDomElementInfo *elementInfo( QTreeWidgetItem *item ) const;
+  GCElementInfo *elementInfo( QTreeWidgetItem *item ) const;
 
   QList< QDomElement > elements();
 
@@ -63,8 +63,8 @@ public:
   void clear();
 
 private:
-  QHash< QTreeWidgetItem*, GCDomElementInfo* > m_itemInfo;
-  QHash< QTreeWidgetItem*, QDomElement >       m_itemElement;
+  QHash< QTreeWidgetItem*, GCElementInfo* > m_itemInfo;
+  QHash< QTreeWidgetItem*, QDomElement >    m_itemElement;
 
 };
 

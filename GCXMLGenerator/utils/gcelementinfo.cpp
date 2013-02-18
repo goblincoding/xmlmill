@@ -26,16 +26,16 @@
  *                    <http://www.gnu.org/licenses/>
  */
 
-#include "gcdomelementinfo.h"
+#include "gcelementinfo.h"
 
 
 /*--------------------------------------------------------------------------------------*/
 
-int GCDomElementInfo::m_indexCount = 1;
+int GCElementInfo::m_indexCount = 1;
 
 /*--------------------------------------------------------------------------------------*/
 
-GCDomElementInfo::GCDomElementInfo( QDomElement element ) :
+GCElementInfo::GCElementInfo( QDomElement element ) :
   m_element        ( element ),
   m_elementExcluded( false ),
   m_index          ( m_indexCount ),
@@ -53,49 +53,49 @@ GCDomElementInfo::GCDomElementInfo( QDomElement element ) :
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomElementInfo::setExcludeElement( bool exclude )
+void GCElementInfo::setExcludeElement( bool exclude )
 {
   m_elementExcluded = exclude;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomElementInfo::excludeAttribute( const QString &attribute )
+void GCElementInfo::excludeAttribute( const QString &attribute )
 {
   m_includedAttributes.removeAll( attribute );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomElementInfo::includeAttribute( const QString &attribute )
+void GCElementInfo::includeAttribute( const QString &attribute )
 {
   m_includedAttributes.append( attribute );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-QString GCDomElementInfo::elementName() const
+QString GCElementInfo::elementName() const
 {
   return m_element.tagName();
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-const QStringList &GCDomElementInfo::includedAttributes() const
+const QStringList &GCElementInfo::includedAttributes() const
 {
   return m_includedAttributes;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDomElementInfo::elementExcluded() const
+bool GCElementInfo::elementExcluded() const
 {
   return m_elementExcluded;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-QString GCDomElementInfo::toString() const
+QString GCElementInfo::toString() const
 {
   QString text( "<" );
   text += m_element.tagName();
@@ -146,7 +146,7 @@ QString GCDomElementInfo::toString() const
 
 /*--------------------------------------------------------------------------------------*/
 
-int GCDomElementInfo::index() const
+int GCElementInfo::index() const
 {
   return m_index;
 }

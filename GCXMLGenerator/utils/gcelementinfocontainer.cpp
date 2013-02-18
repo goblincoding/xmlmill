@@ -27,7 +27,7 @@
  */
 
 #include "gcelementinfocontainer.h"
-#include "gcdomelementinfo.h"
+#include "gcelementinfo.h"
 
 #include <QDomElement>
 #include <QTreeWidgetItem>
@@ -63,7 +63,7 @@ QDomElement GCElementInfoContainer::element( QTreeWidgetItem *item ) const
 
 /*--------------------------------------------------------------------------------------*/
 
-GCDomElementInfo *GCElementInfoContainer::elementInfo( QTreeWidgetItem *item ) const
+GCElementInfo *GCElementInfoContainer::elementInfo( QTreeWidgetItem *item ) const
 {
   return m_itemInfo.value( item );
 }
@@ -80,7 +80,7 @@ QList< QDomElement > GCElementInfoContainer::elements()
 void GCElementInfoContainer::insert( QTreeWidgetItem *item, QDomElement element )
 {
   m_itemElement.insert( item, element );
-  m_itemInfo.insert( item, new GCDomElementInfo( element ) );
+  m_itemInfo.insert( item, new GCElementInfo( element ) );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -89,7 +89,7 @@ void GCElementInfoContainer::remove( QTreeWidgetItem *item )
 {
   m_itemElement.remove( item );
 
-  GCDomElementInfo *info = m_itemInfo.value( item );
+  GCElementInfo *info = m_itemInfo.value( item );
   delete info;
   info = NULL;
   m_itemInfo.remove( item );
@@ -113,7 +113,7 @@ bool GCElementInfoContainer::isEmpty()
 
 void GCElementInfoContainer::clear()
 {
-  foreach( GCDomElementInfo *info, m_itemInfo.values() )
+  foreach( GCElementInfo *info, m_itemInfo.values() )
   {
     delete info;
     info = NULL;

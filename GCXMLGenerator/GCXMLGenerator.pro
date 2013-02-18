@@ -46,16 +46,15 @@ SOURCES += main.cpp\
     utils/gccombobox.cpp \
     utils/gcmessagespace.cpp \
     forms/gchelpdialog.cpp \
-    forms/gcnewdbwizard.cpp \
     forms/gcsearchform.cpp \
     forms/gcadditemsform.cpp \
     forms/gcremoveitemsform.cpp \
     forms/gcsnippetsform.cpp \
-    utils/gcdomelementinfo.cpp \
     db/gcdbsessionmanager.cpp \
     forms/gcrestorefilesform.cpp \
     utils/gcglobalspace.cpp \
-    utils/gcelementinfocontainer.cpp
+    utils/gcelementinfocontainer.cpp \
+    utils/gcelementinfo.cpp
 
 HEADERS  += \
     db/gcdatabaseinterface.h \
@@ -65,22 +64,20 @@ HEADERS  += \
     utils/gccombobox.h \
     utils/gcmessagespace.h \
     forms/gchelpdialog.h \
-    forms/gcnewdbwizard.h \
     forms/gcsearchform.h \
     forms/gcadditemsform.h \
     forms/gcremoveitemsform.h \
     forms/gcsnippetsform.h \
-    utils/gcdomelementinfo.h \
     db/gcdbsessionmanager.h \
     forms/gcrestorefilesform.h \
     utils/gcglobalspace.h \
-    utils/gcelementinfocontainer.h
+    utils/gcelementinfocontainer.h \
+    utils/gcelementinfo.h
 
 FORMS    += \
     gcmainwindow.ui \
     forms/gcmessagedialog.ui \
     forms/gchelpdialog.ui \
-    forms/gcnewdbwizard.ui \
     forms/gcsearchform.ui \
     forms/gcremoveitemsform.ui \
     forms/gcadditemsform.ui \
