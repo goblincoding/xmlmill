@@ -28,19 +28,21 @@
 
 #include "gcsearchform.h"
 #include "ui_gcsearchform.h"
+#include "utils/gctreewidgetitem.h"
 
 #include <QMessageBox>
 #include <QDomElement>
 
 /*--------------------------------------------------------------------------------------*/
 
-GCSearchForm::GCSearchForm( const QList< QDomElement > &elements, const QString &docContents, QWidget *parent ) :
-  QDialog      ( parent ),
-  ui           ( new Ui::GCSearchForm ),
-  m_text       (),
-  m_wasFound   ( false ),
-  m_searchFlags( 0 ),
-  m_elements   ( elements )
+GCSearchForm::GCSearchForm( const QList< GCTreeWidgetItem* > &items, const QString &docContents, QWidget *parent ) :
+  QDialog        ( parent ),
+  ui             ( new Ui::GCSearchForm ),
+  m_text         (),
+  m_wasFound     ( false ),
+  m_previousIndex( -1 ),
+  m_searchFlags  ( 0 ),
+  m_elements     ( items )
 {
   ui->setupUi( this );
   ui->lineEdit->setFocus();
@@ -52,6 +54,9 @@ GCSearchForm::GCSearchForm( const QList< QDomElement > &elements, const QString 
   connect( ui->caseSensitiveCheckBox, SIGNAL( clicked() ), this, SLOT( caseSensitive() ) );
   connect( ui->wholeWordsCheckBox,    SIGNAL( clicked() ), this, SLOT( wholeWords() ) );
   connect( ui->searchUpCheckBox,      SIGNAL( clicked() ), this, SLOT( searchUp() ) );
+
+  connect( ui->lineEdit, SIGNAL( textChanged( QString ) ), this, SLOT( resetCursor() ) );
+  connect( ui->lineEdit, SIGNAL( returnPressed() ),        this, SLOT( search() ) );
 
   setAttribute( Qt::WA_DeleteOnClose );
 }
@@ -80,7 +85,7 @@ void GCSearchForm::search()
   if( found != m_wasFound &&
       m_wasFound )
   {
-    resetCursor();
+    resetCursor( true );
     found = m_text.find( searchText, m_searchFlags );
   }
 
@@ -99,8 +104,7 @@ void GCSearchForm::search()
     /* Extract the element name, attributes and attribute values. The element's
       name will always appear first. */
     QString elementName = nodeText.section( " ", 0, 0 );
-    nodeText.remove( elementName );
-    nodeText.trimmed();
+    nodeText = nodeText.remove( elementName ).trimmed();
 
     QHash< QString, QString > attributeMap;
     int nrAttValPairs = nodeText.count( "=" );
@@ -110,13 +114,13 @@ void GCSearchForm::search()
       /* Extract the attribute name and remove the name as well as the "=" sign
         from the node string. */
       QString attributeName = nodeText.mid( 0, nodeText.indexOf( "=" ) );
-      nodeText.remove( 0, nodeText.indexOf( "=" ) + 1 );
+      nodeText = nodeText.remove( 0, nodeText.indexOf( "=" ) + 1 );
 
       /* Extract the attribute value and remove the value as well as both "\"" from the
         node string. */
-      nodeText.remove( 0, nodeText.indexOf( "\"" ) + 1 );
+      nodeText = nodeText.remove( 0, nodeText.indexOf( "\"" ) + 1 );
       QString attributeValue = nodeText.mid( 0, nodeText.indexOf( "\"", 1 ) );
-      nodeText.remove( 0, nodeText.indexOf( attributeValue ) + attributeValue.length() + 1 );
+      nodeText = nodeText.remove( 0, nodeText.indexOf( attributeValue ) + attributeValue.length() + 1 );
 
       attributeMap.insert( attributeName.trimmed(), attributeValue.trimmed() );
     }
@@ -125,9 +129,9 @@ void GCSearchForm::search()
       hit of this search, we need to figure out which of the DOM elements it corresponds to. */
     for( int i = 0; i < m_elements.size(); ++i )
     {
-      if( m_elements.at( i ).tagName() == elementName )
+      if( m_elements.at( i )->element().tagName() == elementName )
       {
-        QDomNamedNodeMap attributeNodes = m_elements.at( i ).attributes();
+        QDomNamedNodeMap attributeNodes = m_elements.at( i )->element().attributes();
 
         /* First ensure that this node has exactly the right number of attributes
           we expect. */
@@ -155,8 +159,12 @@ void GCSearchForm::search()
 
           if( exactMatch )
           {
-            foundMatch( m_elements.at( i ) );
-            break;
+            if( m_previousIndex < m_elements.at( i )->index() )
+            {
+              foundMatch( m_elements.at( i )->element() );
+              m_previousIndex = m_elements.at( i )->index();
+              break;
+            }
           }
         }
       }
@@ -170,19 +178,29 @@ void GCSearchForm::search()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCSearchForm::resetCursor()
+void GCSearchForm::resetCursor( bool showMsg )
 {
   /* Reset cursor so that we may keep cycling through the document content. */
   if( ui->searchUpCheckBox->isChecked() )
   {
     m_text.moveCursor( QTextCursor::End );
-    QMessageBox::information( this, "Reached Top", "Search reached top, continuing at bottom." );
+
+    if( showMsg )
+    {
+      QMessageBox::information( this, "Reached Top", "Search reached top, continuing at bottom." );
+    }
   }
   else
   {
     m_text.moveCursor( QTextCursor::Start );
-    QMessageBox::information( this, "Reached Bottom", "Search reached bottom, continuing at top." );
+
+    if( showMsg )
+    {
+      QMessageBox::information( this, "Reached Bottom", "Search reached bottom, continuing at top." );
+    }
   }
+
+  m_previousIndex = -1;
 }
 
 /*--------------------------------------------------------------------------------------*/

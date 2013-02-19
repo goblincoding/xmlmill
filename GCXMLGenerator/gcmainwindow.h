@@ -31,7 +31,6 @@
 
 #include <QMainWindow>
 #include <QHash>
-#include "utils/gcelementinfocontainer.h"
 
 namespace Ui
 {
@@ -98,17 +97,6 @@ private slots:
       a database for the current session. */
   void initialise();
 
-  /*! Connected to the UI tree widget's "itemChanged( QTreeWidgetItem*, int )" signal.
-      Called only when a user edits the name of an existing tree widget item
-      (i.e. element). An element with the new name will be added to the DB
-      (if it doesn't yet exist) with the same associated attributes and attribute
-      values as the element name it is replacing (the "old" element will not be
-      removed from the DB). All occurrences of the old name throughout the current
-      DOM will be replaced with the new name and the tree widget will be updated
-      accordingly.
-      \sa elementSelected */
-  void elementChanged( QTreeWidgetItem *item, int column );
-
   /*! Connected to the UI tree widget's "itemClicked( QTreeWidgetItem*, int )" signal.
       Triggered by clicking on a tree widget item, the trigger will populate
       the table widget with the names of the attributes associated with the
@@ -116,8 +104,7 @@ private slots:
       values.  This function will also create "empty" cells and combo boxes so
       that the user may add new attribute names to the selected element.  The
       addition of new attributes and values will automatically be persisted
-      to the database.
-      \sa elementChanged */
+      to the database. */
   void elementSelected( QTreeWidgetItem *item, int column );
 
   /*! Connected to the UI table widget's "itemChanged( QTableWidgetItem* )" signal.
@@ -317,6 +304,11 @@ private slots:
       \sa revertDirectEdit */
   void saveDirectEdit();
 
+  /*! Displays the DOM document's content in the text edit area and highlights the text related to the active
+      item/element.
+      \sa highlightTextElement */
+  void setTextEditContent( QTreeWidgetItem *item = 0 );
+
   /*! Connectd to the "Expand All" checkbox's "clicked( bool )" signal.  This slot toggles the expandsion or collapses
       of UI tree widget. */
   void collapseOrExpandTreeWidget( bool checked );
@@ -336,7 +328,7 @@ private slots:
 
   /*! Resets the DOM and DOM related flags and cleans and clears all maps containing DOM element information.
       \sa queryResetDOM */
-  void resetDOM();
+  void reset();
 
   /*! Triggered when the "empty profile help" button is clicked.  This button is only shown when the active profile
       is empty and provides information that will help the user populate the active profile. */
@@ -383,10 +375,6 @@ private:
   /*! Displays a message in the status bar. */
   void setStatusBarMessage( const QString &message );
 
-  /*! Displays the DOM document's content in the text edit area.
-      \sa highlightTextElement */
-  void setTextEditContent( QTreeWidgetItem *item = 0 );
-
   /*! Highlights the currently active DOM element in the text edit area.
       \sa setTextEditContent */
   void highlightTextElement( QTreeWidgetItem *item );
@@ -420,7 +408,7 @@ private:
 
   /*! Called whenever an action may or will reset the DOM document and prompts the user
       to confirm that it's OK to do so (if not, the action won't be completed).
-      \sa resetDOM */
+      \sa reset */
   bool queryResetDOM( const QString &resetReason );
 
   /*! Imports the DOM content to the active database.
@@ -442,7 +430,7 @@ private:
 
   Ui::GCMainWindow *ui;
   QSignalMapper    *m_signalMapper;
-  QDomDocument     *m_domDoc;
+
   QTableWidgetItem *m_activeAttribute;
   QWidget          *m_currentCombo;
   QTimer           *m_saveTimer;
@@ -457,7 +445,6 @@ private:
   bool              m_fileContentsChanged;
 
   QHash< QWidget*, int/* table row*/ > m_comboBoxes;
-  GCElementInfoContainer m_elementContainer;
 
 };
 
