@@ -54,7 +54,9 @@ SOURCES += main.cpp\
     forms/gcrestorefilesform.cpp \
     utils/gcglobalspace.cpp \
     utils/gcelementinfocontainer.cpp \
-    utils/gcelementinfo.cpp
+    utils/gcelementinfo.cpp \
+    utils/gcdomtreewidget.cpp \
+    utils/gctreewidgetitem.cpp
 
 HEADERS  += \
     db/gcdatabaseinterface.h \
@@ -72,7 +74,9 @@ HEADERS  += \
     forms/gcrestorefilesform.h \
     utils/gcglobalspace.h \
     utils/gcelementinfocontainer.h \
-    utils/gcelementinfo.h
+    utils/gcelementinfo.h \
+    utils/gcdomtreewidget.h \
+    utils/gctreewidgetitem.h
 
 FORMS    += \
     gcmainwindow.ui \
