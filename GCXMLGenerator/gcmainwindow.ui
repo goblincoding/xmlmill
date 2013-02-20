@@ -120,7 +120,7 @@
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <widget class="GCDOMTreeWidget" name="treeWidget">
+         <widget class="QTreeWidget" name="treeWidget">
           <property name="editTriggers">
            <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
           </property>
@@ -783,13 +783,6 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <customwidgets>
-  <customwidget>
-   <class>GCDOMTreeWidget</class>
-   <extends>QTreeWidget</extends>
-   <header location="global">utils/gcdomtreewidget.h</header>
-  </customwidget>
- </customwidgets>
  <tabstops>
   <tabstop>addElementComboBox</tabstop>
   <tabstop>addChildElementButton</tabstop>

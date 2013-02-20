@@ -128,6 +128,9 @@ private:
   QDomDocument        m_domDoc;
   bool                m_treeItemActivated;
 
+  QHash< QTreeWidgetItem*, GCElementInfo* > m_elementInfo;
+  QHash< QTreeWidgetItem*, QDomElement >       m_treeItemNodes;
+
   QHash< QString /*attr*/, bool /*increment*/ > m_attributes;
   QHash< QString /*attr*/, QString /*value*/ >  m_originalValues;
 

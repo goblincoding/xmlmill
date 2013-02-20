@@ -26,28 +26,26 @@
  *                    <http://www.gnu.org/licenses/>
  */
 
-#ifndef GCTREEWIDGETITEM_H
-#define GCTREEWIDGETITEM_H
+#ifndef GCELEMENTINFO_H
+#define GCELEMENTINFO_H
 
-#include <QTreeWidgetItem>
 #include <QStringList>
+#include <QString>
 #include <QDomElement>
 
-/// Each GCTreeWidgetItem "wraps" an associated DOM element.
+/// QDomElement wrapper class.
 
 /**
-  Associates a QTreeWidgetItem with a QDomElement and provides additional information
-  in the XML Mill context regarding whether or not the associated element or its attributes
-  should be included in or excluded from the DOM document being built.  Objects of this type DO NOT
-  OWN the DOM elements they wrap, hence the non-const return types (QDomElement's default shallow
-  copy constructor means that, in effect, objects of this type only own pointers to
-  the DOM elements existing elsewhere).
+  A QDomElement wrapper that provides additional information in the XML Mill
+  context regarding whether or not the element or any of its attributes should be excluded
+  from the DOM document being built.
 */
-class GCTreeWidgetItem : public QTreeWidgetItem
+
+class GCElementInfo
 {
 public:
   /*! Constructor. QDomElement's default shallow copying means we'll be working with the element directly. */
-  explicit GCTreeWidgetItem( QDomElement element, int index, GCTreeWidgetItem *parent = 0 );
+  explicit GCElementInfo( QDomElement element );
 
   /*! If "exclude" is true, the element is excluded from the active document. */
   void setExcludeElement( bool exclude );
@@ -56,10 +54,10 @@ public:
   void excludeAttribute( const QString &attribute );
 
   /*! Includes "attribute" in the active document. */
-  void includeAttribute( const QString &attribute, const QString &value );
+  void includeAttribute( const QString &attribute );
 
-  /*! Provides access to the wrapped element. */
-  QDomElement element() const;
+  /*! Returns the wrapped element's name. */
+  QString elementName() const;
 
   /*! Returns a list of all the attributes that should be included in the active document. */
   const QStringList &includedAttributes() const;
@@ -74,13 +72,14 @@ public:
   /*! Returns the index associated with this element.  Indices in this context are rough indications
       of an element's relative position within the DOM document (approximating "line numbers"). */
   int index() const;
-  
+
 private:
   QDomElement m_element;
   bool m_elementExcluded;
   int  m_index;
 
-  QStringList m_includedAttributes;  
+  static int m_indexCount;
+  QStringList m_includedAttributes;
 };
 
-#endif // GCTREEWIDGETITEM_H
+#endif // GCELEMENTINFO_H

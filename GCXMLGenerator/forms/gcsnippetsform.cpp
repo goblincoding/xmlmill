@@ -29,8 +29,8 @@
 #include "gcsnippetsform.h"
 #include "ui_gcsnippetsform.h"
 #include "db/gcdatabaseinterface.h"
-#include "utils/gctreewidgetitem.h"
 #include "utils/gccombobox.h"
+#include "utils/gcelementinfo.h"
 #include "utils/gcmessagespace.h"
 #include "utils/gcglobalspace.h"
 
@@ -54,6 +54,8 @@ GCSnippetsForm::GCSnippetsForm( const QString &elementName, QDomElement parentEl
   m_parentElement    ( &parentElement ),
   m_domDoc           (),
   m_treeItemActivated( false ),
+  m_elementInfo      (),
+  m_treeItemNodes    (),
   m_attributes       (),
   m_originalValues   ()
 {
@@ -77,6 +79,7 @@ GCSnippetsForm::GCSnippetsForm( const QString &elementName, QDomElement parentEl
 
 GCSnippetsForm::~GCSnippetsForm()
 {
+  deleteElementInfo();
   delete ui;
 }
 
@@ -86,77 +89,72 @@ void GCSnippetsForm::elementSelected( QTreeWidgetItem *item, int column )
 {
   m_treeItemActivated = true;
 
-  GCTreeWidgetItem *gcItem = dynamic_cast< GCTreeWidgetItem* >( item );
+  ui->tableWidget->clearContents();   // also deletes current items
+  ui->tableWidget->setRowCount( 0 );
 
-  if( gcItem )
-  {
-    ui->tableWidget->clearContents();   // also deletes current items
-    ui->tableWidget->setRowCount( 0 );
+  /* Populate the table widget with the attributes and values associated with the element selected. */
+  QString elementName = item->text( column );
+  QStringList attributeNames = GCDataBaseInterface::instance()->attributes( elementName );
 
-    /* Populate the table widget with the attributes and values associated with the element selected. */
-    QString elementName = gcItem->text( column );
-    QStringList attributeNames = GCDataBaseInterface::instance()->attributes( elementName );
-
-    /* Create and add the "increment" checkbox to the first column of the table widget, add all the
+  /* Create and add the "increment" checkbox to the first column of the table widget, add all the
     known attribute names to the cells in the second column of the table widget, create and populate
     combo boxes with the values associated with the attributes in question and insert the combo boxes
     into the third column of the table widget. */
-    for( int i = 0; i < attributeNames.count(); ++i )
+  for( int i = 0; i < attributeNames.count(); ++i )
+  {
+    ui->tableWidget->setRowCount( i + 1 );
+
+    QCheckBox *checkBox = new QCheckBox;
+
+    /* Overrides main style sheet. */
+    checkBox->setStyleSheet( "QCheckBox{ padding-right: 1px; }"
+                             "QCheckBox::indicator{ subcontrol-position: center; width: 15px; height: 15px; }" );
+
+    ui->tableWidget->setCellWidget( i, INCRCOLUMN, checkBox );
+    connect( checkBox, SIGNAL( clicked() ), this, SLOT( attributeValueChanged() ) );
+    checkBox->setChecked( m_attributes.value( elementName + attributeNames.at( i ) ) );
+
+    /* Items are editable by default, disable this option. */
+    QTableWidgetItem *label = new QTableWidgetItem( attributeNames.at( i ) );
+    label->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable );
+    ui->tableWidget->setItem( i, LABELCOLUMN, label );
+
+    GCComboBox *attributeCombo = new GCComboBox;
+    attributeCombo->addItems( GCDataBaseInterface::instance()->attributeValues( elementName, attributeNames.at( i ) ) );
+    attributeCombo->setEditable( true );
+    attributeCombo->setCurrentIndex( attributeCombo->findText(
+                                       m_domDoc
+                                       .elementsByTagName( elementName )
+                                       .at( 0 )
+                                       .toElement()
+                                       .attribute( attributeNames.at( i ) ) ) );
+
+    connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged() ) );
+
+    if( m_elementInfo.value( item )->includedAttributes().contains( attributeNames.at( i ) ) )
     {
-      ui->tableWidget->setRowCount( i + 1 );
-
-      QCheckBox *checkBox = new QCheckBox;
-
-      /* Overrides main style sheet. */
-      checkBox->setStyleSheet( "QCheckBox{ padding-right: 1px; }"
-                               "QCheckBox::indicator{ subcontrol-position: center; width: 15px; height: 15px; }" );
-
-      ui->tableWidget->setCellWidget( i, INCRCOLUMN, checkBox );
-      connect( checkBox, SIGNAL( clicked() ), this, SLOT( attributeValueChanged() ) );
-      checkBox->setChecked( m_attributes.value( elementName + attributeNames.at( i ) ) );
-
-      /* Items are editable by default, disable this option. */
-      QTableWidgetItem *label = new QTableWidgetItem( attributeNames.at( i ) );
-      label->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable );
-      ui->tableWidget->setItem( i, LABELCOLUMN, label );
-
-      GCComboBox *attributeCombo = new GCComboBox;
-      attributeCombo->addItems( GCDataBaseInterface::instance()->attributeValues( elementName, attributeNames.at( i ) ) );
-      attributeCombo->setEditable( true );
-      attributeCombo->setCurrentIndex( attributeCombo->findText(
-                                         m_domDoc
-                                         .elementsByTagName( elementName )
-                                         .at( 0 )
-                                         .toElement()
-                                         .attribute( attributeNames.at( i ) ) ) );
-
-      connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged() ) );
-
-      if( gcItem->includedAttributes().contains( attributeNames.at( i ) ) )
-      {
-        label->setCheckState( Qt::Checked );
-        attributeCombo->setEnabled( true );
-      }
-      else
-      {
-        label->setCheckState( Qt::Unchecked );
-        attributeCombo->setEnabled( false );
-      }
-
-      ui->tableWidget->setCellWidget( i, COMBOCOLUMN, attributeCombo );
-
-      if( gcItem->checkState( 0 ) == Qt::Unchecked )
-      {
-        ui->tableWidget->setEnabled( false );
-      }
-      else
-      {
-        ui->tableWidget->setEnabled( true );
-      }
+      label->setCheckState( Qt::Checked );
+      attributeCombo->setEnabled( true );
+    }
+    else
+    {
+      label->setCheckState( Qt::Unchecked );
+      attributeCombo->setEnabled( false );
     }
 
-    updateCheckStates( gcItem );
+    ui->tableWidget->setCellWidget( i, COMBOCOLUMN, attributeCombo );
+
+    if( item->checkState( 0 ) == Qt::Unchecked )
+    {
+      ui->tableWidget->setEnabled( false );
+    }
+    else
+    {
+      ui->tableWidget->setEnabled( true );
+    }
   }
+
+  updateCheckStates( item );
 
   ui->tableWidget->horizontalHeader()->setResizeMode( LABELCOLUMN, QHeaderView::Stretch );
   ui->tableWidget->horizontalHeader()->setResizeMode( COMBOCOLUMN, QHeaderView::Stretch );
@@ -170,18 +168,23 @@ void GCSnippetsForm::attributeChanged( QTableWidgetItem *item )
 {
   if( !m_treeItemActivated )
   {
-    GCTreeWidgetItem *gcItem = dynamic_cast< GCTreeWidgetItem* >( ui->treeWidget->currentItem() );
+    QTreeWidgetItem *treeItem = ui->treeWidget->currentItem();
+    GCElementInfo *info = const_cast< GCElementInfo* >( m_elementInfo.value( treeItem ) );
+
     GCComboBox *attributeValueCombo = dynamic_cast< GCComboBox* >( ui->tableWidget->cellWidget( item->row(), 1 ) );
+    QDomElement currentElement = m_treeItemNodes.value( treeItem );  // shallow copy
 
     if( item->checkState() == Qt::Checked )
     {
+      currentElement.setAttribute( item->text(), attributeValueCombo->currentText() );
       attributeValueCombo->setEnabled( true );
-      gcItem->includeAttribute( item->text(), attributeValueCombo->currentText() );
+      info->includeAttribute( item->text() );
     }
     else
     {
+      currentElement.removeAttribute( item->text() );
       attributeValueCombo->setEnabled( false );
-      gcItem->excludeAttribute( item->text() );
+      info->excludeAttribute( item->text() );
     }
   }
 }
@@ -226,26 +229,37 @@ void GCSnippetsForm::addSnippet()
   QDomDocument doc = m_domDoc.cloneNode().toDocument();
   QStringList elementNames;
 
+  foreach( QTreeWidgetItem *item, m_treeItemNodes.keys() )
+  {
+    if( m_elementInfo.value( item )->elementExcluded() )
+    {
+      /* The way this class has been implemented there will only ever be one element with this name. */
+      QDomNode parent = doc.elementsByTagName( m_treeItemNodes.value( item ).tagName() ).at( 0 ).parentNode();
+      parent.removeChild( doc.elementsByTagName( m_treeItemNodes.value( item ).tagName() ).at( 0 ) );
+    }
+    else
+    {
+      elementNames.append( m_treeItemNodes.value( item ).tagName() );
+    }
+  }
+
   /* Note to future self - if this looks weird, it's because it is.  QDomElement's habit of shallow
     copying everything means it's pretty darn difficult getting hold of a tree widget item from the
     m_treeItemNodes map.  This way, although clunkier, works significantly better. Furthermore, the
     reason it works is because there will only be one element of each type...if that wasn't the case
     sticking them into a hash would have been a mess. */
-  QHash< QString, GCTreeWidgetItem* > treeItems;
+  QHash< QString, QTreeWidgetItem* > treeItems;
 
-  foreach( GCTreeWidgetItem *item, ui->treeWidget->items() )
+  QTreeWidgetItemIterator itemIterator( ui->treeWidget );
+
+  while( *itemIterator )
   {
-    if( item->elementExcluded() )
+    if( elementNames.contains( m_treeItemNodes.value( *itemIterator ).tagName() ) )
     {
-      /* The way this class has been implemented there will only ever be one element with this name. */
-      QDomNode parent = doc.elementsByTagName( item->element().tagName() ).at( 0 ).parentNode();
-      parent.removeChild( doc.elementsByTagName( item->element().tagName() ).at( 0 ) );
+      treeItems.insert( m_treeItemNodes.value( *itemIterator ).tagName(), ( *itemIterator ) );
     }
-    else
-    {
-      elementNames.append( item->element().tagName() );
-      treeItems.insert( item->element().tagName(), item );
-    }
+
+    ++itemIterator;
   }
 
   /* Add the required number of snippets. */
@@ -269,7 +283,7 @@ void GCSnippetsForm::addSnippet()
         QDomAttr attr = attributes.item( k ).toAttr();
         QString attributeValue = m_originalValues.value( elementName + attr.name() );
 
-        if( !treeItems.value( elementName )->includedAttributes().contains( attr.name() ) )
+        if( !m_elementInfo.value( treeItems.value( elementName ) )->includedAttributes().contains( attr.name() ) )
         {
           attributesToRemove << attr.name() ;
         }
@@ -320,7 +334,7 @@ void GCSnippetsForm::addSnippet()
 
 void GCSnippetsForm::populateTreeWidget( const QString &elementName )
 {
-  GCTreeWidgetItem *item = new GCTreeWidgetItem( m_domDoc.documentElement(), 0 );
+  QTreeWidgetItem *item = new QTreeWidgetItem;
   item->setText( 0, elementName );
   item->setCheckState( 0, Qt::Checked );
   ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
@@ -337,7 +351,11 @@ void GCSnippetsForm::populateTreeWidget( const QString &elementName )
 void GCSnippetsForm::processNextElement( const QString &elementName, QTreeWidgetItem *parentItem, QDomNode parentNode )
 {
   QDomElement element = m_domDoc.createElement( elementName );
-  ui->treeWidget->addElement( elementName );
+
+  /* This looks weird, but remember that the "parent" tree widget item is on the same level
+    as the QDomElement. */
+  m_treeItemNodes.insert( parentItem, element );
+  m_elementInfo.insert( parentItem, new GCElementInfo( element ) );
 
   /* This will only be the case the first time this function is called. */
   if( parentNode.isNull() )
@@ -385,12 +403,7 @@ void GCSnippetsForm::updateCheckStates( QTreeWidgetItem *item )
   /* Checking or unchecking an item must recursively update its children as well. */
   if( item->checkState( 0 ) == Qt::Checked )
   {
-    GCTreeWidgetItem* gcItem = dynamic_cast< GCTreeWidgetItem* >( item );
-
-    if( gcItem )
-    {
-      gcItem->setExcludeElement( false );
-    }
+    const_cast< GCElementInfo* >( m_elementInfo.value( item ) )->setExcludeElement( false );
 
     /* When a low-level child is activated, we need to also update its parent tree all the way
       up to the root element since including a child automatically implies that the parent
@@ -401,16 +414,14 @@ void GCSnippetsForm::updateCheckStates( QTreeWidgetItem *item )
 
     while( parent && parent->checkState( 0 ) != Qt::Checked )
     {
-      GCTreeWidgetItem* gcParentItem = dynamic_cast< GCTreeWidgetItem* >( parent );
-      gcParentItem->setExcludeElement( false );
+      const_cast< GCElementInfo* >( m_elementInfo.value( parent ) )->setExcludeElement( false );
       parent->setCheckState( 0, Qt::Checked );
       parent = parent->parent();
     }
   }
   else
   {
-    GCTreeWidgetItem* gcParentItem = dynamic_cast< GCTreeWidgetItem* >( item );
-    gcParentItem->setExcludeElement( true );
+    const_cast< GCElementInfo* >( m_elementInfo.value( item ) )->setExcludeElement( true );
 
     for( int i = 0; i < item->childCount(); ++i )
     {
@@ -418,6 +429,19 @@ void GCSnippetsForm::updateCheckStates( QTreeWidgetItem *item )
       updateCheckStates( item->child( i ) );
     }
   }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCSnippetsForm::deleteElementInfo()
+{
+  foreach( GCElementInfo *info, m_elementInfo.values() )
+  {
+    delete info;
+    info = NULL;
+  }
+
+  m_elementInfo.clear();
 }
 
 /*--------------------------------------------------------------------------------------*/

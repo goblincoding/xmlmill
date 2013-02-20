@@ -35,7 +35,7 @@
      <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="elementLayout">
        <item>
-        <widget class="GCDOMTreeWidget" name="treeWidget">
+        <widget class="QTreeWidget" name="treeWidget">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>1</horstretch>
@@ -200,13 +200,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>GCDOMTreeWidget</class>
-   <extends>QTreeWidget</extends>
-   <header location="global">utils/gcdomtreewidget.h</header>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="../resources/gcresources.qrc"/>
  </resources>

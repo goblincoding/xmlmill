@@ -38,7 +38,6 @@ namespace Ui
 }
 
 class QDomElement;
-class GCTreeWidgetItem;
 
 /// Search through the current document for a specific element/attribute/value.
 
@@ -55,7 +54,7 @@ public:
   /*! Constructor.
       @param elements - a list of all the elements in the active document.
       @param docContents - the string representation of the active document's DOM content. */
-  explicit GCSearchForm( const QList< GCTreeWidgetItem* > &items, const QString &docContents, QWidget *parent = 0 );
+  explicit GCSearchForm( const QList< QDomElement > &elements, const QString &docContents, QWidget *parent = 0 );
 
   /*! Destructor. */
   ~GCSearchForm();
@@ -76,7 +75,7 @@ private slots:
   /*! Resets the text edit's cursor to the top or the bottom of the text edit (depending
       on the direction of the search) so that the user can keep cycling through all the
       matches (if any). */
-  void resetCursor( bool showMsg = false );
+  void resetCursor();
 
   /*! Triggered when the user ticks the "Search Up" checkbox. If checked, the search
       will try to find a match above the current cursor position, otherwise the search will
@@ -99,10 +98,9 @@ private:
   Ui::GCSearchForm *ui;
   QTextEdit         m_text;
   bool              m_wasFound;
-  int               m_previousIndex;
 
   QTextDocument::FindFlags m_searchFlags;
-  QList< GCTreeWidgetItem* >  m_elements;
+  QList< QDomElement >     m_elements;
 
 };
 
