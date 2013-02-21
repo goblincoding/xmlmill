@@ -89,6 +89,7 @@ void GCAddItemsForm::populateCombo()
 
   ui->comboBox->addItem( CREATE_NEW );
   ui->comboBox->addItems( elements );
+  comboValueChanged( CREATE_NEW );
 }
 
 /*--------------------------------------------------------------------------------------*/

@@ -89,13 +89,22 @@ void GCDOMTreeWidget::processNextElement( const QString &element )
       processNextElement( child );
     }
   }
+
+  setCurrentItem( currentItem()->parent() );  // required to enforce sibling relationships
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 void GCDOMTreeWidget::addItem( const QString &element )
 {
-  insertItem( element, currentItem()->childCount() - 1 );
+  if( currentItem() )
+  {
+    insertItem( element, currentItem()->childCount() );
+  }
+  else
+  {
+    insertItem( element, 0 );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
