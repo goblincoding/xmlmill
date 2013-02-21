@@ -39,6 +39,7 @@ GCDOMTreeWidget::GCDOMTreeWidget( QWidget *parent ) :
   m_domDoc   ( new QDomDocument ),
   m_isEmpty  ( true )
 {
+  connect( this, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ), this, SLOT( emitGCItemClicked( QTreeWidgetItem*,int ) ) );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -46,6 +47,13 @@ GCDOMTreeWidget::GCDOMTreeWidget( QWidget *parent ) :
 GCDOMTreeWidget::~GCDOMTreeWidget()
 {
   delete m_domDoc;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+GCTreeWidgetItem* GCDOMTreeWidget::currentGCItem()
+{
+  return dynamic_cast< GCTreeWidgetItem* >( currentItem() );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -68,6 +76,8 @@ void GCDOMTreeWidget::constructElementHierarchy( const QString &baseElementName 
   {
     processNextElement( baseElementName );
   }
+
+  expandAll();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -124,6 +134,13 @@ void GCDOMTreeWidget::insertItem( const QString &element, int index )
   }
 
   setCurrentItem( item );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDOMTreeWidget::emitGCItemClicked( QTreeWidgetItem *item, int column )
+{
+  emit gcItemClicked(  dynamic_cast< GCTreeWidgetItem* >( item ), column );
 }
 
 /*--------------------------------------------------------------------------------------*/

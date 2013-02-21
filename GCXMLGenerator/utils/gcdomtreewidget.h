@@ -41,9 +41,13 @@ public:
   GCDOMTreeWidget( QWidget *parent = 0 );
   ~GCDOMTreeWidget();
 
+  GCTreeWidgetItem* currentGCItem();
+
   /*! This function starts the recursive process of populating the tree widget with items
       consisting of the element hierarchy starting at "baseElementName". If "baseElementName"
-      is empty, a complete hierarchy of the current active profile will be constructed.
+      is empty, a complete hierarchy of the current active profile will be constructed. This
+      method also automatically clears and resets GCDOMTreeWidget's state and expands the
+      entire tree.
       \sa processNextElement */
   void constructElementHierarchy( const QString &baseElementName = QString() );
 
@@ -56,6 +60,12 @@ public:
   void insertItem( const QString &element, int index );
 
   void clearAndReset();
+
+signals:
+  void gcItemClicked( GCTreeWidgetItem*,int );
+
+private slots:
+  void emitGCItemClicked( QTreeWidgetItem* item, int column );
 
 private:
   /*! Processes individual elements.  This function is called recursively from within
