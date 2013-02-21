@@ -59,7 +59,7 @@ GCRemoveItemsForm::GCRemoveItemsForm( QWidget *parent ) :
   connect( ui->treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ), this, SLOT( elementSelected( QTreeWidgetItem*,int ) ) );
   connect( ui->comboBox,   SIGNAL( currentIndexChanged( QString ) ),      this, SLOT( attributeActivated( QString ) ) );
 
-  populateTreeWidget();
+  ui->treeWidget->constructElementHierarchy();
 
   setAttribute( Qt::WA_DeleteOnClose );
 }
@@ -69,48 +69,6 @@ GCRemoveItemsForm::GCRemoveItemsForm( QWidget *parent ) :
 GCRemoveItemsForm::~GCRemoveItemsForm()
 {
   delete ui;
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCRemoveItemsForm::populateTreeWidget()
-{
-  ui->treeWidget->clear();
-
-  foreach( QString element, GCDataBaseInterface::instance()->knownRootElements() )
-  {
-    QTreeWidgetItem *item = new QTreeWidgetItem;
-    item->setText( 0, element );
-
-    ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
-    processNextElement( element, item );
-  }
-
-  ui->treeWidget->expandAll();
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCRemoveItemsForm::processNextElement( const QString &element, QTreeWidgetItem *parent )
-{
-  QStringList children = GCDataBaseInterface::instance()->children( element );
-
-  foreach( QString child, children )
-  {
-    QTreeWidgetItem *item = new QTreeWidgetItem;
-    item->setText( 0, child );
-
-    parent->addChild( item );  // takes ownership
-
-    /* Since it isn't illegal to have elements with children of the same name, we cannot
-        block it in the DB, however, if we DO have elements with children of the same name,
-        this recursive call enters an infinite loop, so we need to make sure that doesn't
-        happen. */
-    if( child != element )
-    {
-      processNextElement( child, item );
-    }
-  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -219,7 +177,7 @@ void GCRemoveItemsForm::deleteElement( const QString &element )
 
   ui->comboBox->clear();
   ui->plainTextEdit->clear();
-  populateTreeWidget();
+  ui->treeWidget->constructElementHierarchy();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -253,7 +211,7 @@ void GCRemoveItemsForm::removeChildElement()
 
       ui->comboBox->clear();
       ui->plainTextEdit->clear();
-      populateTreeWidget();
+      ui->treeWidget->constructElementHierarchy();
     }
   }
 }

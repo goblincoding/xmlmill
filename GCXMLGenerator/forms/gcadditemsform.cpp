@@ -53,9 +53,7 @@ GCAddItemsForm::GCAddItemsForm( QWidget *parent ) :
   connect( ui->comboBox,       SIGNAL( activated( QString ) ), this, SLOT( comboValueChanged( QString ) ) );
 
   populateCombo();
-
   ui->treeWidget->constructElementHierarchy();
-  ui->treeWidget->expandAll();
 
   if( ui->treeWidget->topLevelItemCount() != 0 )
   {
