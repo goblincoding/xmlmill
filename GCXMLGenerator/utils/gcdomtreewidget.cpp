@@ -58,7 +58,7 @@ GCTreeWidgetItem* GCDOMTreeWidget::currentGCItem()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDOMTreeWidget::constructElementHierarchy( const QString &baseElementName )
+void GCDOMTreeWidget::populateFromDatabase( const QString &baseElementName )
 {
   clearAndReset();
 
@@ -119,21 +119,40 @@ void GCDOMTreeWidget::addItem( const QString &element )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDOMTreeWidget::insertItem( const QString &element, int index )
+void GCDOMTreeWidget::addItem( const QString &element, Qt::CheckState state )
 {
-  GCTreeWidgetItem *item = new GCTreeWidgetItem( element );
+  addItem( element );
+  currentItem()->setCheckState( 0, state );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDOMTreeWidget::insertItem( const QString &elementName, int index )
+{
+  QDomElement element = m_domDoc->createElement( elementName );
+  GCTreeWidgetItem *item = new GCTreeWidgetItem( elementName, element );
 
   if( m_isEmpty )
   {
     invisibleRootItem()->addChild( item );  // takes ownership
+    m_domDoc->appendChild( element );
     m_isEmpty = false;
   }
   else
   {
     currentItem()->insertChild( index, item );
+    currentGCItem()->element().appendChild( element );
   }
 
   setCurrentItem( item );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDOMTreeWidget::insertItem( const QString &elementName, int index, Qt::CheckState state )
+{
+  insertItem( elementName, index );
+  currentItem()->setCheckState( 0, state );
 }
 
 /*--------------------------------------------------------------------------------------*/

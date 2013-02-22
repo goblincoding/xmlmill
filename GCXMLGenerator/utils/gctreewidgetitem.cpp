@@ -30,8 +30,140 @@
 /*--------------------------------------------------------------------------------------*/
 
 GCTreeWidgetItem::GCTreeWidgetItem( const QString &text )
+{  
+  init( text, QDomElement(), -1 );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+GCTreeWidgetItem::GCTreeWidgetItem( const QString &text, QDomElement element )
 {
-  this->setText( 0, text );
+  init( text, element, -1 );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+GCTreeWidgetItem::GCTreeWidgetItem( const QString &text, QDomElement element, int index )
+{
+  init( text, element, index );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCTreeWidgetItem::init( const QString &text, QDomElement element, int index )
+{
+  m_element = element;
+  m_elementExcluded = false;
+  m_index = index;
+
+  setText( 0, text );
+
+  QDomNamedNodeMap attributes = m_element.attributes();
+
+  for( int i = 0; i < attributes.size(); ++i )
+  {
+    m_includedAttributes.append( attributes.item( i ).toAttr().name() );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+QDomElement GCTreeWidgetItem::element() const
+{
+  return m_element;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCTreeWidgetItem::setExcludeElement( bool exclude )
+{
+  m_elementExcluded = exclude;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCTreeWidgetItem::excludeAttribute( const QString &attribute )
+{
+  m_includedAttributes.removeAll( attribute );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCTreeWidgetItem::includeAttribute( const QString &attribute )
+{
+  m_includedAttributes.append( attribute );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+const QStringList &GCTreeWidgetItem::includedAttributes() const
+{
+  return m_includedAttributes;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCTreeWidgetItem::elementExcluded() const
+{
+  return m_elementExcluded;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+QString GCTreeWidgetItem::toString() const
+{
+  QString text( "<" );
+  text += m_element.tagName();
+
+  QDomNamedNodeMap attributes = m_element.attributes();
+
+  /* For elements with no attributes (e.g. <element/>). */
+  if( attributes.isEmpty() &&
+      m_element.childNodes().isEmpty() )
+  {
+    text += "/>";
+    return text;
+  }
+
+  if( !attributes.isEmpty() )
+  {
+    for( int i = 0; i < attributes.size(); ++i )
+    {
+      text += " ";
+
+      QString attribute = attributes.item( i ).toAttr().name();
+      text += attribute;
+      text += "=\"";
+
+      QString attributeValue = attributes.item( i ).toAttr().value();
+      text += attributeValue;
+      text += "\"";
+    }
+
+    /* For elements without children but with attributes. */
+    if( m_element.firstChild().isNull() )
+    {
+      text += "/>";
+    }
+    else
+    {
+      /* For elements with children and attributes. */
+      text += ">";
+    }
+  }
+  else
+  {
+    text += ">";
+  }
+
+  return text;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+int GCTreeWidgetItem::index() const
+{
+  return m_index;
 }
 
 /*--------------------------------------------------------------------------------------*/

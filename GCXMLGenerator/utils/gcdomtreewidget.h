@@ -38,9 +38,13 @@ class GCDOMTreeWidget : public QTreeWidget
 {
   Q_OBJECT
 public:
+  /*! Constructor. */
   GCDOMTreeWidget( QWidget *parent = 0 );
+
+  /*! Destructor. */
   ~GCDOMTreeWidget();
 
+  /*! Returns the current item as a GCTreeWidgetItem. */
   GCTreeWidgetItem* currentGCItem();
 
   /*! This function starts the recursive process of populating the tree widget with items
@@ -49,30 +53,52 @@ public:
       method also automatically clears and resets GCDOMTreeWidget's state and expands the
       entire tree.
       \sa processNextElement */
-  void constructElementHierarchy( const QString &baseElementName = QString() );
+  void populateFromDatabase( const QString &baseElementName = QString() );
 
   /*! Adds a new item and corresponding DOM element node named "element". If the tree
       is empty, the new item will be added to the invisible root, otherwise it will be
-      added as a child of the current item. */
+      added as a child of the current item.
+      \sa insertItem */
   void addItem( const QString &element );
 
-  /*! Adds a new item and inserts it into position "index" of the current item. */
-  void insertItem( const QString &element, int index );
+  /*! Adds a new item (with check state "state") and corresponding DOM element node named
+      "element". If the tree is empty, the new item will be added to the invisible root,
+      otherwise it will be added as a child of the current item.
+      \sa insertItem */
+  void addItem( const QString &element, Qt::CheckState state );
 
+  /*! Adds a new item and corresponding DOM element node named "elementName" and inserts
+      the new tree widget item into position "index" of the current item. If the tree
+      is empty, the new item will be added to the invisible root.
+      \sa addItem */
+  void insertItem( const QString &elementName, int index );
+
+  /*! Adds a new item with check state "state" and corresponding DOM element node
+      named "elementName" and inserts the new tree widget item into position "index"
+      of the current item. If the tree is empty, the new item will be added to the
+      invisible root.
+      \sa addItem */
+  void insertItem( const QString &elementName, int index, Qt::CheckState state );
+
+  /*! Clears and resets the tree as well as the underlying DOM document. */
   void clearAndReset();
 
 signals:
+  /*! \sa emitGCItemClicked */
   void gcItemClicked( GCTreeWidgetItem*,int );
 
 private slots:
+  /*! Connected to "itemClicked(QTreeWidgetItem*,int)". Re-emits the clicked item
+      as a GCTreeWidgetItem.
+      \sa gcItemClicked */
   void emitGCItemClicked( QTreeWidgetItem* item, int column );
 
 private:
   /*! Processes individual elements.  This function is called recursively from within
-      "constructElementHierarchy", creating a representative tree widget item for the
-      element and adding it (the item) to the correct parent.
+      "populateFromDatabase", creating a representative tree widget item (and corresponding
+      DOM element) named "element" and adding it (the item) to the correct parent.
       @param element - the name of the element for which a tree widget item must be created.
-      \sa constructElementHierarchy */
+      \sa populateFromDatabase */
   void processNextElement( const QString &element );
 
   QDomDocument *m_domDoc;
