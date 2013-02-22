@@ -34,7 +34,7 @@
 
 /*--------------------------------------------------------------------------------------*/
 
-GCDOMTreeWidget::GCDOMTreeWidget( QWidget *parent ) :
+GCDomTreeWidget::GCDomTreeWidget( QWidget *parent ) :
   QTreeWidget( parent ),
   m_domDoc   ( new QDomDocument ),
   m_isEmpty  ( true )
@@ -44,21 +44,21 @@ GCDOMTreeWidget::GCDOMTreeWidget( QWidget *parent ) :
 
 /*--------------------------------------------------------------------------------------*/
 
-GCDOMTreeWidget::~GCDOMTreeWidget()
+GCDomTreeWidget::~GCDomTreeWidget()
 {
   delete m_domDoc;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-GCTreeWidgetItem* GCDOMTreeWidget::currentGCItem()
+GCTreeWidgetItem* GCDomTreeWidget::currentGCItem()
 {
   return dynamic_cast< GCTreeWidgetItem* >( currentItem() );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDOMTreeWidget::populateFromDatabase( const QString &baseElementName )
+void GCDomTreeWidget::populateFromDatabase( const QString &baseElementName )
 {
   clearAndReset();
 
@@ -82,7 +82,7 @@ void GCDOMTreeWidget::populateFromDatabase( const QString &baseElementName )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDOMTreeWidget::processNextElement( const QString &element )
+void GCDomTreeWidget::processNextElement( const QString &element )
 {
   QStringList children = GCDataBaseInterface::instance()->children( element );
 
@@ -105,7 +105,7 @@ void GCDOMTreeWidget::processNextElement( const QString &element )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDOMTreeWidget::addItem( const QString &element )
+void GCDomTreeWidget::addItem( const QString &element )
 {
   if( currentItem() )
   {
@@ -119,7 +119,7 @@ void GCDOMTreeWidget::addItem( const QString &element )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDOMTreeWidget::addItem( const QString &element, Qt::CheckState state )
+void GCDomTreeWidget::addItem( const QString &element, Qt::CheckState state )
 {
   addItem( element );
   currentItem()->setCheckState( 0, state );
@@ -127,7 +127,7 @@ void GCDOMTreeWidget::addItem( const QString &element, Qt::CheckState state )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDOMTreeWidget::insertItem( const QString &elementName, int index )
+void GCDomTreeWidget::insertItem( const QString &elementName, int index )
 {
   QDomElement element = m_domDoc->createElement( elementName );
   GCTreeWidgetItem *item = new GCTreeWidgetItem( elementName, element );
@@ -149,7 +149,7 @@ void GCDOMTreeWidget::insertItem( const QString &elementName, int index )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDOMTreeWidget::insertItem( const QString &elementName, int index, Qt::CheckState state )
+void GCDomTreeWidget::insertItem( const QString &elementName, int index, Qt::CheckState state )
 {
   insertItem( elementName, index );
   currentItem()->setCheckState( 0, state );
@@ -157,14 +157,14 @@ void GCDOMTreeWidget::insertItem( const QString &elementName, int index, Qt::Che
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDOMTreeWidget::emitGCItemClicked( QTreeWidgetItem *item, int column )
+void GCDomTreeWidget::emitGCItemClicked( QTreeWidgetItem *item, int column )
 {
   emit gcItemClicked(  dynamic_cast< GCTreeWidgetItem* >( item ), column );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDOMTreeWidget::clearAndReset()
+void GCDomTreeWidget::clearAndReset()
 {
   this->clear();
   m_domDoc->clear();

@@ -34,7 +34,7 @@
 #include <QString>
 #include <QDomElement>
 
-/// Used in GCDOMTreeWidget, each GCTreeWidgetItem can be associated with a QDomElement.
+/// Used in GCDomTreeWidget, each GCTreeWidgetItem can be associated with a QDomElement.
 
 /*!
     Can be associated with a QDomElement in order to provide additional information in the XML Mill

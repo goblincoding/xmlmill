@@ -34,15 +34,15 @@
 class GCTreeWidgetItem;
 class QDomDocument;
 
-class GCDOMTreeWidget : public QTreeWidget
+class GCDomTreeWidget : public QTreeWidget
 {
   Q_OBJECT
 public:
   /*! Constructor. */
-  GCDOMTreeWidget( QWidget *parent = 0 );
+  GCDomTreeWidget( QWidget *parent = 0 );
 
   /*! Destructor. */
-  ~GCDOMTreeWidget();
+  ~GCDomTreeWidget();
 
   /*! Returns the current item as a GCTreeWidgetItem. */
   GCTreeWidgetItem* currentGCItem();
@@ -50,7 +50,7 @@ public:
   /*! This function starts the recursive process of populating the tree widget with items
       consisting of the element hierarchy starting at "baseElementName". If "baseElementName"
       is empty, a complete hierarchy of the current active profile will be constructed. This
-      method also automatically clears and resets GCDOMTreeWidget's state and expands the
+      method also automatically clears and resets GCDomTreeWidget's state and expands the
       entire tree.
       \sa processNextElement */
   void populateFromDatabase( const QString &baseElementName = QString() );
