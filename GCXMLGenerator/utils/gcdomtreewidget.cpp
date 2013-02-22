@@ -37,9 +37,10 @@
 GCDomTreeWidget::GCDomTreeWidget( QWidget *parent ) :
   QTreeWidget( parent ),
   m_domDoc   ( new QDomDocument ),
-  m_isEmpty  ( true )
+  m_isEmpty  ( true ),
+  m_items    ()
 {
-  connect( this, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ), this, SLOT( emitGCItemClicked( QTreeWidgetItem*,int ) ) );
+  connect( this, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ), this, SLOT( emitGcCurrentItemChanged( QTreeWidgetItem*,int ) ) );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -51,9 +52,23 @@ GCDomTreeWidget::~GCDomTreeWidget()
 
 /*--------------------------------------------------------------------------------------*/
 
-GCTreeWidgetItem* GCDomTreeWidget::currentGCItem()
+GCTreeWidgetItem* GCDomTreeWidget::gcCurrentItem() const
 {
   return dynamic_cast< GCTreeWidgetItem* >( currentItem() );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+QDomDocument GCDomTreeWidget::document() const
+{
+  return *m_domDoc;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+const QList< GCTreeWidgetItem* > &GCDomTreeWidget::gcTreeWidgetItems() const
+{
+  return m_items;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -74,10 +89,13 @@ void GCDomTreeWidget::populateFromDatabase( const QString &baseElementName )
   }
   else
   {
+    addItem( baseElementName );
     processNextElement( baseElementName );
   }
 
   expandAll();
+  setCurrentItem( invisibleRootItem()->child( 0 ) );
+  emitGcCurrentItemChanged( currentItem(), 0 );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -91,9 +109,9 @@ void GCDomTreeWidget::processNextElement( const QString &element )
     addItem( child );
 
     /* Since it isn't illegal to have elements with children of the same name, we cannot
-        block it in the DB, however, if we DO have elements with children of the same name,
-        this recursive call enters an infinite loop, so we need to make sure that doesn't
-        happen. */
+      block it in the DB, however, if we DO have elements with children of the same name,
+      this recursive call enters an infinite loop, so we need to make sure that doesn't
+      happen. */
     if( child != element )
     {
       processNextElement( child );
@@ -130,7 +148,18 @@ void GCDomTreeWidget::addItem( const QString &element, Qt::CheckState state )
 void GCDomTreeWidget::insertItem( const QString &elementName, int index )
 {
   QDomElement element = m_domDoc->createElement( elementName );
+
+  /* Create all the possible attributes for the element here, they can be changed
+    later on. */
+  QStringList attributeNames = GCDataBaseInterface::instance()->attributes( elementName );
+
+  for( int i = 0; i < attributeNames.count(); ++i )
+  {
+    element.setAttribute( attributeNames.at( i ), "" );
+  }
+
   GCTreeWidgetItem *item = new GCTreeWidgetItem( elementName, element );
+  m_items.append( item );
 
   if( m_isEmpty )
   {
@@ -141,7 +170,7 @@ void GCDomTreeWidget::insertItem( const QString &elementName, int index )
   else
   {
     currentItem()->insertChild( index, item );
-    currentGCItem()->element().appendChild( element );
+    gcCurrentItem()->element().appendChild( element );
   }
 
   setCurrentItem( item );
@@ -157,9 +186,22 @@ void GCDomTreeWidget::insertItem( const QString &elementName, int index, Qt::Che
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::emitGCItemClicked( QTreeWidgetItem *item, int column )
+void GCDomTreeWidget::setAllCheckStates( Qt::CheckState state )
 {
-  emit gcItemClicked(  dynamic_cast< GCTreeWidgetItem* >( item ), column );
+  QTreeWidgetItemIterator iterator( this );
+
+  while( *iterator )
+  {
+    ( *iterator )->setCheckState( 0, state );
+    ++iterator;
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDomTreeWidget::emitGcCurrentItemChanged( QTreeWidgetItem *item, int column )
+{
+  emit gcCurrentItemChanged( dynamic_cast< GCTreeWidgetItem* >( item ), column );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -168,6 +210,7 @@ void GCDomTreeWidget::clearAndReset()
 {
   this->clear();
   m_domDoc->clear();
+  m_items.clear();
   m_isEmpty = true;
 }
 

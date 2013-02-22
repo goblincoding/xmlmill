@@ -47,15 +47,21 @@ class GCTreeWidgetItem : public QTreeWidgetItem
 {
 public:
   /*! Constructor. */
-  explicit GCTreeWidgetItem( const QString &text );
+  explicit GCTreeWidgetItem( const QString &elementName );
 
   /*! Constructor. Associates "element" with this item. */
-  explicit GCTreeWidgetItem( const QString &text, QDomElement element );
+  explicit GCTreeWidgetItem( const QString &elementName, QDomElement element );
 
   /*! Constructor. Associates "element" with this item and assigns it an "index"
       which is used to determine the underlying DOM element's relative position
       within the DOM (roughly corresponding to "line numbers"). */
-  explicit GCTreeWidgetItem( const QString &text, QDomElement element, int index );
+  explicit GCTreeWidgetItem( const QString &elementName, QDomElement element, int index );
+
+  /*! Returns the parent item as a GCTreeWidgetItem. */
+  GCTreeWidgetItem *gcParent() const;
+
+  /*! Returns the child item at "index" as a GCTreeWidgetItem. */
+  GCTreeWidgetItem *gcChild( int index ) const;
 
   /*! Returns the associated element via QDomElement's default shallow copy constructor. */
   QDomElement element() const;
@@ -66,8 +72,8 @@ public:
   /*! Excludes "attribute" from the active document. */
   void excludeAttribute( const QString &attribute );
 
-  /*! Includes "attribute" in the active document. */
-  void includeAttribute( const QString &attribute );
+  /*! Includes "attribute" with "value" in the active document. */
+  void includeAttribute( const QString &attribute, const QString &value );
 
   /*! Returns a list of all the attributes that should be included in the active document. */
   const QStringList &includedAttributes() const;
@@ -84,7 +90,7 @@ public:
   int index() const;
 
 private:
-  void init( const QString &text, QDomElement element, int index );
+  void init( const QString &elementName, QDomElement element, int index );
 
   QDomElement m_element;
   bool m_elementExcluded;

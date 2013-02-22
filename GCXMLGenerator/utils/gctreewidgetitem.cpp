@@ -29,34 +29,34 @@
 
 /*--------------------------------------------------------------------------------------*/
 
-GCTreeWidgetItem::GCTreeWidgetItem( const QString &text )
+GCTreeWidgetItem::GCTreeWidgetItem( const QString &elementName )
 {  
-  init( text, QDomElement(), -1 );
+  init( elementName, QDomElement(), -1 );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-GCTreeWidgetItem::GCTreeWidgetItem( const QString &text, QDomElement element )
+GCTreeWidgetItem::GCTreeWidgetItem( const QString &elementName, QDomElement element )
 {
-  init( text, element, -1 );
+  init( elementName, element, -1 );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-GCTreeWidgetItem::GCTreeWidgetItem( const QString &text, QDomElement element, int index )
+GCTreeWidgetItem::GCTreeWidgetItem( const QString &elementName, QDomElement element, int index )
 {
-  init( text, element, index );
+  init( elementName, element, index );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCTreeWidgetItem::init( const QString &text, QDomElement element, int index )
+void GCTreeWidgetItem::init( const QString &elementName, QDomElement element, int index )
 {
   m_element = element;
   m_elementExcluded = false;
   m_index = index;
 
-  setText( 0, text );
+  setText( 0, elementName );
 
   QDomNamedNodeMap attributes = m_element.attributes();
 
@@ -64,6 +64,20 @@ void GCTreeWidgetItem::init( const QString &text, QDomElement element, int index
   {
     m_includedAttributes.append( attributes.item( i ).toAttr().name() );
   }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+GCTreeWidgetItem *GCTreeWidgetItem::gcParent() const
+{
+  return dynamic_cast< GCTreeWidgetItem* >( parent() );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+GCTreeWidgetItem *GCTreeWidgetItem::gcChild( int index ) const
+{
+  return dynamic_cast< GCTreeWidgetItem* >( child( index ) );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -84,14 +98,17 @@ void GCTreeWidgetItem::setExcludeElement( bool exclude )
 
 void GCTreeWidgetItem::excludeAttribute( const QString &attribute )
 {
+  m_element.removeAttribute( attribute );
   m_includedAttributes.removeAll( attribute );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCTreeWidgetItem::includeAttribute( const QString &attribute )
+void GCTreeWidgetItem::includeAttribute( const QString &attribute, const QString &value )
 {
+  m_element.setAttribute( attribute, value );
   m_includedAttributes.append( attribute );
+  m_includedAttributes.removeDuplicates();
 }
 
 /*--------------------------------------------------------------------------------------*/
