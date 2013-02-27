@@ -91,6 +91,18 @@ QDomElement GCTreeWidgetItem::element() const
 
 void GCTreeWidgetItem::setExcludeElement( bool exclude )
 {
+  if( gcParent() )
+  {
+    if( exclude )
+    {
+      gcParent()->element().removeChild( m_element );
+    }
+    else
+    {
+      gcParent()->element().appendChild( m_element );
+    }
+  }
+
   m_elementExcluded = exclude;
 }
 
@@ -100,6 +112,7 @@ void GCTreeWidgetItem::excludeAttribute( const QString &attribute )
 {
   m_element.removeAttribute( attribute );
   m_includedAttributes.removeAll( attribute );
+  m_includedAttributes.sort();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -109,6 +122,7 @@ void GCTreeWidgetItem::includeAttribute( const QString &attribute, const QString
   m_element.setAttribute( attribute, value );
   m_includedAttributes.append( attribute );
   m_includedAttributes.removeDuplicates();
+  m_includedAttributes.sort();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -116,6 +130,29 @@ void GCTreeWidgetItem::includeAttribute( const QString &attribute, const QString
 const QStringList &GCTreeWidgetItem::includedAttributes() const
 {
   return m_includedAttributes;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCTreeWidgetItem::incrementAttribute(const QString &attribute, bool increment)
+{
+  if( increment )
+  {
+    m_incrementedAttributes.append( attribute );
+  }
+  else
+  {
+    m_incrementedAttributes.removeAll( attribute );
+  }
+
+  m_incrementedAttributes.sort();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+const QStringList &GCTreeWidgetItem::incrementedAttributes() const
+{
+  return m_incrementedAttributes;
 }
 
 /*--------------------------------------------------------------------------------------*/

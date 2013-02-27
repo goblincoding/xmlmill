@@ -201,6 +201,7 @@ void GCDomTreeWidget::setAllCheckStates( Qt::CheckState state )
 
 void GCDomTreeWidget::emitGcCurrentItemChanged( QTreeWidgetItem *item, int column )
 {
+  setCurrentItem( item, column );
   emit gcCurrentItemChanged( dynamic_cast< GCTreeWidgetItem* >( item ), column );
 }
 

@@ -78,6 +78,19 @@ public:
   /*! Returns a list of all the attributes that should be included in the active document. */
   const QStringList &includedAttributes() const;
 
+  /*! This function is only used in GCSnippetsForm.  Adds "attribute" to a list of attributes
+      whose values must be incremented when multiple snippets are added to the active DOM.  The
+      reason this functionality was added is due to the complications inherent to the default
+      shallow copy constructors of QDomAttr (I originally tried to use maps confined to GCSnippetForm
+      objects, but to no avail).
+      \sa incrementedAttributes */
+  void incrementAttribute( const QString & attribute, bool increment );
+
+  /*! This function is only used in GCSnippetsForm.  Returns a list of attributes whose values must
+      be incremented automatically.
+      \sa incrementAttribute */
+  const QStringList &incrementedAttributes() const;
+
   /*! Returns "true" if the element should be excluded from the active document, "false" otherwise. */
   bool elementExcluded() const;
 
@@ -97,6 +110,7 @@ private:
   int  m_index;
 
   QStringList m_includedAttributes;
+  QStringList m_incrementedAttributes;
 
 };
 
