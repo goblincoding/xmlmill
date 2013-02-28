@@ -36,8 +36,6 @@
 
 #include <QCheckBox>
 #include <QMessageBox>
-#include <QDomDocument>
-#include <QSignalMapper>
 
 /*--------------------------------------------------------------------------------------*/
 

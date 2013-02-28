@@ -35,7 +35,6 @@
 
 #include <QFile>
 #include <QDomDocument>
-#include <QMessageBox>
 #include <QTextStream>
 #include <QFileDialog>
 

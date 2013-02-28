@@ -30,17 +30,14 @@
 #define GCSNIPPETSFORM_H
 
 #include <QDialog>
-#include <QHash>
 
 namespace Ui
 {
   class GCSnippetsForm;
 }
 
-class GCElementInfo;
 class GCTreeWidgetItem;
 class QDomElement;
-class QDomAttr;
 class QTableWidgetItem;
 
 /// Allows the user to add whole snippets to the active document.

@@ -36,8 +36,6 @@ namespace Ui
   class GCAddItemsForm;
 }
 
-class QTreeWidgetItem;
-
 /// Form to add elements and attributes to the active database.
 
 /**
