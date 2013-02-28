@@ -51,7 +51,7 @@ public:
   QDomDocument document() const;
 
   /*! Returns a list of all the GCTreeWidgetItems in the tree. */
-  const QList< GCTreeWidgetItem* > &gcTreeWidgetItems() const;
+  QList< GCTreeWidgetItem* > includedGcTreeWidgetItems() const;
 
   /*! This function starts the recursive process of populating the tree widget with items
       consisting of the element hierarchy starting at "baseElementName". If "baseElementName"
@@ -68,26 +68,12 @@ public:
       \sa insertItem */
   void addItem( const QString &element );
 
-  /*! Adds a new item (with check state "state") and corresponding DOM element node named
-      "element". If the tree is empty, the new item will be added to the invisible root,
-      otherwise it will be added as a child of the current item. The new item is also set
-      as the current item.
-      \sa insertItem */
-  void addItem( const QString &element, Qt::CheckState state );
-
   /*! Adds a new item and corresponding DOM element node named "elementName" and inserts
       the new tree widget item into position "index" of the current item. If the tree
       is empty, the new item will be added to the invisible root. The new item is also set
       as the current item.
       \sa addItem */
   void insertItem( const QString &elementName, int index );
-
-  /*! Adds a new item with check state "state" and corresponding DOM element node
-      named "elementName" and inserts the new tree widget item into position "index"
-      of the current item. If the tree is empty, the new item will be added to the
-      invisible root. The new item is also set as the current item.
-      \sa addItem */
-  void insertItem( const QString &elementName, int index, Qt::CheckState state );
 
   /*! Iterates through the tree and sets all items' check states to "state". */
   void setAllCheckStates( Qt::CheckState state );

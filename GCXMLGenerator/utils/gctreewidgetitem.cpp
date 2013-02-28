@@ -108,6 +108,13 @@ void GCTreeWidgetItem::setExcludeElement( bool exclude )
 
 /*--------------------------------------------------------------------------------------*/
 
+bool GCTreeWidgetItem::elementExcluded() const
+{
+  return m_elementExcluded;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCTreeWidgetItem::excludeAttribute( const QString &attribute )
 {
   m_element.removeAttribute( attribute );
@@ -127,14 +134,14 @@ void GCTreeWidgetItem::includeAttribute( const QString &attribute, const QString
 
 /*--------------------------------------------------------------------------------------*/
 
-const QStringList &GCTreeWidgetItem::includedAttributes() const
+bool GCTreeWidgetItem::attributeIncluded( const QString &attribute ) const
 {
-  return m_includedAttributes;
+  return m_includedAttributes.contains( attribute );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCTreeWidgetItem::incrementAttribute(const QString &attribute, bool increment)
+void GCTreeWidgetItem::setIncrementAttribute( const QString &attribute, bool increment )
 {
   if( increment )
   {
@@ -150,16 +157,41 @@ void GCTreeWidgetItem::incrementAttribute(const QString &attribute, bool increme
 
 /*--------------------------------------------------------------------------------------*/
 
-const QStringList &GCTreeWidgetItem::incrementedAttributes() const
+bool GCTreeWidgetItem::incrementAttribute( const QString &attribute ) const
 {
-  return m_incrementedAttributes;
+  return m_incrementedAttributes.contains( attribute );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCTreeWidgetItem::elementExcluded() const
+void GCTreeWidgetItem::fixAttributeValues()
 {
-  return m_elementExcluded;
+  m_fixedValues.clear();
+
+  QDomNamedNodeMap attributes = m_element.attributes();
+
+  for( int i = 0; i < attributes.size(); ++i )
+  {
+    QDomAttr attribute = attributes.item( i ).toAttr();
+    m_fixedValues.insert( attribute.name(), attribute.value() );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+QString GCTreeWidgetItem::fixedValue( const QString &attribute ) const
+{
+  return m_fixedValues.value( attribute, QString() );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCTreeWidgetItem::revertToFixedValues()
+{
+  foreach( QString attribute, m_fixedValues.keys() )
+  {
+    m_element.setAttribute( attribute, m_fixedValues.value( attribute ) );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/

@@ -110,7 +110,7 @@ void GCSnippetsForm::elementSelected( GCTreeWidgetItem *item, int column )
     connect( checkBox, SIGNAL( clicked() ), this, SLOT( attributeValueChanged() ) );
 
     QDomAttr attribute = item->element().attributeNode( attributeNames.at( i ) ).toAttr();
-    checkBox->setChecked( item->incrementedAttributes().contains( attribute.name() ) );
+    checkBox->setChecked( item->incrementAttribute( attribute.name() ) );
 
     /* Items are editable by default, disable this option. */
     QTableWidgetItem *label = new QTableWidgetItem( attributeNames.at( i ) );
@@ -124,7 +124,7 @@ void GCSnippetsForm::elementSelected( GCTreeWidgetItem *item, int column )
 
     connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged() ) );
 
-    if( item->includedAttributes().contains( attributeNames.at( i ) ) )
+    if( item->attributeIncluded( attributeNames.at( i ) ) )
     {
       label->setCheckState( Qt::Checked );
       attributeCombo->setEnabled( true );
@@ -200,12 +200,12 @@ void GCSnippetsForm::attributeValueChanged()
     GCComboBox *comboBox = dynamic_cast< GCComboBox* >( ui->tableWidget->cellWidget( i, COMBOCOLUMN ) );
     QString attributeValue = comboBox->currentText();
 
-    if( treeItem->includedAttributes().contains( attributeName ) )
+    if( treeItem->attributeIncluded( attributeName ) )
     {
       treeItem->includeAttribute( attributeName, attributeValue );
     }
 
-    treeItem->incrementAttribute( attributeName, checkBox->isChecked() );
+    treeItem->setIncrementAttribute( attributeName, checkBox->isChecked() );
   }
 }
 
@@ -213,21 +213,7 @@ void GCSnippetsForm::attributeValueChanged()
 
 void GCSnippetsForm::addSnippet()
 {
-  /* Create a duplicate DOM doc so that we do not remove the elements in their
-    entirety...when the user changes the snippet structure, the original DOM must
-    still be accessible (the DOM containing all known elements). */
-  QDomDocument doc = ui->treeWidget->document().cloneNode().toDocument();
-  QList< GCTreeWidgetItem* > includedItems;
-
-  for( int i = 0; i < ui->treeWidget->gcTreeWidgetItems().size(); ++i )
-  {
-    GCTreeWidgetItem* localItem = ui->treeWidget->gcTreeWidgetItems().at( i );
-
-    if( !localItem->elementExcluded() )
-    {
-      includedItems.append( localItem );
-    }
-  }
+  QList< GCTreeWidgetItem* > includedItems = ui->treeWidget->includedGcTreeWidgetItems();
 
   /* Add the required number of snippets. */
   for( int i = 0; i < ui->spinBox->value(); ++i )
@@ -236,66 +222,53 @@ void GCSnippetsForm::addSnippet()
     for( int j = 0; j < includedItems.size(); ++j )
     {
       GCTreeWidgetItem* localItem = includedItems.at( j );
+      localItem->fixAttributeValues();
+
       QString elementName = localItem->element().tagName();
-
-      /* We don't want to work with the element associated with the GCTreeWidgetItem since those elements
-        are part of the member DOM document. */
-      QDomElement element = doc.elementsByTagName( elementName ).at( 0 ).toElement();  // shallow copy
-      QDomNamedNodeMap attributes = element.attributes();
-
-      /* Required so that we do not end up manipulating the map itself (each time an attribute is removed,
-        the loop will be affected since the map's size changes). */
-      QList< QString > attributesToRemove;
+      QDomNamedNodeMap attributes = localItem->element().attributes();
 
       for( int k = 0; k < attributes.size(); ++k )
       {
         QDomAttr attr = attributes.item( k ).toAttr();
-        QString attributeValue = localItem->element().attribute( attr.name() );
+        QString attributeValue = localItem->fixedValue( attr.name() );
 
-        if( !localItem->includedAttributes().contains( attr.name() ) )
+        if( localItem->incrementAttribute( attr.name() ) )
         {
-          attributesToRemove << attr.name() ;
-        }
-        else
-        {
-          if( localItem->incrementedAttributes().contains( attr.name() ) )
+          /* Check if this is a number (if it contains any non-digit character). */
+          if( !attributeValue.contains( QRegExp( "\\D+" ) ) )
           {
-            /* Check if this is a number (if it contains any non-digit character). */
-            if( !attributeValue.contains( QRegExp( "\\D+" ) ) )
-            {
-              bool ok( false );
-              int intValue = attributeValue.toInt( &ok );
+            bool ok( false );
+            int intValue = attributeValue.toInt( &ok );
 
-              if( ok )
-              {
-                intValue += i;
-                attributeValue = QString( "%1" ).arg( intValue );
-              }
-            }
-            else
+            if( ok )
             {
-              /* If the value contains some string characters, it's a string value and that's all
+              intValue += i;
+              attributeValue = QString( "%1" ).arg( intValue );
+            }
+          }
+          else
+          {
+            /* If the value contains some string characters, it's a string value and that's all
               there is to it (it's not our responsibility to check that someone isn't incrementing
               "false", e.g.). */
-              attributeValue += QString( "%1" ).arg( i );
-            }
-
-            element.setAttribute( attr.name(), attributeValue );
+            attributeValue += QString( "%1" ).arg( i );
           }
 
-          /* This call does nothing if the attribute value already exists. */
-          GCDataBaseInterface::instance()->updateAttributeValues( elementName, attr.name(), QStringList( attributeValue ) );
+          localItem->element().setAttribute( attr.name(), attributeValue );
         }
-      }
 
-      foreach( QString attribute, attributesToRemove )
-      {
-        element.removeAttribute( attribute );
-      }
+        /* This call does nothing if the attribute value already exists. */
+        GCDataBaseInterface::instance()->updateAttributeValues( elementName, attr.name(), QStringList( attributeValue ) );
+      }      
     }
 
-    m_parentElement->appendChild( doc.documentElement().cloneNode() );
+    m_parentElement->appendChild( ui->treeWidget->document().documentElement().cloneNode() );
     emit snippetAdded( m_parentElement );
+
+    for( int j = 0; j < includedItems.size(); ++j )
+    {
+      includedItems.at( j )->revertToFixedValues();
+    }
   }
 }
 

@@ -69,36 +69,65 @@ public:
   /*! If "exclude" is true, the element is excluded from the active document. */
   void setExcludeElement( bool exclude );
 
+  /*! Returns "true" if the element should be excluded from the active document, "false" otherwise. */
+  bool elementExcluded() const;
+
   /*! Excludes "attribute" from the active document. */
   void excludeAttribute( const QString &attribute );
 
   /*! Includes "attribute" with "value" in the active document. */
   void includeAttribute( const QString &attribute, const QString &value );
 
-  /*! Returns a list of all the attributes that should be included in the active document. */
-  const QStringList &includedAttributes() const;
+  /*! Returns true if the list of attributes that should be included in the active document contains "attribute". */
+  bool attributeIncluded( const QString &attribute ) const;
 
-  /*! This function is only used in GCSnippetsForm.  Adds "attribute" to a list of attributes
+  /*! This function is only used in GCSnippetsForm. Adds "attribute" to a list of attributes
       whose values must be incremented when multiple snippets are added to the active DOM.  The
       reason this functionality was added is due to the complications inherent to the default
       shallow copy constructors of QDomAttr (I originally tried to use maps confined to GCSnippetForm
       objects, but to no avail).
-      \sa incrementedAttributes */
-  void incrementAttribute( const QString & attribute, bool increment );
+      \sa incrementAttribute
+      \sa fixAttributeValues
+      \sa fixedValue
+      \sa revertToFixedValues */
+  void setIncrementAttribute( const QString & attribute, bool increment );
 
-  /*! This function is only used in GCSnippetsForm.  Returns a list of attributes whose values must
+  /*! This function is only used in GCSnippetsForm. Returns true if "attribute" must
       be incremented automatically.
-      \sa incrementAttribute */
-  const QStringList &incrementedAttributes() const;
+      \sa setIncrementAttribute
+      \sa fixAttributeValues
+      \sa fixedValue
+      \sa revertToFixedValues */
+  bool incrementAttribute( const QString &attribute ) const;
 
-  /*! Returns "true" if the element should be excluded from the active document, "false" otherwise. */
-  bool elementExcluded() const;
+  /*! This function is only used in GCSnippetsForm. Takes a snapshot of the current attribute values
+      so that element attributes may be updated on each snippet iteration without forgetting what the
+      underlying value was.
+      \sa incrementAttribute
+      \sa setIncrementAttribute
+      \sa fixedValue
+      \sa revertToFixedValues */
+  void fixAttributeValues();
+
+  /*! This function is only used in GCSnippetsForm. Returns the fixed value saved against "attribute".
+      \sa incrementAttribute
+      \sa setIncrementAttribute
+      \sa fixAttributeValues
+      \sa revertToFixedValues */
+  QString fixedValue( const QString &attribute ) const;
+
+  /*! This function is only used in GCSnippetsForm. Reverts to the attribute values set with the "fixedAttributeValues" call.
+      \sa setIncrementAttribute
+      \sa incrementAttribute
+      \sa fixAttributeValues
+      \sa fixedValue */
+  void revertToFixedValues();
 
   /*! Provides a string representation of the element, its attributes and attribute values (including brackets
       and other XML characters). */
   QString toString() const;
 
-  /*! Returns the index associated with this element.  Indices in this context are rough indications
+  /*! Returns the index associated with this element. Indices in this context are rough indications
       of an element's relative position within the DOM document (approximating "line numbers"). */
   int index() const;
 
@@ -111,6 +140,7 @@ private:
 
   QStringList m_includedAttributes;
   QStringList m_incrementedAttributes;
+  QHash< QString /*attr*/, QString /*val*/ > m_fixedValues;
 
 };
 

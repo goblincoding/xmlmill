@@ -66,9 +66,21 @@ QDomDocument GCDomTreeWidget::document() const
 
 /*--------------------------------------------------------------------------------------*/
 
-const QList< GCTreeWidgetItem* > &GCDomTreeWidget::gcTreeWidgetItems() const
+QList< GCTreeWidgetItem* > GCDomTreeWidget::includedGcTreeWidgetItems() const
 {
-  return m_items;
+  QList< GCTreeWidgetItem* > includedItems;
+
+  for( int i = 0; i < m_items.size(); ++i )
+  {
+    GCTreeWidgetItem* localItem = m_items.at( i );
+
+    if( !localItem->elementExcluded() )
+    {
+      includedItems.append( localItem );
+    }
+  }
+
+  return includedItems;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -137,14 +149,6 @@ void GCDomTreeWidget::addItem( const QString &element )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::addItem( const QString &element, Qt::CheckState state )
-{
-  addItem( element );
-  currentItem()->setCheckState( 0, state );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 void GCDomTreeWidget::insertItem( const QString &elementName, int index )
 {
   QDomElement element = m_domDoc->createElement( elementName );
@@ -174,14 +178,6 @@ void GCDomTreeWidget::insertItem( const QString &elementName, int index )
   }
 
   setCurrentItem( item );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCDomTreeWidget::insertItem( const QString &elementName, int index, Qt::CheckState state )
-{
-  insertItem( elementName, index );
-  currentItem()->setCheckState( 0, state );
 }
 
 /*--------------------------------------------------------------------------------------*/
