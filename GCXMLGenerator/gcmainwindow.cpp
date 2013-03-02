@@ -1485,21 +1485,7 @@ void GCMainWindow::highlightTextElement( GCTreeWidgetItem *item )
   if( item )
   {
     QString stringToMatch = item->toString();
-    QList< QTreeWidgetItem* > identicalItems = ui->treeWidget->findItems( item->text( 0 ), Qt::MatchExactly | Qt::MatchRecursive );
-    QList< int > indices;
-
-    /* If there are multiple nodes with the same element name (more likely than not), check which
-      of these nodes are exact duplicates with regards to attributes, values, etc. */
-    foreach( QTreeWidgetItem* item, identicalItems )
-    {
-      GCTreeWidgetItem *treeItem = dynamic_cast< GCTreeWidgetItem* >( item );
-      QString node = treeItem->toString();
-
-      if( node == stringToMatch )
-      {
-        indices.append( treeItem->index() );
-      }
-    }
+    QList< int > indices = ui->treeWidget->findIndicesMatching( item );
 
     /* Now that we have a list of all the indices matching identical nodes (indices are a rough
       indication of an element's position in the DOM and closely matches the "line numbers" of the
@@ -1508,9 +1494,7 @@ void GCMainWindow::highlightTextElement( GCTreeWidgetItem *item )
     qSort( indices.begin(), indices.end() );
     ui->dockWidgetTextEdit->moveCursor( QTextCursor::Start );
 
-    int elementIndex = item->index();
-
-    for( int i = 0; i <= indices.indexOf( elementIndex ); ++i )
+    for( int i = 0; i <= indices.indexOf( item->index() ); ++i )
     {
       ui->dockWidgetTextEdit->find( stringToMatch );
     }

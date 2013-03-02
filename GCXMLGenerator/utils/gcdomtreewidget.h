@@ -51,6 +51,12 @@ public:
   /*! Returns a list of all the GCTreeWidgetItems in the tree. */
   QList< GCTreeWidgetItem* > includedGcTreeWidgetItems() const;
 
+  /*! Returns a list of all the indices of items matching "item" (this is
+      is not as odd as it sounds, it is possible that a DOM document may have
+      multiple elements of the same name with matching attributes and attribute
+      values). */
+  QList< int > findIndicesMatching( const GCTreeWidgetItem *item ) const;
+
   /*! Returns a deep copy of the underlying DOM document. */
   QDomNode cloneDocument() const;
 

@@ -102,6 +102,33 @@ QList< GCTreeWidgetItem* > GCDomTreeWidget::includedGcTreeWidgetItems() const
 
 /*--------------------------------------------------------------------------------------*/
 
+QList< int > GCDomTreeWidget::findIndicesMatching( const GCTreeWidgetItem *item ) const
+{
+  QList< int > indices;
+
+  if( !m_isEmpty )
+  {
+    QString stringToMatch = item->toString();
+
+    /* If there are multiple nodes with the same element name (more likely than not), check which
+    of these nodes are exact duplicates with regards to attributes, values, etc. */
+    for( int i = 0; i < m_items.size(); ++i )
+    {
+      GCTreeWidgetItem *treeItem = m_items.at( i );
+
+      if( treeItem->toString() == stringToMatch )
+      {
+        indices.append( treeItem->index() );
+      }
+    }
+
+  }
+
+  return indices;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 bool GCDomTreeWidget::setContent( const QString &text, QString *errorMsg, int *errorLine, int *errorColumn )
 {
   clearAndReset();
@@ -175,10 +202,10 @@ void GCDomTreeWidget::updateItemNames( const QString &oldName, const QString &ne
 void GCDomTreeWidget::rebuildTreeWidget()
 {
   clear();    // ONLY whack the tree widget items.
+  m_items.clear();
 
   /* Set the document root as the first item in the tree. */
-  int index = 0;
-  GCTreeWidgetItem *item = new GCTreeWidgetItem( m_domDoc->documentElement(), index );
+  GCTreeWidgetItem *item = new GCTreeWidgetItem( m_domDoc->documentElement(), m_items.size() );
   item->setFlags( item->flags() | Qt::ItemIsEditable );
   invisibleRootItem()->addChild( item );  // takes ownership
   m_items.append( item );
@@ -198,7 +225,7 @@ void GCDomTreeWidget::processNextElement( GCTreeWidgetItem *parentItem )
 
     while( !element.isNull() )
     {
-      GCTreeWidgetItem *item = new GCTreeWidgetItem( element, parentItem->index() + 1 );
+      GCTreeWidgetItem *item = new GCTreeWidgetItem( element, m_items.size() );
       item->setFlags( item->flags() | Qt::ItemIsEditable );
       parentItem->addChild( item );  // takes ownership
       m_items.append( item );
