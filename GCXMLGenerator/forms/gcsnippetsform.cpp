@@ -65,7 +65,7 @@ GCSnippetsForm::GCSnippetsForm( const QString &elementName, QDomElement parentEl
   connect( ui->addButton,      SIGNAL( clicked() ), this, SLOT( addSnippet() ) );
   connect( ui->showHelpButton, SIGNAL( clicked() ), this, SLOT( showHelp() ) );
   connect( ui->tableWidget,    SIGNAL( itemChanged( QTableWidgetItem* ) ), this, SLOT( attributeChanged( QTableWidgetItem* ) ) );
-  connect( ui->treeWidget,     SIGNAL( gcCurrentItemChanged( GCTreeWidgetItem*,int ) ), this, SLOT( elementSelected( GCTreeWidgetItem*, int ) ) );
+  connect( ui->treeWidget,     SIGNAL( gcCurrentItemSelected( GCTreeWidgetItem*,int ) ), this, SLOT( elementSelected( GCTreeWidgetItem*, int ) ) );
 
   setAttribute( Qt::WA_DeleteOnClose );
 }
@@ -260,7 +260,7 @@ void GCSnippetsForm::addSnippet()
       }      
     }
 
-    m_parentElement->appendChild( ui->treeWidget->document().documentElement().cloneNode() );
+    m_parentElement->appendChild( ui->treeWidget->cloneDocument() );
     emit snippetAdded( m_parentElement );
 
     for( int j = 0; j < includedItems.size(); ++j )

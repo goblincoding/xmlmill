@@ -30,6 +30,7 @@
 #include "gctreewidgetitem.h"
 #include "db/gcdatabaseinterface.h"
 
+#include <QApplication>
 #include <QDomDocument>
 
 /*--------------------------------------------------------------------------------------*/
@@ -40,7 +41,9 @@ GCDomTreeWidget::GCDomTreeWidget( QWidget *parent ) :
   m_isEmpty  ( true ),
   m_items    ()
 {
-  connect( this, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ), this, SLOT( emitGcCurrentItemChanged( QTreeWidgetItem*,int ) ) );
+  connect( this, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ), this, SLOT( emitGcCurrentItemSelected( QTreeWidgetItem*,int ) ) );
+  connect( this, SIGNAL( itemActivated( QTreeWidgetItem*, int ) ), this, SLOT( emitGcCurrentItemSelected( QTreeWidgetItem*, int ) ) );
+  connect( this, SIGNAL( itemChanged( QTreeWidgetItem*, int ) ), this, SLOT( emitGcCurrentItemChanged( QTreeWidgetItem*, int ) ) );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -59,9 +62,23 @@ GCTreeWidgetItem* GCDomTreeWidget::gcCurrentItem() const
 
 /*--------------------------------------------------------------------------------------*/
 
-QDomDocument GCDomTreeWidget::document() const
+QDomNode GCDomTreeWidget::cloneDocument() const
 {
-  return *m_domDoc;
+  return m_domDoc->documentElement().cloneNode();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+QString GCDomTreeWidget::toString() const
+{
+  return m_domDoc->toString( 2 );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+QString GCDomTreeWidget::rootName() const
+{
+  return m_domDoc->documentElement().tagName();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -81,6 +98,117 @@ QList< GCTreeWidgetItem* > GCDomTreeWidget::includedGcTreeWidgetItems() const
   }
 
   return includedItems;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCDomTreeWidget::setContent( const QString &text, QString *errorMsg, int *errorLine, int *errorColumn )
+{
+  clearAndReset();
+
+  if( !m_domDoc->setContent( text, errorMsg, errorLine, errorColumn ) )
+  {
+    return false;
+  }
+
+  rebuildTreeWidget();
+  return true;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCDomTreeWidget::isEmpty() const
+{
+  return m_isEmpty;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCDomTreeWidget::currentItemIsRoot() const
+{
+  if( gcCurrentItem() )
+  {
+    return ( gcCurrentItem()->element() == m_domDoc->documentElement() );
+  }
+
+  return true;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCDomTreeWidget::matchesRootName( const QString &elementName ) const
+{
+  return ( elementName == m_domDoc->documentElement().tagName() );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCDomTreeWidget::isDocumentCompatible() const
+{
+  return GCDataBaseInterface::instance()->isDocumentCompatible( m_domDoc );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCDomTreeWidget::batchProcessSuccess() const
+{
+  return GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDomTreeWidget::updateItemNames( const QString &oldName, const QString &newName )
+{
+  for( int i = 0; i < m_items.size(); ++i )
+  {
+    if( m_items.at( i )->text( 0 ) == oldName )
+    {
+      GCTreeWidgetItem* item = const_cast< GCTreeWidgetItem* >( m_items.at( i ) );
+      item->setText( 0, newName );
+      item->element().setTagName( newName );
+    }
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDomTreeWidget::rebuildTreeWidget()
+{
+  clear();    // ONLY whack the tree widget items.
+
+  /* Set the document root as the first item in the tree. */
+  int index = 0;
+  GCTreeWidgetItem *item = new GCTreeWidgetItem( m_domDoc->documentElement(), index );
+  item->setFlags( item->flags() | Qt::ItemIsEditable );
+  invisibleRootItem()->addChild( item );  // takes ownership
+  m_items.append( item );
+  m_isEmpty = false;
+
+  processNextElement( item );
+  emitGcCurrentItemSelected( item, 0 );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDomTreeWidget::processNextElement( GCTreeWidgetItem *parentItem )
+{
+  if( parentItem )
+  {
+    QDomElement element = parentItem->element().firstChildElement();
+
+    while( !element.isNull() )
+    {
+      GCTreeWidgetItem *item = new GCTreeWidgetItem( element, parentItem->index() + 1 );
+      item->setFlags( item->flags() | Qt::ItemIsEditable );
+      parentItem->addChild( item );  // takes ownership
+      m_items.append( item );
+
+      processNextElement( item );
+      element = element.nextSiblingElement();
+    }
+
+    qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -106,8 +234,7 @@ void GCDomTreeWidget::populateFromDatabase( const QString &baseElementName )
   }
 
   expandAll();
-  setCurrentItem( invisibleRootItem()->child( 0 ) );
-  emitGcCurrentItemChanged( currentItem(), 0 );
+  emitGcCurrentItemSelected( currentItem(), 0 );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -162,7 +289,7 @@ void GCDomTreeWidget::insertItem( const QString &elementName, int index )
     element.setAttribute( attributeNames.at( i ), "" );
   }
 
-  GCTreeWidgetItem *item = new GCTreeWidgetItem( elementName, element );
+  GCTreeWidgetItem *item = new GCTreeWidgetItem( element );
   m_items.append( item );
 
   if( m_isEmpty )
@@ -182,6 +309,37 @@ void GCDomTreeWidget::insertItem( const QString &elementName, int index )
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCDomTreeWidget::removeItem( GCTreeWidgetItem *item )
+{
+  if( item )
+  {
+    /* Remove the element from the DOM first. */
+    QDomNode parentNode = item->element().parentNode();
+    parentNode.removeChild( item->element() );
+
+    GCTreeWidgetItem *parentItem = item->gcParent();
+    parentItem->removeChild( item );
+    m_items.removeAll( item );
+
+    emitGcCurrentItemSelected( currentItem(), 0 );
+  }
+
+  m_isEmpty = m_items.isEmpty();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDomTreeWidget::addComment( GCTreeWidgetItem *item, const QString &text )
+{
+  if( item )
+  {
+    QDomComment comment = m_domDoc->createComment( text );
+    item->element().parentNode().insertBefore( comment, item->element() );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCDomTreeWidget::setAllCheckStates( Qt::CheckState state )
 {
   QTreeWidgetItemIterator iterator( this );
@@ -195,10 +353,18 @@ void GCDomTreeWidget::setAllCheckStates( Qt::CheckState state )
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCDomTreeWidget::emitGcCurrentItemSelected( QTreeWidgetItem *item, int column )
+{
+  setCurrentItem( item, column );
+  emit gcCurrentItemSelected( dynamic_cast< GCTreeWidgetItem* >( item ), column );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCDomTreeWidget::emitGcCurrentItemChanged( QTreeWidgetItem *item, int column )
 {
   setCurrentItem( item, column );
-  emit gcCurrentItemChanged( dynamic_cast< GCTreeWidgetItem* >( item ), column );
+  emit gcCurrentItemSelected( dynamic_cast< GCTreeWidgetItem* >( item ), column );
 }
 
 /*--------------------------------------------------------------------------------------*/

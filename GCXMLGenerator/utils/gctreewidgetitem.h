@@ -50,12 +50,12 @@ public:
   explicit GCTreeWidgetItem( const QString &elementName );
 
   /*! Constructor. Associates "element" with this item. */
-  explicit GCTreeWidgetItem( const QString &elementName, QDomElement element );
+  explicit GCTreeWidgetItem( QDomElement element );
 
   /*! Constructor. Associates "element" with this item and assigns it an "index"
       which is used to determine the underlying DOM element's relative position
       within the DOM (roughly corresponding to "line numbers"). */
-  explicit GCTreeWidgetItem( const QString &elementName, QDomElement element, int index );
+  explicit GCTreeWidgetItem( QDomElement element, int index );
 
   /*! Returns the parent item as a GCTreeWidgetItem. */
   GCTreeWidgetItem *gcParent() const;

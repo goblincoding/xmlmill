@@ -36,16 +36,16 @@ GCTreeWidgetItem::GCTreeWidgetItem( const QString &elementName )
 
 /*--------------------------------------------------------------------------------------*/
 
-GCTreeWidgetItem::GCTreeWidgetItem( const QString &elementName, QDomElement element )
+GCTreeWidgetItem::GCTreeWidgetItem( QDomElement element )
 {
-  init( elementName, element, -1 );
+  init( element.tagName(), element, -1 );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-GCTreeWidgetItem::GCTreeWidgetItem( const QString &elementName, QDomElement element, int index )
+GCTreeWidgetItem::GCTreeWidgetItem( QDomElement element, int index )
 {
-  init( elementName, element, index );
+  init( element.tagName(), element, index );
 }
 
 /*--------------------------------------------------------------------------------------*/
