@@ -28,19 +28,20 @@
 
 #include "gcsearchform.h"
 #include "ui_gcsearchform.h"
+#include "utils/gctreewidgetitem.h"
 
 #include <QMessageBox>
-#include <QDomElement>
 
 /*--------------------------------------------------------------------------------------*/
 
-GCSearchForm::GCSearchForm( const QList< QDomElement > &elements, const QString &docContents, QWidget *parent ) :
-  QDialog      ( parent ),
-  ui           ( new Ui::GCSearchForm ),
-  m_text       (),
-  m_wasFound   ( false ),
-  m_searchFlags( 0 ),
-  m_elements   ( elements )
+GCSearchForm::GCSearchForm( const QList< GCTreeWidgetItem * > &items, const QString &docContents, QWidget *parent ) :
+  QDialog        ( parent ),
+  ui             ( new Ui::GCSearchForm ),
+  m_text         (),
+  m_wasFound     ( false ),
+  m_previousIndex( -1 ),
+  m_searchFlags  ( 0 ),
+  m_items        ( items )
 {
   ui->setupUi( this );
   ui->lineEdit->setFocus();
@@ -77,8 +78,7 @@ void GCSearchForm::search()
     at least once so that, when we reach the end of the document and "found"
     is once more false, we can reset all indices and flags in order to start
     again from the beginning. */
-  if( found != m_wasFound &&
-      m_wasFound )
+  if( found != m_wasFound && m_wasFound )
   {
     resetCursor();
     found = m_text.find( searchText, m_searchFlags );
@@ -93,72 +93,31 @@ void GCSearchForm::search()
     m_text.moveCursor( QTextCursor::StartOfLine );
     m_text.moveCursor( QTextCursor::EndOfLine, QTextCursor::KeepAnchor );
 
-    /* Remove special characters. */
-    QString nodeText = m_text.textCursor().selectedText().remove( QRegExp( "<|>|\\/") ).trimmed();
+    QString nodeText = m_text.textCursor().selectedText().trimmed();
+    QList< GCTreeWidgetItem* > matchingItems;
 
-    /* Extract the element name, attributes and attribute values. The element's
-      name will always appear first. */
-    QString elementName = nodeText.section( " ", 0, 0 );
-    nodeText.remove( elementName );
-    nodeText.trimmed();
-
-    QHash< QString, QString > attributeMap;
-    int nrAttValPairs = nodeText.count( "=" );
-
-    for( int i = 0; i < nrAttValPairs; ++i )
+    /* Find the first tree widget item corresponding to an element of name "elementName" */
+    for( int i = 0; i < m_items.size(); ++i )
     {
-      /* Extract the attribute name and remove the name as well as the "=" sign
-        from the node string. */
-      QString attributeName = nodeText.mid( 0, nodeText.indexOf( "=" ) );
-      nodeText.remove( 0, nodeText.indexOf( "=" ) + 1 );
+      GCTreeWidgetItem* treeItem = m_items.at( i );
 
-      /* Extract the attribute value and remove the value as well as both "\"" from the
-        node string. */
-      nodeText.remove( 0, nodeText.indexOf( "\"" ) + 1 );
-      QString attributeValue = nodeText.mid( 0, nodeText.indexOf( "\"", 1 ) );
-      nodeText.remove( 0, nodeText.indexOf( attributeValue ) + attributeValue.length() + 1 );
-
-      attributeMap.insert( attributeName.trimmed(), attributeValue.trimmed() );
+      if( m_items.at( i )->toString() == nodeText )
+      {
+        matchingItems.append( treeItem );
+      }
     }
 
-    /* Now that we found the exact element/attribute/values of the first successful
-      hit of this search, we need to figure out which of the DOM elements it corresponds to. */
-    for( int i = 0; i < m_elements.size(); ++i )
+    qSort( matchingItems.begin(), matchingItems.end() );
+
+    for( int i = 0; i <= matchingItems.size(); ++i )
     {
-      if( m_elements.at( i ).tagName() == elementName )
+      GCTreeWidgetItem *treeItem = matchingItems.at( i );
+
+      if( treeItem->index() > m_previousIndex )
       {
-        QDomNamedNodeMap attributeNodes = m_elements.at( i ).attributes();
-
-        /* First ensure that this node has exactly the right number of attributes
-          we expect. */
-        if( attributeMap.keys().size() == attributeNodes.size() )
-        {
-          bool exactMatch( true );
-
-          /* Now check that the attribute names we have match up with those of this node. */
-          foreach( QString attributeName, attributeMap.keys() )
-          {
-            if( !attributeNodes.contains( attributeName ) )
-            {
-              exactMatch = false;
-              break;
-            }
-            else
-            {
-              if( attributeMap.value( attributeName ) != attributeNodes.namedItem( attributeName ).toAttr().value() )
-              {
-                exactMatch = false;
-                break;
-              }
-            }
-          }
-
-          if( exactMatch )
-          {
-            foundMatch( m_elements.at( i ) );
-            break;
-          }
-        }
+        m_previousIndex = treeItem->index();
+        emit foundMatch( treeItem );
+        break;
       }
     }
   }
@@ -183,6 +142,8 @@ void GCSearchForm::resetCursor()
     m_text.moveCursor( QTextCursor::Start );
     QMessageBox::information( this, "Reached Bottom", "Search reached bottom, continuing at top." );
   }
+
+  m_previousIndex = -1;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -238,9 +199,9 @@ void GCSearchForm::wholeWords()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCSearchForm::foundMatch( const QDomElement &element )
+void GCSearchForm::foundMatch( GCTreeWidgetItem *treeItem )
 {
-  emit foundElement( element );
+  emit foundItem( treeItem );
 
   if( ui->searchButton->text() == "Search" )
   {
