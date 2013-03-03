@@ -253,3 +253,17 @@ int GCTreeWidgetItem::index() const
 }
 
 /*--------------------------------------------------------------------------------------*/
+
+QString GCTreeWidgetItem::name() const
+{
+  return text( 0 );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCTreeWidgetItem::operator <( const GCTreeWidgetItem& rhs ) const
+{
+  return ( this->index() < rhs.index() );
+}
+
+/*--------------------------------------------------------------------------------------*/
