@@ -127,6 +127,9 @@ public:
       and other XML characters). */
   QString toString() const;
 
+  /*! Sets the item's index to "index". */
+  void setIndex( int index );
+
   /*! Returns the index associated with this element. Indices in this context are rough indications
       of an element's relative position within the DOM document (approximating "line numbers"). */
   int index() const;

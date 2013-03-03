@@ -247,6 +247,13 @@ QString GCTreeWidgetItem::toString() const
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCTreeWidgetItem::setIndex( int index )
+{
+  m_index = index;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 int GCTreeWidgetItem::index() const
 {
   return m_index;
