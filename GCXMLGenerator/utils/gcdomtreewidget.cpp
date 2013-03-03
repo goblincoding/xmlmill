@@ -228,6 +228,7 @@ void GCDomTreeWidget::appendSnippet( GCTreeWidgetItem *parentItem, QDomElement e
 {
   parentItem->element().appendChild( element );
   processNextElement( parentItem, element );
+  updateIndices();
   emitGcCurrentItemSelected( currentItem(), 0 );
 }
 
@@ -330,8 +331,13 @@ void GCDomTreeWidget::insertItem( const QString &elementName, int index )
     element.setAttribute( attributeNames.at( i ), "" );
   }
 
-  GCTreeWidgetItem *item = new GCTreeWidgetItem( element );
+  GCTreeWidgetItem *item = new GCTreeWidgetItem( element, m_items.size() );
   m_items.append( item );
+
+  /* I will have to rethink this approach if it turns out that it is too expensive to
+    iterate through the tree on each and every addition...for now, this is the easiest
+    solution, even if not the best. */
+  updateIndices();
 
   if( m_isEmpty )
   {
@@ -362,7 +368,8 @@ void GCDomTreeWidget::removeItem( GCTreeWidgetItem *item )
     parentItem->removeChild( item );
     m_items.removeAll( item );
 
-    emitGcCurrentItemSelected( currentItem(), 0 );
+    updateIndices();
+    emitGcCurrentItemSelected( currentItem(), 0 );    
   }
 
   m_isEmpty = m_items.isEmpty();
@@ -394,6 +401,22 @@ void GCDomTreeWidget::setAllCheckStates( Qt::CheckState state )
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCDomTreeWidget::updateIndices()
+{
+  QTreeWidgetItemIterator iterator( this );
+  int index = 0;
+
+  while( *iterator )
+  {
+    GCTreeWidgetItem* treeItem = dynamic_cast< GCTreeWidgetItem* >( *iterator );
+    treeItem->setIndex( index );
+    ++index;
+    ++iterator;
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCDomTreeWidget::emitGcCurrentItemSelected( QTreeWidgetItem *item, int column )
 {
   setCurrentItem( item, column );
@@ -412,7 +435,7 @@ void GCDomTreeWidget::emitGcCurrentItemChanged( QTreeWidgetItem *item, int colum
 
 void GCDomTreeWidget::clearAndReset()
 {
-  this->clear();
+  clear();
   m_domDoc->clear();
   m_items.clear();
   m_isEmpty = true;

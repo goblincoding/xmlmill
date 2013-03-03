@@ -164,6 +164,10 @@ private:
       \sa populateFromDatabase */
   void processNextElement( const QString &element );
 
+  /*! Iterates through the tree and updates all items' indices (useful when new items
+      are added to ensure that indices correspond roughly to "row numbers"). */
+  void updateIndices();
+
   QDomDocument *m_domDoc;
   bool          m_isEmpty;
 
