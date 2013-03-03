@@ -102,6 +102,13 @@ QList< GCTreeWidgetItem* > GCDomTreeWidget::includedGcTreeWidgetItems() const
 
 /*--------------------------------------------------------------------------------------*/
 
+const QList< GCTreeWidgetItem* > &GCDomTreeWidget::allTreeWidgetItems() const
+{
+  return m_items;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 QList< int > GCDomTreeWidget::findIndicesMatching( const GCTreeWidgetItem *item ) const
 {
   QList< int > indices;
@@ -188,7 +195,7 @@ void GCDomTreeWidget::updateItemNames( const QString &oldName, const QString &ne
 {
   for( int i = 0; i < m_items.size(); ++i )
   {
-    if( m_items.at( i )->text( 0 ) == oldName )
+    if( m_items.at( i )->name() == oldName )
     {
       GCTreeWidgetItem* item = const_cast< GCTreeWidgetItem* >( m_items.at( i ) );
       item->setText( 0, newName );
@@ -211,18 +218,25 @@ void GCDomTreeWidget::rebuildTreeWidget()
   m_items.append( item );
   m_isEmpty = false;
 
-  processNextElement( item );
+  processNextElement( item, item->element().firstChildElement() );
   emitGcCurrentItemSelected( item, 0 );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::processNextElement( GCTreeWidgetItem *parentItem )
+void GCDomTreeWidget::appendSnippet( GCTreeWidgetItem *parentItem, QDomElement element )
+{
+  parentItem->element().appendChild( element );
+  processNextElement( parentItem, element );
+  emitGcCurrentItemSelected( currentItem(), 0 );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDomTreeWidget::processNextElement( GCTreeWidgetItem *parentItem, QDomElement element )
 {
   if( parentItem )
   {
-    QDomElement element = parentItem->element().firstChildElement();
-
     while( !element.isNull() )
     {
       GCTreeWidgetItem *item = new GCTreeWidgetItem( element, m_items.size() );
@@ -230,7 +244,7 @@ void GCDomTreeWidget::processNextElement( GCTreeWidgetItem *parentItem )
       parentItem->addChild( item );  // takes ownership
       m_items.append( item );
 
-      processNextElement( item );
+      processNextElement( item, element.firstChildElement() );
       element = element.nextSiblingElement();
     }
 

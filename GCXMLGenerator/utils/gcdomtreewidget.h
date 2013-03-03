@@ -33,6 +33,7 @@
 
 class GCTreeWidgetItem;
 class QDomDocument;
+class QDomElement;
 class QDomNode;
 
 class GCDomTreeWidget : public QTreeWidget
@@ -50,6 +51,9 @@ public:
 
   /*! Returns a list of all the GCTreeWidgetItems in the tree. */
   QList< GCTreeWidgetItem* > includedGcTreeWidgetItems() const;
+
+  /*! Returns a list of all the GCTreeWidgetItems currently in the tree. */
+  const QList< GCTreeWidgetItem* > &allTreeWidgetItems() const;
 
   /*! Returns a list of all the indices of items matching "item" (this is
       is not as odd as it sounds, it is possible that a DOM document may have
@@ -89,6 +93,9 @@ public:
 
   /*! Rebuild the tree in accordance with the DOM content. */
   void rebuildTreeWidget();
+
+  /*! Creates and adds tree widget items for each element in the node's element hierarchy. */
+  void appendSnippet( GCTreeWidgetItem *parentItem, QDomElement element );
 
   /*! Update all the tree widget item's with text "oldName" to text "newName" */
   void updateItemNames( const QString &oldName, const QString &newName );
@@ -148,7 +155,7 @@ private slots:
 private:
   /*! Creates a new GCTreeWidgetItem item and adds it as a child to the "parentItem".
       \sa populateFromDom */
-  void processNextElement( GCTreeWidgetItem *parentItem );
+  void processNextElement( GCTreeWidgetItem *parentItem, QDomElement element );
 
   /*! Processes individual elements.  This function is called recursively from within
       "populateFromDatabase", creating a representative tree widget item (and corresponding
