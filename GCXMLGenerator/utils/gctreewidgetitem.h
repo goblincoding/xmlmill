@@ -137,9 +137,6 @@ public:
   /*! A convenience function returning the name of the tree widget item. */
   QString name() const;
 
-  /*! Returns true if the index of this item is smaller than that of "rhs". */
-  bool operator<( const GCTreeWidgetItem &rhs ) const;
-
 private:
   void init( const QString &elementName, QDomElement element, int index );
 

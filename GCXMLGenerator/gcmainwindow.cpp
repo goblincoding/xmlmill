@@ -1105,7 +1105,7 @@ void GCMainWindow::searchDocument()
 {
   /* Delete on close flag set (no clean-up needed). */
   GCSearchForm *form = new GCSearchForm( ui->treeWidget->allTreeWidgetItems(), ui->treeWidget->toString(), this );
-  connect( form, SIGNAL( foundItem( GCTreeWidgetItem* ) ), this, SLOT( itemFound( QDomElement ) ) );
+  connect( form, SIGNAL( foundItem( GCTreeWidgetItem* ) ), this, SLOT( itemFound( GCTreeWidgetItem* ) ) );
   form->exec();
 }
 

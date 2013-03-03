@@ -267,10 +267,3 @@ QString GCTreeWidgetItem::name() const
 }
 
 /*--------------------------------------------------------------------------------------*/
-
-bool GCTreeWidgetItem::operator <( const GCTreeWidgetItem& rhs ) const
-{
-  return ( this->index() < rhs.index() );
-}
-
-/*--------------------------------------------------------------------------------------*/

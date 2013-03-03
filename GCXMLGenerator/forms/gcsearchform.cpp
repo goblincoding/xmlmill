@@ -34,6 +34,13 @@
 
 /*--------------------------------------------------------------------------------------*/
 
+bool lessThan( GCTreeWidgetItem *lhs, GCTreeWidgetItem *rhs )
+{
+  return ( lhs->index() < rhs->index() );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 GCSearchForm::GCSearchForm( const QList< GCTreeWidgetItem * > &items, const QString &docContents, QWidget *parent ) :
   QDialog        ( parent ),
   ui             ( new Ui::GCSearchForm ),
@@ -107,9 +114,9 @@ void GCSearchForm::search()
       }
     }
 
-    qSort( matchingItems.begin(), matchingItems.end() );
+    qSort( matchingItems.begin(), matchingItems.end(), lessThan );
 
-    for( int i = 0; i <= matchingItems.size(); ++i )
+    for( int i = 0; i < matchingItems.size(); ++i )
     {
       GCTreeWidgetItem *treeItem = matchingItems.at( i );
 
