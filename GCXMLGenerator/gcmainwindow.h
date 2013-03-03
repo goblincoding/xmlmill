@@ -31,6 +31,7 @@
 
 #include <QMainWindow>
 #include <QHash>
+#include <QDomElement>
 
 namespace Ui
 {
@@ -42,7 +43,6 @@ class GCTreeWidgetItem;
 class QSignalMapper;
 class QTableWidgetItem;
 class QComboBox;
-class QDomElement;
 class QTimer;
 class QLabel;
 class QMovie;
@@ -280,7 +280,7 @@ private slots:
       \sa addElementToDocument
       \sa addSnippetToDocument
       \sa deleteElementFromDocument */
-  void insertSnippet( const QDomElement *element );
+  void insertSnippet( GCTreeWidgetItem *treeItem, QDomElement element );
 
   /*! Triggered by the "Remove Items" UI action. This function creates and displays an instance of
       GCRemoveItemsForm to allow the user to remove elements and/or attributes from the active database.
@@ -294,15 +294,14 @@ private slots:
 
   /*! Connected to the "Find in Document" UI action. This function creates and displays an instance of
       GCSearchForm to allow the user to search for specific strings in the current document.
-      \sa elementFound */
+      \sa itemFound */
   void searchDocument();
 
-  /*! Connected to GCSearchForm's "foundElement( QDomElement)" signal.  This slot sets the "found" element
-      corresponding to the user-provided search string as active.
+  /*! Connected to GCSearchForm's "foundItem" signal.  This slot sets the found item as active.
       \sa searchDocument */
-  void elementFound( const QDomElement &element );
+  void itemFound( GCTreeWidgetItem *item );
 
-  /*! Connected to the "Revert Manual Changes" button's "clicked()" signal.  This slot will revert all manual
+  /*! itemFound the "Revert Manual Changes" button's "clicked()" signal.  This slot will revert all manual
       changes to the active document made BEFORE the changes are saved (i.e. it isn't a classic "undo" button).
       \sa saveDirectEdit */
   void revertDirectEdit();

@@ -45,10 +45,10 @@ const int INCRCOLUMN  = 2;
 
 /*--------------------------------------------------------------------------------------*/
 
-GCSnippetsForm::GCSnippetsForm( const QString &elementName, QDomElement parentElement, QWidget *parent ) :
+GCSnippetsForm::GCSnippetsForm( const QString &elementName, GCTreeWidgetItem *parentItem, QWidget *parent ) :
   QDialog            ( parent ),
   ui                 ( new Ui::GCSnippetsForm ),
-  m_parentElement    ( &parentElement ),
+  m_parentItem       ( parentItem ),
   m_treeItemActivated( false )
 {
   ui->setupUi( this );
@@ -260,8 +260,7 @@ void GCSnippetsForm::addSnippet()
       }      
     }
 
-    m_parentElement->appendChild( ui->treeWidget->cloneDocument() );
-    emit snippetAdded( m_parentElement );
+    emit snippetAdded( m_parentItem, ui->treeWidget->cloneDocument().toElement() );
 
     for( int j = 0; j < includedItems.size(); ++j )
     {
