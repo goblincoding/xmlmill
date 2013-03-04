@@ -955,22 +955,24 @@ void GCMainWindow::addElementToDocument()
 {
   QString elementName = ui->addElementComboBox->currentText();
   bool treeWasEmpty = ui->treeWidget->isEmpty();
+  bool addToParent = false;
 
   /* If the user selected the <element> option, we add a new sibling element
     of the same name as the current element to the current element's parent. */
   if( elementName.contains( QRegExp( "<|>" ) ) )
   {
     elementName = elementName.remove( QRegExp( "<|>" ) );
+    addToParent = true;
   }
 
   /* There is probably no chance of this ever happening, but defensive programming FTW! */
   if( !elementName.isEmpty() )
   {
     /* Update the tree widget. */
-    ui->treeWidget->addItem( elementName, true );
+    ui->treeWidget->addItem( elementName, addToParent );
 
     GCTreeWidgetItem *treeItem = ui->treeWidget->gcCurrentItem();
-    treeItem->setFlags( ui->treeWidget->gcCurrentItem()->flags() | Qt::ItemIsEditable );
+    treeItem->setFlags( treeItem->flags() | Qt::ItemIsEditable );
 
     /* If the user starts creating a DOM document without having explicitly asked for
     a new file to be created, do it automatically (we can't call "newXMLFile here" since
