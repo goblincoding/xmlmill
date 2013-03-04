@@ -308,11 +308,11 @@ void GCDomTreeWidget::addItem( const QString &element, bool toParent )
 {
   if( currentItem() )
   {
-    insertItem( element, currentItem()->childCount() );
+    insertItem( element, currentItem()->childCount(), toParent );
   }
   else
   {
-    insertItem( element, 0 );
+    insertItem( element, 0, toParent );
   }
 }
 
@@ -347,7 +347,7 @@ void GCDomTreeWidget::insertItem( const QString &elementName, int index, bool to
   }
   else
   {
-    if( toParent )
+    if( !toParent )
     {
       currentItem()->insertChild( index, item );
       gcCurrentItem()->element().appendChild( element );
