@@ -37,7 +37,7 @@ namespace Ui
   class GCRemoveItemsForm;
 }
 
-class QTreeWidgetItem;
+class GCTreeWidgetItem;
 
 /// Allows the user to remove items from the active database.
 
@@ -64,7 +64,7 @@ private slots:
   /*! Triggered when an item in the tree widget is clicked.  The element name corresponding to 
       the tree widget item is flagged as currently active and the attribute combo box is
       populated with the element's known associated attributes. */
-  void elementSelected( QTreeWidgetItem *item, int column );
+  void elementSelected( GCTreeWidgetItem *item, int column );
 
   /*! Triggered when the user clicks the "Delete Element" button. A complete clean-up of everything
       (first level children, attributes, attribute values, etc) is executed recursively for the

@@ -31,6 +31,7 @@
 #include "db/gcdatabaseinterface.h"
 #include "utils/gcmessagespace.h"
 #include "utils/gcglobalspace.h"
+#include "utils/gctreewidgetitem.h"
 
 #include <QMessageBox>
 
@@ -131,7 +132,7 @@ void GCAddItemsForm::addElementAndAttributes()
       if( ui->treeWidget->currentItem() )
       {
         /* Also add it to the parent element's child list. */
-        if( !GCDataBaseInterface::instance()->updateElementChildren( ui->treeWidget->currentItem()->text( 0 ),
+        if( !GCDataBaseInterface::instance()->updateElementChildren( ui->treeWidget->gcCurrentItem()->name(),
                                                                      QStringList( element ) ) )
         {
           GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
