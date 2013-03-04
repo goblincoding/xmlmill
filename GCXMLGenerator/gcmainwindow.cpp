@@ -967,7 +967,7 @@ void GCMainWindow::addElementToDocument()
   if( !elementName.isEmpty() )
   {
     /* Update the tree widget. */
-    ui->treeWidget->addItem( elementName );
+    ui->treeWidget->addItem( elementName, true );
 
     GCTreeWidgetItem *treeItem = ui->treeWidget->gcCurrentItem();
     treeItem->setFlags( ui->treeWidget->gcCurrentItem()->flags() | Qt::ItemIsEditable );

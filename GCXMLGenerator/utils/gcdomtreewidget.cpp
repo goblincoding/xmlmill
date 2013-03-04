@@ -304,7 +304,7 @@ void GCDomTreeWidget::processNextElement( const QString &element )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::addItem( const QString &element )
+void GCDomTreeWidget::addItem( const QString &element, bool toParent )
 {
   if( currentItem() )
   {
@@ -318,7 +318,7 @@ void GCDomTreeWidget::addItem( const QString &element )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::insertItem( const QString &elementName, int index )
+void GCDomTreeWidget::insertItem( const QString &elementName, int index, bool toParent )
 {
   QDomElement element = m_domDoc->createElement( elementName );
 
@@ -347,8 +347,16 @@ void GCDomTreeWidget::insertItem( const QString &elementName, int index )
   }
   else
   {
-    currentItem()->insertChild( index, item );
-    gcCurrentItem()->element().appendChild( element );
+    if( toParent )
+    {
+      currentItem()->insertChild( index, item );
+      gcCurrentItem()->element().appendChild( element );
+    }
+    else
+    {
+      currentItem()->parent()->insertChild( index, item );
+      gcCurrentItem()->gcParent()->element().appendChild( element );
+    }
   }
 
   setCurrentItem( item );

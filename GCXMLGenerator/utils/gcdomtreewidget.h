@@ -112,15 +112,18 @@ public:
   /*! Adds a new item and corresponding DOM element node named "element". If the tree
       is empty, the new item will be added to the invisible root, otherwise it will be
       added as a child of the current item.  The new item is also set as the current item.
+      If "toParent" is true, the new item will be added as a child to the current item's
+      parent (i.e. as a sibling to the current item).
       \sa insertItem */
-  void addItem( const QString &element );
+  void addItem( const QString &element, bool toParent = false );
 
   /*! Adds a new item and corresponding DOM element node named "elementName" and inserts
       the new tree widget item into position "index" of the current item. If the tree
       is empty, the new item will be added to the invisible root. The new item is also set
-      as the current item.
+      as the current item. If "toParent" is true, the new item will be added as a child to
+      the current item's parent (i.e. as a sibling to the current item).
       \sa addItem */
-  void insertItem( const QString &elementName, int index );
+  void insertItem( const QString &elementName, int index, bool toParent = false );
 
   /*! Removes "item" and its corresponding DOM element from the tree and underlying DOM document. */
   void removeItem( GCTreeWidgetItem* item );
