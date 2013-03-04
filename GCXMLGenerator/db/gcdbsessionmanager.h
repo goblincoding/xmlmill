@@ -55,24 +55,24 @@ public:
   ~GCDBSessionManager();
 
   /*! Select a known database from the dropdown, or add a new or existing database from file.
-      @param currentRoot - used to determine whether or not the change will affect
-                           the active document. */
+      @param currentRoot - used to determine whether or not the change will affect the active
+                           document (if not provided, the current document is assumed empty). */
   void selectActiveDatabase(  const QString &currentRoot = QString() );
 
   /*! Display the list of known databases that can be removed.
-      @param currentRoot - used to determine whether or not the change will affect
-                           the active document. */
+      @param currentRoot - used to determine whether or not the change will affect the active
+                           document (if not provided, the current document is assumed empty). */
   void removeDatabase( const QString &currentRoot = QString() );
 
 public slots:
   /*! Add an existing database from file.
-      @param currentRoot - used to determine whether or not the change will affect
-                           the active document. */
+      @param currentRoot - used to determine whether or not the change will affect the active
+                           document (if not provided, the current document is assumed empty). */
   void addExistingDatabase( const QString &currentRoot = QString() );
 
   /*! Create and add a new database.
-      @param currentRoot - used to determine whether or not the change will affect
-                           the active document. */
+      @param currentRoot - used to determine whether or not the change will affect the active
+                           document (if not provided, the current document is assumed empty). */
   void addNewDatabase( const QString &currentRoot = QString() );
 
 signals:
@@ -80,7 +80,7 @@ signals:
   void activeDatabaseChanged( QString );
 
   /*! Emitted when the database change affects the current active document and 
-      informs the listener that the document was reset. */
+      informs the listener that the document must be reset. */
   void reset();
 
 private slots:
@@ -88,7 +88,8 @@ private slots:
       via GCDatabaseInterface. */
   void removeDBConnection();
 
-  /*! Triggered when the user selection is completed. */
+  /*! Triggered when the user selection is completed. Sets the selected database
+      via GCDatabaseInterface.*/
   void setActiveDatabase();
 
   /*! Displays help specific to this form. */
