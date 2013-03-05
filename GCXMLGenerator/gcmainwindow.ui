@@ -261,7 +261,6 @@
     <addaction name="menuAddItems"/>
     <addaction name="separator"/>
     <addaction name="actionFind"/>
-    <addaction name="actionInsertSnippet"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
