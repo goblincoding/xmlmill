@@ -98,6 +98,8 @@ private:
   Ui::GCSearchForm *ui;
   QTextEdit         m_text;
   bool              m_wasFound;
+  bool              m_searchUp;
+  bool              m_firstRun;
   int               m_previousIndex;
 
   QTextDocument::FindFlags m_searchFlags;

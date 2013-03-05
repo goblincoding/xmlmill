@@ -41,11 +41,20 @@ bool lessThan( GCTreeWidgetItem *lhs, GCTreeWidgetItem *rhs )
 
 /*--------------------------------------------------------------------------------------*/
 
+bool greaterThan( GCTreeWidgetItem *lhs, GCTreeWidgetItem *rhs )
+{
+  return ( lhs->index() > rhs->index() );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 GCSearchForm::GCSearchForm( const QList< GCTreeWidgetItem * > &items, const QString &docContents, QWidget *parent ) :
   QDialog        ( parent ),
   ui             ( new Ui::GCSearchForm ),
   m_text         (),
   m_wasFound     ( false ),
+  m_searchUp     ( false ),
+  m_firstRun     ( true ),
   m_previousIndex( -1 ),
   m_searchFlags  ( 0 ),
   m_items        ( items )
@@ -76,6 +85,7 @@ GCSearchForm::~GCSearchForm()
 
 void GCSearchForm::search()
 {
+  m_firstRun = false;
   QString searchText = ui->lineEdit->text();
   bool found = m_text.find( searchText, m_searchFlags );
 
@@ -85,7 +95,8 @@ void GCSearchForm::search()
     at least once so that, when we reach the end of the document and "found"
     is once more false, we can reset all indices and flags in order to start
     again from the beginning. */
-  if( found != m_wasFound && m_wasFound )
+  if( ( ( found != m_wasFound ) && m_wasFound ) ||
+      ( !m_wasFound && m_searchUp ) )
   {
     resetCursor();
     found = m_text.find( searchText, m_searchFlags );
@@ -114,17 +125,36 @@ void GCSearchForm::search()
       }
     }
 
-    qSort( matchingItems.begin(), matchingItems.end(), lessThan );
-
-    for( int i = 0; i < matchingItems.size(); ++i )
+    if( !m_searchUp )
     {
-      GCTreeWidgetItem *treeItem = matchingItems.at( i );
+      qSort( matchingItems.begin(), matchingItems.end(), lessThan );
 
-      if( treeItem->index() > m_previousIndex )
+      for( int i = 0; i < matchingItems.size(); ++i )
       {
-        m_previousIndex = treeItem->index();
-        emit foundMatch( treeItem );
-        break;
+        GCTreeWidgetItem *treeItem = matchingItems.at( i );
+
+        if( treeItem->index() > m_previousIndex )
+        {
+          m_previousIndex = treeItem->index();
+          emit foundMatch( treeItem );
+          break;
+        }
+      }
+    }
+    else
+    {
+      qSort( matchingItems.begin(), matchingItems.end(), greaterThan );
+
+      for( int i = 0; i < matchingItems.size(); ++i )
+      {
+        GCTreeWidgetItem *treeItem = matchingItems.at( i );
+
+        if( treeItem->index() < m_previousIndex )
+        {
+          m_previousIndex = treeItem->index();
+          emit foundMatch( treeItem );
+          break;
+        }
       }
     }
   }
@@ -143,30 +173,36 @@ void GCSearchForm::resetCursor()
   {
     m_text.moveCursor( QTextCursor::End );
     QMessageBox::information( this, "Reached Top", "Search reached top, continuing at bottom." );
+    m_previousIndex = 9999999;
   }
   else
   {
     m_text.moveCursor( QTextCursor::Start );
     QMessageBox::information( this, "Reached Bottom", "Search reached bottom, continuing at top." );
+    m_previousIndex = -1;
   }
-
-  m_previousIndex = -1;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 void GCSearchForm::searchUp()
 {
-  /* Reset found flag every time the user changes the search options. */
-  m_wasFound = false;
+  /* If the user ticks the "Search Up" box before anything else, we need to set the
+    previous index to a large value to ensure we start at the right place. */
+  if( m_firstRun )
+  {
+    m_previousIndex = 9999999;
+  }
 
   if( ui->searchUpCheckBox->isChecked() )
   {
     m_searchFlags |= QTextDocument::FindBackward;
+    m_searchUp = true;
   }
   else
   {
     m_searchFlags ^= QTextDocument::FindBackward;
+    m_searchUp = false;
   }
 }
 
