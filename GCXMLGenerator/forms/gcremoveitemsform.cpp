@@ -31,6 +31,7 @@
 #include "db/gcdatabaseinterface.h"
 #include "utils/gcmessagespace.h"
 #include "utils/gcglobalspace.h"
+#include "utils/gctreewidgetitem.h"
 
 #include <QMessageBox>
 #include <QTreeWidgetItem>
@@ -54,12 +55,12 @@ GCRemoveItemsForm::GCRemoveItemsForm( QWidget *parent ) :
   connect( ui->updateValuesButton,      SIGNAL( clicked() ), this, SLOT( updateAttributeValues() ) );
   connect( ui->deleteAttributeButton,   SIGNAL( clicked() ), this, SLOT( deleteAttribute() ) );
   connect( ui->deleteElementButton,     SIGNAL( clicked() ), this, SLOT( deleteElement() ) );
-  connect( ui->removeChildButton,       SIGNAL( clicked() ), this, SLOT( removeChildElement() ) );
+  connect( ui->removeFromParentButton,  SIGNAL( clicked() ), this, SLOT( removeChildElement() ) );
 
-  connect( ui->treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ), this, SLOT( elementSelected( QTreeWidgetItem*,int ) ) );
-  connect( ui->comboBox,   SIGNAL( currentIndexChanged( QString ) ),      this, SLOT( attributeActivated( QString ) ) );
+  connect( ui->treeWidget, SIGNAL( gcCurrentItemSelected( GCTreeWidgetItem*,int ) ), this, SLOT( elementSelected( GCTreeWidgetItem*,int ) ) );
+  connect( ui->comboBox,   SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeActivated( QString ) ) );
 
-  populateTreeWidget();
+  ui->treeWidget->populateFromDatabase();
 
   setAttribute( Qt::WA_DeleteOnClose );
 }
@@ -73,73 +74,36 @@ GCRemoveItemsForm::~GCRemoveItemsForm()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCRemoveItemsForm::populateTreeWidget()
+void GCRemoveItemsForm::elementSelected( GCTreeWidgetItem *item, int column )
 {
-  ui->treeWidget->clear();
+  Q_UNUSED( column );
 
-  foreach( QString element, GCDataBaseInterface::instance()->knownRootElements() )
+  if( item )
   {
-    QTreeWidgetItem *item = new QTreeWidgetItem;
-    item->setText( 0, element );
+    if( item->gcParent() )
+    {
+      m_currentElementParent = item->gcParent()->name();
+    }
 
-    ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
-    processNextElement( element, item );
-  }
-
-  ui->treeWidget->expandAll();
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCRemoveItemsForm::processNextElement( const QString &element, QTreeWidgetItem *parent )
-{
-  QStringList children = GCDataBaseInterface::instance()->children( element );
-
-  foreach( QString child, children )
-  {
-    QTreeWidgetItem *item = new QTreeWidgetItem;
-    item->setText( 0, child );
-
-    parent->addChild( item );  // takes ownership
+    m_currentElement = item->name();
 
     /* Since it isn't illegal to have elements with children of the same name, we cannot
-        block it in the DB, however, if we DO have elements with children of the same name,
-        this recursive call enters an infinite loop, so we need to make sure that doesn't
-        happen. */
-    if( child != element )
-    {
-      processNextElement( child, item );
-    }
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCRemoveItemsForm::elementSelected( QTreeWidgetItem *item, int column )
-{
-  if( item->parent() )
-  {
-    m_currentElementParent = item->parent()->text( column );
-  }
-
-  m_currentElement = item->text( column );
-
-  /* Since it isn't illegal to have elements with children of the same name, we cannot
     block it in the DB, however, if we DO have elements with children of the same name,
     we don't want the user to delete the element since bad things will happen. */
-  if( m_currentElement == m_currentElementParent )
-  {
-    ui->deleteElementButton->setEnabled( false );
-  }
-  else
-  {
-    ui->deleteElementButton->setEnabled( true );
-  }
+    if( m_currentElement == m_currentElementParent )
+    {
+      ui->deleteElementButton->setEnabled( false );
+    }
+    else
+    {
+      ui->deleteElementButton->setEnabled( true );
+    }
 
-  QStringList attributes = GCDataBaseInterface::instance()->attributes( m_currentElement );
+    QStringList attributes = GCDataBaseInterface::instance()->attributes( m_currentElement );
 
-  ui->comboBox->clear();
-  ui->comboBox->addItems( attributes );
+    ui->comboBox->clear();
+    ui->comboBox->addItems( attributes );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -219,7 +183,7 @@ void GCRemoveItemsForm::deleteElement( const QString &element )
 
   ui->comboBox->clear();
   ui->plainTextEdit->clear();
-  populateTreeWidget();
+  ui->treeWidget->populateFromDatabase();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -253,7 +217,7 @@ void GCRemoveItemsForm::removeChildElement()
 
       ui->comboBox->clear();
       ui->plainTextEdit->clear();
-      populateTreeWidget();
+      ui->treeWidget->populateFromDatabase();
     }
   }
 }

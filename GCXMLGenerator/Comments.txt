@@ -7,3 +7,5 @@ Add reg exp validation to user input.
 Remember to name page "xmlmill" as in http://www.goblincoding.com/xmlmill
 
 Still have to write main page (documentation).
+
+Drag tree items around - very NB

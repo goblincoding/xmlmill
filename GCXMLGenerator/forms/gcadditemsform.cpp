@@ -31,6 +31,7 @@
 #include "db/gcdatabaseinterface.h"
 #include "utils/gcmessagespace.h"
 #include "utils/gcglobalspace.h"
+#include "utils/gctreewidgetitem.h"
 
 #include <QMessageBox>
 
@@ -53,8 +54,7 @@ GCAddItemsForm::GCAddItemsForm( QWidget *parent ) :
   connect( ui->comboBox,       SIGNAL( activated( QString ) ), this, SLOT( comboValueChanged( QString ) ) );
 
   populateCombo();
-  populateTreeWidget();
-  ui->treeWidget->expandAll();
+  ui->treeWidget->populateFromDatabase();
 
   if( ui->treeWidget->topLevelItemCount() != 0 )
   {
@@ -74,47 +74,6 @@ GCAddItemsForm::~GCAddItemsForm()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCAddItemsForm::populateTreeWidget()
-{
-  ui->treeWidget->clear();
-
-  /* It is possible that there may be multiple document types saved to this profile. */
-  foreach( QString element, GCDataBaseInterface::instance()->knownRootElements() )
-  {
-    QTreeWidgetItem *item = new QTreeWidgetItem;
-    item->setText( 0, element );
-
-    ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
-    processNextElement( element, item );
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCAddItemsForm::processNextElement( const QString &element, QTreeWidgetItem *parent )
-{
-  QStringList children = GCDataBaseInterface::instance()->children( element );
-
-  foreach( QString child, children )
-  {
-    QTreeWidgetItem *item = new QTreeWidgetItem;
-    item->setText( 0, child );
-
-    parent->addChild( item );  // takes ownership
-
-    /* Since it isn't illegal to have elements with children of the same name, we cannot
-        block it in the DB, however, if we DO have elements with children of the same name,
-        this recursive call enters an infinite loop, so we need to make sure that doesn't
-        happen. */
-    if( child != element )
-    {
-      processNextElement( child, item );
-    }
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 void GCAddItemsForm::populateCombo()
 {
   ui->comboBox->clear();
@@ -129,6 +88,7 @@ void GCAddItemsForm::populateCombo()
 
   ui->comboBox->addItem( CREATE_NEW );
   ui->comboBox->addItems( elements );
+  comboValueChanged( CREATE_NEW );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -164,9 +124,7 @@ void GCAddItemsForm::addElementAndAttributes()
         GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
       }
 
-      QTreeWidgetItem *item = new QTreeWidgetItem;
-      item->setText( 0, element );
-      ui->treeWidget->invisibleRootItem()->addChild( item );  // takes ownership
+      ui->treeWidget->addItem( element );
     }
     else
     {
@@ -174,15 +132,13 @@ void GCAddItemsForm::addElementAndAttributes()
       if( ui->treeWidget->currentItem() )
       {
         /* Also add it to the parent element's child list. */
-        if( !GCDataBaseInterface::instance()->updateElementChildren( ui->treeWidget->currentItem()->text( 0 ),
+        if( !GCDataBaseInterface::instance()->updateElementChildren( ui->treeWidget->gcCurrentItem()->name(),
                                                                      QStringList( element ) ) )
         {
           GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
         }
 
-        QTreeWidgetItem *item = new QTreeWidgetItem;
-        item->setText( 0, element );
-        ui->treeWidget->currentItem()->insertChild( 0, item );      // takes ownership
+        ui->treeWidget->insertItem( element, 0 );
       }
       else
       {

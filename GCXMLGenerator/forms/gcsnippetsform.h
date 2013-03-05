@@ -30,16 +30,14 @@
 #define GCSNIPPETSFORM_H
 
 #include <QDialog>
-#include <QHash>
-#include <QDomDocument>
+#include <QDomElement>
 
 namespace Ui
 {
   class GCSnippetsForm;
 }
 
-class GCElementInfo;
-class QTreeWidgetItem;
+class GCTreeWidgetItem;
 class QTableWidgetItem;
 
 /// Allows the user to add whole snippets to the active document.
@@ -69,7 +67,7 @@ public:
       @param elementName - the name of the element that will form the basis of the snippet, i.e. this
                            element will be at the top of the snippet's DOM hierarchy.
       @param parentElement - the DOM element in the active document to which the snippet will be added. */
-  explicit GCSnippetsForm( const QString &elementName, QDomElement parentElement, QWidget *parent = 0 );
+  explicit GCSnippetsForm( const QString &elementName, GCTreeWidgetItem *parentItem, QWidget *parent = 0 );
 
   /*! Destructor. */
   ~GCSnippetsForm();
@@ -78,12 +76,12 @@ signals:
   /*! Informs the listener that a new snippet has been added.  Since we're manipulating the DOM directly,
       this ensures that other GUI forms using the DOM document is made aware of the fact that the document
       has changed. */
-  void snippetAdded( const QDomElement* );
+  void snippetAdded( GCTreeWidgetItem*, QDomElement );
 
 private slots:
   /*! Triggered when an element is selected in the tree widget.  This function populates the attributes
       table with the known attributes and values associated with the selected element. */
-  void elementSelected( QTreeWidgetItem *item, int column );
+  void elementSelected( GCTreeWidgetItem *item, int column );
 
   /*! Triggered whenever a user clicks on an attribute in the attribute table, or changes an attribute's
       include state. */
@@ -101,39 +99,15 @@ private slots:
   void showHelp();
   
 private:
-  /*! Populates the tree widget with element names.  This function starts the recursive process of
-      populating the tree widget with items corresponding to all the document types and corresponding
-      elements known to the active database.  The DOM element hierarchy is preserved in the tree view. */
-  void populateTreeWidget( const QString &elementName );
-
-  /*! Processes individual elements.  This function is called recursively for each element in the active
-      database, creating a representative tree widget item for the element and adding it (the item) to
-      the correct parent.
-      @param elementName - the name of the element for which a tree widget item must be created.
-      @param parentItem - the item that will act as the parent for the new tree widget item
-      @param parentNode - the tree widget item that will act as the parent for the newly created item. */
-  void processNextElement( const QString &elementName, QTreeWidgetItem *parentItem, QDomNode parentNode );
-
   /*! Whenever a user checks or unchecks an element to include or exclude it from the snippet being built,
       the element's parent(s) and children need to be updated accordingly.  I.e. including/excluding an 
       element must also include/exclude all of its children (and their children, etc) as well as its parent
       (and its parent's parent, etc), for a smooth and intuitive user experience. */
-  void updateCheckStates( QTreeWidgetItem *item );
-
-  /*! Deletes all GCElementInfo objects from the map (and clears the map of all remaining pointers). */
-  void deleteElementInfo();
+  void updateCheckStates( GCTreeWidgetItem *item );
 
   Ui::GCSnippetsForm *ui;
-  QDomElement        *m_parentElement;
-  QDomDocument        m_domDoc;
+  GCTreeWidgetItem   *m_parentItem;
   bool                m_treeItemActivated;
-
-  QHash< QTreeWidgetItem*, GCElementInfo* > m_elementInfo;
-  QHash< QTreeWidgetItem*, QDomElement >       m_treeItemNodes;
-
-  QHash< QString /*attr*/, bool /*increment*/ > m_attributes;
-  QHash< QString /*attr*/, QString /*value*/ >  m_originalValues;
-
 };
 
 #endif // GCSNIPPETSFORM_H

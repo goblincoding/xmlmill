@@ -26,7 +26,7 @@
   <property name="modal">
    <bool>true</bool>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="elementLayout_2">
    <item>
     <widget class="QSplitter" name="splitter">
      <property name="orientation">
@@ -35,7 +35,7 @@
      <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="elementLayout">
        <item>
-        <widget class="QTreeWidget" name="treeWidget">
+        <widget class="GCDomTreeWidget" name="treeWidget">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>1</horstretch>
@@ -77,12 +77,12 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="removeChildButton">
+          <widget class="QPushButton" name="removeFromParentButton">
            <property name="whatsThis">
             <string>Remove the highlighted element from its parent's child list.</string>
            </property>
            <property name="text">
-            <string>Remove Child</string>
+            <string>Remove From Parent</string>
            </property>
            <property name="default">
             <bool>true</bool>
@@ -95,7 +95,7 @@
             <string>Delete the element (and all of its children).</string>
            </property>
            <property name="text">
-            <string>Delete Element</string>
+            <string>Delete Completely</string>
            </property>
           </widget>
          </item>
@@ -114,7 +114,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="layoutWidget1">
+     <widget class="QWidget" name="">
       <layout class="QVBoxLayout" name="attributeLayout">
        <item>
         <widget class="QLabel" name="attributesLabel">
@@ -124,14 +124,28 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="comboBox">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="deleteAttributeLayout">
+         <item>
+          <widget class="QComboBox" name="comboBox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="deleteAttributeButton">
+           <property name="whatsThis">
+            <string>Delete the highlighted attribute and all its associated values.</string>
+           </property>
+           <property name="text">
+            <string>Delete Attribute</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="QLabel" name="attributeValueLabel">
@@ -144,7 +158,7 @@
         <widget class="QPlainTextEdit" name="plainTextEdit"/>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="deleteAttributeLayout">
+        <layout class="QHBoxLayout" name="updateAttributeLayout">
          <item>
           <spacer name="attributeSpacer">
            <property name="orientation">
@@ -164,20 +178,10 @@
             <string>Update the selected attribute's values.</string>
            </property>
            <property name="text">
-            <string>Update Values</string>
+            <string>Update Attribute Values</string>
            </property>
            <property name="default">
             <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="deleteAttributeButton">
-           <property name="whatsThis">
-            <string>Delete the highlighted attribute and all its associated values.</string>
-           </property>
-           <property name="text">
-            <string>Delete Attribute</string>
            </property>
           </widget>
          </item>
@@ -200,6 +204,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GCDomTreeWidget</class>
+   <extends>QTreeWidget</extends>
+   <header location="global">utils/gcdomtreewidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../resources/gcresources.qrc"/>
  </resources>

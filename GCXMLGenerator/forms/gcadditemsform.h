@@ -36,8 +36,6 @@ namespace Ui
   class GCAddItemsForm;
 }
 
-class QTreeWidgetItem;
-
 /// Form to add elements and attributes to the active database.
 
 /**
@@ -77,18 +75,6 @@ private slots:
   void showHelp();
 
 private:
-  /*! Populates the tree widget with element names.  This function starts the recursive process of
-      populating the tree widget with items corresponding to all the document types and corresponding
-      elements known to the active database.  The DOM element hierarchy is preserved in the tree view. */
-  void populateTreeWidget();
-
-  /*! Processes individual elements.  This function is called recursively for each element in the active
-      database, creating a representative tree widget item for the element and adding it (the item) to
-      the correct parent.
-      @param element - the name of the element for which a tree widget item must be created.
-      @param parent - the tree widget item that will act as the parent for the newly created item. */
-  void processNextElement( const QString &element, QTreeWidgetItem *parent );
-
   /*! Populates the combo box with the known element names. */
   void populateCombo();
 

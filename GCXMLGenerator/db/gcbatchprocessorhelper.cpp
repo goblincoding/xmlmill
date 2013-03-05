@@ -28,6 +28,8 @@
 
 #include "gcbatchprocessorhelper.h"
 
+#include <QDomDocument>
+
 /*--------------------------------- MEMBER FUNCTIONS ----------------------------------*/
 
 GCBatchProcessorHelper::GCBatchProcessorHelper( const QDomDocument *domDoc,

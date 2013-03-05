@@ -37,7 +37,7 @@ namespace Ui
   class GCRemoveItemsForm;
 }
 
-class QTreeWidgetItem;
+class GCTreeWidgetItem;
 
 /// Allows the user to remove items from the active database.
 
@@ -64,7 +64,7 @@ private slots:
   /*! Triggered when an item in the tree widget is clicked.  The element name corresponding to 
       the tree widget item is flagged as currently active and the attribute combo box is
       populated with the element's known associated attributes. */
-  void elementSelected( QTreeWidgetItem *item, int column );
+  void elementSelected( GCTreeWidgetItem *item, int column );
 
   /*! Triggered when the user clicks the "Delete Element" button. A complete clean-up of everything
       (first level children, attributes, attribute values, etc) is executed recursively for the
@@ -100,18 +100,6 @@ private slots:
   void showAttributeHelp();
   
 private:
-  /*! Populates the tree widget with element names.  This function starts the recursive process of
-      populating the tree widget with items corresponding to all the document types and corresponding
-      elements known to the active database.  The DOM element hierarchy is preserved in the tree view. */
-  void populateTreeWidget();
-
-  /*! Processes individual elements.  This function is called recursively for each element in the active
-      database, creating a representative tree widget item for the element and adding it (the item) to
-      the correct parent.
-      @param element - the name of the element for which a tree widget item must be created.
-      @param parent - the tree widget item that will act as the parent for the newly created item. */
-  void processNextElement( const QString &element, QTreeWidgetItem *parent );
-
   /*! Removes a deleted element from all elements that may have it in their first level child lists. */
   void updateChildLists();  
 

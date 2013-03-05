@@ -37,7 +37,7 @@ namespace Ui
   class GCSearchForm;
 }
 
-class QDomElement;
+class GCTreeWidgetItem;
 
 /// Search through the current document for a specific element/attribute/value.
 
@@ -54,7 +54,7 @@ public:
   /*! Constructor.
       @param elements - a list of all the elements in the active document.
       @param docContents - the string representation of the active document's DOM content. */
-  explicit GCSearchForm( const QList< QDomElement > &elements, const QString &docContents, QWidget *parent = 0 );
+  explicit GCSearchForm( const QList< GCTreeWidgetItem* > &items, const QString &docContents, QWidget *parent = 0 );
 
   /*! Destructor. */
   ~GCSearchForm();
@@ -63,7 +63,7 @@ signals:
   /*! Emitted when the search string is found in the document.  The element emitted along with this 
       signal will contain the matched string in either its name, or the name of an associated attribute 
       or an attribute value. */
-  void foundElement( const QDomElement &element );
+  void foundItem( GCTreeWidgetItem *treeItem );
 
 private slots:
   /*! Triggered when the user clicks the search button. If a match has already been found,
@@ -91,16 +91,19 @@ private slots:
   void wholeWords();
   
 private:
-  /*! Called from within the search function when a match is found and emits the foundElement
+  /*! Called from within the search function when a match is found and emits the foundItem
       signal. */
-  void foundMatch( const QDomElement &element );
+  void foundMatch( GCTreeWidgetItem *treeItem );
 
   Ui::GCSearchForm *ui;
   QTextEdit         m_text;
   bool              m_wasFound;
+  bool              m_searchUp;
+  bool              m_firstRun;
+  int               m_previousIndex;
 
   QTextDocument::FindFlags m_searchFlags;
-  QList< QDomElement >     m_elements;
+  QList< GCTreeWidgetItem* > m_items;
 
 };
 

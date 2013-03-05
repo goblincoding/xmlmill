@@ -28,6 +28,8 @@
 
 #include "gcdatabaseinterface.h"
 #include "gcbatchprocessorhelper.h"
+
+#include <QDomDocument>
 #include <QStringList>
 #include <QFile>
 #include <QTextStream>
@@ -144,7 +146,7 @@ GCDataBaseInterface::GCDataBaseInterface() :
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::initialised()
+bool GCDataBaseInterface::initialised() const
 {
   return m_initialised;
 }
@@ -948,7 +950,7 @@ QStringList GCDataBaseInterface::getDBList() const
 
 /*--------------------------------------------------------------------------------------*/
 
-QString GCDataBaseInterface::getLastError() const
+const QString &GCDataBaseInterface::getLastError() const
 {
   return m_lastErrorMsg;
 }

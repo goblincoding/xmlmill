@@ -31,7 +31,7 @@
 
 #include <QMainWindow>
 #include <QHash>
-#include "utils/gcelementinfocontainer.h"
+#include <QDomElement>
 
 namespace Ui
 {
@@ -39,12 +39,10 @@ namespace Ui
 }
 
 class GCDBSessionManager;
+class GCTreeWidgetItem;
 class QSignalMapper;
-class QTreeWidgetItem;
 class QTableWidgetItem;
 class QComboBox;
-class QDomDocument;
-class QDomElement;
 class QTimer;
 class QLabel;
 class QMovie;
@@ -107,7 +105,7 @@ private slots:
       DOM will be replaced with the new name and the tree widget will be updated
       accordingly.
       \sa elementSelected */
-  void elementChanged( QTreeWidgetItem *item, int column );
+  void elementChanged( GCTreeWidgetItem *item, int column );
 
   /*! Connected to the UI tree widget's "itemClicked( QTreeWidgetItem*, int )" signal.
       Triggered by clicking on a tree widget item, the trigger will populate
@@ -118,7 +116,7 @@ private slots:
       addition of new attributes and values will automatically be persisted
       to the database.
       \sa elementChanged */
-  void elementSelected( QTreeWidgetItem *item, int column );
+  void elementSelected( GCTreeWidgetItem *item, int column );
 
   /*! Connected to the UI table widget's "itemChanged( QTableWidgetItem* )" signal.
       This function is called when the user changes the name of an existing attribute
@@ -129,7 +127,7 @@ private slots:
       \sa attributeSelected
       \sa attributeValueChanged
       \sa setCurrentComboBox */
-  void attributeChanged( QTableWidgetItem *item );
+  void attributeChanged( QTableWidgetItem *tableItem );
 
   /*! Connected to the UI table widget's "itemClicked( QTableWidgetItem* )" signal.
       This function is called whenever the user selects an attribute in the table widget and
@@ -137,7 +135,7 @@ private slots:
       \sa attributeChanged
       \sa attributeValueChanged
       \sa setCurrentComboBox */
-  void attributeSelected( QTableWidgetItem *item );
+  void attributeSelected( QTableWidgetItem *tableItem );
 
   /*! Connected to GCComboBox's "currentIndexChanged( QString )" signal.
       Triggered whenever the current value of a combo box changes or when the user edits
@@ -282,7 +280,7 @@ private slots:
       \sa addElementToDocument
       \sa addSnippetToDocument
       \sa deleteElementFromDocument */
-  void insertSnippet( const QDomElement *element );
+  void insertSnippet( GCTreeWidgetItem *treeItem, QDomElement element );
 
   /*! Triggered by the "Remove Items" UI action. This function creates and displays an instance of
       GCRemoveItemsForm to allow the user to remove elements and/or attributes from the active database.
@@ -296,15 +294,14 @@ private slots:
 
   /*! Connected to the "Find in Document" UI action. This function creates and displays an instance of
       GCSearchForm to allow the user to search for specific strings in the current document.
-      \sa elementFound */
+      \sa itemFound */
   void searchDocument();
 
-  /*! Connected to GCSearchForm's "foundElement( QDomElement)" signal.  This slot sets the "found" element
-      corresponding to the user-provided search string as active.
+  /*! Connected to GCSearchForm's "foundItem" signal.  This slot sets the found item as active.
       \sa searchDocument */
-  void elementFound( const QDomElement &element );
+  void itemFound( GCTreeWidgetItem *item );
 
-  /*! Connected to the "Revert Manual Changes" button's "clicked()" signal.  This slot will revert all manual
+  /*! itemFound the "Revert Manual Changes" button's "clicked()" signal.  This slot will revert all manual
       changes to the active document made BEFORE the changes are saved (i.e. it isn't a classic "undo" button).
       \sa saveDirectEdit */
   void revertDirectEdit();
@@ -372,24 +369,19 @@ private:
   GCDBSessionManager *createDBSessionManager();
 
   /*! Kicks off a recursive DOM tree traversal to populate the tree widget and element maps
-      with the information contained in the active DOM document.
-      \sa populateTreeWidget */
+      with the information contained in the active DOM document. */
   void processDOMDoc();
-
-  /*! Creates a new QTreeWidget item and adds it as a child to the "parentItem".
-      \sa processDOMDoc */
-  void populateTreeWidget( const QDomElement &parentElement, QTreeWidgetItem *parentItem );
 
   /*! Displays a message in the status bar. */
   void setStatusBarMessage( const QString &message );
 
   /*! Displays the DOM document's content in the text edit area.
       \sa highlightTextElement */
-  void setTextEditContent( QTreeWidgetItem *item = 0 );
+  void setTextEditContent( GCTreeWidgetItem *item = 0 );
 
   /*! Highlights the currently active DOM element in the text edit area.
       \sa setTextEditContent */
-  void highlightTextElement( QTreeWidgetItem *item );
+  void highlightTextElement( GCTreeWidgetItem *item );
 
   /*! Creates an additional table row that the user can use to add new attributes to the
       active element. */
@@ -442,7 +434,6 @@ private:
 
   Ui::GCMainWindow *ui;
   QSignalMapper    *m_signalMapper;
-  QDomDocument     *m_domDoc;
   QTableWidgetItem *m_activeAttribute;
   QWidget          *m_currentCombo;
   QTimer           *m_saveTimer;
@@ -457,7 +448,6 @@ private:
   bool              m_fileContentsChanged;
 
   QHash< QWidget*, int/* table row*/ > m_comboBoxes;
-  GCElementInfoContainer m_elementContainer;
 
 };
 
