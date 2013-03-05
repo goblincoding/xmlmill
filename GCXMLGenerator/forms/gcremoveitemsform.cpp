@@ -55,10 +55,10 @@ GCRemoveItemsForm::GCRemoveItemsForm( QWidget *parent ) :
   connect( ui->updateValuesButton,      SIGNAL( clicked() ), this, SLOT( updateAttributeValues() ) );
   connect( ui->deleteAttributeButton,   SIGNAL( clicked() ), this, SLOT( deleteAttribute() ) );
   connect( ui->deleteElementButton,     SIGNAL( clicked() ), this, SLOT( deleteElement() ) );
-  connect( ui->removeChildButton,       SIGNAL( clicked() ), this, SLOT( removeChildElement() ) );
+  connect( ui->removeFromParentButton,  SIGNAL( clicked() ), this, SLOT( removeChildElement() ) );
 
   connect( ui->treeWidget, SIGNAL( gcCurrentItemSelected( GCTreeWidgetItem*,int ) ), this, SLOT( elementSelected( GCTreeWidgetItem*,int ) ) );
-  connect( ui->comboBox,   SIGNAL( currentIndexChanged( QString ) ),      this, SLOT( attributeActivated( QString ) ) );
+  connect( ui->comboBox,   SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeActivated( QString ) ) );
 
   ui->treeWidget->populateFromDatabase();
 
@@ -78,29 +78,32 @@ void GCRemoveItemsForm::elementSelected( GCTreeWidgetItem *item, int column )
 {
   Q_UNUSED( column );
 
-  if( item->gcParent() )
+  if( item )
   {
-    m_currentElementParent = item->gcParent()->name();
-  }
+    if( item->gcParent() )
+    {
+      m_currentElementParent = item->gcParent()->name();
+    }
 
-  m_currentElement = item->name();
+    m_currentElement = item->name();
 
-  /* Since it isn't illegal to have elements with children of the same name, we cannot
+    /* Since it isn't illegal to have elements with children of the same name, we cannot
     block it in the DB, however, if we DO have elements with children of the same name,
     we don't want the user to delete the element since bad things will happen. */
-  if( m_currentElement == m_currentElementParent )
-  {
-    ui->deleteElementButton->setEnabled( false );
-  }
-  else
-  {
-    ui->deleteElementButton->setEnabled( true );
-  }
+    if( m_currentElement == m_currentElementParent )
+    {
+      ui->deleteElementButton->setEnabled( false );
+    }
+    else
+    {
+      ui->deleteElementButton->setEnabled( true );
+    }
 
-  QStringList attributes = GCDataBaseInterface::instance()->attributes( m_currentElement );
+    QStringList attributes = GCDataBaseInterface::instance()->attributes( m_currentElement );
 
-  ui->comboBox->clear();
-  ui->comboBox->addItems( attributes );
+    ui->comboBox->clear();
+    ui->comboBox->addItems( attributes );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
