@@ -188,22 +188,28 @@ void GCSnippetsForm::attributeValueChanged()
 
   for( int i = 0; i < attributes.size(); ++i )
   {
-    /* First column. */
-    QCheckBox *checkBox = dynamic_cast< QCheckBox* >( ui->tableWidget->cellWidget( i, INCRCOLUMN ) );
-
-    /* Second column. */
-    QString attributeName = ui->tableWidget->item( i, LABELCOLUMN )->text();
-
-    /* Third column. */
-    GCComboBox *comboBox = dynamic_cast< GCComboBox* >( ui->tableWidget->cellWidget( i, COMBOCOLUMN ) );
-    QString attributeValue = comboBox->currentText();
-
-    if( treeItem->attributeIncluded( attributeName ) )
+    for( int j = 0; j < ui->tableWidget->rowCount(); ++j )
     {
-      treeItem->includeAttribute( attributeName, attributeValue );
-    }
+      /* Second column. */
+      QString attributeName = ui->tableWidget->item( j, LABELCOLUMN )->text();
 
-    treeItem->setIncrementAttribute( attributeName, checkBox->isChecked() );
+      if( attributeName == attributes.item( i ).nodeName() )
+      {
+        /* First column. */
+        QCheckBox *checkBox = dynamic_cast< QCheckBox* >( ui->tableWidget->cellWidget( j, INCRCOLUMN ) );
+
+        /* Third column. */
+        GCComboBox *comboBox = dynamic_cast< GCComboBox* >( ui->tableWidget->cellWidget( j, COMBOCOLUMN ) );
+        QString attributeValue = comboBox->currentText();
+
+        if( treeItem->attributeIncluded( attributeName ) )
+        {
+          treeItem->includeAttribute( attributeName, attributeValue );
+        }
+
+        treeItem->setIncrementAttribute( attributeName, checkBox->isChecked() );
+      }
+    }
   }
 }
 
