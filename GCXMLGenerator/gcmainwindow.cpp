@@ -35,7 +35,7 @@
 #include "forms/gcremoveitemsform.h"
 #include "forms/gchelpdialog.h"
 #include "forms/gcsearchform.h"
-#include "forms/gcsnippetsform.h"
+#include "forms/gcaddsnippetsform.h"
 #include "forms/gcrestorefilesform.h"
 #include "utils/gctreewidgetitem.h"
 #include "utils/gccombobox.h"
@@ -1018,7 +1018,7 @@ void GCMainWindow::addSnippetToDocument()
   if( elementName.contains( QRegExp( "<|>" ) ) )
   {
     /* Qt::WA_DeleteOnClose flag set. */
-    GCSnippetsForm *dialog = new GCSnippetsForm( elementName.remove( QRegExp( "<|>" ) ),
+    GCAddSnippetsForm *dialog = new GCAddSnippetsForm( elementName.remove( QRegExp( "<|>" ) ),
                                                  ui->treeWidget->gcCurrentItem()->gcParent(),
                                                  this );
     connect( dialog, SIGNAL( snippetAdded( GCTreeWidgetItem*, QDomElement ) ), this, SLOT( insertSnippet( GCTreeWidgetItem*, QDomElement ) ) );
@@ -1027,7 +1027,7 @@ void GCMainWindow::addSnippetToDocument()
   else
   {
     /* Qt::WA_DeleteOnClose flag set. */
-    GCSnippetsForm *dialog = new GCSnippetsForm( elementName,
+    GCAddSnippetsForm *dialog = new GCAddSnippetsForm( elementName,
                                                  ui->treeWidget->gcCurrentItem(),
                                                  this );
     connect( dialog, SIGNAL( snippetAdded( GCTreeWidgetItem*, QDomElement ) ), this, SLOT( insertSnippet( GCTreeWidgetItem*, QDomElement ) ) );

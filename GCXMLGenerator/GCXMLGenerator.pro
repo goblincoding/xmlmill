@@ -49,12 +49,12 @@ SOURCES += main.cpp\
     forms/gcsearchform.cpp \
     forms/gcadditemsform.cpp \
     forms/gcremoveitemsform.cpp \
-    forms/gcsnippetsform.cpp \
     db/gcdbsessionmanager.cpp \
     forms/gcrestorefilesform.cpp \
     utils/gcglobalspace.cpp \
     utils/gcdomtreewidget.cpp \
-    utils/gctreewidgetitem.cpp
+    utils/gctreewidgetitem.cpp \
+    forms/gcaddsnippetsform.cpp
 
 HEADERS  += \
     db/gcdatabaseinterface.h \
@@ -67,12 +67,12 @@ HEADERS  += \
     forms/gcsearchform.h \
     forms/gcadditemsform.h \
     forms/gcremoveitemsform.h \
-    forms/gcsnippetsform.h \
     db/gcdbsessionmanager.h \
     forms/gcrestorefilesform.h \
     utils/gcglobalspace.h \
     utils/gcdomtreewidget.h \
-    utils/gctreewidgetitem.h
+    utils/gctreewidgetitem.h \
+    forms/gcaddsnippetsform.h
 
 FORMS    += \
     gcmainwindow.ui \
@@ -81,9 +81,9 @@ FORMS    += \
     forms/gcsearchform.ui \
     forms/gcremoveitemsform.ui \
     forms/gcadditemsform.ui \
-    forms/gcsnippetsform.ui \
     db/gcdbsessionmanager.ui \
-    forms/gcrestorefilesform.ui
+    forms/gcrestorefilesform.ui \
+    forms/gcaddsnippetsform.ui
 
 RESOURCES += \
     resources/gcresources.qrc

@@ -268,14 +268,14 @@ private slots:
   void addElementToDocument();
 
   /*! Connected to the "Add Snippet" button's "clicked()" signal. This function creates and displays
-      an instance of GCSnippetsForm to allow the user to add one (or more) XML snippets to the active
+      an instance of GCAddSnippetsForm to allow the user to add one (or more) XML snippets to the active
       document.
       \sa addElementToDocument
       \sa deleteElementFromDocument
       \sa insertSnippet */
   void addSnippetToDocument();
 
-  /*! Connected to the GCSnippetsForm's "snippetAdded()" signal.  This function updates the GUI whenever
+  /*! Connected to the GCAddSnippetsForm's "snippetAdded()" signal.  This function updates the GUI whenever
       new snippets are added to the active document.
       \sa addElementToDocument
       \sa addSnippetToDocument

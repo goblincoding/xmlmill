@@ -81,7 +81,7 @@ public:
   /*! Returns true if the list of attributes that should be included in the active document contains "attribute". */
   bool attributeIncluded( const QString &attribute ) const;
 
-  /*! This function is only used in GCSnippetsForm. Adds "attribute" to a list of attributes
+  /*! This function is only used in GCAddSnippetsForm. Adds "attribute" to a list of attributes
       whose values must be incremented when multiple snippets are added to the active DOM.  The
       reason this functionality was added is due to the complications inherent to the default
       shallow copy constructors of QDomAttr (I originally tried to use maps confined to GCSnippetForm
@@ -92,7 +92,7 @@ public:
       \sa revertToFixedValues */
   void setIncrementAttribute( const QString & attribute, bool increment );
 
-  /*! This function is only used in GCSnippetsForm. Returns true if "attribute" must
+  /*! This function is only used in GCAddSnippetsForm. Returns true if "attribute" must
       be incremented automatically.
       \sa setIncrementAttribute
       \sa fixAttributeValues
@@ -100,7 +100,7 @@ public:
       \sa revertToFixedValues */
   bool incrementAttribute( const QString &attribute ) const;
 
-  /*! This function is only used in GCSnippetsForm. Takes a snapshot of the current attribute values
+  /*! This function is only used in GCAddSnippetsForm. Takes a snapshot of the current attribute values
       so that element attributes may be updated on each snippet iteration without forgetting what the
       underlying value was.
       \sa incrementAttribute
@@ -109,14 +109,14 @@ public:
       \sa revertToFixedValues */
   void fixAttributeValues();
 
-  /*! This function is only used in GCSnippetsForm. Returns the fixed value saved against "attribute".
+  /*! This function is only used in GCAddSnippetsForm. Returns the fixed value saved against "attribute".
       \sa incrementAttribute
       \sa setIncrementAttribute
       \sa fixAttributeValues
       \sa revertToFixedValues */
   QString fixedValue( const QString &attribute ) const;
 
-  /*! This function is only used in GCSnippetsForm. Reverts to the attribute values set with the "fixedAttributeValues" call.
+  /*! This function is only used in GCAddSnippetsForm. Reverts to the attribute values set with the "fixedAttributeValues" call.
       \sa setIncrementAttribute
       \sa incrementAttribute
       \sa fixAttributeValues

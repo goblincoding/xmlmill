@@ -26,7 +26,7 @@
   <property name="modal">
    <bool>true</bool>
   </property>
-  <layout class="QVBoxLayout" name="elementLayout_2">
+  <layout class="QVBoxLayout" name="mainLayout">
    <item>
     <widget class="QSplitter" name="splitter">
      <property name="orientation">
@@ -114,7 +114,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget1">
       <layout class="QVBoxLayout" name="attributeLayout">
        <item>
         <widget class="QLabel" name="attributesLabel">

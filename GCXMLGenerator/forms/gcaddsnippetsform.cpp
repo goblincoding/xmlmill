@@ -26,7 +26,7 @@
  *                    <http://www.gnu.org/licenses/>
  */
 
-#include "gcsnippetsform.h"
+#include "gcaddsnippetsform.h"
 #include "ui_gcsnippetsform.h"
 #include "db/gcdatabaseinterface.h"
 #include "utils/gccombobox.h"
@@ -45,9 +45,9 @@ const int INCRCOLUMN  = 2;
 
 /*--------------------------------------------------------------------------------------*/
 
-GCSnippetsForm::GCSnippetsForm( const QString &elementName, GCTreeWidgetItem *parentItem, QWidget *parent ) :
+GCAddSnippetsForm::GCAddSnippetsForm( const QString &elementName, GCTreeWidgetItem *parentItem, QWidget *parent ) :
   QDialog            ( parent ),
-  ui                 ( new Ui::GCSnippetsForm ),
+  ui                 ( new Ui::GCAddSnippetsForm ),
   m_parentItem       ( parentItem ),
   m_treeItemActivated( false )
 {
@@ -72,14 +72,14 @@ GCSnippetsForm::GCSnippetsForm( const QString &elementName, GCTreeWidgetItem *pa
 
 /*--------------------------------------------------------------------------------------*/
 
-GCSnippetsForm::~GCSnippetsForm()
+GCAddSnippetsForm::~GCAddSnippetsForm()
 {
   delete ui;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCSnippetsForm::elementSelected( GCTreeWidgetItem *item, int column )
+void GCAddSnippetsForm::elementSelected( GCTreeWidgetItem *item, int column )
 {
   m_treeItemActivated = true;
 
@@ -155,7 +155,7 @@ void GCSnippetsForm::elementSelected( GCTreeWidgetItem *item, int column )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCSnippetsForm::attributeChanged( QTableWidgetItem *item )
+void GCAddSnippetsForm::attributeChanged( QTableWidgetItem *item )
 {
   if( !m_treeItemActivated )
   {
@@ -180,25 +180,24 @@ void GCSnippetsForm::attributeChanged( QTableWidgetItem *item )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCSnippetsForm::attributeValueChanged()
+void GCAddSnippetsForm::attributeValueChanged()
 {
   /* Update the element's attribute inclusions, values and value increment flags. */
   GCTreeWidgetItem *treeItem = ui->treeWidget->gcCurrentItem();
   QDomNamedNodeMap attributes = treeItem->element().attributes();
 
+  /* The table doesn't know which attributes are included or excluded and contains
+    rows corresponding to all the attributes associated with the element. We only
+    wish to act on attributes currently included. */
   for( int i = 0; i < attributes.size(); ++i )
   {
     for( int j = 0; j < ui->tableWidget->rowCount(); ++j )
     {
-      /* Second column. */
       QString attributeName = ui->tableWidget->item( j, LABELCOLUMN )->text();
 
       if( attributeName == attributes.item( i ).nodeName() )
       {
-        /* First column. */
         QCheckBox *checkBox = dynamic_cast< QCheckBox* >( ui->tableWidget->cellWidget( j, INCRCOLUMN ) );
-
-        /* Third column. */
         GCComboBox *comboBox = dynamic_cast< GCComboBox* >( ui->tableWidget->cellWidget( j, COMBOCOLUMN ) );
         QString attributeValue = comboBox->currentText();
 
@@ -215,17 +214,20 @@ void GCSnippetsForm::attributeValueChanged()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCSnippetsForm::addSnippet()
+void GCAddSnippetsForm::addSnippet()
 {
   QList< GCTreeWidgetItem* > includedItems = ui->treeWidget->includedGcTreeWidgetItems();
 
   /* Add the required number of snippets. */
   for( int i = 0; i < ui->spinBox->value(); ++i )
   {
-    /* Update all the elements and attribute values. */
+    /* Update all the included elements and attribute values. */
     for( int j = 0; j < includedItems.size(); ++j )
     {
       GCTreeWidgetItem* localItem = includedItems.at( j );
+
+      /* Sets a "restore point" so that we may increment attribute values and return
+        to the previously fixed values (to avoid incrementing an incremented value). */
       localItem->fixAttributeValues();
 
       QString elementName = localItem->element().tagName();
@@ -268,6 +270,7 @@ void GCSnippetsForm::addSnippet()
 
     emit snippetAdded( m_parentItem, ui->treeWidget->cloneDocument().toElement() );
 
+    /* Restore values. */
     for( int j = 0; j < includedItems.size(); ++j )
     {
       includedItems.at( j )->revertToFixedValues();
@@ -277,7 +280,7 @@ void GCSnippetsForm::addSnippet()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCSnippetsForm::updateCheckStates( GCTreeWidgetItem *item )
+void GCAddSnippetsForm::updateCheckStates( GCTreeWidgetItem *item )
 {
   /* Checking or unchecking an item must recursively update its children as well. */
   if( item->checkState( 0 ) == Qt::Checked )
@@ -286,12 +289,10 @@ void GCSnippetsForm::updateCheckStates( GCTreeWidgetItem *item )
 
     /* When a low-level child is activated, we need to also update its parent tree all the way
       up to the root element since including a child automatically implies that the parent
-      element is included.  By the time we reach this point, all the element's children have
-      been updated so we can now set the flag to prevent its siblings from being reactivated
-      when we set its parent's check state. */
+      element is included. */
     GCTreeWidgetItem *parent = item->gcParent();
 
-    while( parent && parent->checkState( 0 ) != Qt::Checked )
+    while( parent && ( parent->checkState( 0 ) != Qt::Checked ) )
     {
       parent->setExcludeElement( false );
       parent->setCheckState( 0, Qt::Checked );
@@ -312,7 +313,7 @@ void GCSnippetsForm::updateCheckStates( GCTreeWidgetItem *item )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCSnippetsForm::showHelp()
+void GCAddSnippetsForm::showHelp()
 {
   QMessageBox::information( this,
                             "How this works...",

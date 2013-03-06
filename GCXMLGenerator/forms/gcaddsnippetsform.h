@@ -26,15 +26,15 @@
  *                    <http://www.gnu.org/licenses/>
  */
 
-#ifndef GCSNIPPETSFORM_H
-#define GCSNIPPETSFORM_H
+#ifndef GCADDSNIPPETSFORM_H
+#define GCADDSNIPPETSFORM_H
 
 #include <QDialog>
 #include <QDomElement>
 
 namespace Ui
 {
-  class GCSnippetsForm;
+  class GCAddSnippetsForm;
 }
 
 class GCTreeWidgetItem;
@@ -43,39 +43,39 @@ class QTableWidgetItem;
 /// Allows the user to add whole snippets to the active document.
 
 /**
-  This form allows the user to add multiple XML snippets of the same structure with whichever
-  default values the user specifies.  It furthermore allows for the option to increment the
-  default values for each snippet (i.e. if the user specifies "1" as an attribute value with
-  the option to increment, then the next snippet generated will have "2" as the value for the
-  same attribute and so on and so forth.  Strings will have the incremented value appended
-  to the name).  Only one element of each type can be inserted into any specific snippet as it
-  makes no sense to insert multiple elements of the same type - for those use cases the user
-  must create a smaller snippet subset.
+  This form allows the user to add multiple XML snippets of the same structure to the current
+  document (with whichever default values the user specifies).  It furthermore allows for the
+  option to increment the default values for each snippet (i.e. if the user specifies "1" as
+  an attribute value with the option to increment, then the next snippet generated will have
+  "2" as the value for the same attribute and so on and so forth (strings will have the
+  incremented value appended to the name).  Only one element of each type can be inserted into
+  any specific snippet as it makes no sense to insert multiple elements of the same type - for
+  those use cases the user must create a smaller snippet subset.
 
-  Alo, the Qt::WA_DeleteOnClose flag is set for all instances of this form.  If you're
+  Also, the Qt::WA_DeleteOnClose flag is set for all instances of this form.  If you're
   unfamiliar with Qt, this means that Qt will delete this widget as soon as the widget
   accepts the close event (i.e. you don't need to worry about clean-up of dynamically
   created instances of this object).
 */
-class GCSnippetsForm : public QDialog
+class GCAddSnippetsForm : public QDialog
 {
   Q_OBJECT
   
 public:
-  /*! Constructor. QDomElement creates shallow copies by default so we will be manipulating the active
-      DOM document directly via this dialog. 
+  /*! Constructor.
       @param elementName - the name of the element that will form the basis of the snippet, i.e. this
                            element will be at the top of the snippet's DOM hierarchy.
-      @param parentElement - the DOM element in the active document to which the snippet will be added. */
-  explicit GCSnippetsForm( const QString &elementName, GCTreeWidgetItem *parentItem, QWidget *parent = 0 );
+      @param parentItem - the tree item and corresponding element in the active document to which the
+                          snippet will be added. */
+  explicit GCAddSnippetsForm( const QString &elementName, GCTreeWidgetItem *parentItem, QWidget *parent = 0 );
 
   /*! Destructor. */
-  ~GCSnippetsForm();
+  ~GCAddSnippetsForm();
 
 signals:
-  /*! Informs the listener that a new snippet has been added.  Since we're manipulating the DOM directly,
-      this ensures that other GUI forms using the DOM document is made aware of the fact that the document
-      has changed. */
+  /*! Informs the listener that a new snippet has been added. The GCTreeWidgetItem thus emitted
+      is the item to which the snippet must be added and the QDomElement is the element corresponding
+      to this item. */
   void snippetAdded( GCTreeWidgetItem*, QDomElement );
 
 private slots:
@@ -84,7 +84,7 @@ private slots:
   void elementSelected( GCTreeWidgetItem *item, int column );
 
   /*! Triggered whenever a user clicks on an attribute in the attribute table, or changes an attribute's
-      include state. */
+      "include" state. */
   void attributeChanged( QTableWidgetItem *item );
 
   /*! Triggered whenever an attribute's value changes. */
@@ -92,7 +92,7 @@ private slots:
 
   /*! Triggered whenever the "Add" button is clicked.  This function builds the snippet(s) that must
       be added to the active document and furthermore informs all listeners that a snippet has been added
-      via the snippetAdded signal. */
+      via the "snippetAdded" signal. */
   void addSnippet();
 
   /*! Displays help information for this form. */
@@ -105,9 +105,9 @@ private:
       (and its parent's parent, etc), for a smooth and intuitive user experience. */
   void updateCheckStates( GCTreeWidgetItem *item );
 
-  Ui::GCSnippetsForm *ui;
+  Ui::GCAddSnippetsForm *ui;
   GCTreeWidgetItem   *m_parentItem;
   bool                m_treeItemActivated;
 };
 
-#endif // GCSNIPPETSFORM_H
+#endif // GCADDSNIPPETSFORM_H
