@@ -224,10 +224,10 @@ void GCDomTreeWidget::rebuildTreeWidget()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::appendSnippet( GCTreeWidgetItem *parentItem, QDomElement element )
+void GCDomTreeWidget::appendSnippet( GCTreeWidgetItem *parentItem, QDomElement childElement )
 {
-  parentItem->element().appendChild( element );
-  processNextElement( parentItem, element );
+  parentItem->element().appendChild( childElement );
+  processNextElement( parentItem, childElement );
   updateIndices();
   emitGcCurrentItemSelected( currentItem(), 0 );
 }
@@ -372,6 +372,7 @@ void GCDomTreeWidget::removeItem( GCTreeWidgetItem *item )
     QDomNode parentNode = item->element().parentNode();
     parentNode.removeChild( item->element() );
 
+    /* Now whack it. */
     GCTreeWidgetItem *parentItem = item->gcParent();
     parentItem->removeChild( item );
     m_items.removeAll( item );

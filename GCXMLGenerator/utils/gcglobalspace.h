@@ -33,7 +33,7 @@
 #include <QFile>
 #include <QTextStream>
 
-/// Contains values used throughout the application.
+/// Contains values and functions used throughout the application.
 
 namespace GCGlobalSpace
 {

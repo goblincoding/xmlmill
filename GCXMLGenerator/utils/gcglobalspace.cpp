@@ -29,6 +29,8 @@
 #include "utils/gcglobalspace.h"
 #include <QSettings>
 
+/*--------------------------------------------------------------------------------------*/
+
 namespace GCGlobalSpace
 {
   namespace
@@ -48,3 +50,5 @@ namespace GCGlobalSpace
     settings.setValue( HELP, show );
   }
 }
+
+/*--------------------------------------------------------------------------------------*/

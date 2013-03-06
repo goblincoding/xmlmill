@@ -134,7 +134,7 @@ private:
   bool *m_remember;
 };
 
-/* Standard trick for classes defined in .cpp files (resolves "Undefiend Reference
+/* Standard trick for classes defined in .cpp files (resolves "Undefined Reference
   to vtable for xxx issue). The file that seems "missing" at the moment is generated
   by MOC when qMake is run. Must include after class definition. */
 #include "gcmessagespace.moc"
@@ -143,8 +143,6 @@ private:
 
 namespace GCMessageSpace
 {
-
-
   /* Hides our "member" variables. */
   namespace
   {

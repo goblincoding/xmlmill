@@ -36,7 +36,7 @@
 
 /// Used in GCDomTreeWidget, each GCTreeWidgetItem can be associated with a QDomElement.
 
-/*!
+/**
     Can be associated with a QDomElement in order to provide additional information in the XML Mill
     context regarding whether or not the element or any of its attributes should be excluded
     from the DOM document being built.  This item DOES NOT OWN the QDomElement (hence all the non
@@ -46,9 +46,6 @@
 class GCTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-  /*! Constructor. */
-  explicit GCTreeWidgetItem( const QString &elementName );
-
   /*! Constructor. Associates "element" with this item. */
   explicit GCTreeWidgetItem( QDomElement element );
 
@@ -66,19 +63,28 @@ public:
   /*! Returns the associated element via QDomElement's default shallow copy constructor. */
   QDomElement element() const;
 
-  /*! If "exclude" is true, the element is excluded from the active document. */
+  /*! Sets the "exclude" flag (used to determine if the element must be included in GCDomTreeWidget's
+      DOM document).
+      \sa elementExcluded */
   void setExcludeElement( bool exclude );
 
-  /*! Returns "true" if the element should be excluded from the active document, "false" otherwise. */
+  /*! Returns "true" if the element should be excluded from the active document.
+      \sa setExcludeElement */
   bool elementExcluded() const;
 
-  /*! Excludes "attribute" from the active document. */
+  /*! Removes "attribute" from the underlying DOM element.
+      \sa includeAttribute
+      \sa attributeIncluded */
   void excludeAttribute( const QString &attribute );
 
-  /*! Includes "attribute" with "value" in the active document. */
+  /*! Includes "attribute" with "value" in the underlying DOM element.
+      \sa excludeAttribute
+      \sa attributeIncluded */
   void includeAttribute( const QString &attribute, const QString &value );
 
-  /*! Returns true if the list of attributes that should be included in the active document contains "attribute". */
+  /*! Returns true if the underlying element contains "attribute".
+      \sa excludeAttribute
+      \sa includeAttribute */
   bool attributeIncluded( const QString &attribute ) const;
 
   /*! This function is only used in GCAddSnippetsForm. Adds "attribute" to a list of attributes
@@ -116,7 +122,8 @@ public:
       \sa revertToFixedValues */
   QString fixedValue( const QString &attribute ) const;
 
-  /*! This function is only used in GCAddSnippetsForm. Reverts to the attribute values set with the "fixedAttributeValues" call.
+  /*! This function is only used in GCAddSnippetsForm. Reverts to the attribute values set with the
+      "fixedAttributeValues" call.
       \sa setIncrementAttribute
       \sa incrementAttribute
       \sa fixAttributeValues
@@ -127,11 +134,13 @@ public:
       and other XML characters). */
   QString toString() const;
 
-  /*! Sets the item's index to "index". */
+  /*! Sets the item's index to "index".
+      \sa index */
   void setIndex( int index );
 
   /*! Returns the index associated with this element. Indices in this context are rough indications
-      of an element's relative position within the DOM document (approximating "line numbers"). */
+      of an element's relative position within the DOM document (approximating "line numbers").
+      \sa setIndex */
   int index() const;
 
   /*! A convenience function returning the name of the tree widget item. */

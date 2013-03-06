@@ -29,13 +29,6 @@
 
 /*--------------------------------------------------------------------------------------*/
 
-GCTreeWidgetItem::GCTreeWidgetItem( const QString &elementName )
-{  
-  init( elementName, QDomElement(), -1 );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 GCTreeWidgetItem::GCTreeWidgetItem( QDomElement element )
 {
   init( element.tagName(), element, -1 );
