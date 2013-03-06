@@ -39,12 +39,13 @@ namespace Ui
 
 class GCTreeWidgetItem;
 
-/// Search through the current document for a specific element/attribute/value.
+/// Search through the current document for specific text.
 
-/** The Qt::WA_DeleteOnClose flag is set for all instances of this form.  If you're
-    unfamiliar with Qt, this means that Qt will delete this widget as soon as the widget
-    accepts the close event (i.e. you don't need to worry about clean-up of dynamically
-    created instances of this object).
+/**
+  The Qt::WA_DeleteOnClose flag is set for all instances of this form.  If you're
+  unfamiliar with Qt, this means that Qt will delete this widget as soon as the widget
+  accepts the close event (i.e. you don't need to worry about clean-up of dynamically
+  created instances of this object).
 */
 class GCSearchForm : public QDialog
 {
@@ -60,9 +61,9 @@ public:
   ~GCSearchForm();
 
 signals:
-  /*! Emitted when the search string is found in the document.  The element emitted along with this 
-      signal will contain the matched string in either its name, or the name of an associated attribute 
-      or an attribute value. */
+  /*! Emitted when the search string is found in the document.  The item emitted in this
+      signal will contain the matched string in either its corresponding element's name,
+      or the name of an associated attribute or attribute value. */
   void foundItem( GCTreeWidgetItem *treeItem );
 
 private slots:

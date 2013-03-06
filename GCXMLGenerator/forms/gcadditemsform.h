@@ -36,7 +36,7 @@ namespace Ui
   class GCAddItemsForm;
 }
 
-/// Form to add elements and attributes to the active database.
+/// Allows the user to add elements and attributes to the active database.
 
 /**
   This form allows the user to add new elements and their associated attributes to the 
@@ -47,9 +47,9 @@ namespace Ui
   The user will also be allowed to continue adding elements until "Done" is selected.
 
   Finally, the Qt::WA_DeleteOnClose flag is set for all instances of this form.  If you're
-  nfamiliar with Qt, this means that Qt will delete this widget as soon as the widget
-  ccepts the close event (i.e. you don't need to worry about clean-up of dynamically
-  reated instances of this object).
+  not familiar with Qt, this means that Qt will delete this widget as soon as the widget
+  accepts the close event (i.e. you don't need to worry about clean-up of dynamically
+  created instances of this object).
 */
 class GCAddItemsForm : public QDialog
 {
@@ -75,7 +75,7 @@ private slots:
   void showHelp();
 
 private:
-  /*! Populates the combo box with the known element names. */
+  /*! Populates the combo box with all the element names known to the active database. */
   void populateCombo();
 
   Ui::GCAddItemsForm *ui;

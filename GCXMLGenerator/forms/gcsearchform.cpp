@@ -32,7 +32,7 @@
 
 #include <QMessageBox>
 
-/*--------------------------------------------------------------------------------------*/
+/*-------------------------------- NON MEMBER FUNCTIONS --------------------------------*/
 
 bool lessThan( GCTreeWidgetItem *lhs, GCTreeWidgetItem *rhs )
 {
@@ -46,7 +46,7 @@ bool greaterThan( GCTreeWidgetItem *lhs, GCTreeWidgetItem *rhs )
   return ( lhs->index() > rhs->index() );
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*--------------------------------- MEMBER FUNCTIONS ----------------------------------*/
 
 GCSearchForm::GCSearchForm( const QList< GCTreeWidgetItem * > &items, const QString &docContents, QWidget *parent ) :
   QDialog        ( parent ),
@@ -114,7 +114,8 @@ void GCSearchForm::search()
     QString nodeText = m_text.textCursor().selectedText().trimmed();
     QList< GCTreeWidgetItem* > matchingItems;
 
-    /* Find the first tree widget item corresponding to an element of name "elementName" */
+    /* Find the first tree widget item whose corresponding element node matches the
+      highlighted text. */
     for( int i = 0; i < m_items.size(); ++i )
     {
       GCTreeWidgetItem* treeItem = m_items.at( i );
@@ -127,12 +128,15 @@ void GCSearchForm::search()
 
     if( !m_searchUp )
     {
+      /* Sort ascending. */
       qSort( matchingItems.begin(), matchingItems.end(), lessThan );
 
       for( int i = 0; i < matchingItems.size(); ++i )
       {
         GCTreeWidgetItem *treeItem = matchingItems.at( i );
 
+        /* Make sure we find the next occurrence of the match ("down" from the
+          previous match). */
         if( treeItem->index() > m_previousIndex )
         {
           m_previousIndex = treeItem->index();
@@ -143,12 +147,15 @@ void GCSearchForm::search()
     }
     else
     {
+      /* Sort descending. */
       qSort( matchingItems.begin(), matchingItems.end(), greaterThan );
 
       for( int i = 0; i < matchingItems.size(); ++i )
       {
         GCTreeWidgetItem *treeItem = matchingItems.at( i );
 
+        /* Make sure we find the next occurrence of the match ("up" from the
+          previous match). */
         if( treeItem->index() < m_previousIndex )
         {
           m_previousIndex = treeItem->index();
@@ -188,7 +195,7 @@ void GCSearchForm::resetCursor()
 void GCSearchForm::searchUp()
 {
   /* If the user ticks the "Search Up" box before anything else, we need to set the
-    previous index to a large value to ensure we start at the right place. */
+    previous index to a large value to ensure we start at the very bottom. */
   if( m_firstRun )
   {
     m_previousIndex = 9999999;

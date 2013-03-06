@@ -34,7 +34,6 @@
 #include "utils/gctreewidgetitem.h"
 
 #include <QMessageBox>
-#include <QTreeWidgetItem>
 
 /*--------------------------------------------------------------------------------------*/
 
@@ -58,7 +57,7 @@ GCRemoveItemsForm::GCRemoveItemsForm( QWidget *parent ) :
   connect( ui->removeFromParentButton,  SIGNAL( clicked() ), this, SLOT( removeChildElement() ) );
 
   connect( ui->treeWidget, SIGNAL( gcCurrentItemSelected( GCTreeWidgetItem*,int ) ), this, SLOT( elementSelected( GCTreeWidgetItem*,int ) ) );
-  connect( ui->comboBox,   SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeActivated( QString ) ) );
+  connect( ui->comboBox, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeActivated( QString ) ) );
 
   ui->treeWidget->populateFromDatabase();
 
@@ -88,8 +87,8 @@ void GCRemoveItemsForm::elementSelected( GCTreeWidgetItem *item, int column )
     m_currentElement = item->name();
 
     /* Since it isn't illegal to have elements with children of the same name, we cannot
-    block it in the DB, however, if we DO have elements with children of the same name,
-    we don't want the user to delete the element since bad things will happen. */
+      block it in the DB, however, if we DO have elements with children of the same name,
+      we don't want the user to delete the element since bad things will happen. */
     if( m_currentElement == m_currentElementParent )
     {
       ui->deleteElementButton->setEnabled( false );
@@ -135,8 +134,8 @@ void GCRemoveItemsForm::deleteElement( const QString &element )
   m_deletedElements.clear();
 
   /* Attributes and values must be removed before we can remove elements and we must also
-      ensure that children are removed before their parents.  To achieve this, we need to ensure
-      that we clean the element tree from "the bottom up". */
+    ensure that children are removed before their parents.  To achieve this, we need to ensure
+    that we clean the element tree from "the bottom up". */
   if( !children.isEmpty() )
   {
     foreach( QString child, children )
