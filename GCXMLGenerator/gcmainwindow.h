@@ -299,19 +299,6 @@ private slots:
   /*! Activated when the cursor in the plain text edit changes. */
   void cursorPositionChanged();
 
-  /*! itemFound the "Revert Manual Changes" button's "clicked()" signal.  This slot will revert all manual
-      changes to the active document made BEFORE the changes are saved (i.e. it isn't a classic "undo" button).
-      \sa saveDirectEdit */
-  void revertDirectEdit();
-
-  /*! Connected to the "Save Manual Changes" button's "clicked()" signal.  This slot will save all manual
-      changes made to the active document provided that the changes are valid XML.  Triggering this slot also results
-      in the current document being imported (or re-imported) to the active database since these changes may
-      contain information about elements and attributes that didn't previously exist and therefore aren't known to the
-      active database).
-      \sa revertDirectEdit */
-  void saveDirectEdit();
-
   /*! Connectd to the "Expand All" checkbox's "clicked( bool )" signal.  This slot toggles the expandsion or collapses
       of UI tree widget. */
   void collapseOrExpandTreeWidget( bool checked );
@@ -336,9 +323,6 @@ private slots:
   /*! Triggered when the "empty profile help" button is clicked.  This button is only shown when the active profile
       is empty and provides information that will help the user populate the active profile. */
   void showEmptyProfileHelp();
-
-  /*! Displays a brief message related to manual changes to the active document (via the text editor). */
-  void showDOMEditHelp();
 
   /*! Displays a brief message about adding comments to the XML. */
   void showCommentHelp();
