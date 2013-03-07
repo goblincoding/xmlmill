@@ -171,16 +171,25 @@ signals:
   /*! \sa emitGcCurrentItemChanged */
   void gcCurrentItemChanged( GCTreeWidgetItem*, int );
 
+protected:
+  void mousePressEvent( QMouseEvent *event );
+
 private slots:
   /*! Connected to "itemClicked" and "itemActivated". Re-emits the clicked item
       as a GCTreeWidgetItem.
       \sa gcCurrentItemSelected */
   void emitGcCurrentItemSelected( QTreeWidgetItem* item, int column );
 
-  /*! Connected to "itemChanged". Re-emits the changed item
-      as a GCTreeWidgetItem.
+  /*! Connected to "itemChanged". Re-emits the changed item as a GCTreeWidgetItem.
       \sa gcCurrentItemChanged */
   void emitGcCurrentItemChanged( QTreeWidgetItem* item, int column );
+
+  /*! Renames the element on which the context menu action was invoked. An element with
+      the new name will be added to the DB (if it doesn't yet exist) with the same associated
+      attributes and attribute values as the element name it is replacing (the "old" element
+      will not be removed from the DB). All occurrences of the old name throughout the current
+      DOM will be replaced with the new name and the tree widget will be updated accordingly. */
+  void renameElement();
 
 private:
   /*! Creates a new GCTreeWidgetItem item with corresponding "element" and adds it
@@ -201,8 +210,9 @@ private:
       are added to ensure that indices correspond roughly to "row numbers"). */
   void updateIndices();
 
-  QDomDocument *m_domDoc;
-  bool          m_isEmpty;
+  GCTreeWidgetItem *m_contextItem;
+  QDomDocument     *m_domDoc;
+  bool              m_isEmpty;
 
   QList< GCTreeWidgetItem* > m_items;
 };

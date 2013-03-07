@@ -221,58 +221,7 @@ void GCMainWindow::initialise()
 
 void GCMainWindow::elementChanged( GCTreeWidgetItem *item, int column )
 {
-  QString newName  = item->text( column );
-  QString oldName = item->element().tagName();
-
-  if( newName.isEmpty() )
-  {
-    /* Reset if the user failed to specify a valid name. */
-    item->setText( column, oldName );
-  }
-  else
-  {
-    if( newName != oldName )
-    {
-      ui->treeWidget->updateItemNames( oldName, newName );
-
-      /* The name change may introduce a new element too so we can safely call "addElement" below as
-         it doesn't do anything if the element already exists in the database, yet it will obviously
-         add the element if it doesn't.  In the latter case, the children  and attributes associated with
-         the old name will be assigned to the new element in the process. */
-      QStringList attributes = GCDataBaseInterface::instance()->attributes( oldName );
-
-      if( attributes.isEmpty() )
-      {
-        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
-      }
-
-      QStringList children = GCDataBaseInterface::instance()->children( oldName );
-
-      if( children.isEmpty() )
-      {
-        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
-      }
-
-      if( !GCDataBaseInterface::instance()->addElement( newName, children, attributes ) )
-      {
-        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
-      }
-
-      /* If we are, in fact, dealing with a new element, we also want the "new" element's associated attributes
-          to be updated with the known values of these attributes. */
-      foreach( QString attribute, attributes )
-      {
-        QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( oldName, attribute );
-
-        if( !GCDataBaseInterface::instance()->updateAttributeValues( newName, attribute, attributeValues ) )
-        {
-          GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
-        }
-      }
-
-      setTextEditContent( item );
-    }
-  }
+  setTextEditContent( item );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -283,7 +232,6 @@ void GCMainWindow::elementSelected( GCTreeWidgetItem *item, int column )
 
   if( item )
   {
-
     /* This flag is set to prevent the functionality in "attributeChanged" (which is triggered
     by the population of the table widget) from being executed until this function exits. */
     m_wasTreeItemActivated = true;
@@ -291,7 +239,7 @@ void GCMainWindow::elementSelected( GCTreeWidgetItem *item, int column )
     resetTableWidget();
 
     QDomElement element = item->element();      // shallow copy
-    QString elementName = element.tagName();
+    QString elementName = item->name();
     QStringList attributeNames = GCDataBaseInterface::instance()->attributes( elementName );
 
     /* Add all the associated attribute names to the first column of the table widget,
@@ -446,7 +394,7 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *tableItem )
           tableItem->setFlags( tableItem->flags() | Qt::ItemIsUserCheckable );
           tableItem->setCheckState( Qt::Checked );
           insertEmptyTableRow();
-          m_newAttributeAdded = false;
+          m_newAttributeAdded = true;
         }
       }
       else
@@ -491,17 +439,15 @@ void GCMainWindow::attributeValueChanged( const QString &value )
   if( !m_wasTreeItemActivated )
   {
     GCTreeWidgetItem *treeItem = ui->treeWidget->gcCurrentItem();
-    QDomElement currentElement = treeItem->element();  // shallow copy
-
     QString currentAttributeName = ui->tableWidget->item( m_comboBoxes.value( m_currentCombo ), ATTRIBUTECOLUMN )->text();
-    currentElement.setAttribute( currentAttributeName, value );
+    treeItem->includeAttribute( currentAttributeName, value );
 
     /* If we don't know about this value, we need to add it to the DB. */
-    QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( currentElement.tagName(), currentAttributeName );
+    QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( treeItem->name(), currentAttributeName );
 
     if( !attributeValues.contains( value ) )
     {
-      if( !GCDataBaseInterface::instance()->updateAttributeValues( currentElement.tagName(),
+      if( !GCDataBaseInterface::instance()->updateAttributeValues( treeItem->name(),
                                                                    currentAttributeName,
                                                                    QStringList( value ) ) )
       {

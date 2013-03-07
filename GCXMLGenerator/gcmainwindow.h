@@ -98,12 +98,7 @@ private slots:
 
   /*! Connected to the UI tree widget's "itemChanged( QTreeWidgetItem*, int )" signal.
       Called only when a user edits the name of an existing tree widget item
-      (i.e. element). An element with the new name will be added to the DB
-      (if it doesn't yet exist) with the same associated attributes and attribute
-      values as the element name it is replacing (the "old" element will not be
-      removed from the DB). All occurrences of the old name throughout the current
-      DOM will be replaced with the new name and the tree widget will be updated
-      accordingly.
+      (i.e. element).
       \sa elementSelected */
   void elementChanged( GCTreeWidgetItem *item, int column );
 

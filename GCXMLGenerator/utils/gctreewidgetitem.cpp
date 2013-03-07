@@ -49,14 +49,14 @@ void GCTreeWidgetItem::init( const QString &elementName, QDomElement element, in
   m_elementExcluded = false;
   m_index = index;
 
-  setText( 0, elementName );
-
   QDomNamedNodeMap attributes = m_element.attributes();
 
   for( int i = 0; i < attributes.size(); ++i )
   {
     m_includedAttributes.append( attributes.item( i ).toAttr().name() );
   }
+
+  setText( 0, toString() );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -113,6 +113,7 @@ void GCTreeWidgetItem::excludeAttribute( const QString &attribute )
   m_element.removeAttribute( attribute );
   m_includedAttributes.removeAll( attribute );
   m_includedAttributes.sort();
+  setText( 0, toString() );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -123,6 +124,7 @@ void GCTreeWidgetItem::includeAttribute( const QString &attribute, const QString
   m_includedAttributes.append( attribute );
   m_includedAttributes.removeDuplicates();
   m_includedAttributes.sort();
+  setText( 0, toString() );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -254,9 +256,17 @@ int GCTreeWidgetItem::index() const
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCTreeWidgetItem::rename( const QString &newName )
+{
+  m_element.setTagName( newName );
+  setText( 0, toString() );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 QString GCTreeWidgetItem::name() const
 {
-  return text( 0 );
+  return m_element.tagName();
 }
 
 /*--------------------------------------------------------------------------------------*/

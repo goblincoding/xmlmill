@@ -29,18 +29,29 @@
 #include "gcdomtreewidget.h"
 #include "gctreewidgetitem.h"
 #include "db/gcdatabaseinterface.h"
+#include "utils/gcmessagespace.h"
 
 #include <QApplication>
 #include <QDomDocument>
+#include <QAction>
+#include <QMouseEvent>
+#include <QInputDialog>
 
 /*--------------------------------------------------------------------------------------*/
 
 GCDomTreeWidget::GCDomTreeWidget( QWidget *parent ) :
-  QTreeWidget( parent ),
-  m_domDoc   ( new QDomDocument ),
-  m_isEmpty  ( true ),
-  m_items    ()
+  QTreeWidget  ( parent ),
+  m_contextItem( NULL ),
+  m_domDoc     ( new QDomDocument ),
+  m_isEmpty    ( true ),
+  m_items      ()
 {
+  QAction *rename = new QAction( "Rename element", this );
+  addAction( rename );
+  connect( rename, SIGNAL( triggered() ), this, SLOT( renameElement() ) );
+
+  setContextMenuPolicy( Qt::ActionsContextMenu );
+
   connect( this, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ), this, SLOT( emitGcCurrentItemSelected( QTreeWidgetItem*,int ) ) );
   connect( this, SIGNAL( itemActivated( QTreeWidgetItem*, int ) ), this, SLOT( emitGcCurrentItemSelected( QTreeWidgetItem*, int ) ) );
   connect( this, SIGNAL( itemChanged( QTreeWidgetItem*, int ) ), this, SLOT( emitGcCurrentItemChanged( QTreeWidgetItem*, int ) ) );
@@ -198,8 +209,7 @@ void GCDomTreeWidget::updateItemNames( const QString &oldName, const QString &ne
     if( m_items.at( i )->name() == oldName )
     {
       GCTreeWidgetItem* item = const_cast< GCTreeWidgetItem* >( m_items.at( i ) );
-      item->setText( 0, newName );
-      item->element().setTagName( newName );
+      item->rename( newName );
     }
   }
 }
@@ -213,7 +223,6 @@ void GCDomTreeWidget::rebuildTreeWidget()
 
   /* Set the document root as the first item in the tree. */
   GCTreeWidgetItem *item = new GCTreeWidgetItem( m_domDoc->documentElement(), m_items.size() );
-  item->setFlags( item->flags() | Qt::ItemIsEditable );
   invisibleRootItem()->addChild( item );  // takes ownership
   m_items.append( item );
   m_isEmpty = false;
@@ -241,7 +250,6 @@ void GCDomTreeWidget::processNextElement( GCTreeWidgetItem *parentItem, QDomElem
     while( !element.isNull() )
     {
       GCTreeWidgetItem *item = new GCTreeWidgetItem( element, m_items.size() );
-      item->setFlags( item->flags() | Qt::ItemIsEditable );
       parentItem->addChild( item );  // takes ownership
       m_items.append( item );
 
@@ -443,6 +451,18 @@ void GCDomTreeWidget::updateIndices()
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCDomTreeWidget::mousePressEvent( QMouseEvent *event )
+{
+  QTreeWidget::mousePressEvent( event );
+
+  if( event->button() == Qt::RightButton )
+  {
+    m_contextItem = dynamic_cast< GCTreeWidgetItem* >( itemAt( event->pos() ) );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCDomTreeWidget::emitGcCurrentItemSelected( QTreeWidgetItem *item, int column )
 {
   setCurrentItem( item, column );
@@ -454,7 +474,47 @@ void GCDomTreeWidget::emitGcCurrentItemSelected( QTreeWidgetItem *item, int colu
 void GCDomTreeWidget::emitGcCurrentItemChanged( QTreeWidgetItem *item, int column )
 {
   setCurrentItem( item, column );
-  emit gcCurrentItemSelected( dynamic_cast< GCTreeWidgetItem* >( item ), column );
+  emit gcCurrentItemChanged( dynamic_cast< GCTreeWidgetItem* >( item ), column );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDomTreeWidget::renameElement()
+{
+  QString newName = QInputDialog::getText( this, "Change element name", "Enter the element's new name:" );
+
+  if( !newName.isEmpty() && m_contextItem )
+  {
+    QString oldName = m_contextItem->name();
+    m_contextItem->rename( newName );
+    updateItemNames( oldName, newName );
+
+    /* The name change may introduce a new element too so we can safely call "addElement" below as
+       it doesn't do anything if the element already exists in the database, yet it will obviously
+       add the element if it doesn't.  In the latter case, the children  and attributes associated with
+       the old name will be assigned to the new element in the process. */
+    QStringList attributes = GCDataBaseInterface::instance()->attributes( oldName );
+    QStringList children = GCDataBaseInterface::instance()->children( oldName );
+
+    if( !GCDataBaseInterface::instance()->addElement( newName, children, attributes ) )
+    {
+      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+    }
+
+    /* If we are, in fact, dealing with a new element, we also want the "new" element's associated attributes
+        to be updated with the known values of these attributes. */
+    foreach( QString attribute, attributes )
+    {
+      QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( oldName, attribute );
+
+      if( !GCDataBaseInterface::instance()->updateAttributeValues( newName, attribute, attributeValues ) )
+      {
+        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+      }
+    }
+
+    emitGcCurrentItemChanged( m_contextItem, 0 );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/

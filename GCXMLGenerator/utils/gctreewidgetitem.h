@@ -143,8 +143,11 @@ public:
       \sa setIndex */
   int index() const;
 
-  /*! A convenience function returning the name of the tree widget item. */
-  QString name() const;
+  /*! Renames the element to "newName". */
+  void rename( const QString &newName );
+
+  /*! Returns the element name. */
+  QString name() const;  
 
 private:
   void init( const QString &elementName, QDomElement element, int index );
