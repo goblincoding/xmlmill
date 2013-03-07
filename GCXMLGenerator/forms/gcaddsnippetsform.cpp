@@ -27,7 +27,7 @@
  */
 
 #include "gcaddsnippetsform.h"
-#include "ui_gcsnippetsform.h"
+#include "ui_gcaddsnippetsform.h"
 #include "db/gcdatabaseinterface.h"
 #include "utils/gccombobox.h"
 #include "utils/gcmessagespace.h"

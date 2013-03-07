@@ -155,6 +155,9 @@ public:
       \sa removeItem */
   void addComment( GCTreeWidgetItem* item, const QString &text );
 
+  /*! Finds the item with index matching "index" and sets it as the current tree item. */
+  void setCurrentItemWithIndexMatching( int index );
+
   /*! Iterates through the tree and sets all items' check states to "state". */
   void setAllCheckStates( Qt::CheckState state );
 

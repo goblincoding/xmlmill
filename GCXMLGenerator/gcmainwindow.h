@@ -301,6 +301,9 @@ private slots:
       \sa searchDocument */
   void itemFound( GCTreeWidgetItem *item );
 
+  /*! Activated when the cursor in the plain text edit changes. */
+  void cursorPositionChanged();
+
   /*! itemFound the "Revert Manual Changes" button's "clicked()" signal.  This slot will revert all manual
       changes to the active document made BEFORE the changes are saved (i.e. it isn't a classic "undo" button).
       \sa saveDirectEdit */
@@ -446,6 +449,7 @@ private:
   bool              m_newAttributeAdded;
   bool              m_busyImporting;
   bool              m_fileContentsChanged;
+  bool              m_changingCursorInProgress;
 
   QHash< QWidget*, int/* table row*/ > m_comboBoxes;
 

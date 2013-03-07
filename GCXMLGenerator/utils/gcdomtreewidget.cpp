@@ -397,6 +397,23 @@ void GCDomTreeWidget::addComment( GCTreeWidgetItem *item, const QString &text )
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCDomTreeWidget::setCurrentItemWithIndexMatching( int index )
+{
+  index = ( index < 0 ) ? 0 : index;
+
+  for( int i = 0; i < m_items.size(); ++i )
+  {
+    if( m_items.at( i )->index() == index )
+    {
+      setCurrentItem( m_items.at( i ) );
+      emitGcCurrentItemSelected( currentItem(), 0 );
+      break;
+    }
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCDomTreeWidget::setAllCheckStates( Qt::CheckState state )
 {
   QTreeWidgetItemIterator iterator( this );
