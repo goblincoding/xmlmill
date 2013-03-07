@@ -394,7 +394,7 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *tableItem )
           tableItem->setFlags( tableItem->flags() | Qt::ItemIsUserCheckable );
           tableItem->setCheckState( Qt::Checked );
           insertEmptyTableRow();
-          m_newAttributeAdded = true;
+          m_newAttributeAdded = false;
         }
       }
       else
