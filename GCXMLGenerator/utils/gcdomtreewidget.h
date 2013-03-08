@@ -129,7 +129,6 @@ public:
       set as the current item. If "toParent" is true, the new item will be added as a
       child to the current item's parent (i.e. as a sibling to the current item).
       \sa insertItem
-      \sa removeItem
       \sa addComment */
   void addItem( const QString &element, bool toParent = false );
 
@@ -139,20 +138,12 @@ public:
       as the current item. If "toParent" is true, the new item will be added as a child to
       the current item's parent (i.e. as a sibling to the current item).
       \sa addItem
-      \sa removeItem
       \sa addComment */
   void insertItem( const QString &elementName, int index, bool toParent = false );
 
-  /*! Removes "item" and its corresponding DOM element from the tree and underlying DOM document.
-      \sa addItem
-      \sa insertItem
-      \sa addComment */
-  void removeItem( GCTreeWidgetItem* item );
-
   /*! Adds a DOM comment to the element corresponding to "item".
       \sa addItem
-      \sa insertItem
-      \sa removeItem */
+      \sa insertItem */
   void addComment( GCTreeWidgetItem* item, const QString &text );
 
   /*! Finds the item with index matching "index" and sets it as the current tree item. */
@@ -189,7 +180,10 @@ private slots:
       attributes and attribute values as the element name it is replacing (the "old" element
       will not be removed from the DB). All occurrences of the old name throughout the current
       DOM will be replaced with the new name and the tree widget will be updated accordingly. */
-  void renameElement();
+  void renameItem();
+
+  /*! Removes the item and it's corresponding element from the tree and underlying DOM. */
+  void removeItem();
 
 private:
   /*! Creates a new GCTreeWidgetItem item with corresponding "element" and adds it

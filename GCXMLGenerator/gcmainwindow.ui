@@ -214,13 +214,6 @@
            </property>
           </spacer>
          </item>
-         <item>
-          <widget class="QPushButton" name="removeElementButton">
-           <property name="text">
-            <string>Remove Highlighted Element</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
       </layout>
@@ -804,7 +797,6 @@
   <tabstop>treeWidget</tabstop>
   <tabstop>tableWidget</tabstop>
   <tabstop>expandAllCheckBox</tabstop>
-  <tabstop>removeElementButton</tabstop>
   <tabstop>dockWidgetTextEdit</tabstop>
   <tabstop>textSaveButton</tabstop>
   <tabstop>textRevertButton</tabstop>

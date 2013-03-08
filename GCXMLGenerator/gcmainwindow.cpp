@@ -101,7 +101,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionCloseFile, SIGNAL( triggered() ), this, SLOT( closeXMLFile() ) );
 
   /* Build/Edit XML. */
-  connect( ui->removeElementButton, SIGNAL( clicked() ), this, SLOT( deleteElementFromDocument() ) );
   connect( ui->addChildElementButton, SIGNAL( clicked() ), this, SLOT( addElementToDocument() ) );
   connect( ui->addSnippetButton, SIGNAL( clicked() ), this, SLOT( addSnippetToDocument() ) );
   connect( ui->textSaveButton, SIGNAL( clicked() ), this, SLOT( saveDirectEdit() ) );
@@ -119,7 +118,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->commentLineEdit, SIGNAL( returnPressed() ), this, SLOT( addComment() ) );
   connect( ui->actionUseDarkTheme, SIGNAL( triggered( bool ) ), this, SLOT( useDarkTheme( bool ) ) );
   connect( ui->dockWidgetTextEdit, SIGNAL( cursorPositionChanged() ), this, SLOT( cursorPositionChanged() ) );
-
 
   /* Help related. */
   connect( ui->actionShowHelpButtons, SIGNAL( triggered( bool ) ), this, SLOT( setShowHelpButtons( bool ) ) );
@@ -221,6 +219,17 @@ void GCMainWindow::initialise()
 
 void GCMainWindow::elementChanged( GCTreeWidgetItem *item, int column )
 {
+  Q_UNUSED( column );
+
+  if( !ui->treeWidget->isEmpty() )
+  {
+    /* If all we have is a document root element, reset everything. */
+    if( ui->treeWidget->matchesRootName( item->name() ) )
+    {
+      resetDOM();
+    }
+  }
+
   setTextEditContent( item );
 }
 
@@ -883,27 +892,6 @@ void GCMainWindow::activeDatabaseChanged( QString dbName )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::deleteElementFromDocument()
-{
-  if( !ui->treeWidget->isEmpty() )
-  {
-    GCTreeWidgetItem *treeItem = ui->treeWidget->gcCurrentItem();
-
-    /* If all we have is a document root element, reset everything. */
-    if( ui->treeWidget->matchesRootName( treeItem->element().tagName() ) )
-    {
-      resetDOM();
-    }
-    else
-    {
-      ui->treeWidget->removeItem( treeItem );
-      setTextEditContent( ui->treeWidget->gcCurrentItem() );
-    }
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 void GCMainWindow::addElementToDocument()
 {
   QString elementName = ui->addElementComboBox->currentText();
@@ -937,7 +925,6 @@ void GCMainWindow::addElementToDocument()
       ui->actionSave->setEnabled( true );
       ui->actionSaveAs->setEnabled( true );
       ui->addSnippetButton->setEnabled( true );
-      ui->removeElementButton->setEnabled( true );
       ui->addChildElementButton->setText( "Add Child" );
     }
 
@@ -1263,7 +1250,6 @@ void GCMainWindow::resetDOM()
   toggleAddElementWidgets();
 
   ui->addSnippetButton->setEnabled( false );
-  ui->removeElementButton->setEnabled( false );
   ui->addChildElementButton->setText( "Add Root" );
 
   m_currentCombo = NULL;
@@ -1440,7 +1426,6 @@ void GCMainWindow::processDOMDoc()
   resetTableWidget();
 
   ui->addSnippetButton->setEnabled( true );
-  ui->removeElementButton->setEnabled( true );
   ui->addChildElementButton->setText( "Add Child" );
 
   /* Enable file save options. */

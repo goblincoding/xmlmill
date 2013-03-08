@@ -244,20 +244,11 @@ private slots:
       \sa switchActiveDatabase */
   void activeDatabaseChanged( QString dbName );
 
-  /*! Connected to the "Remove Highlighted Element" button's "clicked()" signal. This function
-      deletes the highlighted element (and its child element tree) from the current document without
-      affecting the active database in any way.
-      \sa addElementToDocument
-      \sa addSnippetToDocument
-      \sa insertSnippet */
-  void deleteElementFromDocument();
-
   /*! Connected to the "Add Child Element" button's "clicked()" signal. This function adds the new
       element (selected in the combo box) as a child to the current element or as a sibling in the
       case where the element of the same name and with the angular bracket syntax is selected in the
       combo.  In other words, if the current element is "MyElement", then selecting "\<MyElement\>" from
       the combo will add another MyElement element as a sibling to the currently active element.
-      \sa deleteElementFromDocument
       \sa addSnippetToDocument
       \sa insertSnippet */
   void addElementToDocument();
@@ -266,15 +257,13 @@ private slots:
       an instance of GCAddSnippetsForm to allow the user to add one (or more) XML snippets to the active
       document.
       \sa addElementToDocument
-      \sa deleteElementFromDocument
       \sa insertSnippet */
   void addSnippetToDocument();
 
   /*! Connected to the GCAddSnippetsForm's "snippetAdded()" signal.  This function updates the GUI whenever
       new snippets are added to the active document.
       \sa addElementToDocument
-      \sa addSnippetToDocument
-      \sa deleteElementFromDocument */
+      \sa addSnippetToDocument */
   void insertSnippet( GCTreeWidgetItem *treeItem, QDomElement element );
 
   /*! Triggered by the "Remove Items" UI action. This function creates and displays an instance of

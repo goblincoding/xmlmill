@@ -48,7 +48,11 @@ GCDomTreeWidget::GCDomTreeWidget( QWidget *parent ) :
 {
   QAction *rename = new QAction( "Rename element", this );
   addAction( rename );
-  connect( rename, SIGNAL( triggered() ), this, SLOT( renameElement() ) );
+  connect( rename, SIGNAL( triggered() ), this, SLOT( renameItem() ) );
+
+  QAction *remove = new QAction( "Remove element", this );
+  addAction( remove );
+  connect( remove, SIGNAL( triggered() ), this, SLOT( removeItem() ) );
 
   setContextMenuPolicy( Qt::ActionsContextMenu );
 
@@ -372,28 +376,6 @@ void GCDomTreeWidget::insertItem( const QString &elementName, int index, bool to
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::removeItem( GCTreeWidgetItem *item )
-{
-  if( item )
-  {
-    /* Remove the element from the DOM first. */
-    QDomNode parentNode = item->element().parentNode();
-    parentNode.removeChild( item->element() );
-
-    /* Now whack it. */
-    GCTreeWidgetItem *parentItem = item->gcParent();
-    parentItem->removeChild( item );
-    m_items.removeAll( item );
-
-    updateIndices();
-    emitGcCurrentItemSelected( currentItem(), 0 );    
-  }
-
-  m_isEmpty = m_items.isEmpty();
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 void GCDomTreeWidget::addComment( GCTreeWidgetItem *item, const QString &text )
 {
   if( item )
@@ -479,7 +461,7 @@ void GCDomTreeWidget::emitGcCurrentItemChanged( QTreeWidgetItem *item, int colum
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::renameElement()
+void GCDomTreeWidget::renameItem()
 {
   QString newName = QInputDialog::getText( this, "Change element name", "Enter the element's new name:" );
 
@@ -502,7 +484,7 @@ void GCDomTreeWidget::renameElement()
     }
 
     /* If we are, in fact, dealing with a new element, we also want the "new" element's associated attributes
-        to be updated with the known values of these attributes. */
+      to be updated with the known values of these attributes. */
     foreach( QString attribute, attributes )
     {
       QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( oldName, attribute );
@@ -514,6 +496,36 @@ void GCDomTreeWidget::renameElement()
     }
 
     emitGcCurrentItemChanged( m_contextItem, 0 );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDomTreeWidget::removeItem()
+{
+  if( m_contextItem )
+  {
+    /* Remove the element from the DOM first. */
+    QDomNode parentNode = m_contextItem->element().parentNode();
+    parentNode.removeChild( m_contextItem->element() );
+
+    /* Now whack it. */
+    if( m_contextItem->gcParent() )
+    {
+      GCTreeWidgetItem *parentItem = m_contextItem->gcParent();
+      parentItem->removeChild( m_contextItem );
+    }
+    else
+    {
+      invisibleRootItem()->removeChild( m_contextItem );
+    }
+
+    m_items.removeAll( m_contextItem );
+    m_isEmpty = m_items.isEmpty();
+    m_contextItem = NULL;
+
+    updateIndices();
+    emitGcCurrentItemSelected( currentItem(), 0 );
   }
 }
 
