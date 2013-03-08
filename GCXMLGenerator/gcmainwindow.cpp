@@ -348,6 +348,10 @@ void GCMainWindow::elementSelected( GCTreeWidgetItem *item, int column, bool hig
     /* Unset flag. */
     m_wasTreeItemActivated = false;
   }
+  else if( ui->treeWidget->isEmpty() )
+  {
+    resetDOM();
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
