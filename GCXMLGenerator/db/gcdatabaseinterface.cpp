@@ -194,7 +194,7 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument *domDoc ) 
   /* Batch update all the existing elements by concatenating the new values to the
     existing values. The second '?' represents our string SEPARATOR. */
   if( !query.prepare( "UPDATE xmlelements "
-                      "SET children = ( ? || ? || IFNULL( children, \"\" ) ) "
+                      "SET children = ( IFNULL( ?, \"\" ) || IFNULL( ?, \"\" ) || IFNULL( children, \"\" ) ) "
                       "WHERE element = ?" ) )
   {
     m_lastErrorMsg = QString( "Prepare batch UPDATE element children failed: [%1]" )
@@ -226,7 +226,7 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument *domDoc ) 
   qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
 
   if( !query.prepare( "UPDATE xmlelements "
-                      "SET attributes = ( ? || ? || IFNULL( attributes, \"\" )  ) "
+                      "SET attributes = ( IFNULL( ?, \"\" ) || IFNULL( ?, \"\" ) || IFNULL( attributes, \"\" )  ) "
                       "WHERE element = ?" ) )
   {
     m_lastErrorMsg = QString( "Prepare batch UPDATE element attributes failed: [%1]" )
@@ -270,7 +270,7 @@ bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument *domDoc ) 
 
   /* Batch update all the existing attribute values. */
   if( !query.prepare( "UPDATE xmlattributes "
-                      "SET attributeValues = ( ? || ? || IFNULL( attributeValues, \"\" ) ) "
+                      "SET attributeValues = ( IFNULL( ?, \"\" ) || IFNULL( ?, \"\" ) || IFNULL( attributeValues, \"\" ) ) "
                       "WHERE attribute = ? "
                       "AND associatedElement = ?" ) )
   {
