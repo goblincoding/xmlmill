@@ -700,6 +700,7 @@ void GCMainWindow::importXMLFromFile()
   /* This flag is used in "openXMLFile" to distinguish between an explicit import
     and a simple file opening operation. */
   m_busyImporting = true;
+  ui->treeWidget->setVisible( false );
 
   if( openXMLFile() )
   {
@@ -738,6 +739,7 @@ void GCMainWindow::importXMLFromFile()
     }
   }
 
+  ui->treeWidget->setVisible( true );
   m_busyImporting = false;
 }
 
