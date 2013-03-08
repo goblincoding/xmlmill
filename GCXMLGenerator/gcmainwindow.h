@@ -111,7 +111,7 @@ private slots:
       addition of new attributes and values will automatically be persisted
       to the database.
       \sa elementChanged */
-  void elementSelected( GCTreeWidgetItem *item, int column );
+  void elementSelected( GCTreeWidgetItem *item, int column, bool highlightElement = true );
 
   /*! Connected to the UI table widget's "itemChanged( QTableWidgetItem* )" signal.
       This function is called when the user changes the name of an existing attribute

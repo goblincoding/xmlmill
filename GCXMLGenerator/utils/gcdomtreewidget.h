@@ -166,7 +166,7 @@ public:
 
 signals:
   /*! \sa emitGcCurrentItemSelected */
-  void gcCurrentItemSelected( GCTreeWidgetItem*,int );
+  void gcCurrentItemSelected( GCTreeWidgetItem*,int,bool );
 
   /*! \sa emitGcCurrentItemChanged */
   void gcCurrentItemChanged( GCTreeWidgetItem*, int );
@@ -178,7 +178,7 @@ private slots:
   /*! Connected to "itemClicked" and "itemActivated". Re-emits the clicked item
       as a GCTreeWidgetItem.
       \sa gcCurrentItemSelected */
-  void emitGcCurrentItemSelected( QTreeWidgetItem* item, int column );
+  void emitGcCurrentItemSelected( QTreeWidgetItem* item, int column, bool highlightElement = true );
 
   /*! Connected to "itemChanged". Re-emits the changed item as a GCTreeWidgetItem.
       \sa gcCurrentItemChanged */
