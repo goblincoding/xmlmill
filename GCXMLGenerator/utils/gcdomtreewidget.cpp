@@ -414,7 +414,7 @@ void GCDomTreeWidget::setCurrentItemWithIndexMatching( int index )
     if( m_items.at( i )->index() == index )
     {
       setCurrentItem( m_items.at( i ) );
-      emitGcCurrentItemSelected( currentItem(), 0 );
+      emitGcCurrentItemSelected( currentItem(), 0, false );
       break;
     }
   }
@@ -463,10 +463,10 @@ void GCDomTreeWidget::mousePressEvent( QMouseEvent *event )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::emitGcCurrentItemSelected( QTreeWidgetItem *item, int column )
+void GCDomTreeWidget::emitGcCurrentItemSelected( QTreeWidgetItem *item, int column, bool highlightElement )
 {
   setCurrentItem( item, column );
-  emit gcCurrentItemSelected( dynamic_cast< GCTreeWidgetItem* >( item ), column );
+  emit gcCurrentItemSelected( dynamic_cast< GCTreeWidgetItem* >( item ), column, highlightElement );
 }
 
 /*--------------------------------------------------------------------------------------*/

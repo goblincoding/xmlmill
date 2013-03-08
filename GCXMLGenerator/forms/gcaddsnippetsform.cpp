@@ -65,7 +65,7 @@ GCAddSnippetsForm::GCAddSnippetsForm( const QString &elementName, GCTreeWidgetIt
   connect( ui->addButton,      SIGNAL( clicked() ), this, SLOT( addSnippet() ) );
   connect( ui->showHelpButton, SIGNAL( clicked() ), this, SLOT( showHelp() ) );
   connect( ui->tableWidget,    SIGNAL( itemChanged( QTableWidgetItem* ) ), this, SLOT( attributeChanged( QTableWidgetItem* ) ) );
-  connect( ui->treeWidget,     SIGNAL( gcCurrentItemSelected( GCTreeWidgetItem*,int ) ), this, SLOT( elementSelected( GCTreeWidgetItem*, int ) ) );
+  connect( ui->treeWidget,     SIGNAL( gcCurrentItemSelected( GCTreeWidgetItem*,int,bool ) ), this, SLOT( elementSelected( GCTreeWidgetItem*, int ) ) );
 
   setAttribute( Qt::WA_DeleteOnClose );
 }

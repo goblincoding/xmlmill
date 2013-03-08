@@ -125,7 +125,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->showAddElementHelpButton, SIGNAL( clicked() ), this, SLOT( showElementHelp() ) );
 
   /* Everything tree widget related. */
-  connect( ui->treeWidget, SIGNAL( gcCurrentItemSelected( GCTreeWidgetItem*,int ) ), this, SLOT( elementSelected( GCTreeWidgetItem*, int ) ) );
+  connect( ui->treeWidget, SIGNAL( gcCurrentItemSelected( GCTreeWidgetItem*,int,bool ) ), this, SLOT( elementSelected( GCTreeWidgetItem*, int, bool ) ) );
   connect( ui->treeWidget, SIGNAL( gcCurrentItemChanged( GCTreeWidgetItem*,int ) ), this, SLOT( elementChanged( GCTreeWidgetItem*, int ) ) );
 
   /* Everything table widget related. */
@@ -223,7 +223,7 @@ void GCMainWindow::elementChanged( GCTreeWidgetItem *item, int column )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::elementSelected( GCTreeWidgetItem *item, int column )
+void GCMainWindow::elementSelected( GCTreeWidgetItem *item, int column, bool highlightElement )
 {
   Q_UNUSED( column );
 
@@ -315,7 +315,11 @@ void GCMainWindow::elementSelected( GCTreeWidgetItem *item, int column )
     }
 
     toggleAddElementWidgets();
-    highlightTextElement( item );
+
+    if( highlightElement )
+    {
+      highlightTextElement( item );
+    }
 
     /* The user must not be allowed to add an entire document as a "snippet". */
     if( ui->treeWidget->matchesRootName( ui->addElementComboBox->currentText() ) )
@@ -1073,20 +1077,35 @@ void GCMainWindow::cursorPositionChanged()
   if( !m_changingCursorInProgress )
   {
     m_changingCursorInProgress = true;
-    int blockNumber = ui->dockWidgetTextEdit->textCursor().blockNumber();
-    int cursorPosition = ui->dockWidgetTextEdit->textCursor().position();
-    QString closing( "</" );
+    int itemNumber = ui->dockWidgetTextEdit->textCursor().blockNumber();
+    bool insideComment = false;
 
-    /* Find the number of lines in the text edit that correspond to closing element brackets. */
-    ui->dockWidgetTextEdit->moveCursor( QTextCursor::Start );
+    QTextBlock block = ui->dockWidgetTextEdit->textCursor().block();
 
-    while( ui->dockWidgetTextEdit->find( closing ) &&
-           ui->dockWidgetTextEdit->textCursor().position() < cursorPosition )
+    while( block.isValid() && ( block.blockNumber() > 0 ) )
     {
-      blockNumber--;
+      /* Check if we just entered a comment block (this is NOT wrong, remember
+        that we are working our way back up the document, not down). */
+      if( block.text().contains( "-->" ) )
+      {
+        insideComment = true;
+      }
+
+      if( insideComment || block.text().contains( "</" ) )
+      {
+        itemNumber--;
+      }
+
+      /* Check if we are about to exit a comment block. */
+      if( block.text().contains( "<!--" ) )
+      {
+        insideComment = false;
+      }
+
+      block = block.previous();
     }
 
-    ui->treeWidget->setCurrentItemWithIndexMatching( blockNumber );
+    ui->treeWidget->setCurrentItemWithIndexMatching( itemNumber );
     m_changingCursorInProgress = false;
   }
 }
@@ -1414,7 +1433,6 @@ void GCMainWindow::highlightTextElement( GCTreeWidgetItem *item )
       ui->dockWidgetTextEdit->find( stringToMatch );
     }
 
-    ui->dockWidgetTextEdit->ensureCursorVisible();
     m_changingCursorInProgress = false;
   }
 }
