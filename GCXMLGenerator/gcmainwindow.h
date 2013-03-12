@@ -285,9 +285,6 @@ private slots:
       \sa searchDocument */
   void itemFound( GCTreeWidgetItem *item );
 
-  /*! Activated when the cursor in the plain text edit changes. */
-  void cursorPositionChanged();
-
   /*! itemFound the "Revert Manual Changes" button's "clicked()" signal.  This slot will revert all manual
       changes to the active document made BEFORE the changes are saved (i.e. it isn't a classic "undo" button).
       \sa saveDirectEdit */
@@ -307,10 +304,6 @@ private slots:
 
   /*! Unchecks the "Expand All" checkbox as soon as any of the tree items are collapsed. */
   void uncheckExpandAll();
-
-  /*! Connected to the "Wrap Text" checkbox's "clicked( bool )" signal.  Sets the necessary flags on the text edit
-      to wrap or unwrap text as per user preference. */
-  void wrapText( bool wrap );
 
   /*! Connected to the "Forget Message Preferences" UI action.  This slot will reset all saved user preferences
       regarding user input via message dialogs and prompts. */
@@ -439,7 +432,6 @@ private:
   bool              m_newAttributeAdded;
   bool              m_busyImporting;
   bool              m_fileContentsChanged;
-  bool              m_changingCursorInProgress;
 
   QHash< QWidget*, int/* table row*/ > m_comboBoxes;
 

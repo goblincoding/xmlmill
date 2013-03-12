@@ -58,11 +58,11 @@ public:
       \sa includedGcTreeWidgetItems */
   const QList< GCTreeWidgetItem* > &allTreeWidgetItems() const;
 
-  /*! Returns a list of all the indices of items matching "item" (this is
+  /*! Returns a list of all the indices of items matching "nodeText" (this is
       is not as odd as it sounds, it is possible that a DOM document may have
       multiple elements of the same name with matching attributes and attribute
       values). */
-  QList< int > findIndicesMatching( const GCTreeWidgetItem *item ) const;
+  QList< int > findIndicesMatching( const QString &nodeText ) const;
 
   /*! Returns a deep copy of the underlying DOM document. */
   QDomNode cloneDocument() const;
@@ -146,9 +146,6 @@ public:
       \sa insertItem */
   void addComment( GCTreeWidgetItem* item, const QString &text );
 
-  /*! Finds the item with index matching "index" and sets it as the current tree item. */
-  void setCurrentItemWithIndexMatching( int index );
-
   /*! Iterates through the tree and sets all items' check states to "state". */
   void setAllCheckStates( Qt::CheckState state );
 
@@ -157,6 +154,10 @@ public:
 
   /*! Clears and resets the tree as well as the underlying DOM document. */
   void clearAndReset();
+
+public slots:
+  /*! Finds the item with index matching "index" and sets it as the current tree item. */
+  void setCurrentItemWithIndexMatching( int index );
 
 signals:
   /*! \sa emitGcCurrentItemSelected */

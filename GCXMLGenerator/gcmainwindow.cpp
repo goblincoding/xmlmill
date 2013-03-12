@@ -30,7 +30,6 @@
 #include "ui_gcmainwindow.h"
 #include "db/gcdatabaseinterface.h"
 #include "db/gcdbsessionmanager.h"
-#include "xml/xmlsyntaxhighlighter.h"
 #include "forms/gcadditemsform.h"
 #include "forms/gcremoveitemsform.h"
 #include "forms/gchelpdialog.h"
@@ -45,6 +44,7 @@
 #include <QDesktopServices>
 #include <QSignalMapper>
 #include <QDomDocument>
+#include <QTextBlock>
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QTextStream>
@@ -86,12 +86,10 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   m_newAttributeAdded       ( false ),
   m_busyImporting           ( false ),
   m_fileContentsChanged     ( false ),
-  m_changingCursorInProgress( false ),
   m_comboBoxes              ()
 {
   ui->setupUi( this );
   ui->showEmptyProfileHelpButton->setVisible( false );
-  ui->dockWidgetTextEdit->setFont( QFont( GCGlobalSpace::FONT, GCGlobalSpace::FONTSIZE ) );
 
   /* XML File related. */
   connect( ui->actionNew, SIGNAL( triggered() ), this, SLOT( newXMLFile() ) );
@@ -114,10 +112,11 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionHelpContents, SIGNAL( triggered() ), this, SLOT( showMainHelp() ) );
   connect( ui->actionVisitOfficialSite, SIGNAL( triggered() ), this, SLOT( goToSite() ) );
   connect( ui->expandAllCheckBox, SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
-  connect( ui->wrapTextCheckBox, SIGNAL( clicked( bool ) ), this, SLOT( wrapText( bool ) ) );  
   connect( ui->commentLineEdit, SIGNAL( returnPressed() ), this, SLOT( addComment() ) );
   connect( ui->actionUseDarkTheme, SIGNAL( triggered( bool ) ), this, SLOT( useDarkTheme( bool ) ) );
-  connect( ui->dockWidgetTextEdit, SIGNAL( cursorPositionChanged() ), this, SLOT( cursorPositionChanged() ) );
+
+  connect( ui->wrapTextCheckBox, SIGNAL( clicked( bool ) ), ui->dockWidgetTextEdit, SLOT( wrapText( bool ) ) );
+  connect( ui->dockWidgetTextEdit, SIGNAL( selectedIndex( int ) ), ui->treeWidget, SLOT( setCurrentItemWithIndexMatching( int ) ) );
 
   /* Help related. */
   connect( ui->actionShowHelpButtons, SIGNAL( triggered( bool ) ), this, SLOT( setShowHelpButtons( bool ) ) );
@@ -145,10 +144,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionRemoveDatabase, SIGNAL( triggered() ), this, SLOT( removeDatabase() ) );
 
   connect( m_signalMapper, SIGNAL( mapped( QWidget* ) ), this, SLOT( setCurrentComboBox( QWidget* ) ) );
-
-  /* Everything happens automagically and the text edit takes ownership. */
-  XmlSyntaxHighlighter *highLighter = new XmlSyntaxHighlighter( ui->dockWidgetTextEdit->document() );
-  Q_UNUSED( highLighter );
 
   readSettings();
 
@@ -1070,46 +1065,6 @@ void GCMainWindow::itemFound( GCTreeWidgetItem *item )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::cursorPositionChanged()
-{
-  if( !m_changingCursorInProgress )
-  {
-    m_changingCursorInProgress = true;
-    int itemNumber = ui->dockWidgetTextEdit->textCursor().blockNumber();
-    bool insideComment = false;
-
-    QTextBlock block = ui->dockWidgetTextEdit->textCursor().block();
-
-    while( block.isValid() && ( block.blockNumber() > 0 ) )
-    {
-      /* Check if we just entered a comment block (this is NOT wrong, remember
-        that we are working our way back up the document, not down). */
-      if( block.text().contains( "-->" ) )
-      {
-        insideComment = true;
-      }
-
-      if( insideComment || block.text().contains( "</" ) )
-      {
-        itemNumber--;
-      }
-
-      /* Check if we are about to exit a comment block. */
-      if( block.text().contains( "<!--" ) )
-      {
-        insideComment = false;
-      }
-
-      block = block.previous();
-    }
-
-    ui->treeWidget->setCurrentItemWithIndexMatching( itemNumber );
-    m_changingCursorInProgress = false;
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 void GCMainWindow::revertDirectEdit()
 {
   setTextEditContent();
@@ -1119,8 +1074,6 @@ void GCMainWindow::revertDirectEdit()
 
 void GCMainWindow::saveDirectEdit()
 {
-  m_changingCursorInProgress = true;
-
   QString xmlErr( "" );
   int     line  ( -1 );
   int     col   ( -1 );
@@ -1165,8 +1118,6 @@ void GCMainWindow::saveDirectEdit()
       will ensue. */
     importXMLToDatabase();
   }
-
-  m_changingCursorInProgress = false;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1188,20 +1139,6 @@ void GCMainWindow::collapseOrExpandTreeWidget( bool checked )
 void GCMainWindow::uncheckExpandAll()
 {
   ui->expandAllCheckBox->setChecked( false );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::wrapText( bool wrap )
-{
-  if( wrap )
-  {
-    ui->dockWidgetTextEdit->setLineWrapMode( QPlainTextEdit::WidgetWidth );
-  }
-  else
-  {
-    ui->dockWidgetTextEdit->setLineWrapMode( QPlainTextEdit::NoWrap );
-  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1253,10 +1190,7 @@ void GCMainWindow::deleteSpinner()
 void GCMainWindow::resetDOM()
 {
   ui->treeWidget->clearAndReset();
-
-  m_changingCursorInProgress = true;
   ui->dockWidgetTextEdit->clear();
-  m_changingCursorInProgress = false;
 
   resetTableWidget();
 
@@ -1481,16 +1415,8 @@ void GCMainWindow::setStatusBarMessage( const QString &message )
 void GCMainWindow::setTextEditContent( GCTreeWidgetItem *item )
 {
   m_fileContentsChanged = true;
-  m_changingCursorInProgress = true;
-
-  /* Squeezing every once of performance out of the text edit...this significantly speeds
-    up the loading of large files. */
-  ui->dockWidgetTextEdit->setUpdatesEnabled( false );
-  ui->dockWidgetTextEdit->setPlainText( ui->treeWidget->toString() );
-  ui->dockWidgetTextEdit->setUpdatesEnabled( true );
-
+  ui->dockWidgetTextEdit->setContent( ui->treeWidget->toString() );
   highlightTextElement( item );
-  m_changingCursorInProgress = false;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1499,9 +1425,8 @@ void GCMainWindow::highlightTextElement( GCTreeWidgetItem *item )
 {
   if( item )
   {
-    m_changingCursorInProgress = true;
     QString stringToMatch = item->toString();
-    QList< int > indices = ui->treeWidget->findIndicesMatching( item );
+    QList< int > indices = ui->treeWidget->findIndicesMatching( stringToMatch );
 
     /* Now that we have a list of all the indices matching identical nodes (indices are a rough
       indication of an element's position in the DOM and closely matches the "line numbers" of the
@@ -1514,8 +1439,6 @@ void GCMainWindow::highlightTextElement( GCTreeWidgetItem *item )
     {
       ui->dockWidgetTextEdit->find( stringToMatch );
     }
-
-    m_changingCursorInProgress = false;
   }
 }
 

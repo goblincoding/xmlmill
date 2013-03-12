@@ -352,7 +352,7 @@
        </property>
        <layout class="QVBoxLayout" name="dockWidgetFrameLayout">
         <item>
-         <widget class="QPlainTextEdit" name="dockWidgetTextEdit">
+         <widget class="GCPlainTextEdit" name="dockWidgetTextEdit">
           <property name="sizePolicy">
            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
@@ -801,6 +801,11 @@
    <class>GCDomTreeWidget</class>
    <extends>QTreeWidget</extends>
    <header location="global">utils/gcdomtreewidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>GCPlainTextEdit</class>
+   <extends>QPlainTextEdit</extends>
+   <header location="global">utils/gcplaintextedit.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

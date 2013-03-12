@@ -128,26 +128,23 @@ const QList< GCTreeWidgetItem* > &GCDomTreeWidget::allTreeWidgetItems() const
 
 /*--------------------------------------------------------------------------------------*/
 
-QList< int > GCDomTreeWidget::findIndicesMatching( const GCTreeWidgetItem *item ) const
+QList< int > GCDomTreeWidget::findIndicesMatching( const QString &nodeText ) const
 {
   QList< int > indices;
 
   if( !m_isEmpty )
   {
-    QString stringToMatch = item->toString();
-
     /* If there are multiple nodes with the same element name (more likely than not), check which
     of these nodes are exact duplicates with regards to attributes, values, etc. */
     for( int i = 0; i < m_items.size(); ++i )
     {
       GCTreeWidgetItem *treeItem = m_items.at( i );
 
-      if( treeItem->toString() == stringToMatch )
+      if( treeItem->toString() == nodeText )
       {
         indices.append( treeItem->index() );
       }
     }
-
   }
 
   return indices;
