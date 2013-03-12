@@ -47,6 +47,14 @@ namespace GCGlobalSpace
 
   /*--------------------------------------------------------------------------------------*/
 
+  /*! Used by GCTreeWidgetItem to determine whether or not it should show its element as "verbose". */
+  bool showTreeItemsVerbose();
+
+  /*! Saves the user's preference to the registry/ini/xml. */
+  void setShowTreeItemsVerbose( bool show );
+
+  /*--------------------------------------------------------------------------------------*/
+
   /*! Used when saving and loading settings to registry/XML/ini, used in GCMainWindow and GCMessageSpace. */
   const QString ORGANISATION = "William Hallatt";
 

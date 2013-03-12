@@ -26,6 +26,7 @@
  *                    <http://www.gnu.org/licenses/>
  */
 #include "gctreewidgetitem.h"
+#include "gcglobalspace.h"
 
 /*--------------------------------------------------------------------------------------*/
 
@@ -48,6 +49,7 @@ void GCTreeWidgetItem::init( const QString &elementName, QDomElement element, in
   m_element = element;
   m_elementExcluded = false;
   m_index = index;
+  m_verbose = GCGlobalSpace::showTreeItemsVerbose();
 
   QDomNamedNodeMap attributes = m_element.attributes();
 
@@ -56,7 +58,21 @@ void GCTreeWidgetItem::init( const QString &elementName, QDomElement element, in
     m_includedAttributes.append( attributes.item( i ).toAttr().name() );
   }
 
-  setText( 0, toString() );
+  setDisplayText();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCTreeWidgetItem::setDisplayText()
+{
+  if( m_verbose )
+  {
+    setText( 0, toString() );
+  }
+  else
+  {
+    setText( 0, m_element.tagName() );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -113,7 +129,7 @@ void GCTreeWidgetItem::excludeAttribute( const QString &attribute )
   m_element.removeAttribute( attribute );
   m_includedAttributes.removeAll( attribute );
   m_includedAttributes.sort();
-  setText( 0, toString() );
+  setDisplayText();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -124,7 +140,7 @@ void GCTreeWidgetItem::includeAttribute( const QString &attribute, const QString
   m_includedAttributes.append( attribute );
   m_includedAttributes.removeDuplicates();
   m_includedAttributes.sort();
-  setText( 0, toString() );
+  setDisplayText();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -259,7 +275,7 @@ int GCTreeWidgetItem::index() const
 void GCTreeWidgetItem::rename( const QString &newName )
 {
   m_element.setTagName( newName );
-  setText( 0, toString() );
+  setDisplayText();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -272,6 +288,14 @@ QString GCTreeWidgetItem::name() const
   }
 
   return QString( "" );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCTreeWidgetItem::setVerbose( bool verbose )
+{
+  m_verbose = verbose;
+  setDisplayText();
 }
 
 /*--------------------------------------------------------------------------------------*/

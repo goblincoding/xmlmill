@@ -280,6 +280,7 @@
     </property>
     <addaction name="actionRememberWindowGeometry"/>
     <addaction name="actionShowHelpButtons"/>
+    <addaction name="actionShowTreeElementsVerbose"/>
     <addaction name="actionUseDarkTheme"/>
     <addaction name="separator"/>
     <addaction name="actionForgetPreferences"/>
@@ -780,6 +781,17 @@
    </property>
    <property name="text">
     <string>Show Help Buttons</string>
+   </property>
+  </action>
+  <action name="actionShowTreeElementsVerbose">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Tree Elements Verbose</string>
    </property>
   </action>
  </widget>

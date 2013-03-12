@@ -129,6 +129,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->treeWidget, SIGNAL( gcCurrentItemSelected( GCTreeWidgetItem*,int,bool ) ), this, SLOT( elementSelected( GCTreeWidgetItem*, int, bool ) ) );
   connect( ui->treeWidget, SIGNAL( gcCurrentItemChanged( GCTreeWidgetItem*,int ) ), this, SLOT( elementChanged( GCTreeWidgetItem*, int ) ) );
   connect( ui->treeWidget, SIGNAL( collapsed( QModelIndex ) ), this, SLOT( uncheckExpandAll() ) );
+  connect( ui->actionShowTreeElementsVerbose, SIGNAL( triggered( bool ) ), this, SLOT( setShowTreeItemsVerbose( bool ) ) );
 
   /* Everything table widget related. */
   connect( ui->tableWidget, SIGNAL( itemClicked( QTableWidgetItem* ) ), this, SLOT( attributeSelected( QTableWidgetItem* ) ) );
@@ -1423,6 +1424,14 @@ void GCMainWindow::setShowHelpButtons( bool show )
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCMainWindow::setShowTreeItemsVerbose( bool verbose )
+{
+  GCGlobalSpace::setShowTreeItemsVerbose( verbose );
+  ui->treeWidget->setShowTreeItemsVerbose( verbose );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 GCDBSessionManager *GCMainWindow::createDBSessionManager()
 {
   /* Clean-up is the responsibility of the calling function. */
@@ -1628,6 +1637,7 @@ void GCMainWindow::readSettings()
   restoreState( settings.value( "windowState" ).toByteArray() );
 
   setShowHelpButtons( GCGlobalSpace::showHelpButtons() );
+  setShowTreeItemsVerbose( GCGlobalSpace::showTreeItemsVerbose() );
 
   ui->actionRememberWindowGeometry->setChecked( settings.value( "saveWindowInformation", true ).toBool() );
   ui->actionUseDarkTheme->setChecked( settings.value( "useDarkTheme", false ).toBool() );

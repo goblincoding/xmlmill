@@ -344,6 +344,9 @@ private slots:
   /*! Decides whether or not to display help buttons throughout the entire application. */
   void setShowHelpButtons( bool show );
 
+  /*! Decides whether or not to display tree items' elements "verbose" throughout the entire application. */
+  void setShowTreeItemsVerbose( bool verbose );
+
   /*! Opens this application's website. */
   void goToSite();
 

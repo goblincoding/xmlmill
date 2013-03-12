@@ -149,11 +149,16 @@ public:
   /*! Returns the element name. */
   QString name() const;  
 
+  /*! Sets the item's element display as "verbose". */
+  void setVerbose( bool verbose );
+
 private:
   void init( const QString &elementName, QDomElement element, int index );
+  void setDisplayText();
 
   QDomElement m_element;
   bool m_elementExcluded;
+  bool m_verbose;
   int  m_index;
 
   QStringList m_includedAttributes;

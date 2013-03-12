@@ -152,6 +152,9 @@ public:
   /*! Iterates through the tree and sets all items' check states to "state". */
   void setAllCheckStates( Qt::CheckState state );
 
+  /*! Iterates through the tree and set all items' "verbose" flags to "show". */
+  void setShowTreeItemsVerbose( bool verbose );
+
   /*! Clears and resets the tree as well as the underlying DOM document. */
   void clearAndReset();
 
@@ -211,6 +214,7 @@ private:
   GCTreeWidgetItem *m_activeItem;
   QDomDocument     *m_domDoc;
   bool              m_isEmpty;
+  bool              m_busyIterating;
 
   QList< GCTreeWidgetItem* > m_items;
 };

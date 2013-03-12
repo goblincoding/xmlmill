@@ -40,11 +40,12 @@
 /*--------------------------------------------------------------------------------------*/
 
 GCDomTreeWidget::GCDomTreeWidget( QWidget *parent ) :
-  QTreeWidget ( parent ),
-  m_activeItem( NULL ),
-  m_domDoc    ( new QDomDocument ),
-  m_isEmpty   ( true ),
-  m_items     ()
+  QTreeWidget    ( parent ),
+  m_activeItem   ( NULL ),
+  m_domDoc       ( new QDomDocument ),
+  m_isEmpty      ( true ),
+  m_busyIterating( false ),
+  m_items        ()
 {
   setSelectionMode( QAbstractItemView::SingleSelection );
   setDragDropMode( QAbstractItemView::InternalMove );
@@ -409,6 +410,8 @@ void GCDomTreeWidget::setCurrentItemWithIndexMatching( int index )
 
 void GCDomTreeWidget::setAllCheckStates( Qt::CheckState state )
 {
+  m_busyIterating = true;
+
   QTreeWidgetItemIterator iterator( this );
 
   while( *iterator )
@@ -416,12 +419,34 @@ void GCDomTreeWidget::setAllCheckStates( Qt::CheckState state )
     ( *iterator )->setCheckState( 0, state );
     ++iterator;
   }
+
+  m_busyIterating = false;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDomTreeWidget::setShowTreeItemsVerbose( bool verbose )
+{
+  m_busyIterating = true;
+
+  QTreeWidgetItemIterator iterator( this );
+
+  while( *iterator )
+  {
+    GCTreeWidgetItem* treeItem = dynamic_cast< GCTreeWidgetItem* >( *iterator );
+    treeItem->setVerbose( verbose );
+    ++iterator;
+  }
+
+  m_busyIterating = false;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 void GCDomTreeWidget::updateIndices()
 {
+  m_busyIterating = true;
+
   QTreeWidgetItemIterator iterator( this );
   int index = 0;
 
@@ -432,6 +457,8 @@ void GCDomTreeWidget::updateIndices()
     ++index;
     ++iterator;
   }
+
+  m_busyIterating = false;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -470,16 +497,22 @@ void GCDomTreeWidget::dropEvent( QDropEvent *event )
 
 void GCDomTreeWidget::emitGcCurrentItemSelected( QTreeWidgetItem *item, int column, bool highlightElement )
 {
-  setCurrentItem( item, column );
-  emit gcCurrentItemSelected( dynamic_cast< GCTreeWidgetItem* >( item ), column, highlightElement );
+  if( !m_busyIterating )
+  {
+    setCurrentItem( item, column );
+    emit gcCurrentItemSelected( dynamic_cast< GCTreeWidgetItem* >( item ), column, highlightElement );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 void GCDomTreeWidget::emitGcCurrentItemChanged( QTreeWidgetItem *item, int column )
 {
-  setCurrentItem( item, column );
-  emit gcCurrentItemChanged( dynamic_cast< GCTreeWidgetItem* >( item ), column );
+  if( !m_busyIterating )
+  {
+    setCurrentItem( item, column );
+    emit gcCurrentItemChanged( dynamic_cast< GCTreeWidgetItem* >( item ), column );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/

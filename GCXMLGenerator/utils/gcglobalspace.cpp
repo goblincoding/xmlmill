@@ -36,6 +36,7 @@ namespace GCGlobalSpace
   namespace
   {
     const QString HELP = "showHelpButtons";
+    const QString VERBOSE = "showTreeItemsVerbose";
   }
 
   bool showHelpButtons()
@@ -48,6 +49,18 @@ namespace GCGlobalSpace
   {
     QSettings settings( GCGlobalSpace::ORGANISATION, GCGlobalSpace::APPLICATION );
     settings.setValue( HELP, show );
+  }
+
+  bool showTreeItemsVerbose()
+  {
+    QSettings settings( GCGlobalSpace::ORGANISATION, GCGlobalSpace::APPLICATION );
+    return settings.value( VERBOSE, true ).toBool();
+  }
+
+  void setShowTreeItemsVerbose( bool show )
+  {
+    QSettings settings( GCGlobalSpace::ORGANISATION, GCGlobalSpace::APPLICATION );
+    settings.setValue( VERBOSE, show );
   }
 }
 
