@@ -40,12 +40,15 @@
 /*--------------------------------------------------------------------------------------*/
 
 GCDomTreeWidget::GCDomTreeWidget( QWidget *parent ) :
-  QTreeWidget  ( parent ),
-  m_contextItem( NULL ),
-  m_domDoc     ( new QDomDocument ),
-  m_isEmpty    ( true ),
-  m_items      ()
+  QTreeWidget ( parent ),
+  m_activeItem( NULL ),
+  m_domDoc    ( new QDomDocument ),
+  m_isEmpty   ( true ),
+  m_items     ()
 {
+  setSelectionMode( QAbstractItemView::SingleSelection );
+  setDragDropMode( QAbstractItemView::InternalMove );
+
   QAction *rename = new QAction( "Rename element", this );
   addAction( rename );
   connect( rename, SIGNAL( triggered() ), this, SLOT( renameItem() ) );
@@ -436,11 +439,31 @@ void GCDomTreeWidget::updateIndices()
 void GCDomTreeWidget::mousePressEvent( QMouseEvent *event )
 {
   QTreeWidget::mousePressEvent( event );
+  m_activeItem = dynamic_cast< GCTreeWidgetItem* >( itemAt( event->pos() ) );
+}
 
-  if( event->button() == Qt::RightButton )
+/*--------------------------------------------------------------------------------------*/
+
+void GCDomTreeWidget::dropEvent( QDropEvent *event )
+{
+  QTreeWidget::dropEvent( event );
+
+  if( m_activeItem )
   {
-    m_contextItem = dynamic_cast< GCTreeWidgetItem* >( itemAt( event->pos() ) );
+    GCTreeWidgetItem *parent = dynamic_cast< GCTreeWidgetItem* >( itemAt( event->pos() ) );
+
+    if( parent )
+    {
+      QDomElement previousParent = m_activeItem->element().parentNode().toElement();
+      previousParent.removeChild( m_activeItem->element() );
+      parent->element().appendChild( m_activeItem->element() );
+    }
+
+    expandItem( parent );
   }
+
+  updateIndices();
+  emitGcCurrentItemChanged( m_activeItem, 0 );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -465,10 +488,10 @@ void GCDomTreeWidget::renameItem()
 {
   QString newName = QInputDialog::getText( this, "Change element name", "Enter the element's new name:" );
 
-  if( !newName.isEmpty() && m_contextItem )
+  if( !newName.isEmpty() && m_activeItem )
   {
-    QString oldName = m_contextItem->name();
-    m_contextItem->rename( newName );
+    QString oldName = m_activeItem->name();
+    m_activeItem->rename( newName );
     updateItemNames( oldName, newName );
 
     /* The name change may introduce a new element too so we can safely call "addElement" below as
@@ -495,7 +518,7 @@ void GCDomTreeWidget::renameItem()
       }
     }
 
-    emitGcCurrentItemChanged( m_contextItem, 0 );
+    emitGcCurrentItemChanged( m_activeItem, 0 );
   }
 }
 
@@ -503,26 +526,26 @@ void GCDomTreeWidget::renameItem()
 
 void GCDomTreeWidget::removeItem()
 {
-  if( m_contextItem )
+  if( m_activeItem )
   {
     /* Remove the element from the DOM first. */
-    QDomNode parentNode = m_contextItem->element().parentNode();
-    parentNode.removeChild( m_contextItem->element() );
+    QDomNode parentNode = m_activeItem->element().parentNode();
+    parentNode.removeChild( m_activeItem->element() );
 
     /* Now whack it. */
-    if( m_contextItem->gcParent() )
+    if( m_activeItem->gcParent() )
     {
-      GCTreeWidgetItem *parentItem = m_contextItem->gcParent();
-      parentItem->removeChild( m_contextItem );
+      GCTreeWidgetItem *parentItem = m_activeItem->gcParent();
+      parentItem->removeChild( m_activeItem );
     }
     else
     {
-      invisibleRootItem()->removeChild( m_contextItem );
+      invisibleRootItem()->removeChild( m_activeItem );
     }
 
-    m_items.removeAll( m_contextItem );
+    m_items.removeAll( m_activeItem );
     m_isEmpty = m_items.isEmpty();
-    m_contextItem = NULL;
+    m_activeItem = NULL;
 
     updateIndices();
     emitGcCurrentItemSelected( currentItem(), 0 );

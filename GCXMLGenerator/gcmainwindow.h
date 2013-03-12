@@ -305,6 +305,9 @@ private slots:
       of UI tree widget. */
   void collapseOrExpandTreeWidget( bool checked );
 
+  /*! Unchecks the "Expand All" checkbox as soon as any of the tree items are collapsed. */
+  void uncheckExpandAll();
+
   /*! Connected to the "Wrap Text" checkbox's "clicked( bool )" signal.  Sets the necessary flags on the text edit
       to wrap or unwrap text as per user preference. */
   void wrapText( bool wrap );

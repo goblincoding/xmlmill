@@ -266,7 +266,12 @@ void GCTreeWidgetItem::rename( const QString &newName )
 
 QString GCTreeWidgetItem::name() const
 {
-  return m_element.tagName();
+  if( !m_element.isNull() )
+  {
+    return m_element.tagName();
+  }
+
+  return QString( "" );
 }
 
 /*--------------------------------------------------------------------------------------*/

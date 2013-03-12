@@ -128,6 +128,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   /* Everything tree widget related. */
   connect( ui->treeWidget, SIGNAL( gcCurrentItemSelected( GCTreeWidgetItem*,int,bool ) ), this, SLOT( elementSelected( GCTreeWidgetItem*, int, bool ) ) );
   connect( ui->treeWidget, SIGNAL( gcCurrentItemChanged( GCTreeWidgetItem*,int ) ), this, SLOT( elementChanged( GCTreeWidgetItem*, int ) ) );
+  connect( ui->treeWidget, SIGNAL( collapsed( QModelIndex ) ), this, SLOT( uncheckExpandAll() ) );
 
   /* Everything table widget related. */
   connect( ui->tableWidget, SIGNAL( itemClicked( QTableWidgetItem* ) ), this, SLOT( attributeSelected( QTableWidgetItem* ) ) );
@@ -1179,6 +1180,13 @@ void GCMainWindow::collapseOrExpandTreeWidget( bool checked )
   {
     ui->treeWidget->collapseAll();
   }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::uncheckExpandAll()
+{
+  ui->expandAllCheckBox->setChecked( false );
 }
 
 /*--------------------------------------------------------------------------------------*/

@@ -163,7 +163,11 @@ signals:
   void gcCurrentItemChanged( GCTreeWidgetItem*, int );
 
 protected:
+  /*! Re-implemented from QTreeWidget. */
   void mousePressEvent( QMouseEvent *event );
+
+  /*! Re-implemented from QTreeWidget. */
+  void dropEvent( QDropEvent *event );
 
 private slots:
   /*! Connected to "itemClicked" and "itemActivated". Re-emits the clicked item
@@ -204,7 +208,7 @@ private:
       are added to ensure that indices correspond roughly to "row numbers"). */
   void updateIndices();
 
-  GCTreeWidgetItem *m_contextItem;
+  GCTreeWidgetItem *m_activeItem;
   QDomDocument     *m_domDoc;
   bool              m_isEmpty;
 
