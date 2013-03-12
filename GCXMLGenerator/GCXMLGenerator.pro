@@ -54,7 +54,8 @@ SOURCES += main.cpp\
     utils/gcglobalspace.cpp \
     utils/gcdomtreewidget.cpp \
     utils/gctreewidgetitem.cpp \
-    forms/gcaddsnippetsform.cpp
+    forms/gcaddsnippetsform.cpp \
+    utils/gcplaintextedit.cpp
 
 HEADERS  += \
     db/gcdatabaseinterface.h \
@@ -72,7 +73,8 @@ HEADERS  += \
     utils/gcglobalspace.h \
     utils/gcdomtreewidget.h \
     utils/gctreewidgetitem.h \
-    forms/gcaddsnippetsform.h
+    forms/gcaddsnippetsform.h \
+    utils/gcplaintextedit.h
 
 FORMS    += \
     gcmainwindow.ui \
