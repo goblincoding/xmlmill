@@ -30,15 +30,23 @@
 #include "xml/xmlsyntaxhighlighter.h"
 #include "utils/gcglobalspace.h"
 
+#include <QMenu>
+#include <QAction>
+
 /*--------------------------------------------------------------------------------------*/
 
 GCPlainTextEdit::GCPlainTextEdit( QWidget *parent ) :
   QPlainTextEdit( parent ),
+  m_disable     ( NULL ),
   m_cursorPositionChanging( false )
 {
   setAcceptDrops( false );
   setFont( QFont( GCGlobalSpace::FONT, GCGlobalSpace::FONTSIZE ) );
   setCenterOnScroll( true );
+
+  m_disable = new QAction( "Comment Out", this );
+  setContextMenuPolicy( Qt::CustomContextMenu );
+  connect( this, SIGNAL( customContextMenuRequested( const QPoint& ) ), this, SLOT( showContextMenu( const QPoint& ) ) );
 
   connect( this, SIGNAL( cursorPositionChanged() ), this, SLOT( emitSelectedIndex() ) );
 
@@ -123,6 +131,17 @@ void GCPlainTextEdit::emitSelectedIndex()
 
     emit selectedIndex( itemNumber );
   }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCPlainTextEdit::showContextMenu( const QPoint &point )
+{
+  QMenu *menu = createStandardContextMenu();
+  menu->addSeparator();
+  menu->addAction( m_disable );
+  menu->exec( mapToGlobal( point ) );
+  delete menu;
 }
 
 /*--------------------------------------------------------------------------------------*/

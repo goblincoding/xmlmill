@@ -58,7 +58,11 @@ private slots:
   /*! Activated when the cursor in the plain text edit changes. */
   void emitSelectedIndex();
 
+  /*! Shows the default context menu with some additional actions added. */
+  void showContextMenu( const QPoint &point );
+
 private:
+  QAction *m_disable;
   bool m_cursorPositionChanging;
   
 };
