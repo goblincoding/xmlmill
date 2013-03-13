@@ -320,7 +320,7 @@ void GCMainWindow::elementSelected( GCTreeWidgetItem *item, int column, bool hig
     want the user to add a document root element to itself by accident. */
     if( !ui->treeWidget->matchesRootName( elementName ) )
     {
-      ui->addElementComboBox->addItem( QString( "<%1>" ).arg( elementName) );
+      ui->addElementComboBox->addItem( QString( "[%1]" ).arg( elementName) );
     }
 
     toggleAddElementWidgets();
@@ -903,9 +903,9 @@ void GCMainWindow::addElementToDocument()
 
   /* If the user selected the <element> option, we add a new sibling element
     of the same name as the current element to the current element's parent. */
-  if( elementName.contains( QRegExp( "<|>" ) ) )
+  if( elementName.contains( QRegExp( "[|]" ) ) )
   {
-    elementName = elementName.remove( QRegExp( "<|>" ) );
+    elementName = elementName.remove( QRegExp( "[|]" ) );
     addToParent = true;
   }
 
@@ -958,10 +958,10 @@ void GCMainWindow::addSnippetToDocument()
   QString elementName = ui->addElementComboBox->currentText();
 
   /* Check if we're inserting snippets as children, or as siblings. */
-  if( elementName.contains( QRegExp( "<|>" ) ) )
+  if( elementName.contains( QRegExp( "[|]" ) ) )
   {
     /* Qt::WA_DeleteOnClose flag set. */
-    GCAddSnippetsForm *dialog = new GCAddSnippetsForm( elementName.remove( QRegExp( "<|>" ) ),
+    GCAddSnippetsForm *dialog = new GCAddSnippetsForm( elementName.remove( QRegExp( "[|]" ) ),
                                                  ui->treeWidget->gcCurrentItem()->gcParent(),
                                                  this );
     connect( dialog, SIGNAL( snippetAdded( GCTreeWidgetItem*, QDomElement ) ), this, SLOT( insertSnippet( GCTreeWidgetItem*, QDomElement ) ) );
@@ -1281,9 +1281,15 @@ void GCMainWindow::showCommentHelp()
 void GCMainWindow::showElementHelp()
 {
   QMessageBox::information( this,
-                            "Adding Elements",
-                            "Elements bracketed by \"<>\" are added as siblings of the element "
-                            "selected in the element hierarchy tree." );
+                            "Adding Elements and Snippets",
+                            "If the document is still empty, your first element will be the root element.\n\n"
+                            "New elements are added as children of the element selected in the element tree.\n\n"
+                            "\"Empty\" duplicate siblings are added by selecting the element name in the drop down "
+                            "that matches that of the element selected in the element tree (these names will be "
+                            "bracketed by \"[]\").\n\n"
+                            "\"Snippets\" are fully formed XML segments consisting of the entire element hierarchy "
+                            "with the element selected in the drop down combo box as base. Selecting this option will "
+                            "provide you with the opportunity to provide default values for the snippet's attributes." );
 }
 
 /*--------------------------------------------------------------------------------------*/

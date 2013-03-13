@@ -38,6 +38,7 @@ GCPlainTextEdit::GCPlainTextEdit( QWidget *parent ) :
 {
   setAcceptDrops( false );
   setFont( QFont( GCGlobalSpace::FONT, GCGlobalSpace::FONTSIZE ) );
+  setCenterOnScroll( true );
 
   connect( this, SIGNAL( cursorPositionChanged() ), this, SLOT( emitSelectedIndex() ) );
 
