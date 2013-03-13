@@ -62,6 +62,8 @@
 /*--------------------------------------------------------------------------------------*/
 
 const QString EMPTY( "---" );
+const QString LEFTRIGHTBRACKETS( "\\[|\\]" );
+
 const qint64  DOMWARNING( 262144 );  // 0.25MB or ~7 500 lines
 const qint64  DOMLIMIT  ( 524288 );  // 0.5MB  or ~15 000 lines
 
@@ -903,9 +905,9 @@ void GCMainWindow::addElementToDocument()
 
   /* If the user selected the <element> option, we add a new sibling element
     of the same name as the current element to the current element's parent. */
-  if( elementName.contains( QRegExp( "[|]" ) ) )
+  if( elementName.contains( QRegExp( LEFTRIGHTBRACKETS ) ) )
   {
-    elementName = elementName.remove( QRegExp( "[|]" ) );
+    elementName = elementName.remove( QRegExp( LEFTRIGHTBRACKETS ) );
     addToParent = true;
   }
 
@@ -958,10 +960,10 @@ void GCMainWindow::addSnippetToDocument()
   QString elementName = ui->addElementComboBox->currentText();
 
   /* Check if we're inserting snippets as children, or as siblings. */
-  if( elementName.contains( QRegExp( "[|]" ) ) )
+  if( elementName.contains( QRegExp( LEFTRIGHTBRACKETS ) ) )
   {
     /* Qt::WA_DeleteOnClose flag set. */
-    GCAddSnippetsForm *dialog = new GCAddSnippetsForm( elementName.remove( QRegExp( "[|]" ) ),
+    GCAddSnippetsForm *dialog = new GCAddSnippetsForm( elementName.remove( QRegExp( LEFTRIGHTBRACKETS ) ),
                                                  ui->treeWidget->gcCurrentItem()->gcParent(),
                                                  this );
     connect( dialog, SIGNAL( snippetAdded( GCTreeWidgetItem*, QDomElement ) ), this, SLOT( insertSnippet( GCTreeWidgetItem*, QDomElement ) ) );

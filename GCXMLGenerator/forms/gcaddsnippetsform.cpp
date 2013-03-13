@@ -81,76 +81,81 @@ GCAddSnippetsForm::~GCAddSnippetsForm()
 
 void GCAddSnippetsForm::elementSelected( GCTreeWidgetItem *item, int column )
 {
-  m_treeItemActivated = true;
+  Q_UNUSED( column );
 
-  ui->tableWidget->clearContents();   // also deletes current items
-  ui->tableWidget->setRowCount( 0 );
+  if( item )
+  {
+    m_treeItemActivated = true;
 
-  /* Populate the table widget with the attributes and values associated with the element selected. */
-  QString elementName = item->text( column );
-  QStringList attributeNames = GCDataBaseInterface::instance()->attributes( elementName );
+    ui->tableWidget->clearContents();   // also deletes current items
+    ui->tableWidget->setRowCount( 0 );
 
-  /* Create and add the "increment" checkbox to the first column of the table widget, add all the
+    /* Populate the table widget with the attributes and values associated with the element selected. */
+    QString elementName = item->name();
+    QStringList attributeNames = GCDataBaseInterface::instance()->attributes( elementName );
+
+    /* Create and add the "increment" checkbox to the first column of the table widget, add all the
     known attribute names to the cells in the second column of the table widget, create and populate
     combo boxes with the values associated with the attributes in question and insert the combo boxes
     into the third column of the table widget. */
-  for( int i = 0; i < attributeNames.count(); ++i )
-  {
-    ui->tableWidget->setRowCount( i + 1 );
-
-    QCheckBox *checkBox = new QCheckBox;
-
-    /* Overrides main style sheet. */
-    checkBox->setStyleSheet( "QCheckBox{ padding-right: 1px; }"
-                             "QCheckBox::indicator{ subcontrol-position: center; width: 15px; height: 15px; }" );
-
-    ui->tableWidget->setCellWidget( i, INCRCOLUMN, checkBox );
-    connect( checkBox, SIGNAL( clicked() ), this, SLOT( attributeValueChanged() ) );
-
-    QDomAttr attribute = item->element().attributeNode( attributeNames.at( i ) ).toAttr();
-    checkBox->setChecked( item->incrementAttribute( attribute.name() ) );
-
-    /* Items are editable by default, disable this option. */
-    QTableWidgetItem *label = new QTableWidgetItem( attributeNames.at( i ) );
-    label->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable );
-    ui->tableWidget->setItem( i, LABELCOLUMN, label );
-
-    GCComboBox *attributeCombo = new GCComboBox;
-    attributeCombo->addItems( GCDataBaseInterface::instance()->attributeValues( elementName, attributeNames.at( i ) ) );
-    attributeCombo->setEditable( true );
-    attributeCombo->setCurrentIndex( attributeCombo->findText( item->element().attribute( attributeNames.at( i ) ) ) );
-
-    connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged() ) );
-
-    if( item->attributeIncluded( attributeNames.at( i ) ) )
+    for( int i = 0; i < attributeNames.count(); ++i )
     {
-      label->setCheckState( Qt::Checked );
-      attributeCombo->setEnabled( true );
-    }
-    else
-    {
-      label->setCheckState( Qt::Unchecked );
-      attributeCombo->setEnabled( false );
+      ui->tableWidget->setRowCount( i + 1 );
+
+      QCheckBox *checkBox = new QCheckBox;
+
+      /* Overrides main style sheet. */
+      checkBox->setStyleSheet( "QCheckBox{ padding-right: 1px; }"
+                               "QCheckBox::indicator{ subcontrol-position: center; width: 15px; height: 15px; }" );
+
+      ui->tableWidget->setCellWidget( i, INCRCOLUMN, checkBox );
+      connect( checkBox, SIGNAL( clicked() ), this, SLOT( attributeValueChanged() ) );
+
+      QDomAttr attribute = item->element().attributeNode( attributeNames.at( i ) ).toAttr();
+      checkBox->setChecked( item->incrementAttribute( attribute.name() ) );
+
+      /* Items are editable by default, disable this option. */
+      QTableWidgetItem *label = new QTableWidgetItem( attributeNames.at( i ) );
+      label->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable );
+      ui->tableWidget->setItem( i, LABELCOLUMN, label );
+
+      GCComboBox *attributeCombo = new GCComboBox;
+      attributeCombo->addItems( GCDataBaseInterface::instance()->attributeValues( elementName, attributeNames.at( i ) ) );
+      attributeCombo->setEditable( true );
+      attributeCombo->setCurrentIndex( attributeCombo->findText( item->element().attribute( attributeNames.at( i ) ) ) );
+
+      connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeValueChanged() ) );
+
+      if( item->attributeIncluded( attributeNames.at( i ) ) )
+      {
+        label->setCheckState( Qt::Checked );
+        attributeCombo->setEnabled( true );
+      }
+      else
+      {
+        label->setCheckState( Qt::Unchecked );
+        attributeCombo->setEnabled( false );
+      }
+
+      ui->tableWidget->setCellWidget( i, COMBOCOLUMN, attributeCombo );
+
+      if( item->checkState( 0 ) == Qt::Unchecked )
+      {
+        ui->tableWidget->setEnabled( false );
+      }
+      else
+      {
+        ui->tableWidget->setEnabled( true );
+      }
     }
 
-    ui->tableWidget->setCellWidget( i, COMBOCOLUMN, attributeCombo );
+    updateCheckStates( item );
 
-    if( item->checkState( 0 ) == Qt::Unchecked )
-    {
-      ui->tableWidget->setEnabled( false );
-    }
-    else
-    {
-      ui->tableWidget->setEnabled( true );
-    }
+    ui->tableWidget->horizontalHeader()->setResizeMode( LABELCOLUMN, QHeaderView::Stretch );
+    ui->tableWidget->horizontalHeader()->setResizeMode( COMBOCOLUMN, QHeaderView::Stretch );
+    ui->tableWidget->horizontalHeader()->setResizeMode( INCRCOLUMN,  QHeaderView::Fixed );
+    m_treeItemActivated = false;
   }
-
-  updateCheckStates( item );
-
-  ui->tableWidget->horizontalHeader()->setResizeMode( LABELCOLUMN, QHeaderView::Stretch );
-  ui->tableWidget->horizontalHeader()->setResizeMode( COMBOCOLUMN, QHeaderView::Stretch );
-  ui->tableWidget->horizontalHeader()->setResizeMode( INCRCOLUMN,  QHeaderView::Fixed );
-  m_treeItemActivated = false;
 }
 
 /*--------------------------------------------------------------------------------------*/
