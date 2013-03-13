@@ -58,11 +58,10 @@ public:
       \sa includedGcTreeWidgetItems */
   const QList< GCTreeWidgetItem* > &allTreeWidgetItems() const;
 
-  /*! Returns a list of all the indices of items matching "nodeText" (this is
-      is not as odd as it sounds, it is possible that a DOM document may have
-      multiple elements of the same name with matching attributes and attribute
-      values). */
-  QList< int > findIndicesMatching( const QString &nodeText ) const;
+  /*! Returns the position of "itemIndex" relative to that of ALL item's matching "nodeText"
+      (this is is not as odd as it sounds, it is possible that a DOM document may have
+      multiple elements of the same name with matching attributes and attribute values). */
+  int findItemPositionAmongDuplicates( const QString &nodeText, int itemIndex ) const;
 
   /*! Returns a deep copy of the underlying DOM document. */
   QDomNode cloneDocument() const;

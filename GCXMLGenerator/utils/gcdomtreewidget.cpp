@@ -128,7 +128,7 @@ const QList< GCTreeWidgetItem* > &GCDomTreeWidget::allTreeWidgetItems() const
 
 /*--------------------------------------------------------------------------------------*/
 
-QList< int > GCDomTreeWidget::findIndicesMatching( const QString &nodeText ) const
+int GCDomTreeWidget::findItemPositionAmongDuplicates( const QString &nodeText, int itemIndex ) const
 {
   QList< int > indices;
 
@@ -147,7 +147,13 @@ QList< int > GCDomTreeWidget::findIndicesMatching( const QString &nodeText ) con
     }
   }
 
-  return indices;
+  /* Now that we have a list of all the indices matching identical nodes (indices are a rough
+    indication of an element's position in the DOM and closely matches the "line numbers" of the
+    items in the tree widget), we can determine the position of the selected DOM element relative
+    to its doppelgangers and highlight its text representation in the text edit area. */
+  qSort( indices.begin(), indices.end() );
+
+  return indices.indexOf( itemIndex );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -396,8 +402,7 @@ void GCDomTreeWidget::setCurrentItemWithIndexMatching( int index )
   {
     if( m_items.at( i )->index() == index )
     {
-      setCurrentItem( m_items.at( i ) );
-      emitGcCurrentItemSelected( currentItem(), 0, false );
+      emitGcCurrentItemSelected( m_items.at( i ), 0, false );
       break;
     }
   }

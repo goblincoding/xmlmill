@@ -1190,7 +1190,7 @@ void GCMainWindow::deleteSpinner()
 void GCMainWindow::resetDOM()
 {
   ui->treeWidget->clearAndReset();
-  ui->dockWidgetTextEdit->clear();
+  ui->dockWidgetTextEdit->clearAndReset();
 
   resetTableWidget();
 
@@ -1426,19 +1426,8 @@ void GCMainWindow::highlightTextElement( GCTreeWidgetItem *item )
   if( item )
   {
     QString stringToMatch = item->toString();
-    QList< int > indices = ui->treeWidget->findIndicesMatching( stringToMatch );
-
-    /* Now that we have a list of all the indices matching identical nodes (indices are a rough
-      indication of an element's position in the DOM and closely matches the "line numbers" of the
-      items in the tree widget), we can determine the position of the selected DOM element relative
-      to its doppelgangers and highlight its text representation in the text edit area. */
-    qSort( indices.begin(), indices.end() );
-    ui->dockWidgetTextEdit->moveCursor( QTextCursor::Start );
-
-    for( int i = 0; i <= indices.indexOf( item->index() ); ++i )
-    {
-      ui->dockWidgetTextEdit->find( stringToMatch );
-    }
+    int pos = ui->treeWidget->findItemPositionAmongDuplicates( stringToMatch, item->index() );
+    ui->dockWidgetTextEdit->findTextRelativeToDuplicates( stringToMatch, pos );
   }
 }
 

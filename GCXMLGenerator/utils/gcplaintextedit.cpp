@@ -33,7 +33,8 @@
 /*--------------------------------------------------------------------------------------*/
 
 GCPlainTextEdit::GCPlainTextEdit( QWidget *parent ) :
-  QPlainTextEdit( parent )
+  QPlainTextEdit( parent ),
+  m_cursorPositionChanging( false )
 {
   setAcceptDrops( false );
   setFont( QFont( GCGlobalSpace::FONT, GCGlobalSpace::FONTSIZE ) );
@@ -49,46 +50,78 @@ GCPlainTextEdit::GCPlainTextEdit( QWidget *parent ) :
 
 void GCPlainTextEdit::setContent( const QString &text )
 {
+  m_cursorPositionChanging = true;
+
   /* Squeezing every once of performance out of the text edit...this significantly speeds
     up the loading of large files. */
   setUpdatesEnabled( false );
   setPlainText( text );
   setUpdatesEnabled( true );
+
+  m_cursorPositionChanging = false;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCPlainTextEdit::findTextRelativeToDuplicates( const QString &text, int relativePos )
+{
+  m_cursorPositionChanging = true;
+
+  moveCursor( QTextCursor::Start );
+
+  for( int i = 0; i <= relativePos; ++i )
+  {
+    find( text );
+  }
+
+  m_cursorPositionChanging = false;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCPlainTextEdit::clearAndReset()
+{
+  m_cursorPositionChanging = true;
+  clear();
+  m_cursorPositionChanging = false;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 void GCPlainTextEdit::emitSelectedIndex()
 {
-  int itemNumber = textCursor().blockNumber();
-  bool insideComment = false;
-
-  QTextBlock block = textCursor().block();
-
-  while( block.isValid() && ( block.blockNumber() > 0 ) )
+  if( !m_cursorPositionChanging )
   {
-    /* Check if we just entered a comment block (this is NOT wrong, remember
+    int itemNumber = textCursor().blockNumber();
+    bool insideComment = false;
+
+    QTextBlock block = textCursor().block();
+
+    while( block.isValid() && ( block.blockNumber() > 0 ) )
+    {
+      /* Check if we just entered a comment block (this is NOT wrong, remember
         that we are working our way back up the document, not down). */
-    if( block.text().contains( "-->" ) )
-    {
-      insideComment = true;
+      if( block.text().contains( "-->" ) )
+      {
+        insideComment = true;
+      }
+
+      if( insideComment || block.text().contains( "</" ) )
+      {
+        itemNumber--;
+      }
+
+      /* Check if we are about to exit a comment block. */
+      if( block.text().contains( "<!--" ) )
+      {
+        insideComment = false;
+      }
+
+      block = block.previous();
     }
 
-    if( insideComment || block.text().contains( "</" ) )
-    {
-      itemNumber--;
-    }
-
-    /* Check if we are about to exit a comment block. */
-    if( block.text().contains( "<!--" ) )
-    {
-      insideComment = false;
-    }
-
-    block = block.previous();
+    emit selectedIndex( itemNumber );
   }
-
-  emit selectedIndex( itemNumber );
 }
 
 /*--------------------------------------------------------------------------------------*/

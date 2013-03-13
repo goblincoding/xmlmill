@@ -41,6 +41,12 @@ public:
       for larger documents). */
   void setContent( const QString &text );
 
+  /*! Finds the "relativePos"'s occurrence of "text" within the active document. */
+  void findTextRelativeToDuplicates( const QString &text, int relativePos );
+
+  /*! Resets the internal state of GCPlainTextEdit. */
+  void clearAndReset();
+
 public slots:
   /*! Sets the necessary flags on the text edit to wrap or unwrap text as per user preference. */
   void wrapText( bool wrap );
@@ -51,6 +57,9 @@ signals:
 private slots:
   /*! Activated when the cursor in the plain text edit changes. */
   void emitSelectedIndex();
+
+private:
+  bool m_cursorPositionChanging;
   
 };
 
