@@ -52,7 +52,17 @@ public slots:
   void wrapText( bool wrap );
   
 signals:
+  /*! Emitted when the user clicks or otherwise moves within the text edit.
+      \sa emitSelectedIndex */
   void selectedIndex( int );
+
+  /*! Emitted whenever a selection has been commented out.
+      \sa commentOutSelection */
+  void commentOut( QList< int > );
+
+  /*! Emitted whenever a selection must be "uncommented".
+      \sa uncommentSelection */
+  void uncomment( QList< int > );
 
 private slots:
   /*! Activated when the cursor in the plain text edit changes. */

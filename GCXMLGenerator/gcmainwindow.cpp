@@ -119,6 +119,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 
   connect( ui->wrapTextCheckBox, SIGNAL( clicked( bool ) ), ui->dockWidgetTextEdit, SLOT( wrapText( bool ) ) );
   connect( ui->dockWidgetTextEdit, SIGNAL( selectedIndex( int ) ), ui->treeWidget, SLOT( setCurrentItemWithIndexMatching( int ) ) );
+  connect( ui->dockWidgetTextEdit, SIGNAL( commentOut( QList<int> ) ), this, SLOT( commentOut( QList< int > ) ) );
 
   /* Help related. */
   connect( ui->actionShowHelpButtons, SIGNAL( triggered( bool ) ), this, SLOT( setShowHelpButtons( bool ) ) );
@@ -1063,6 +1064,14 @@ void GCMainWindow::itemFound( GCTreeWidgetItem *item )
   ui->treeWidget->expandAll();
   ui->treeWidget->setCurrentItem( item );
   elementSelected( item, 0 );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::commentOut( QList< int > indices )
+{
+  m_fileContentsChanged = true;
+  ui->treeWidget->commentOut( indices );
 }
 
 /*--------------------------------------------------------------------------------------*/

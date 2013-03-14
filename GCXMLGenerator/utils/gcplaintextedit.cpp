@@ -112,6 +112,7 @@ void GCPlainTextEdit::emitSelectedIndex()
   if( !m_cursorPositionChanging )
   {
     int itemNumber = textCursor().blockNumber();
+    int errorCounter = 0;
     bool insideComment = false;
 
     QTextBlock block = textCursor().block();
@@ -123,6 +124,7 @@ void GCPlainTextEdit::emitSelectedIndex()
         that we are working our way back up the document, not down). */
       if( block.text().contains( CLOSECOMMENT ) )
       {
+        errorCounter = 0;
         insideComment = true;
       }
 
@@ -134,9 +136,17 @@ void GCPlainTextEdit::emitSelectedIndex()
       /* Check if we are about to exit a comment block. */
       if( block.text().contains( OPENCOMMENT ) )
       {
+        /* If we are exiting but we never entered, then we need to compensate for the
+          subtractions we've done erroneously. */
+        if( !insideComment )
+        {
+          itemNumber -= errorCounter;
+        }
+
         insideComment = false;
       }
 
+      errorCounter++;
       block = block.previous();
     }
 
@@ -208,6 +218,7 @@ void GCPlainTextEdit::commentOutSelection()
   cursor.endEditBlock();
 
   setTextCursor( cursor );
+  emit commentOut( indices );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -276,6 +287,7 @@ void GCPlainTextEdit::uncommentSelection()
   cursor.endEditBlock();
 
   setTextCursor( cursor );
+  emit uncomment( indices );
 }
 
 /*--------------------------------------------------------------------------------------*/

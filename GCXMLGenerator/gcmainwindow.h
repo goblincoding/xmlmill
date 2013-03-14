@@ -285,6 +285,10 @@ private slots:
       \sa searchDocument */
   void itemFound( GCTreeWidgetItem *item );
 
+  /*! Connected to GCPlainTextEdit's "commentOut" signal. Removes the items with indices matching those
+      in the parameter list from the tree as well as from the DOM document. */
+  void commentOut( QList< int > indices );
+
   /*! itemFound the "Revert Manual Changes" button's "clicked()" signal.  This slot will revert all manual
       changes to the active document made BEFORE the changes are saved (i.e. it isn't a classic "undo" button).
       \sa saveDirectEdit */

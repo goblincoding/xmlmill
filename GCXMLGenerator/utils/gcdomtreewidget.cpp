@@ -394,6 +394,51 @@ void GCDomTreeWidget::addComment( GCTreeWidgetItem *item, const QString &text )
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCDomTreeWidget::commentOut( QList< int > &indices )
+{
+  QList< GCTreeWidgetItem* > itemsToRemove;
+
+  /* It is possible that a set of indices may not necessarily be concurrent (e.g. selections
+    made with Ctrl and/or Shift options) so we need to cycle through everything, unfortunately. */
+  for( int i = 0; i < m_items.size(); ++i )
+  {
+    GCTreeWidgetItem *item = m_items.at( i );
+
+    for( int j = 0; j < indices.size(); ++j)
+    {
+      if( item->index() == indices.at( j ) )
+      {
+        /* Remove the element from the DOM first. */
+        QDomNode parentNode = item->element().parentNode();
+        parentNode.removeChild( item->element() );
+
+        /* Now whack it. */
+        if( item->gcParent() )
+        {
+          GCTreeWidgetItem *parentItem = item->gcParent();
+          parentItem->removeChild( item );
+        }
+        else
+        {
+          invisibleRootItem()->removeChild( item );
+        }
+
+        itemsToRemove.append( item );
+      }
+    }
+  }
+
+  for( int i = 0; i < itemsToRemove.size(); ++i )
+  {
+    m_items.removeAll( itemsToRemove.at( i ) );
+  }
+
+  m_isEmpty = m_items.isEmpty();
+  updateIndices();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCDomTreeWidget::setCurrentItemWithIndexMatching( int index )
 {
   index = ( index < 0 ) ? 0 : index;

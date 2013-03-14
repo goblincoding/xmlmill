@@ -145,6 +145,10 @@ public:
       \sa insertItem */
   void addComment( GCTreeWidgetItem* item, const QString &text );
 
+  /*! Removes the items with indices matching those in the parameter list from the tree
+      as well as from the DOM document. */
+  void commentOut( QList< int > &indices );
+
   /*! Iterates through the tree and sets all items' check states to "state". */
   void setAllCheckStates( Qt::CheckState state );
 
