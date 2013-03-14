@@ -103,9 +103,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   /* Build/Edit XML. */
   connect( ui->addChildElementButton, SIGNAL( clicked() ), this, SLOT( addElementToDocument() ) );
   connect( ui->addSnippetButton, SIGNAL( clicked() ), this, SLOT( addSnippetToDocument() ) );
-  connect( ui->textSaveButton, SIGNAL( clicked() ), this, SLOT( saveDirectEdit() ) );
-  connect( ui->textRevertButton, SIGNAL( clicked() ), this, SLOT( revertDirectEdit() ) );
-  connect( ui->showDomEditHelpButton, SIGNAL( clicked() ), this, SLOT( showDOMEditHelp() ) );
 
   /* Various other actions. */
   connect( ui->actionExit, SIGNAL( triggered() ), this, SLOT( close() ) );
@@ -119,7 +116,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 
   connect( ui->wrapTextCheckBox, SIGNAL( clicked( bool ) ), ui->dockWidgetTextEdit, SLOT( wrapText( bool ) ) );
   connect( ui->dockWidgetTextEdit, SIGNAL( selectedIndex( int ) ), ui->treeWidget, SLOT( setCurrentItemWithIndexMatching( int ) ) );
-  connect( ui->dockWidgetTextEdit, SIGNAL( commentOut( QList<int> ) ), this, SLOT( commentOut( QList< int > ) ) );
+  connect( ui->dockWidgetTextEdit, SIGNAL( commentOut( const QList< int >& ) ), this, SLOT( commentOut( const QList< int >& ) ) );
 
   /* Help related. */
   connect( ui->actionShowHelpButtons, SIGNAL( triggered( bool ) ), this, SLOT( setShowHelpButtons( bool ) ) );
@@ -1068,67 +1065,10 @@ void GCMainWindow::itemFound( GCTreeWidgetItem *item )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::commentOut( QList< int > indices )
+void GCMainWindow::commentOut( const QList< int > &indices )
 {
   m_fileContentsChanged = true;
   ui->treeWidget->commentOut( indices );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::revertDirectEdit()
-{
-  setTextEditContent();
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCMainWindow::saveDirectEdit()
-{
-  QString xmlErr( "" );
-  int     line  ( -1 );
-  int     col   ( -1 );
-
-  /* Create a temporary document so that we do not mess with the contents
-    of the tree item node map and current DOM if the new XML is broken. */
-  QDomDocument doc;
-  if( !doc.setContent( ui->dockWidgetTextEdit->toPlainText(), &xmlErr, &line, &col ) )
-  {
-    QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3]." )
-                       .arg( xmlErr )
-                       .arg( line )
-                       .arg( col );
-    GCMessageSpace::showErrorMessageBox( this, errorMsg );
-
-    /* Unfortunately the line number returned by the DOM doc doesn't match up with what's
-      visible in the QTextEdit.  It seems as if it's mostly off by two lines.  For now it's a
-      fix, but will have to figure out how to make sure that we highlight the correct lines.
-      Ultimately this finds the broken XML and highlights it in red...what a mission... */
-    QTextBlock textBlock = ui->dockWidgetTextEdit->document()->findBlockByLineNumber( line - 2 );
-    QTextCursor cursor( textBlock );
-    cursor.movePosition( QTextCursor::NextWord );
-    cursor.movePosition( QTextCursor::EndOfBlock, QTextCursor::KeepAnchor );
-
-    QTextEdit::ExtraSelection highlight;
-    highlight.cursor = cursor;
-    highlight.format.setBackground( QColor( 220, 150, 220 ) );
-    highlight.format.setProperty  ( QTextFormat::FullWidthSelection, true );
-
-    QList< QTextEdit::ExtraSelection > extras;
-    extras << highlight;
-    ui->dockWidgetTextEdit->setExtraSelections( extras );
-    ui->dockWidgetTextEdit->ensureCursorVisible();
-  }
-  else
-  {
-    ui->treeWidget->setContent( ui->dockWidgetTextEdit->toPlainText() );
-
-    /* The reason we import the saved XML to the database is that the user may have
-      added elements and/or attributes that we don't know about.  If we don't do this,
-      the current document and active profile will be out of sync and all kinds of chaos
-      will ensue. */
-    importXMLToDatabase();
-  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1269,15 +1209,6 @@ void GCMainWindow::showEmptyProfileHelp()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::showDOMEditHelp()
-{
-  QMessageBox::information( this,
-                            "Direct Edits",
-                            "Changes to manually edited XML can only be reverted BEFORE you save." );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 void GCMainWindow::showCommentHelp()
 {
   QMessageBox::information( this,
@@ -1370,7 +1301,6 @@ void GCMainWindow::setShowHelpButtons( bool show )
   GCGlobalSpace::setShowHelpButtons( show );
   ui->showAddElementHelpButton->setVisible( show );
   ui->showCommentHelpButton->setVisible( show );
-  ui->showDomEditHelpButton->setVisible( show );
 }
 
 /*--------------------------------------------------------------------------------------*/

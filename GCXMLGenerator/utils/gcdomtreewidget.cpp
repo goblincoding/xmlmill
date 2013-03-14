@@ -394,7 +394,7 @@ void GCDomTreeWidget::addComment( GCTreeWidgetItem *item, const QString &text )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::commentOut( QList< int > &indices )
+void GCDomTreeWidget::commentOut( const QList< int > &indices )
 {
   QList< GCTreeWidgetItem* > itemsToRemove;
 

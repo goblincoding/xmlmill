@@ -365,6 +365,9 @@
           <property name="horizontalScrollBarPolicy">
            <enum>Qt::ScrollBarAsNeeded</enum>
           </property>
+          <property name="textInteractionFlags">
+           <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+          </property>
          </widget>
         </item>
         <item>
@@ -397,43 +400,6 @@
              </size>
             </property>
            </spacer>
-          </item>
-          <item>
-           <widget class="QPushButton" name="textSaveButton">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Save Manual Changes</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="textRevertButton">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Revert Manual Changes</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="showDomEditHelpButton">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset resource="resources/gcresources.qrc">
-              <normaloff>:/resources/helpicon.png</normaloff>:/resources/helpicon.png</iconset>
-            </property>
-           </widget>
           </item>
          </layout>
         </item>
@@ -815,9 +781,6 @@
   <tabstop>tableWidget</tabstop>
   <tabstop>expandAllCheckBox</tabstop>
   <tabstop>dockWidgetTextEdit</tabstop>
-  <tabstop>textSaveButton</tabstop>
-  <tabstop>textRevertButton</tabstop>
-  <tabstop>showDomEditHelpButton</tabstop>
  </tabstops>
  <resources>
   <include location="resources/gcresources.qrc"/>
