@@ -35,19 +35,29 @@
 
 /*--------------------------------------------------------------------------------------*/
 
+const QString OPENCOMMENT( "<!--" );
+const QString CLOSECOMMENT( "-->" );
+
+/*--------------------------------------------------------------------------------------*/
+
 GCPlainTextEdit::GCPlainTextEdit( QWidget *parent ) :
   QPlainTextEdit( parent ),
-  m_disable     ( NULL ),
+  m_comment     ( NULL ),
+  m_uncomment   ( NULL ),
   m_cursorPositionChanging( false )
 {
   setAcceptDrops( false );
   setFont( QFont( GCGlobalSpace::FONT, GCGlobalSpace::FONTSIZE ) );
   setCenterOnScroll( true );
-
-  m_disable = new QAction( "Comment Out", this );
   setContextMenuPolicy( Qt::CustomContextMenu );
-  connect( this, SIGNAL( customContextMenuRequested( const QPoint& ) ), this, SLOT( showContextMenu( const QPoint& ) ) );
 
+  m_comment = new QAction( "Comment Out", this );
+  m_uncomment = new QAction( "Uncomment", this );
+
+  connect( m_comment, SIGNAL( triggered() ), this, SLOT( commentOutSelection() ) );
+  connect( m_uncomment, SIGNAL( triggered() ), this, SLOT( uncommentSelection() ) );
+
+  connect( this, SIGNAL( customContextMenuRequested( const QPoint& ) ), this, SLOT( showContextMenu( const QPoint& ) ) );
   connect( this, SIGNAL( cursorPositionChanged() ), this, SLOT( emitSelectedIndex() ) );
 
   /* Everything happens automagically and the text edit takes ownership. */
@@ -106,11 +116,12 @@ void GCPlainTextEdit::emitSelectedIndex()
 
     QTextBlock block = textCursor().block();
 
-    while( block.isValid() && ( block.blockNumber() > 0 ) )
+    while( block.isValid() &&
+           block.blockNumber() > 0 )
     {
       /* Check if we just entered a comment block (this is NOT wrong, remember
         that we are working our way back up the document, not down). */
-      if( block.text().contains( "-->" ) )
+      if( block.text().contains( CLOSECOMMENT ) )
       {
         insideComment = true;
       }
@@ -121,7 +132,7 @@ void GCPlainTextEdit::emitSelectedIndex()
       }
 
       /* Check if we are about to exit a comment block. */
-      if( block.text().contains( "<!--" ) )
+      if( block.text().contains( OPENCOMMENT ) )
       {
         insideComment = false;
       }
@@ -139,9 +150,132 @@ void GCPlainTextEdit::showContextMenu( const QPoint &point )
 {
   QMenu *menu = createStandardContextMenu();
   menu->addSeparator();
-  menu->addAction( m_disable );
+  menu->addAction( m_comment );
+  menu->addAction( m_uncomment );
   menu->exec( mapToGlobal( point ) );
   delete menu;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCPlainTextEdit::commentOutSelection()
+{
+  int selectionStart = textCursor().selectionStart();
+  int selectionEnd = textCursor().selectionEnd();
+
+  QTextCursor cursor = textCursor();
+  cursor.setPosition( selectionStart );
+  cursor.movePosition( QTextCursor::StartOfBlock );
+
+  QList< int > indices;
+  bool insideComment = false;
+  QTextBlock block = cursor.block();
+
+  while( block.isValid() &&
+         cursor.position() <= selectionEnd )
+  {
+    /* Check if we just entered a comment block. */
+    if( block.text().contains( OPENCOMMENT ) )
+    {
+      insideComment = true;
+    }
+
+    if( !insideComment &&
+        !block.text().contains( "</" ) )
+    {
+      indices.append( block.blockNumber() );
+    }
+
+    /* Check if we are about to exit a comment block. */
+    if( block.text().contains( CLOSECOMMENT ) )
+    {
+      insideComment = false;
+    }
+
+    cursor.setPosition( block.position() );
+    block = block.next();
+  }
+
+  cursor.setPosition( selectionStart );
+  cursor.beginEditBlock();
+  cursor.insertText( OPENCOMMENT );
+  cursor.endEditBlock();
+
+  cursor.setPosition( selectionEnd );
+  cursor.movePosition( QTextCursor::EndOfBlock );
+  cursor.beginEditBlock();
+  cursor.insertText( CLOSECOMMENT );
+  cursor.endEditBlock();
+
+  setTextCursor( cursor );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCPlainTextEdit::uncommentSelection()
+{
+  int selectionStart = textCursor().selectionStart();
+  int selectionEnd = textCursor().selectionEnd();
+
+  QTextCursor cursor = textCursor();
+  cursor.setPosition( selectionStart );
+  cursor.movePosition( QTextCursor::StartOfBlock );
+
+  QList< int > indices;
+  bool insideComment = false;
+  QTextBlock block = cursor.block();
+
+  while( block.isValid() &&
+         cursor.position() <= selectionEnd )
+  {
+    /* Check if we just entered a comment block. */
+    if( block.text().contains( OPENCOMMENT ) )
+    {
+      insideComment = true;
+    }
+
+    if( !insideComment &&
+        !block.text().contains( "</" ) )
+    {
+      indices.append( block.blockNumber() );
+    }
+
+    /* Check if we are about to exit a comment block. */
+    if( block.text().contains( CLOSECOMMENT ) )
+    {
+      insideComment = false;
+    }
+
+    cursor.setPosition( block.position() );
+    block = block.next();
+  }
+
+  cursor.setPosition( selectionStart );
+  cursor.beginEditBlock();
+
+  QString text = cursor.block().text();
+  text.remove( OPENCOMMENT );
+
+  cursor.select( QTextCursor::BlockUnderCursor );
+  cursor.removeSelectedText();
+  cursor.insertBlock();
+  cursor.insertText( text );
+  cursor.endEditBlock();
+
+  cursor.setPosition( selectionEnd );
+  cursor.movePosition( QTextCursor::PreviousBlock );
+  cursor.beginEditBlock();
+
+  text = cursor.block().text();
+  text.remove( CLOSECOMMENT );
+
+  cursor.select( QTextCursor::BlockUnderCursor );
+  cursor.removeSelectedText();
+  cursor.insertBlock();
+  cursor.insertText( text );
+  cursor.endEditBlock();
+
+  setTextCursor( cursor );
 }
 
 /*--------------------------------------------------------------------------------------*/

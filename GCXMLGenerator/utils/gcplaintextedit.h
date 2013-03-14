@@ -61,8 +61,15 @@ private slots:
   /*! Shows the default context menu with some additional actions added. */
   void showContextMenu( const QPoint &point );
 
+  /*! Determines the selection that needs to be commented out. */
+  void commentOutSelection();
+
+  /*! Uncomments a selection that's currently commented out. */
+  void uncommentSelection();
+
 private:
-  QAction *m_disable;
+  QAction *m_comment;
+  QAction *m_uncomment;
   bool m_cursorPositionChanging;
   
 };
