@@ -208,15 +208,14 @@ void GCPlainTextEdit::commentOutSelection()
 
 void GCPlainTextEdit::uncommentSelection()
 {
+  QString selectedText = textCursor().selectedText();
+
   int selectionStart = textCursor().selectionStart();
   int selectionEnd = textCursor().selectionEnd();
 
   QTextCursor cursor = textCursor();
   cursor.setPosition( selectionStart );
   cursor.movePosition( QTextCursor::StartOfBlock );
-
-  populateCommentIndexList( cursor, selectionEnd );
-
   cursor.setPosition( selectionStart );
   cursor.beginEditBlock();
 
@@ -246,7 +245,12 @@ void GCPlainTextEdit::uncommentSelection()
 
   if( confirmDomNotBroken() )
   {
-    emit uncomment( m_commentIndices );
+    selectedText.remove( OPENCOMMENT );
+    selectedText.remove( CLOSECOMMENT );
+
+    QDomDocument doc;
+    doc.setContent( selectedText );
+    emit uncomment( doc.documentElement().cloneNode().toElement() );
   }
 }
 

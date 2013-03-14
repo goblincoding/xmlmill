@@ -117,6 +117,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->wrapTextCheckBox, SIGNAL( clicked( bool ) ), ui->dockWidgetTextEdit, SLOT( wrapText( bool ) ) );
   connect( ui->dockWidgetTextEdit, SIGNAL( selectedIndex( int ) ), ui->treeWidget, SLOT( setCurrentItemWithIndexMatching( int ) ) );
   connect( ui->dockWidgetTextEdit, SIGNAL( commentOut( const QList< int >& ) ), this, SLOT( commentOut( const QList< int >& ) ) );
+  connect( ui->dockWidgetTextEdit, SIGNAL( uncomment( QDomElement ) ), this, SLOT( uncomment( QDomElement ) ) );
 
   /* Help related. */
   connect( ui->actionShowHelpButtons, SIGNAL( triggered( bool ) ), this, SLOT( setShowHelpButtons( bool ) ) );
@@ -1069,6 +1070,13 @@ void GCMainWindow::commentOut( const QList< int > &indices )
 {
   m_fileContentsChanged = true;
   ui->treeWidget->commentOut( indices );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::uncomment( QDomElement element )
+{
+  insertSnippet( ui->treeWidget->gcCurrentItem(), element );
 }
 
 /*--------------------------------------------------------------------------------------*/

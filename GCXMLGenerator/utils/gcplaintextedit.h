@@ -30,6 +30,7 @@
 #define GCPLAINTEXTEDIT_H
 
 #include <QPlainTextEdit>
+#include <QDomElement>
 
 class GCPlainTextEdit : public QPlainTextEdit
 {
@@ -62,7 +63,7 @@ signals:
 
   /*! Emitted whenever a selection must be "uncommented".
       \sa uncommentSelection */
-  void uncomment( const QList< int >& );
+  void uncomment( QDomElement element );
 
 protected:
   /*! Re-implemented from QPlainTextEdit. */
