@@ -58,11 +58,15 @@ signals:
 
   /*! Emitted whenever a selection has been commented out.
       \sa commentOutSelection */
-  void commentOut( QList< int > );
+  void commentOut( const QList< int >& );
 
   /*! Emitted whenever a selection must be "uncommented".
       \sa uncommentSelection */
-  void uncomment( QList< int > );
+  void uncomment( const QList< int >& );
+
+protected:
+  /*! Re-implemented from QPlainTextEdit. */
+  void keyPressEvent( QKeyEvent *e );
 
 private slots:
   /*! Activated when the cursor in the plain text edit changes. */
@@ -77,9 +81,18 @@ private slots:
   /*! Uncomments a selection that's currently commented out. */
   void uncommentSelection();
 
+  /*! Determines the indices involved in "Comment Out" and "Uncomment" operations. */
+  void populateCommentIndexList( QTextCursor &cursor, int selectionEnd );
+
+  /*! Check if the DOM got broken when the user commented or uncommented sections. */
+  bool confirmDomNotBroken();
+
 private:
+  QList< int > m_commentIndices;
+  QBrush   m_savedPalette;
   QAction *m_comment;
   QAction *m_uncomment;
+  bool m_undoAvailable;
   bool m_cursorPositionChanging;
   
 };

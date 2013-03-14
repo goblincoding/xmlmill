@@ -29,9 +29,11 @@
 #include "gcplaintextedit.h"
 #include "xml/xmlsyntaxhighlighter.h"
 #include "utils/gcglobalspace.h"
+#include "utils/gcmessagespace.h"
 
 #include <QMenu>
 #include <QAction>
+#include <QDomDocument>
 
 /*--------------------------------------------------------------------------------------*/
 
@@ -41,14 +43,18 @@ const QString CLOSECOMMENT( "-->" );
 /*--------------------------------------------------------------------------------------*/
 
 GCPlainTextEdit::GCPlainTextEdit( QWidget *parent ) :
-  QPlainTextEdit( parent ),
-  m_comment     ( NULL ),
-  m_uncomment   ( NULL ),
+  QPlainTextEdit  ( parent ),
+  m_commentIndices(),
+  m_savedPalette  (),
+  m_comment       ( NULL ),
+  m_uncomment     ( NULL ),
+  m_undoAvailable ( false ),
   m_cursorPositionChanging( false )
 {
   setAcceptDrops( false );
   setFont( QFont( GCGlobalSpace::FONT, GCGlobalSpace::FONTSIZE ) );
   setCenterOnScroll( true );
+  setTextInteractionFlags( Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard );
   setContextMenuPolicy( Qt::CustomContextMenu );
 
   m_comment = new QAction( "Comment Out", this );
@@ -177,34 +183,7 @@ void GCPlainTextEdit::commentOutSelection()
   cursor.setPosition( selectionStart );
   cursor.movePosition( QTextCursor::StartOfBlock );
 
-  QList< int > indices;
-  bool insideComment = false;
-  QTextBlock block = cursor.block();
-
-  while( block.isValid() &&
-         cursor.position() <= selectionEnd )
-  {
-    /* Check if we just entered a comment block. */
-    if( block.text().contains( OPENCOMMENT ) )
-    {
-      insideComment = true;
-    }
-
-    if( !insideComment &&
-        !block.text().contains( "</" ) )
-    {
-      indices.append( block.blockNumber() );
-    }
-
-    /* Check if we are about to exit a comment block. */
-    if( block.text().contains( CLOSECOMMENT ) )
-    {
-      insideComment = false;
-    }
-
-    cursor.setPosition( block.position() );
-    block = block.next();
-  }
+  populateCommentIndexList( cursor, selectionEnd );
 
   cursor.setPosition( selectionStart );
   cursor.beginEditBlock();
@@ -218,7 +197,11 @@ void GCPlainTextEdit::commentOutSelection()
   cursor.endEditBlock();
 
   setTextCursor( cursor );
-  emit commentOut( indices );
+
+  if( confirmDomNotBroken() )
+  {
+    emit commentOut( m_commentIndices );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -232,34 +215,7 @@ void GCPlainTextEdit::uncommentSelection()
   cursor.setPosition( selectionStart );
   cursor.movePosition( QTextCursor::StartOfBlock );
 
-  QList< int > indices;
-  bool insideComment = false;
-  QTextBlock block = cursor.block();
-
-  while( block.isValid() &&
-         cursor.position() <= selectionEnd )
-  {
-    /* Check if we just entered a comment block. */
-    if( block.text().contains( OPENCOMMENT ) )
-    {
-      insideComment = true;
-    }
-
-    if( !insideComment &&
-        !block.text().contains( "</" ) )
-    {
-      indices.append( block.blockNumber() );
-    }
-
-    /* Check if we are about to exit a comment block. */
-    if( block.text().contains( CLOSECOMMENT ) )
-    {
-      insideComment = false;
-    }
-
-    cursor.setPosition( block.position() );
-    block = block.next();
-  }
+  populateCommentIndexList( cursor, selectionEnd );
 
   cursor.setPosition( selectionStart );
   cursor.beginEditBlock();
@@ -287,7 +243,95 @@ void GCPlainTextEdit::uncommentSelection()
   cursor.endEditBlock();
 
   setTextCursor( cursor );
-  emit uncomment( indices );
+
+  if( confirmDomNotBroken() )
+  {
+    emit uncomment( m_commentIndices );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCPlainTextEdit::populateCommentIndexList( QTextCursor &cursor, int selectionEnd )
+{
+  m_commentIndices.clear();
+
+  bool insideComment = false;
+  QTextBlock block = cursor.block();
+
+  while( block.isValid() &&
+         cursor.position() <= selectionEnd )
+  {
+    /* Check if we just entered a comment block. */
+    if( block.text().contains( OPENCOMMENT ) )
+    {
+      insideComment = true;
+    }
+
+    if( !insideComment &&
+        !block.text().contains( "</" ) )
+    {
+      m_commentIndices.append( block.blockNumber() );
+    }
+
+    /* Check if we are about to exit a comment block. */
+    if( block.text().contains( CLOSECOMMENT ) )
+    {
+      insideComment = false;
+    }
+
+    cursor.setPosition( block.position() );
+    block = block.next();
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCPlainTextEdit::confirmDomNotBroken()
+{
+  QString xmlErr( "" );
+  int     line  ( -1 );
+  int     col   ( -1 );
+
+  /* Create a temporary document so that we do not mess with the contents
+    of the tree item node map and current DOM if the new XML is broken. */
+  QDomDocument doc;
+
+  if( !doc.setContent( toPlainText(), &xmlErr, &line, &col ) )
+  {
+    QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3].\n\n"
+                                "Please \"Undo\" and try again." )
+                       .arg( xmlErr )
+                       .arg( line )
+                       .arg( col );
+    GCMessageSpace::showErrorMessageBox( this, errorMsg );
+
+    /* Unfortunately the line number returned by the DOM doc doesn't match up with what's
+      visible in the QTextEdit.  It seems as if it's mostly off by one line.  For now it's a
+      fix, but will have to figure out how to make sure that we highlight the correct lines.
+      Ultimately this finds the broken XML and highlights it in red...what a mission... */
+    QTextBlock textBlock = document()->findBlockByLineNumber( line - 1 );
+    QTextCursor cursor( textBlock );
+    cursor.movePosition( QTextCursor::NextWord );
+    cursor.movePosition( QTextCursor::EndOfBlock, QTextCursor::KeepAnchor );
+
+    m_savedPalette = cursor.blockCharFormat().background();
+
+    QTextEdit::ExtraSelection highlight;
+    highlight.cursor = cursor;
+    highlight.format.setBackground( QColor( 220, 150, 220 ) );
+    highlight.format.setProperty  ( QTextFormat::FullWidthSelection, true );
+
+    QList< QTextEdit::ExtraSelection > extras;
+    extras << highlight;
+    setExtraSelections( extras );
+    ensureCursorVisible();
+
+    m_undoAvailable = true;
+    return false;
+  }
+
+  return true;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -301,6 +345,32 @@ void GCPlainTextEdit::wrapText( bool wrap )
   else
   {
     setLineWrapMode( QPlainTextEdit::NoWrap );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCPlainTextEdit::keyPressEvent( QKeyEvent *e )
+{
+  if( e->matches( QKeySequence::Undo ) && m_undoAvailable )
+  {
+    /* Not a typo, comment opening and closing brackets are matching pairs, undo in one go. */
+    undo();
+    undo();
+
+    QTextEdit::ExtraSelection highlight;
+    highlight.cursor = textCursor();
+    highlight.format.setBackground( m_savedPalette );
+    highlight.format.setProperty  ( QTextFormat::FullWidthSelection, true );
+
+    QList< QTextEdit::ExtraSelection > extras;
+    extras << highlight;
+    setExtraSelections( extras );
+    m_undoAvailable = false;
+  }
+  else
+  {
+    QPlainTextEdit::keyPressEvent( e );
   }
 }
 
