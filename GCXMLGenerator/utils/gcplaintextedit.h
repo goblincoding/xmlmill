@@ -82,14 +82,14 @@ private slots:
   /*! Uncomments a selection that's currently commented out. */
   void uncommentSelection();
 
-  /*! Determines the indices involved in "Comment Out" and "Uncomment" operations. */
-  void populateCommentIndexList( QTextCursor &cursor, int selectionEnd );
-
   /*! Check if the DOM got broken when the user commented or uncommented sections. */
   bool confirmDomNotBroken();
 
+  /*! Accounts for non-active document aspects (comments and element closing brackets),
+      to determine the index corresponding to a specific block number. */
+  int findIndexMatchingBlockNumber( int blockNumber );
+
 private:
-  QList< int > m_commentIndices;
   QBrush   m_savedPalette;
   QAction *m_comment;
   QAction *m_uncomment;

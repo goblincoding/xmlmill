@@ -44,7 +44,6 @@ const QString CLOSECOMMENT( "-->" );
 
 GCPlainTextEdit::GCPlainTextEdit( QWidget *parent ) :
   QPlainTextEdit  ( parent ),
-  m_commentIndices(),
   m_savedPalette  (),
   m_comment       ( NULL ),
   m_uncomment     ( NULL ),
@@ -117,46 +116,7 @@ void GCPlainTextEdit::emitSelectedIndex()
 {
   if( !m_cursorPositionChanging )
   {
-    int itemNumber = textCursor().blockNumber();
-    int errorCounter = 0;
-    bool insideComment = false;
-
-    QTextBlock block = textCursor().block();
-
-    while( block.isValid() &&
-           block.blockNumber() > 0 )
-    {
-      /* Check if we just entered a comment block (this is NOT wrong, remember
-        that we are working our way back up the document, not down). */
-      if( block.text().contains( CLOSECOMMENT ) )
-      {
-        errorCounter = 0;
-        insideComment = true;
-      }
-
-      if( insideComment || block.text().contains( "</" ) )
-      {
-        itemNumber--;
-      }
-
-      /* Check if we are about to exit a comment block. */
-      if( block.text().contains( OPENCOMMENT ) )
-      {
-        /* If we are exiting but we never entered, then we need to compensate for the
-          subtractions we've done erroneously. */
-        if( !insideComment )
-        {
-          itemNumber -= errorCounter;
-        }
-
-        insideComment = false;
-      }
-
-      errorCounter++;
-      block = block.previous();
-    }
-
-    emit selectedIndex( itemNumber );
+    emit selectedIndex( findIndexMatchingBlockNumber( textCursor().blockNumber() ) );
   }
 }
 
@@ -180,10 +140,24 @@ void GCPlainTextEdit::commentOutSelection()
   int selectionEnd = textCursor().selectionEnd();
 
   QTextCursor cursor = textCursor();
+  cursor.setPosition( selectionEnd );
+  cursor.movePosition( QTextCursor::EndOfBlock );
+
+  int finalBlockNumber = cursor.blockNumber();
+
   cursor.setPosition( selectionStart );
   cursor.movePosition( QTextCursor::StartOfBlock );
 
-  populateCommentIndexList( cursor, selectionEnd );
+  QList< int > indices;
+  QTextBlock block = cursor.block();
+
+  while( block.isValid() &&
+         block.blockNumber() <= finalBlockNumber )
+  {
+    indices.append( findIndexMatchingBlockNumber( block.blockNumber() ) );
+    block = block.next();
+    cursor.setPosition( block.position() );
+  }
 
   cursor.setPosition( selectionStart );
   cursor.beginEditBlock();
@@ -200,7 +174,7 @@ void GCPlainTextEdit::commentOutSelection()
 
   if( confirmDomNotBroken() )
   {
-    emit commentOut( m_commentIndices );
+    emit commentOut( indices );
   }
 }
 
@@ -256,41 +230,6 @@ void GCPlainTextEdit::uncommentSelection()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCPlainTextEdit::populateCommentIndexList( QTextCursor &cursor, int selectionEnd )
-{
-  m_commentIndices.clear();
-
-  bool insideComment = false;
-  QTextBlock block = cursor.block();
-
-  while( block.isValid() &&
-         cursor.position() <= selectionEnd )
-  {
-    /* Check if we just entered a comment block. */
-    if( block.text().contains( OPENCOMMENT ) )
-    {
-      insideComment = true;
-    }
-
-    if( !insideComment &&
-        !block.text().contains( "</" ) )
-    {
-      m_commentIndices.append( block.blockNumber() );
-    }
-
-    /* Check if we are about to exit a comment block. */
-    if( block.text().contains( CLOSECOMMENT ) )
-    {
-      insideComment = false;
-    }
-
-    cursor.setPosition( block.position() );
-    block = block.next();
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 bool GCPlainTextEdit::confirmDomNotBroken()
 {
   QString xmlErr( "" );
@@ -336,6 +275,53 @@ bool GCPlainTextEdit::confirmDomNotBroken()
   }
 
   return true;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+int GCPlainTextEdit::findIndexMatchingBlockNumber( int blockNumber )
+{
+  int itemNumber = blockNumber;
+  int errorCounter = 0;
+  bool insideComment = false;
+
+  QTextBlock block = textCursor().block();
+
+  while( block.isValid() &&
+         block.blockNumber() > 0 )
+  {
+    /* Check if we just entered a comment block (this is NOT wrong, remember
+      that we are working our way back up the document, not down). */
+    if( block.text().contains( CLOSECOMMENT ) )
+    {
+      errorCounter = 0;
+      insideComment = true;
+    }
+
+    if( insideComment ||
+        block.text().contains( "</" ) )
+    {
+      itemNumber--;
+    }
+
+    /* Check if we are about to exit a comment block. */
+    if( block.text().contains( OPENCOMMENT ) )
+    {
+      /* If we are exiting but we never entered, then we need to compensate for the
+        subtractions we've done erroneously. */
+      if( !insideComment )
+      {
+        itemNumber -= errorCounter;
+      }
+
+      insideComment = false;
+    }
+
+    errorCounter++;
+    block = block.previous();
+  }
+
+  return itemNumber;
 }
 
 /*--------------------------------------------------------------------------------------*/
