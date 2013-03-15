@@ -56,8 +56,8 @@ GCPlainTextEdit::GCPlainTextEdit( QWidget *parent ) :
   setTextInteractionFlags( Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard );
   setContextMenuPolicy( Qt::CustomContextMenu );
 
-  m_comment = new QAction( "Comment Out", this );
-  m_uncomment = new QAction( "Uncomment", this );
+  m_comment = new QAction( "Comment Out Selection", this );
+  m_uncomment = new QAction( "Uncomment Selection", this );
 
   connect( m_comment, SIGNAL( triggered() ), this, SLOT( commentOutSelection() ) );
   connect( m_uncomment, SIGNAL( triggered() ), this, SLOT( uncommentSelection() ) );
@@ -187,15 +187,15 @@ void GCPlainTextEdit::uncommentSelection()
 {
   m_cursorPositionChanging = true;
 
+  /* We need to capture this text way in the beginning before we start
+    messing with cursor positions, etc. */
   QString selectedText = textCursor().selectedText();
-
   int selectionStart = textCursor().selectionStart();
   int selectionEnd = textCursor().selectionEnd();
 
   QTextCursor cursor = textCursor();
   cursor.setPosition( selectionStart );
   cursor.movePosition( QTextCursor::StartOfBlock );
-  cursor.setPosition( selectionStart );
   cursor.beginEditBlock();
 
   QString text = cursor.block().text();
@@ -220,6 +220,13 @@ void GCPlainTextEdit::uncommentSelection()
   cursor.insertText( text );
   cursor.endEditBlock();
 
+  m_cursorPositionChanging = false;
+
+  /* Move the cursor back to the beginning of the selection and then up to
+    the previous block (this is the parent element) to ensure that the correct
+    element is highlighted in the tree when we add the snippet. */
+  cursor.setPosition( selectionStart );
+  cursor.movePosition( QTextCursor::PreviousBlock );
   setTextCursor( cursor );
 
   if( confirmDomNotBroken() )
@@ -231,8 +238,6 @@ void GCPlainTextEdit::uncommentSelection()
     doc.setContent( selectedText );
     emit uncomment( doc.documentElement().cloneNode().toElement() );
   }
-
-  m_cursorPositionChanging = false;
 }
 
 /*--------------------------------------------------------------------------------------*/
