@@ -156,7 +156,6 @@ void GCPlainTextEdit::commentOutSelection()
   while( block.isValid() &&
          block.blockNumber() <= finalBlockNumber )
   {
-    QString blocktext = block.text();
     indices.append( findIndexMatchingBlockNumber( block ) );
     block = block.next();
   }
@@ -292,13 +291,10 @@ int GCPlainTextEdit::findIndexMatchingBlockNumber( QTextBlock block )
   int itemNumber = block.blockNumber();
   int errorCounter = 0;
   bool insideComment = false;
-  int otherBlockNumber = block.blockNumber();
 
   while( block.isValid() &&
          block.blockNumber() > 0 )
   {
-    QString blockText = block.text();
-
     /* Check if we just entered a comment block (this is NOT wrong, remember
       that we are working our way back up the document, not down). */
     if( block.text().contains( CLOSECOMMENT ) )
