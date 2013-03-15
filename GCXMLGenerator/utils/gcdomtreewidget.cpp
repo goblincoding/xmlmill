@@ -528,11 +528,43 @@ void GCDomTreeWidget::dropEvent( QDropEvent *event )
   {
     GCTreeWidgetItem *parent = dynamic_cast< GCTreeWidgetItem* >( itemAt( event->pos() ) );
 
+    if( parent == m_activeItem )
+    {
+      parent = m_activeItem->gcParent();
+    }
+
     if( parent )
     {
       QDomElement previousParent = m_activeItem->element().parentNode().toElement();
       previousParent.removeChild( m_activeItem->element() );
-      parent->element().appendChild( m_activeItem->element() );
+
+      GCTreeWidgetItem *previousSibling = NULL;
+      int pos = parent->indexOfChild( m_activeItem );
+
+      if( pos < 0 )
+      {
+        parent->element().parentNode().insertAfter( m_activeItem->element(), parent->element() );
+      }
+      else
+      {
+        if( pos > 0 )
+        {
+          previousSibling = parent->gcChild( pos - 1 );
+        }
+        else
+        {
+          previousSibling = parent->gcChild( 0 );
+        }
+
+        if( previousSibling )
+        {
+          parent->element().insertAfter( m_activeItem->element(), previousSibling->element() );
+        }
+        else
+        {
+          parent->element().appendChild( m_activeItem->element() );
+        }
+      }
     }
 
     expandItem( parent );
