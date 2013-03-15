@@ -31,6 +31,7 @@
 
 #include <QPlainTextEdit>
 #include <QDomElement>
+#include <QTextBlock>
 
 class GCPlainTextEdit : public QPlainTextEdit
 {
@@ -87,7 +88,7 @@ private slots:
 
   /*! Accounts for non-active document aspects (comments and element closing brackets),
       to determine the index corresponding to a specific block number. */
-  int findIndexMatchingBlockNumber( int blockNumber );
+  int findIndexMatchingBlockNumber( QTextBlock block );
 
 private:
   QBrush   m_savedPalette;

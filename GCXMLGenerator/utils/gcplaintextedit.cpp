@@ -116,7 +116,7 @@ void GCPlainTextEdit::emitSelectedIndex()
 {
   if( !m_cursorPositionChanging )
   {
-    emit selectedIndex( findIndexMatchingBlockNumber( textCursor().blockNumber() ) );
+    emit selectedIndex( findIndexMatchingBlockNumber( textCursor().block() ) );
   }
 }
 
@@ -136,6 +136,8 @@ void GCPlainTextEdit::showContextMenu( const QPoint &point )
 
 void GCPlainTextEdit::commentOutSelection()
 {
+  m_cursorPositionChanging = true;
+
   int selectionStart = textCursor().selectionStart();
   int selectionEnd = textCursor().selectionEnd();
 
@@ -154,9 +156,9 @@ void GCPlainTextEdit::commentOutSelection()
   while( block.isValid() &&
          block.blockNumber() <= finalBlockNumber )
   {
-    indices.append( findIndexMatchingBlockNumber( block.blockNumber() ) );
+    QString blocktext = block.text();
+    indices.append( findIndexMatchingBlockNumber( block ) );
     block = block.next();
-    cursor.setPosition( block.position() );
   }
 
   cursor.setPosition( selectionStart );
@@ -176,12 +178,16 @@ void GCPlainTextEdit::commentOutSelection()
   {
     emit commentOut( indices );
   }
+
+  m_cursorPositionChanging = false;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 void GCPlainTextEdit::uncommentSelection()
 {
+  m_cursorPositionChanging = true;
+
   QString selectedText = textCursor().selectedText();
 
   int selectionStart = textCursor().selectionStart();
@@ -226,6 +232,8 @@ void GCPlainTextEdit::uncommentSelection()
     doc.setContent( selectedText );
     emit uncomment( doc.documentElement().cloneNode().toElement() );
   }
+
+  m_cursorPositionChanging = false;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -279,17 +287,18 @@ bool GCPlainTextEdit::confirmDomNotBroken()
 
 /*--------------------------------------------------------------------------------------*/
 
-int GCPlainTextEdit::findIndexMatchingBlockNumber( int blockNumber )
+int GCPlainTextEdit::findIndexMatchingBlockNumber( QTextBlock block )
 {
-  int itemNumber = blockNumber;
+  int itemNumber = block.blockNumber();
   int errorCounter = 0;
   bool insideComment = false;
-
-  QTextBlock block = textCursor().block();
+  int otherBlockNumber = block.blockNumber();
 
   while( block.isValid() &&
          block.blockNumber() > 0 )
   {
+    QString blockText = block.text();
+
     /* Check if we just entered a comment block (this is NOT wrong, remember
       that we are working our way back up the document, not down). */
     if( block.text().contains( CLOSECOMMENT ) )
