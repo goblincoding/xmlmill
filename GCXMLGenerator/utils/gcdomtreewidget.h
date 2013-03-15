@@ -36,6 +36,15 @@ class QDomDocument;
 class QDomElement;
 class QDomNode;
 
+/// Specialist tree widget class consiting of GCTreeWidgetItems.
+
+/**
+   This class wraps an underlying DOM document and manages its items (GCTreeWidgetItems) based
+   on changes to the DOM, but also manages the DOM based on changes made to its items.  Perhaps
+   a better way of describing this relationship is to say that this class is, in effect, a non-textual
+   visual representation of a DOM document.
+*/
+
 class GCDomTreeWidget : public QTreeWidget
 {
   Q_OBJECT
@@ -107,8 +116,14 @@ public:
       The process starts by appending "childElement" to "parentItem's" corresponding element
       and then recursively creates and adds items with associated elements corresponding to
       "childElement's" element hierarchy.
-      \sa processNextElement */
+      \sa processNextElement
+      \sa removeItems */
   void appendSnippet( GCTreeWidgetItem *parentItem, QDomElement childElement );
+
+  /*! Removes the items with indices matching those in the parameter list from the tree
+      as well as from the DOM document.
+      \sa appendSnippet */
+  void removeItems( const QList< int > &indices );
 
   /*! Update all the tree widget items with text "oldName" to text "newName" */
   void updateItemNames( const QString &oldName, const QString &newName );
@@ -144,10 +159,6 @@ public:
       \sa addItem
       \sa insertItem */
   void addComment( GCTreeWidgetItem* item, const QString &text );
-
-  /*! Removes the items with indices matching those in the parameter list from the tree
-      as well as from the DOM document. */
-  void commentOut( const QList< int > &indices );
 
   /*! Iterates through the tree and sets all items' check states to "state". */
   void setAllCheckStates( Qt::CheckState state );

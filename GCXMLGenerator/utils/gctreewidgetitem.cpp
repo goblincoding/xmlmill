@@ -32,19 +32,19 @@
 
 GCTreeWidgetItem::GCTreeWidgetItem( QDomElement element )
 {
-  init( element.tagName(), element, -1 );
+  init( element, -1 );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 GCTreeWidgetItem::GCTreeWidgetItem( QDomElement element, int index )
 {
-  init( element.tagName(), element, index );
+  init( element, index );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCTreeWidgetItem::init( const QString &elementName, QDomElement element, int index )
+void GCTreeWidgetItem::init( QDomElement element, int index )
 {
   m_element = element;
   m_elementExcluded = false;

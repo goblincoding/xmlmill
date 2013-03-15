@@ -149,11 +149,17 @@ public:
   /*! Returns the element name. */
   QString name() const;  
 
-  /*! Sets the item's element display as "verbose". */
+  /*! Sets the item's element display as "verbose". When "verbose", the entire node is displayed (element
+      attributes and values), otherwise only the element name is displayed.
+      \sa setDisplayText */
   void setVerbose( bool verbose );
 
 private:
-  void init( const QString &elementName, QDomElement element, int index );
+  /*! Initialise the item. */
+  void init( QDomElement element, int index );
+
+  /*! Sets the item's text depending on the "verbose" flag.
+      \sa setVerbose */
   void setDisplayText();
 
   QDomElement m_element;

@@ -1069,7 +1069,7 @@ void GCMainWindow::itemFound( GCTreeWidgetItem *item )
 void GCMainWindow::commentOut( const QList< int > &indices )
 {
   m_fileContentsChanged = true;
-  ui->treeWidget->commentOut( indices );
+  ui->treeWidget->removeItems( indices );
 }
 
 /*--------------------------------------------------------------------------------------*/

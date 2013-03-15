@@ -251,6 +251,10 @@ void GCRemoveItemsForm::updateAttributeValues()
     {
       GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
     }
+    else
+    {
+      QMessageBox::information( this, "Success", "Done!" );
+    }
   }
 }
 
@@ -264,6 +268,10 @@ void GCRemoveItemsForm::deleteAttribute()
   }
   else
   {
+    /* Purely for cosmetic effect - updates the tree item to reflect the correct node text when
+      in "verbose" mode. */
+    ui->treeWidget->gcCurrentItem()->excludeAttribute( m_currentAttribute );
+
     ui->comboBox->removeItem( ui->comboBox->findText( m_currentAttribute ) );
   }
 }
@@ -320,8 +328,8 @@ void GCRemoveItemsForm::showAttributeHelp()
   QMessageBox::information( this,
                             "How this works...",
                             "\"Delete Attribute\" will also delete all its known values.\n\n"
-                            "\"Update Values\" - Only those values remaining in the text edit when "
-                            "\"Update Values\" is clicked will be saved against the attribute shown "
+                            "\"Update Attribute Values\" - Only those values remaining in the text edit when "
+                            "\"Update Attribute Values\" is clicked will be saved against the attribute shown "
                             "in the drop down (this effectively means that you could also add new values "
                             "to the attribute if you wish).  Just make sure that all the values you want to "
                             "associate with the attribute when you're done appear on separate lines." );

@@ -33,6 +33,12 @@
 #include <QDomElement>
 #include <QTextBlock>
 
+/**
+   Provides functionality with which to comment out or uncomment XML selections
+   and keeps track of which XML nodes are currently under investigation (based
+   on cursor positions).
+*/
+
 class GCPlainTextEdit : public QPlainTextEdit
 {
   Q_OBJECT
@@ -58,11 +64,13 @@ signals:
       \sa emitSelectedIndex */
   void selectedIndex( int );
 
-  /*! Emitted whenever a selection has been commented out.
+  /*! Emitted whenever a selection has been commented out. The parameter list contains
+      the indices corresponding to the items that should be removed from the tree widget.
       \sa commentOutSelection */
   void commentOut( const QList< int >& );
 
-  /*! Emitted whenever a selection must be "uncommented".
+  /*! Emitted whenever a selection must be "uncommented". The parameter element corresponds to
+      a DOM snippet created from the selection.
       \sa uncommentSelection */
   void uncomment( QDomElement element );
 
@@ -71,19 +79,29 @@ protected:
   void keyPressEvent( QKeyEvent *e );
 
 private slots:
-  /*! Activated when the cursor in the plain text edit changes. */
+  /*! Activated when the cursor in the plain text edit changes.
+      \sa selectedIndex */
   void emitSelectedIndex();
 
-  /*! Shows the default context menu with some additional actions added. */
+  /*! Shows the default context menu with the additional options to "Comment Out Selection"
+      and "Uncomment Selection"
+      \sa commentOut
+      \sa commentOutSelection
+      \sa uncomment
+      \sa uncommentSelection */
   void showContextMenu( const QPoint &point );
 
-  /*! Determines the selection that needs to be commented out. */
+  /*! Comments out the selected text.  If the action broke the DOM, the user has the option
+      to "Undo" and try again. If successful, the text is commented out and the "commentOut"
+      signal is emitted.
+      \sa commentOut */
   void commentOutSelection();
 
-  /*! Uncomments a selection that's currently commented out. */
+  /*! Uncomments a selection that's currently commented out.
+      \sa uncomment */
   void uncommentSelection();
 
-  /*! Check if the DOM got broken when the user commented or uncommented sections. */
+  /*! Check if the DOM got broken when the user commented out or uncommented sections. */
   bool confirmDomNotBroken();
 
   /*! Accounts for non-active document aspects (comments and element closing brackets),
