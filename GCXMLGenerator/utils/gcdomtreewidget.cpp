@@ -522,37 +522,24 @@ void GCDomTreeWidget::mousePressEvent( QMouseEvent *event )
 
 void GCDomTreeWidget::dropEvent( QDropEvent *event )
 {
-  DropIndicatorPosition indicatorPos = dropIndicatorPosition();
   QTreeWidget::dropEvent( event );
+  DropIndicatorPosition indicatorPos = dropIndicatorPosition();
 
   if( m_activeItem )
   {
     QDomElement previousParent = m_activeItem->element().parentNode().toElement();
     previousParent.removeChild( m_activeItem->element() );
 
-    GCTreeWidgetItem *parent = NULL;
+    GCTreeWidgetItem *parent = m_activeItem->gcParent();
 
-    if( indicatorPos == QAbstractItemView::OnItem )
+    if( parent )
     {
-      parent = dynamic_cast< GCTreeWidgetItem* >( itemAt( event->pos() ) );
-
-      /* Strange edge case, not sure how to reproduce consistently. */
-      if( parent == m_activeItem )
-      {
-        parent = m_activeItem->gcParent();
-      }
-
-      if( parent )
+      if( indicatorPos == QAbstractItemView::OnItem )
       {
         parent->element().appendChild( m_activeItem->element() );
       }
-    }
-    else if( indicatorPos == QAbstractItemView::AboveItem ||
-             indicatorPos == QAbstractItemView::BelowItem )
-    {
-      parent = m_activeItem->gcParent();
-
-      if( parent )
+      else if( indicatorPos == QAbstractItemView::AboveItem ||
+               indicatorPos == QAbstractItemView::BelowItem )
       {
         GCTreeWidgetItem *sibling = NULL;
         int pos = parent->indexOfChild( m_activeItem );
@@ -584,55 +571,6 @@ void GCDomTreeWidget::dropEvent( QDropEvent *event )
 
     expandItem( parent );
   }
-
-//  if( m_activeItem )
-//  {
-//    GCTreeWidgetItem *parent = dynamic_cast< GCTreeWidgetItem* >( itemAt( event->pos() ) );
-
-//    if( parent == m_activeItem )
-//    {
-//      parent = m_activeItem->gcParent();
-//    }
-
-//    if( parent )
-//    {
-//      QDomElement previousParent = m_activeItem->element().parentNode().toElement();
-//      previousParent.removeChild( m_activeItem->element() );
-
-//      GCTreeWidgetItem *previousSibling = NULL;
-//      int pos = parent->indexOfChild( m_activeItem );
-
-//      if( pos < 0 )
-//      {
-//        parent->element().parentNode().insertAfter( m_activeItem->element(), parent->element() );
-//      }
-//      else
-//      {
-//        if( pos > 0 )
-//        {
-//          previousSibling = parent->gcChild( pos - 1 );
-//        }
-//        else
-//        {
-//          previousSibling = parent->gcChild( 0 );
-//        }
-
-//        if( previousSibling )
-//        {
-//          if( previousSibling != m_activeItem )
-//          {
-//            parent->element().insertAfter( m_activeItem->element(), previousSibling->element() );
-//          }
-//          else
-//          {
-//            parent->element().appendChild( m_activeItem->element() );
-//          }
-//        }
-//      }
-//    }
-
-//    expandItem( parent );
-//  }
 
   updateIndices();
   emitGcCurrentItemChanged( m_activeItem, 0 );
