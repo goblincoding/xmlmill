@@ -241,6 +241,10 @@ void GCDomTreeWidget::rebuildTreeWidget()
   m_isEmpty = false;
 
   processNextElement( item, item->element().firstChildElement() );
+
+  m_comments.clear();
+  populateCommentList( m_domDoc->documentElement() );
+
   emitGcCurrentItemSelected( item, 0 );
 }
 
@@ -250,18 +254,18 @@ void GCDomTreeWidget::appendSnippet( GCTreeWidgetItem *parentItem, QDomElement c
 {
   parentItem->element().appendChild( childElement );
   processNextElement( parentItem, childElement );
+  populateCommentList( childElement );
   updateIndices();
-  emitGcCurrentItemSelected( currentItem(), 0 );
+  emitGcCurrentItemSelected( parentItem, 0 );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::removeItems( const QList< int > &indices )
-{
+void GCDomTreeWidget::replaceItemsWithComment( const QList< int > &indices, const QString &comment )
+{  
   QList< GCTreeWidgetItem* > itemsToRemove;
+  GCTreeWidgetItem *commentRoot = NULL;
 
-  /* It is possible that a set of indices may not necessarily be concurrent (e.g. selections
-    made with Ctrl and/or Shift options) so we need to cycle through everything, unfortunately. */
   for( int i = 0; i < m_items.size(); ++i )
   {
     GCTreeWidgetItem *item = m_items.at( i );
@@ -270,6 +274,14 @@ void GCDomTreeWidget::removeItems( const QList< int > &indices )
     {
       if( item->index() == indices.at( j ) )
       {
+        /* This works because the indices are always sorted from small to big, i.e.
+          the item corresponding to the lowest index in indices will be the furthest up
+          the node hierarchy. */
+        if( j == 0 && item->gcParent() )
+        {
+          commentRoot = item->gcParent();
+        }
+
         /* Remove the element from the DOM first. */
         QDomNode parentNode = item->element().parentNode();
         parentNode.removeChild( item->element() );
@@ -292,11 +304,75 @@ void GCDomTreeWidget::removeItems( const QList< int > &indices )
 
   for( int i = 0; i < itemsToRemove.size(); ++i )
   {
-    m_items.removeAll( itemsToRemove.at( i ) );
+    GCTreeWidgetItem *item = itemsToRemove.at( i );
+    m_items.removeAll( item );
+    delete item;
   }
 
+  /* Create a comment node with the combined text of all the item nodes that were removed
+    and insert it in the correct position in the DOM document. */
+  QDomComment newComment = m_domDoc->createComment( comment );
+
+  if( commentRoot )
+  {
+    commentRoot->element().appendChild( newComment );
+  }
+  else
+  {
+    m_domDoc->appendChild( newComment );
+  }
+
+  m_comments.append( newComment );
   m_isEmpty = m_items.isEmpty();
   updateIndices();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDomTreeWidget::replaceCommentWithItems( const QString &comment )
+{
+  QDomComment commentNode;
+
+  for( int i = 0; i < m_comments.size(); ++i )
+  {
+    if( m_comments.at( i ).nodeValue() == comment )
+    {
+      commentNode = m_comments.at( i );
+      break;
+    }
+  }
+
+  if( !commentNode.isNull() )
+  {
+    QDomNode parentElement = commentNode.parentNode();
+
+    while( !parentElement.isElement() )
+    {
+      parentElement = parentElement.parentNode();
+    }
+
+    if( !parentElement.isNull() )
+    {
+      GCTreeWidgetItem *item = NULL;
+
+      for( int i = 0; i < m_items.size(); ++i )
+      {
+        if( m_items.at( i )->element() == parentElement )
+        {
+          item = m_items.at( i );
+          break;
+        }
+      }
+
+      QDomNode parent = commentNode.parentNode();
+      parent.removeChild( commentNode );
+      m_comments.removeAll( commentNode );
+
+      QDomDocument doc;
+      doc.setContent( comment );
+      appendSnippet( item, doc.documentElement().toElement() );
+    }
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -436,6 +512,7 @@ void GCDomTreeWidget::addComment( GCTreeWidgetItem *item, const QString &text )
   {
     QDomComment comment = m_domDoc->createComment( text );
     item->element().parentNode().insertBefore( comment, item->element() );
+    m_comments.append( comment );
   }
 }
 
@@ -508,6 +585,24 @@ void GCDomTreeWidget::updateIndices()
   }
 
   m_busyIterating = false;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDomTreeWidget::populateCommentList( QDomNode node )
+{
+  QDomNode childNode = node.firstChild();
+
+  while( !childNode.isNull() )
+  {
+    if( childNode.isComment() )
+    {
+      m_comments.append( childNode.toComment() );
+    }
+
+    populateCommentList( childNode );
+    childNode = childNode.nextSibling();
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/

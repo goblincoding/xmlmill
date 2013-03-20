@@ -30,7 +30,6 @@
 #define GCPLAINTEXTEDIT_H
 
 #include <QPlainTextEdit>
-#include <QDomElement>
 #include <QTextBlock>
 
 /**
@@ -67,12 +66,12 @@ signals:
   /*! Emitted whenever a selection has been commented out. The parameter list contains
       the indices corresponding to the items that should be removed from the tree widget.
       \sa commentOutSelection */
-  void commentOut( const QList< int >& );
+  void commentOut( const QList< int >&, const QString& );
 
   /*! Emitted whenever a selection must be "uncommented". The parameter element corresponds to
       a DOM snippet created from the selection.
       \sa uncommentSelection */
-  void uncomment( QDomElement element );
+  void uncomment( const QString& );
 
 protected:
   /*! Re-implemented from QPlainTextEdit. */

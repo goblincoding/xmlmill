@@ -138,6 +138,9 @@ void GCPlainTextEdit::commentOutSelection()
 {
   m_cursorPositionChanging = true;
 
+  /* Capture the text before we make any changes. */
+  QString comment = textCursor().selectedText();
+
   int selectionStart = textCursor().selectionStart();
   int selectionEnd = textCursor().selectionEnd();
 
@@ -154,7 +157,7 @@ void GCPlainTextEdit::commentOutSelection()
   QTextBlock block = cursor.block();
 
   while( block.isValid() &&
-         block.blockNumber() <= finalBlockNumber )
+         block.blockNumber() < finalBlockNumber )
   {
     indices.append( findIndexMatchingBlockNumber( block ) );
     block = block.next();
@@ -175,7 +178,9 @@ void GCPlainTextEdit::commentOutSelection()
 
   if( confirmDomNotBroken() )
   {
-    emit commentOut( indices );
+    comment = comment.replace( QChar( 0x2029 ), '\n' );    // replace Unicode end of line character
+    comment = comment.trimmed();
+    emit commentOut( indices, comment );
   }
 
   m_cursorPositionChanging = false;
@@ -190,53 +195,21 @@ void GCPlainTextEdit::uncommentSelection()
   /* We need to capture this text way in the beginning before we start
     messing with cursor positions, etc. */
   QString selectedText = textCursor().selectedText();
-  int selectionStart = textCursor().selectionStart();
-  int selectionEnd = textCursor().selectionEnd();
 
-  QTextCursor cursor = textCursor();
-  cursor.setPosition( selectionStart );
-  cursor.movePosition( QTextCursor::StartOfBlock );
-  cursor.beginEditBlock();
-
-  QString text = cursor.block().text();
-  text.remove( OPENCOMMENT );
-
-  cursor.select( QTextCursor::BlockUnderCursor );
-  cursor.removeSelectedText();
-  cursor.insertBlock();
-  cursor.insertText( text );
-  cursor.endEditBlock();
-
-  cursor.setPosition( selectionEnd );
-  cursor.movePosition( QTextCursor::PreviousBlock );
-  cursor.beginEditBlock();
-
-  text = cursor.block().text();
-  text.remove( CLOSECOMMENT );
-
-  cursor.select( QTextCursor::BlockUnderCursor );
-  cursor.removeSelectedText();
-  cursor.insertBlock();
-  cursor.insertText( text );
-  cursor.endEditBlock();
+  textCursor().beginEditBlock();
+  textCursor().removeSelectedText();
+  selectedText.remove( OPENCOMMENT );
+  selectedText.remove( CLOSECOMMENT );
+  textCursor().insertText( selectedText );
+  textCursor().endEditBlock();
 
   m_cursorPositionChanging = false;
 
-  /* Move the cursor back to the beginning of the selection and then up to
-    the previous block (this is the parent element) to ensure that the correct
-    element is highlighted in the tree when we add the snippet. */
-  cursor.setPosition( selectionStart );
-  cursor.movePosition( QTextCursor::PreviousBlock );
-  setTextCursor( cursor );
-
   if( confirmDomNotBroken() )
   {
-    selectedText.remove( OPENCOMMENT );
-    selectedText.remove( CLOSECOMMENT );
-
-    QDomDocument doc;
-    doc.setContent( selectedText );
-    emit uncomment( doc.documentElement().cloneNode().toElement() );
+    selectedText = selectedText.replace( QChar( 0x2029 ), '\n' );    // replace Unicode end of line character
+    selectedText = selectedText.trimmed();
+    emit uncomment( selectedText );
   }
 }
 

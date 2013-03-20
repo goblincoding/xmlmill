@@ -34,6 +34,7 @@
 class GCTreeWidgetItem;
 class QDomDocument;
 class QDomElement;
+class QDomComment;
 class QDomNode;
 
 /// Specialist tree widget class consiting of GCTreeWidgetItems.
@@ -116,14 +117,19 @@ public:
       The process starts by appending "childElement" to "parentItem's" corresponding element
       and then recursively creates and adds items with associated elements corresponding to
       "childElement's" element hierarchy.
-      \sa processNextElement
-      \sa removeItems */
+      \sa processNextElement */
   void appendSnippet( GCTreeWidgetItem *parentItem, QDomElement childElement );
 
   /*! Removes the items with indices matching those in the parameter list from the tree
       as well as from the DOM document.
-      \sa appendSnippet */
-  void removeItems( const QList< int > &indices );
+      \sa replaceCommentWithItems */
+  void replaceItemsWithComment( const QList< int > &indices, const QString &comment );
+
+  /*! Removes the comment represented by "comment" and converts the text to representative
+      nodes.
+      \sa replaceItemsWithComment */
+  void replaceCommentWithItems( const QString &comment );
+
 
   /*! Update all the tree widget items with text "oldName" to text "newName" */
   void updateItemNames( const QString &oldName, const QString &newName );
@@ -222,6 +228,9 @@ private:
       \sa populateFromDatabase */
   void processNextElement( const QString &element );
 
+  /*! Populates the comments list with all the comment nodes in the document. */
+  void populateCommentList( QDomNode node );
+
   /*! Iterates through the tree and updates all items' indices (useful when new items
       are added to ensure that indices correspond roughly to "row numbers"). */
   void updateIndices();
@@ -232,6 +241,7 @@ private:
   bool              m_busyIterating;
 
   QList< GCTreeWidgetItem* > m_items;
+  QList< QDomComment > m_comments;
 };
 
 #endif // GCDOMTREEWIDGET_H

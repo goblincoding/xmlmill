@@ -287,11 +287,11 @@ private slots:
 
   /*! Connected to GCPlainTextEdit's "commentOut" signal. Removes the items with indices matching those
       in the parameter list from the tree as well as from the DOM document. */
-  void commentOut( const QList< int > &indices );
+  void commentOut( const QList< int > &indices, const QString &comment );
 
   /*! Connected to GCPlainTextEdit's "uncomment" signal. Adds the uncommented element hierarchy back
       to the main DOM and the tree. */
-  void uncomment( QDomElement element );
+  void uncomment( const QString& comment );
 
   /*! Connectd to the "Expand All" checkbox's "clicked( bool )" signal.  This slot toggles the expandsion or collapses
       of UI tree widget. */
