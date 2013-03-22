@@ -46,7 +46,7 @@ bool greaterThan( GCTreeWidgetItem *lhs, GCTreeWidgetItem *rhs )
   return ( lhs->index() > rhs->index() );
 }
 
-/*--------------------------------- MEMBER FUNCTIONS ----------------------------------*/
+/*---------------------------------- MEMBER FUNCTIONS ----------------------------------*/
 
 GCSearchForm::GCSearchForm( const QList< GCTreeWidgetItem * > &items, const QString &docContents, QWidget *parent ) :
   QDialog        ( parent ),

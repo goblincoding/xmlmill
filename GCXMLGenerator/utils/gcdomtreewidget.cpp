@@ -256,21 +256,21 @@ void GCDomTreeWidget::appendSnippet( GCTreeWidgetItem *parentItem, QDomElement c
   processNextElement( parentItem, childElement );
   populateCommentList( childElement );
   updateIndices();
-  emitGcCurrentItemSelected( parentItem, 0 );
+  emitGcCurrentItemSelected( currentItem(), 0 );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 void GCDomTreeWidget::replaceItemsWithComment( const QList< int > &indices, const QString &comment )
 {  
-  QList< GCTreeWidgetItem* > itemsToRemove;
-  GCTreeWidgetItem *commentRoot = NULL;
+  QList< GCTreeWidgetItem* > itemsToDelete;
+  GCTreeWidgetItem *commentParentItem = NULL;
 
   for( int i = 0; i < m_items.size(); ++i )
   {
     GCTreeWidgetItem *item = m_items.at( i );
 
-    for( int j = 0; j < indices.size(); ++j)
+    for( int j = 0; j < indices.size(); ++j )
     {
       if( item->index() == indices.at( j ) )
       {
@@ -279,7 +279,7 @@ void GCDomTreeWidget::replaceItemsWithComment( const QList< int > &indices, cons
           the node hierarchy. */
         if( j == 0 && item->gcParent() )
         {
-          commentRoot = item->gcParent();
+          commentParentItem = item->gcParent();
         }
 
         /* Remove the element from the DOM first. */
@@ -297,25 +297,34 @@ void GCDomTreeWidget::replaceItemsWithComment( const QList< int > &indices, cons
           invisibleRootItem()->removeChild( item );
         }
 
-        itemsToRemove.append( item );
+        /* Removing an item from another's child list does not delete it. */
+        itemsToDelete.append( item );
       }
     }
   }
 
-  for( int i = 0; i < itemsToRemove.size(); ++i )
+  /* Delete the items here so that we may be sure that they are actually removed
+    from the items list as well (deleting items in the loop above resulted in parent
+    items deleting all their children, but obviously not updating the items list in
+    the process). */
+  for( int i = 0; i < itemsToDelete.size(); ++ i )
   {
-    GCTreeWidgetItem *item = itemsToRemove.at( i );
+    GCTreeWidgetItem *item = itemsToDelete.at( i );
     m_items.removeAll( item );
-    delete item;
+
+    if( item )
+    {
+      delete item;
+    }
   }
 
   /* Create a comment node with the combined text of all the item nodes that were removed
     and insert it in the correct position in the DOM document. */
   QDomComment newComment = m_domDoc->createComment( comment );
 
-  if( commentRoot )
+  if( commentParentItem )
   {
-    commentRoot->element().appendChild( newComment );
+    commentParentItem->element().appendChild( newComment );
   }
   else
   {
@@ -344,24 +353,27 @@ void GCDomTreeWidget::replaceCommentWithItems( const QString &comment )
 
   if( !commentNode.isNull() )
   {
+    /* Ensure that we get the previous element node (e.g. the comment may have another comment
+      node as parent). */
     QDomNode parentElement = commentNode.parentNode();
 
-    while( !parentElement.isElement() )
+    while( !parentElement.isNull() &&
+           !parentElement.isElement() )
     {
       parentElement = parentElement.parentNode();
     }
 
-    if( !parentElement.isNull() )
-    {
-      GCTreeWidgetItem *item = NULL;
+    GCTreeWidgetItem *parentItem = gcItemFromNode( parentElement );
 
-      for( int i = 0; i < m_items.size(); ++i )
+    if( parentItem )
+    {
+      /* Obtain the previous sibling element before we lose the comment node. */
+      QDomNode previousSibling = commentNode.previousSibling();
+
+      while( !previousSibling.isNull() &&
+             !previousSibling.isElement() )
       {
-        if( m_items.at( i )->element() == parentElement )
-        {
-          item = m_items.at( i );
-          break;
-        }
+        previousSibling = previousSibling.previousSibling();
       }
 
       QDomNode parent = commentNode.parentNode();
@@ -370,7 +382,25 @@ void GCDomTreeWidget::replaceCommentWithItems( const QString &comment )
 
       QDomDocument doc;
       doc.setContent( comment );
-      appendSnippet( item, doc.documentElement().toElement() );
+
+      QDomElement newElement = doc.documentElement().toElement();
+      appendSnippet( parentItem, newElement );
+
+      /* The new items were appended to the parent items and corresponding element nodes,
+        however, this is not necessarily the desired outcome as it may have messed with the
+        positioning of items and element nodes. To fix this, we re-parent the item and dom
+        nodes to accurately reflect the positions they used to maintain in the XMl text. */
+      GCTreeWidgetItem *previousSiblingItem = gcItemFromNode( previousSibling );
+      GCTreeWidgetItem *newElementItem = gcItemFromNode( newElement );
+
+      if( previousSiblingItem &&
+          newElementItem )
+      {
+        parentItem->removeChild( newElementItem );
+        parentItem->insertChild( parentItem->indexOfChild( previousSiblingItem ), newElementItem );
+        parentElement.insertBefore( newElement, previousSibling );
+        updateIndices();
+      }
     }
   }
 }
@@ -585,6 +615,27 @@ void GCDomTreeWidget::updateIndices()
   }
 
   m_busyIterating = false;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+GCTreeWidgetItem *GCDomTreeWidget::gcItemFromNode( QDomNode element )
+{
+  GCTreeWidgetItem *parentItem = NULL;
+
+  if( !element.isNull() )
+  {
+    for( int i = 0; i < m_items.size(); ++i )
+    {
+      if( m_items.at( i )->element() == element )
+      {
+        parentItem = m_items.at( i );
+        break;
+      }
+    }
+  }
+
+  return parentItem;
 }
 
 /*--------------------------------------------------------------------------------------*/

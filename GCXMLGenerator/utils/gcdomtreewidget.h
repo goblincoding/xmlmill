@@ -235,6 +235,9 @@ private:
       are added to ensure that indices correspond roughly to "row numbers"). */
   void updateIndices();
 
+  /*! Finds and returns the GCTreeWidget item that is linked to "element". */
+  GCTreeWidgetItem *gcItemFromNode( QDomNode element );
+
   GCTreeWidgetItem *m_activeItem;
   QDomDocument     *m_domDoc;
   bool              m_isEmpty;
