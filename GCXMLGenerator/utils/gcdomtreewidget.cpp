@@ -662,6 +662,9 @@ void GCDomTreeWidget::dropEvent( QDropEvent *event )
           parent->element().appendChild( m_activeItem->element() );
         }
       }
+
+      /* Update the database so reflect the re-parenting. */
+      GCDataBaseInterface::instance()->updateElementChildren( parent->name(), QStringList( m_activeItem->name() ) );
     }
 
     expandItem( parent );
