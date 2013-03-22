@@ -193,9 +193,9 @@ void GCMainWindow::initialise()
 {
   /* Initialise the database interface and retrieve the list of database names (this will
     include the path references to the ".db" files). */
-  if( !GCDataBaseInterface::instance()->initialised() )
+  if( !GCDataBaseInterface::instance()->isInitialised() )
   {
-    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
     this->close();
   }
 
@@ -398,7 +398,7 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *tableItem )
 
           if( !GCDataBaseInterface::instance()->updateAttributeValues( treeItem->name(), tableItem->text(), attributeValues ) )
           {
-            GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+            GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
           }
         }
         else
@@ -414,7 +414,7 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *tableItem )
       }
       else
       {
-        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
       }
     }
 
@@ -466,7 +466,7 @@ void GCMainWindow::attributeValueChanged( const QString &value )
                                                                    currentAttributeName,
                                                                    QStringList( value ) ) )
       {
-        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
       }
     }
 
@@ -571,7 +571,7 @@ bool GCMainWindow::openXMLFile()
     {
       bool accepted = GCMessageSpace::userAccepted( "QueryImportXML",
                                                     "Import document?",
-                                                    "Incompatible document - import differences to active profile?",
+                                                    "Encountered unknown relationships - import differences to active profile?",
                                                     GCMessageSpace::YesNo,
                                                     GCMessageSpace::No,
                                                     GCMessageSpace::Question );
@@ -582,9 +582,9 @@ bool GCMainWindow::openXMLFile()
         timer.singleShot( 1000, this, SLOT( createSpinner() ) );
         qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
 
-        if( !ui->treeWidget->batchProcessSuccess() )
+        if( !ui->treeWidget->isBatchProcessSuccess() )
         {
-          GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+          GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
         }
         else
         {
@@ -748,9 +748,9 @@ bool GCMainWindow::importXMLToDatabase()
   createSpinner();
   qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
 
-  if( !ui->treeWidget->batchProcessSuccess() )
+  if( !ui->treeWidget->isBatchProcessSuccess() )
   {
-    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
     deleteSpinner();
     return false;
   }
@@ -865,7 +865,7 @@ void GCMainWindow::activeDatabaseChanged( QString dbName )
   /* If the user set an empty database, prompt to populate it.  This message must
     always be shown (i.e. we don't have to show the custom dialog box that provides
     the \"Don't show this again\" option). */
-  if( GCDataBaseInterface::instance()->profileEmpty() )
+  if( GCDataBaseInterface::instance()->isProfileEmpty() )
   {
     QMessageBox::StandardButton accepted = QMessageBox::warning( this,
                                                                  "Empty Profile",
@@ -1000,7 +1000,7 @@ void GCMainWindow::removeItemsFromDB()
     return;
   }
 
-  if( GCDataBaseInterface::instance()->profileEmpty() )
+  if( GCDataBaseInterface::instance()->isProfileEmpty() )
   {
     QMessageBox::warning( this,
                           "Profile Empty",
@@ -1030,7 +1030,7 @@ void GCMainWindow::addItemsToDB()
     return;
   }
 
-  bool profileWasEmpty = GCDataBaseInterface::instance()->profileEmpty();
+  bool profileWasEmpty = GCDataBaseInterface::instance()->isProfileEmpty();
 
   /* Delete on close flag set (no clean-up needed). */
   GCAddItemsForm *form = new GCAddItemsForm( this );
@@ -1465,7 +1465,7 @@ void GCMainWindow::toggleAddElementWidgets()
 
     /* Check if the element combo box is empty due to an empty profile
       being active. */
-    if( GCDataBaseInterface::instance()->profileEmpty() )
+    if( GCDataBaseInterface::instance()->isProfileEmpty() )
     {
       ui->showEmptyProfileHelpButton->setVisible( true );
     }

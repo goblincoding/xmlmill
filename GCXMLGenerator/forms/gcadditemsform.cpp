@@ -51,7 +51,7 @@ GCAddItemsForm::GCAddItemsForm( QWidget *parent ) :
   connect( ui->addNewButton,   SIGNAL( clicked() ), this, SLOT( addElementAndAttributes() ) );
   connect( ui->donePushButton, SIGNAL( clicked() ), this, SLOT( close() ) );
   connect( ui->showHelpButton, SIGNAL( clicked() ), this, SLOT( showHelp() ) );
-  connect( ui->comboBox,       SIGNAL( activated( QString ) ), this, SLOT( comboValueChanged( QString ) ) );
+  connect( ui->comboBox,       SIGNAL( activated( const QString& ) ), this, SLOT( comboValueChanged( const QString& ) ) );
 
   populateCombo();
   ui->treeWidget->populateFromDatabase();
@@ -105,23 +105,23 @@ void GCAddItemsForm::addElementAndAttributes()
     {
       if( !GCDataBaseInterface::instance()->updateElementAttributes( element, attributes ) )
       {
-        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
       }
     }
     else
     {
       if( !GCDataBaseInterface::instance()->addElement( element, QStringList(), attributes ) )
       {
-        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
       }
     }
 
     /* If the profile is empty, add the new element as a root element by default. */
-    if( GCDataBaseInterface::instance()->profileEmpty() )
+    if( GCDataBaseInterface::instance()->isProfileEmpty() )
     {
       if( !GCDataBaseInterface::instance()->addRootElement( element ) )
       {
-        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
       }
 
       ui->treeWidget->addItem( element );
@@ -135,7 +135,7 @@ void GCAddItemsForm::addElementAndAttributes()
         if( !GCDataBaseInterface::instance()->updateElementChildren( ui->treeWidget->gcCurrentItem()->name(),
                                                                      QStringList( element ) ) )
         {
-          GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+          GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
         }
 
         ui->treeWidget->insertItem( element, 0 );
@@ -156,7 +156,7 @@ void GCAddItemsForm::addElementAndAttributes()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCAddItemsForm::comboValueChanged( QString element )
+void GCAddItemsForm::comboValueChanged( const QString &element )
 {
   if( element != CREATE_NEW )
   {

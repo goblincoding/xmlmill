@@ -64,7 +64,7 @@ signals:
   /*! Emitted when the search string is found in the document.  The item emitted in this
       signal will contain the matched string in either its corresponding element's name,
       or the name of an associated attribute or attribute value. */
-  void foundItem( GCTreeWidgetItem *treeItem );
+  void foundItem( GCTreeWidgetItem* );
 
 private slots:
   /*! Triggered when the user clicks the search button. If a match has already been found,

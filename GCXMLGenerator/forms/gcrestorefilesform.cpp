@@ -40,7 +40,7 @@
 
 /*--------------------------------------------------------------------------------------*/
 
-GCRestoreFilesForm::GCRestoreFilesForm( QStringList &tempFiles, QWidget *parent ) :
+GCRestoreFilesForm::GCRestoreFilesForm( const QStringList &tempFiles, QWidget *parent ) :
   QDialog    ( parent ),
   ui         ( new Ui::GCRestoreFilesForm ),
   m_tempFiles( tempFiles ),
@@ -100,7 +100,7 @@ void GCRestoreFilesForm::saveFile()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCRestoreFilesForm::deleteTempFile()
+void GCRestoreFilesForm::deleteTempFile() const
 {
   QDir dir;
   dir.remove( m_fileName );

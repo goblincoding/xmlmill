@@ -62,13 +62,13 @@ public:
   /*! Returns a list of all the included GCTreeWidgetItems in the tree (in other
       words those items with the "include" flags set).
       \sa allTreeWidgetItems */
-  QList< GCTreeWidgetItem* > includedGcTreeWidgetItems() const;
+  QList< GCTreeWidgetItem* > includedTreeWidgetItems() const;
 
   /*! Returns a list of ALL the GCTreeWidgetItems currently in the tree.
-      \sa includedGcTreeWidgetItems */
+      \sa includedTreeWidgetItems */
   const QList< GCTreeWidgetItem* > &allTreeWidgetItems() const;
 
-  /*! Returns the position of "itemIndex" relative to that of ALL item's matching "nodeText"
+  /*! Returns the position of "itemIndex" relative to that of ALL items matching "nodeText"
       (this is is not as odd as it sounds, it is possible that a DOM document may have
       multiple elements of the same name with matching attributes and attribute values). */
   int findItemPositionAmongDuplicates( const QString &nodeText, int itemIndex ) const;
@@ -96,10 +96,10 @@ public:
   /*! Returns true if the current item is the one corresponding to the DOM document's root element.
       \sa matchesRootName
       \sa rootName */
-  bool currentItemIsRoot() const;
+  bool isCurrentItemRoot() const;
 
   /*! Returns true if "elementName" matches that of the DOM document's root.
-      \sa currentItemIsRoot
+      \sa isCurrentItemRoot
       \sa rootName */
   bool matchesRootName( const QString &elementName ) const;
 
@@ -107,7 +107,7 @@ public:
   bool isDocumentCompatible() const;
 
   /*! Returns true if batch processing of DOM content to the active DB was successful. */
-  bool batchProcessSuccess() const;
+  bool isBatchProcessSuccess() const;
 
   /*! Rebuild the tree in accordance with updated DOM content.
       \sa processNextElement */
@@ -129,7 +129,6 @@ public:
       nodes.
       \sa replaceItemsWithComment */
   void replaceCommentWithItems( const QString &comment );
-
 
   /*! Update all the tree widget items with text "oldName" to text "newName" */
   void updateItemNames( const QString &oldName, const QString &newName );
@@ -177,7 +176,7 @@ public:
 
 public slots:
   /*! Finds the item with index matching "index" and sets it as the current tree item. */
-  void setCurrentItemWithIndexMatching( int index );
+  void setCurrentItemToMatchIndex( int index );
 
 signals:
   /*! \sa emitGcCurrentItemSelected */
@@ -203,14 +202,15 @@ private slots:
       \sa gcCurrentItemChanged */
   void emitGcCurrentItemChanged( QTreeWidgetItem* item, int column );
 
-  /*! Renames the element on which the context menu action was invoked. An element with
-      the new name will be added to the DB (if it doesn't yet exist) with the same associated
-      attributes and attribute values as the element name it is replacing (the "old" element
-      will not be removed from the DB). All occurrences of the old name throughout the current
-      DOM will be replaced with the new name and the tree widget will be updated accordingly. */
+  /*! Connected to a context menu action.  Renames the element on which the context menu action
+      was invoked. An element with the new name will be added to the DB (if it doesn't yet exist)
+      with the same associated attributes and attribute values as the element name it is replacing
+      (the "old" element will not be removed from the DB). All occurrences of the old name throughout
+      the current DOM will be replaced with the new name and the tree widget will be updated accordingly. */
   void renameItem();
 
-  /*! Removes the item and it's corresponding element from the tree and underlying DOM. */
+  /*! Connected to a context menu action. Removes the item (and it's corresponding element) on which
+      the context menu action was invoked from the tree and underlying DOM. */
   void removeItem();
 
 private:

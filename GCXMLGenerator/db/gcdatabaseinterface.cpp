@@ -146,14 +146,14 @@ GCDataBaseInterface::GCDataBaseInterface() :
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::initialised() const
+bool GCDataBaseInterface::isInitialised() const
 {
   return m_initialised;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::batchProcessDOMDocument( const QDomDocument *domDoc ) const
+bool GCDataBaseInterface::batchProcessDomDocument( const QDomDocument *domDoc ) const
 {
   GCBatchProcessorHelper helper( domDoc,
                                  SEPARATOR,
@@ -716,7 +716,7 @@ QString GCDataBaseInterface::activeSessionName() const
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDataBaseInterface::profileEmpty() const
+bool GCDataBaseInterface::isProfileEmpty() const
 {
   return knownRootElements().isEmpty();
 }
@@ -943,14 +943,14 @@ bool GCDataBaseInterface::containsKnownRootElement( const QString &dbName, const
 
 /*--------------------------------------------------------------------------------------*/
 
-QStringList GCDataBaseInterface::getDBList() const
+QStringList GCDataBaseInterface::connectionList() const
 {
   return m_dbMap.keys();
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-const QString &GCDataBaseInterface::getLastError() const
+const QString &GCDataBaseInterface::lastError() const
 {
   return m_lastErrorMsg;
 }

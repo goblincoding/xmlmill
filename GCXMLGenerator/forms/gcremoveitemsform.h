@@ -101,7 +101,7 @@ private slots:
   
 private:
   /*! Removes a deleted element from all elements that may have it in their first level child lists. */
-  void updateChildLists();  
+  void updateChildLists();
 
   Ui::GCRemoveItemsForm *ui;
   QString m_currentElement;

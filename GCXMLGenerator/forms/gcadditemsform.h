@@ -69,7 +69,7 @@ private slots:
   void addElementAndAttributes();
 
   /*! Disables the line edit when an existing element is selected in the drop down. */
-  void comboValueChanged( QString element );
+  void comboValueChanged( const QString &element );
 
   /*! Displays help specific to this form. */
   void showHelp();

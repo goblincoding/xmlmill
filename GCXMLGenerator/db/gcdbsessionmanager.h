@@ -86,7 +86,7 @@ signals:
 private slots:
   /*! Triggered when the user selection is completed. Removes the selected database
       via GCDatabaseInterface. */
-  void removeDBConnection();
+  void removeDatabaseConnection();
 
   /*! Triggered when the user selection is completed. Sets the selected database
       via GCDatabaseInterface.*/
@@ -100,10 +100,10 @@ private:
   void setActiveDatabase( const QString &dbName );
 
   /*! Adds "dbName" to the list of known databases via GCDatabaseInterface. */
-  void addDBConnection( const QString &dbName );
+  void addDatabaseConnection( const QString &dbName );
 
   /*! Sets the list of known database names on the combo box. */
-  void setDBList();
+  void setDatabaseList();
   
   Ui::GCDBSessionManager *ui;
   QString  m_currentRoot;

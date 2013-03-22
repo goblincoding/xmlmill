@@ -73,12 +73,12 @@ public:
 
   /*! \warning Call this function before using this interface for the first time to ensure that
       the known databases were initialised successfully. */
-  bool initialised() const;
+  bool isInitialised() const;
 
   /*! Batch process an entire DOM document.  This function processes an entire DOM document by 
       adding new (or updating existing) elements with their corresponding first level children
       and associated attributes and known attribute values to the active database in batches. */
-  bool batchProcessDOMDocument( const QDomDocument *domDoc ) const;
+  bool batchProcessDomDocument( const QDomDocument *domDoc ) const;
 
   /*! Adds a single new element to the active database. This function does nothing if an element with the same name
       already exists. 
@@ -140,7 +140,7 @@ public:
   bool hasActiveSession() const;
 
   /*! Returns "true" if the active database is empty, "false" if not. */
-  bool profileEmpty() const;
+  bool isProfileEmpty() const;
 
   /*! Returns "true" if the database named "dbName" knows about "root". */
   bool containsKnownRootElement( const QString &dbName, const QString &root ) const;
@@ -177,10 +177,10 @@ public:
   QStringList knownRootElements() const;
 
   /*! Returns a list of all known database connections. */
-  QStringList getDBList() const;
+  QStringList connectionList() const;
 
   /*! Returns the last known error message. */
-  const QString &getLastError() const;
+  const QString &lastError() const;
 
   /*! Returns the active database session if one exists, or an empty string if not.
       \sa hasActiveSession */

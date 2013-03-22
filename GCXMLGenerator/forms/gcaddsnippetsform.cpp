@@ -160,7 +160,7 @@ void GCAddSnippetsForm::elementSelected( GCTreeWidgetItem *item, int column )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCAddSnippetsForm::attributeChanged( QTableWidgetItem *item )
+void GCAddSnippetsForm::attributeChanged( QTableWidgetItem *item ) const
 {
   if( !m_treeItemActivated )
   {
@@ -185,7 +185,7 @@ void GCAddSnippetsForm::attributeChanged( QTableWidgetItem *item )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCAddSnippetsForm::attributeValueChanged()
+void GCAddSnippetsForm::attributeValueChanged() const
 {
   /* Update the element's attribute inclusions, values and value increment flags. */
   GCTreeWidgetItem *treeItem = ui->treeWidget->gcCurrentItem();
@@ -221,7 +221,7 @@ void GCAddSnippetsForm::attributeValueChanged()
 
 void GCAddSnippetsForm::addSnippet()
 {
-  QList< GCTreeWidgetItem* > includedItems = ui->treeWidget->includedGcTreeWidgetItems();
+  QList< GCTreeWidgetItem* > includedItems = ui->treeWidget->includedTreeWidgetItems();
 
   /* Add the required number of snippets. */
   for( int i = 0; i < ui->spinBox->value(); ++i )
@@ -285,7 +285,7 @@ void GCAddSnippetsForm::addSnippet()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCAddSnippetsForm::updateCheckStates( GCTreeWidgetItem *item )
+void GCAddSnippetsForm::updateCheckStates( GCTreeWidgetItem *item ) const
 {
   /* Checking or unchecking an item must recursively update its children as well. */
   if( item->checkState( 0 ) == Qt::Checked )

@@ -43,7 +43,7 @@ class GCRestoreFilesForm : public QDialog
   
 public:
   /*! Constructor. */
-  explicit GCRestoreFilesForm( QStringList &tempFiles, QWidget *parent = 0 );
+  explicit GCRestoreFilesForm( const QStringList &tempFiles, QWidget *parent = 0 );
 
   /*! Destructor. */
   ~GCRestoreFilesForm();
@@ -54,7 +54,7 @@ private slots:
 
   /*! Connected to the "Discard" button's "clicked()" signal.  Deletes the current temp file at the
       user's discretion. */
-  void deleteTempFile();
+  void deleteTempFile() const;
 
   /*! Connected to the "Next" button's "clicked()" signal.  Loads the next temp file (if any). */
   void next();

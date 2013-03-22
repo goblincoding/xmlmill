@@ -75,7 +75,8 @@ public:
 signals:
   /*! Informs the listener that a new snippet has been added. The GCTreeWidgetItem thus emitted
       is the item to which the snippet must be added and the QDomElement is the element corresponding
-      to this item. */
+      to this item.  As always, we dependon QDomElement's shallow copy constructor and the GCTreeWidgetItem
+      thus emitted is not owned by this class. */
   void snippetAdded( GCTreeWidgetItem*, QDomElement );
 
 private slots:
@@ -85,10 +86,10 @@ private slots:
 
   /*! Triggered whenever a user clicks on an attribute in the attribute table, or changes an attribute's
       "include" state. */
-  void attributeChanged( QTableWidgetItem *item );
+  void attributeChanged( QTableWidgetItem *item ) const;
 
   /*! Triggered whenever an attribute's value changes. */
-  void attributeValueChanged();
+  void attributeValueChanged() const;
 
   /*! Triggered whenever the "Add" button is clicked.  This function builds the snippet(s) that must
       be added to the active document and furthermore informs all listeners that a snippet has been added
@@ -103,7 +104,7 @@ private:
       the element's parent(s) and children need to be updated accordingly.  I.e. including/excluding an 
       element must also include/exclude all of its children (and their children, etc) as well as its parent
       (and its parent's parent, etc), for a smooth and intuitive user experience. */
-  void updateCheckStates( GCTreeWidgetItem *item );
+  void updateCheckStates( GCTreeWidgetItem *item ) const;
 
   Ui::GCAddSnippetsForm *ui;
   GCTreeWidgetItem   *m_parentItem;

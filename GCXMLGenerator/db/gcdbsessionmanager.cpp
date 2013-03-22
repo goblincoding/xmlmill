@@ -43,7 +43,7 @@ GCDBSessionManager::GCDBSessionManager( QWidget *parent ) :
 {
   ui->setupUi( this );
 
-  setDBList();
+  setDatabaseList();
   ui->showHelpButton->setVisible( false );
 
   connect( ui->addExistingButton, SIGNAL( clicked() ), this, SLOT( addExistingDatabase() ) );
@@ -70,12 +70,12 @@ void GCDBSessionManager::selectActiveDatabase( const QString &currentRoot )
   m_currentRoot = currentRoot;
 
   this->setWindowTitle( "Select a profile for this session" );
-  setDBList();
+  setDatabaseList();
 
   ui->addNewButton->setVisible( true );
   ui->addExistingButton->setVisible( true );
 
-  disconnect( ui->okButton, SIGNAL( clicked() ), this, SLOT( removeDBConnection() ) );
+  disconnect( ui->okButton, SIGNAL( clicked() ), this, SLOT( removeDatabaseConnection() ) );
   connect   ( ui->okButton, SIGNAL( clicked() ), this, SLOT( setActiveDatabase() ), Qt::UniqueConnection );
 
   this->exec();
@@ -92,7 +92,7 @@ void GCDBSessionManager::removeDatabase( const QString &currentRoot )
   ui->addExistingButton->setVisible( false );
 
   disconnect( ui->okButton, SIGNAL( clicked() ), this, SLOT( setActiveDatabase() ) );
-  connect   ( ui->okButton, SIGNAL( clicked() ), this, SLOT( removeDBConnection() ), Qt::UniqueConnection );
+  connect   ( ui->okButton, SIGNAL( clicked() ), this, SLOT( removeDatabaseConnection() ), Qt::UniqueConnection );
 
   this->exec();
 }
@@ -108,7 +108,7 @@ void GCDBSessionManager::addExistingDatabase( const QString &currentRoot )
   /* If the user clicked "OK". */
   if( !file.isEmpty() )
   {
-    addDBConnection( file );
+    addDatabaseConnection( file );
   }
 }
 
@@ -123,13 +123,13 @@ void GCDBSessionManager::addNewDatabase( const QString &currentRoot )
   /* If the user clicked "OK". */
   if( !file.isEmpty() )
   {
-    addDBConnection( file );
+    addDatabaseConnection( file );
   }
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::removeDBConnection()
+void GCDBSessionManager::removeDatabaseConnection()
 {
   QString dbName = ui->comboBox->currentText();
 
@@ -153,7 +153,7 @@ void GCDBSessionManager::removeDBConnection()
   if( !GCDataBaseInterface::instance()->removeDatabase( dbName ) )
   {
     QString error = QString( "Failed to remove profile \"%1\": [%2]" ).arg( dbName )
-                    .arg( GCDataBaseInterface::instance()->getLastError() );
+                    .arg( GCDataBaseInterface::instance()->lastError() );
     GCMessageSpace::showErrorMessageBox( this, error );
   }
 }
@@ -204,7 +204,7 @@ void GCDBSessionManager::setActiveDatabase( const QString &dbName )
   if( !GCDataBaseInterface::instance()->setActiveDatabase( dbName ) )
   {
     QString error = QString( "Failed to set session \"%1\" as active - [%2]" ).arg( dbName )
-                    .arg( GCDataBaseInterface::instance()->getLastError() );
+                    .arg( GCDataBaseInterface::instance()->lastError() );
     GCMessageSpace::showErrorMessageBox( this, error );
   }
   else
@@ -217,11 +217,11 @@ void GCDBSessionManager::setActiveDatabase( const QString &dbName )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::addDBConnection( const QString &dbName )
+void GCDBSessionManager::addDatabaseConnection( const QString &dbName )
 {
   if( !GCDataBaseInterface::instance()->addDatabase( dbName ) )
   {
-    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
     return;
   }
 
@@ -237,16 +237,16 @@ void GCDBSessionManager::addDBConnection( const QString &dbName )
     setActiveDatabase( dbName );
   }
 
-  setDBList();
+  setDatabaseList();
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::setDBList()
+void GCDBSessionManager::setDatabaseList()
 {
   ui->comboBox->clear();
 
-  QStringList dbList = GCDataBaseInterface::instance()->getDBList();
+  QStringList dbList = GCDataBaseInterface::instance()->connectionList();
 
   if( dbList.empty() )
   {

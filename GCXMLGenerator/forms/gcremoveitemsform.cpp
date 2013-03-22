@@ -154,14 +154,14 @@ void GCRemoveItemsForm::deleteElement( const QString &element )
   {
     if( !GCDataBaseInterface::instance()->removeAttribute( currentElement, attribute ) )
     {
-      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
     }
   }
 
   /* Now we can remove the element itself. */
   if( !GCDataBaseInterface::instance()->removeElement( currentElement ) )
   {
-    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
   }
   else
   {
@@ -173,7 +173,7 @@ void GCRemoveItemsForm::deleteElement( const QString &element )
   {
     if( !GCDataBaseInterface::instance()->removeRootElement( currentElement ) )
     {
-      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
     }
   }
 
@@ -193,7 +193,7 @@ void GCRemoveItemsForm::removeChildElement()
   {
     if( !GCDataBaseInterface::instance()->removeChildElement( m_currentElementParent, m_currentElement ) )
     {
-      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
     }
     else
     {
@@ -249,7 +249,7 @@ void GCRemoveItemsForm::updateAttributeValues()
       user was done. */
     if( !GCDataBaseInterface::instance()->updateAttributeValues( m_currentElement, m_currentAttribute, attributes, true ) )
     {
-      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
     }
     else
     {
@@ -264,7 +264,7 @@ void GCRemoveItemsForm::deleteAttribute()
 {
   if( !GCDataBaseInterface::instance()->removeAttribute( m_currentElement, m_currentAttribute ) )
   {
-    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+    GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
   }
   else
   {
@@ -294,7 +294,7 @@ void GCRemoveItemsForm::updateChildLists()
         {
           if( !GCDataBaseInterface::instance()->removeChildElement( element, deletedElement ) )
           {
-            GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+            GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
           }
         }
       }

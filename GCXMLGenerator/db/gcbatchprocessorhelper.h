@@ -59,16 +59,20 @@ class GCBatchProcessorHelper
 public:
   /*! Constructor
       @param domDoc - the DOM document from which all information will be extracted.
+
       @param stringSeparator - the string sequence by which list elements in the database are
-      separated (attribute values are stored as lists in the database, separated by
-      a special character sequence.  In other words, although the database sees a list of
-      attribute values as a single string, we can extract the list elements later if we
-      know which string sequence was used in the creation of the string list).  This
-      value should be unusual and unique.
-      @param knownElements - the list of elements known to the active database, if empty,
-      all the elements in the DOM will be assumed to be new.
+                               separated (attribute values are stored as lists in the database,
+                               separated by a special character sequence.  In other words, although
+                               the database sees a list of attribute values as a single string, we
+                               can extract the list elements later if we know which string sequence
+                               was used in the creation of the string list).  This value should be
+                               unusual and unique.
+
+      @param knownElements - the list of elements known to the active database.  If empty, all the
+                             elements in the DOM will be assumed to be new.
+
       @param knownAttributes - the list of attributes known to the active database, if empty,
-      all the attributes in the DOM will be assumed to be new.  */
+                               all the attributes in the DOM will be assumed to be new.  */
   GCBatchProcessorHelper( const QDomDocument *domDoc,
                           const QString &stringSeparator,
                           const QStringList &knownElements,

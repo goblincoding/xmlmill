@@ -104,7 +104,7 @@ QString GCDomTreeWidget::rootName() const
 
 /*--------------------------------------------------------------------------------------*/
 
-QList< GCTreeWidgetItem* > GCDomTreeWidget::includedGcTreeWidgetItems() const
+QList< GCTreeWidgetItem* > GCDomTreeWidget::includedTreeWidgetItems() const
 {
   QList< GCTreeWidgetItem* > includedItems;
 
@@ -182,7 +182,7 @@ bool GCDomTreeWidget::isEmpty() const
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDomTreeWidget::currentItemIsRoot() const
+bool GCDomTreeWidget::isCurrentItemRoot() const
 {
   if( gcCurrentItem() )
   {
@@ -208,9 +208,9 @@ bool GCDomTreeWidget::isDocumentCompatible() const
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDomTreeWidget::batchProcessSuccess() const
+bool GCDomTreeWidget::isBatchProcessSuccess() const
 {
-  return GCDataBaseInterface::instance()->batchProcessDOMDocument( m_domDoc );
+  return GCDataBaseInterface::instance()->batchProcessDomDocument( m_domDoc );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -548,7 +548,7 @@ void GCDomTreeWidget::addComment( GCTreeWidgetItem *item, const QString &text )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::setCurrentItemWithIndexMatching( int index )
+void GCDomTreeWidget::setCurrentItemToMatchIndex( int index )
 {
   index = ( index < 0 ) ? 0 : index;
 
@@ -768,7 +768,7 @@ void GCDomTreeWidget::renameItem()
 
     if( !GCDataBaseInterface::instance()->addElement( newName, children, attributes ) )
     {
-      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
     }
 
     /* If we are, in fact, dealing with a new element, we also want the "new" element's associated attributes
@@ -779,7 +779,7 @@ void GCDomTreeWidget::renameItem()
 
       if( !GCDataBaseInterface::instance()->updateAttributeValues( newName, attribute, attributeValues ) )
       {
-        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->getLastError() );
+        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
       }
     }
 
