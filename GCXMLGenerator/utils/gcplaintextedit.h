@@ -73,10 +73,6 @@ signals:
       \sa uncommentSelection */
   void uncomment( const QString& );
 
-protected:
-  /*! Re-implemented from QPlainTextEdit. */
-  void keyPressEvent( QKeyEvent *e );
-
 private slots:
   /*! Activated when the cursor in the plain text edit changes.
       \sa selectedIndex */
@@ -111,9 +107,7 @@ private:
   QBrush   m_savedPalette;
   QAction *m_comment;
   QAction *m_uncomment;
-  bool m_undoAvailable;
   bool m_cursorPositionChanging;
-  
 };
 
 #endif // GCPLAINTEXTEDIT_H

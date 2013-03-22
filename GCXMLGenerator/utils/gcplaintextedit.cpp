@@ -66,7 +66,6 @@ GCPlainTextEdit::GCPlainTextEdit( QWidget *parent ) :
   m_savedPalette  (),
   m_comment       ( NULL ),
   m_uncomment     ( NULL ),
-  m_undoAvailable ( false ),
   m_cursorPositionChanging( false )
 {
   setAcceptDrops( false );
@@ -247,13 +246,6 @@ bool GCPlainTextEdit::confirmDomNotBroken()
 
   if( !doc.setContent( toPlainText(), &xmlErr, &line, &col ) )
   {
-    QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3].\n\n"
-                                "Please \"Undo\" and try again." )
-                       .arg( xmlErr )
-                       .arg( line )
-                       .arg( col );
-    GCMessageSpace::showErrorMessageBox( this, errorMsg );
-
     /* Unfortunately the line number returned by the DOM doc doesn't match up with what's
       visible in the QTextEdit.  It seems as if it's mostly off by one line.  For now it's a
       fix, but will have to figure out how to make sure that we highlight the correct lines.
@@ -275,7 +267,24 @@ bool GCPlainTextEdit::confirmDomNotBroken()
     setExtraSelections( extras );
     ensureCursorVisible();
 
-    m_undoAvailable = true;
+    QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3].\n\n"
+                                "Your action will be reverted." )
+                       .arg( xmlErr )
+                       .arg( line )
+                       .arg( col );
+    GCMessageSpace::showErrorMessageBox( this, errorMsg );
+
+    /* Not a typo, comment opening and closing brackets are matching pairs, undo in one go. */
+    undo();
+    undo();
+
+    highlight.cursor = textCursor();
+    highlight.format.setBackground( m_savedPalette );
+    highlight.format.setProperty  ( QTextFormat::FullWidthSelection, true );
+
+    extras.clear();
+    extras << highlight;
+    setExtraSelections( extras );
     return false;
   }
 
@@ -338,32 +347,6 @@ void GCPlainTextEdit::wrapText( bool wrap )
   else
   {
     setLineWrapMode( QPlainTextEdit::NoWrap );
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCPlainTextEdit::keyPressEvent( QKeyEvent *e )
-{
-  if( e->matches( QKeySequence::Undo ) && m_undoAvailable )
-  {
-    /* Not a typo, comment opening and closing brackets are matching pairs, undo in one go. */
-    undo();
-    undo();
-
-    QTextEdit::ExtraSelection highlight;
-    highlight.cursor = textCursor();
-    highlight.format.setBackground( m_savedPalette );
-    highlight.format.setProperty  ( QTextFormat::FullWidthSelection, true );
-
-    QList< QTextEdit::ExtraSelection > extras;
-    extras << highlight;
-    setExtraSelections( extras );
-    m_undoAvailable = false;
-  }
-  else
-  {
-    QPlainTextEdit::keyPressEvent( e );
   }
 }
 
