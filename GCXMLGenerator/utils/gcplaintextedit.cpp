@@ -40,7 +40,26 @@
 const QString OPENCOMMENT( "<!--" );
 const QString CLOSECOMMENT( "-->" );
 
-/*--------------------------------------------------------------------------------------*/
+/*-------------------------------- NON MEMBER FUNCTIONS --------------------------------*/
+
+void removeDuplicates( QList< int > &indices )
+{
+  for( int i = 0; i < indices.size(); ++i )
+  {
+    if( indices.count( indices.at( i ) ) > 1 )
+    {
+      int backup = indices.at( i );
+
+      /* Remove all duplicates. */
+      indices.removeAll( backup );
+
+      /* Add one occurrence back. */
+      indices.append( backup );
+    }
+  }
+}
+
+/*---------------------------------- MEMBER FUNCTIONS ----------------------------------*/
 
 GCPlainTextEdit::GCPlainTextEdit( QWidget *parent ) :
   QPlainTextEdit  ( parent ),
@@ -157,7 +176,7 @@ void GCPlainTextEdit::commentOutSelection()
   QTextBlock block = cursor.block();
 
   while( block.isValid() &&
-         block.blockNumber() < finalBlockNumber )
+         block.blockNumber() <= finalBlockNumber )
   {
     indices.append( findIndexMatchingBlockNumber( block ) );
     block = block.next();
@@ -180,6 +199,7 @@ void GCPlainTextEdit::commentOutSelection()
   {
     comment = comment.replace( QChar( 0x2029 ), '\n' );    // replace Unicode end of line character
     comment = comment.trimmed();
+    removeDuplicates( indices );
     emit commentOut( indices, comment );
   }
 
