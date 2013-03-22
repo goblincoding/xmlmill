@@ -115,7 +115,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionUseDarkTheme, SIGNAL( triggered( bool ) ), this, SLOT( useDarkTheme( bool ) ) );
 
   connect( ui->wrapTextCheckBox, SIGNAL( clicked( bool ) ), ui->dockWidgetTextEdit, SLOT( wrapText( bool ) ) );
-  connect( ui->dockWidgetTextEdit, SIGNAL( selectedIndex( int ) ), ui->treeWidget, SLOT( setCurrentItemWithIndexMatching( int ) ) );
+  connect( ui->dockWidgetTextEdit, SIGNAL( selectedIndex( int ) ), ui->treeWidget, SLOT( setCurrentItemToMatchIndex( int ) ) );
   connect( ui->dockWidgetTextEdit, SIGNAL( commentOut( const QList< int >&, const QString& ) ), this, SLOT( commentOut( const QList< int >&, const QString& ) ) );
   connect( ui->dockWidgetTextEdit, SIGNAL( uncomment( const QString& ) ), this, SLOT( uncomment( const QString& ) ) );
 
