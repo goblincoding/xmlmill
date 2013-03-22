@@ -384,12 +384,36 @@ void GCDomTreeWidget::replaceCommentWithItems( const QString &comment )
       doc.setContent( comment );
 
       QDomElement newElement = doc.documentElement().toElement();
+
+      /* What happens when setting a bunch of sibling items as DOM content is that the DOM document
+        only recognises the first item, assigning it to the root position.  This is a workaround
+        to ensure that these cases are catered for and that sibling items wrapped in comment tags
+        are added correctly. */
+      QString docContent = doc.toString();
+
+      if( docContent.simplified() != comment.simplified() )
+      {
+        QStringList elementSiblingList = comment.split( "\n" );
+
+        /* It's OK to call appendChild here, even though it will be called again in "appendSnippet"
+          below since the only affect will be in the child element's position.  We need to do this or
+          else we can't create sibling elements. */
+        parentItem->element().appendChild( newElement );
+
+        /* Remove the first node as it has already been assigned to "newElement" above. */
+        elementSiblingList.removeAt( 0 );
+
+        foreach( QString elementNode, elementSiblingList )
+        {
+          /* This is easier than extracting element names, attributes and attribute
+            values from the individual strings themselves. */
+          doc.setContent( elementNode );
+          newElement.parentNode().insertAfter( doc.documentElement().toElement(), newElement );
+        }
+      }
+
       appendSnippet( parentItem, newElement );
 
-      /* The new items were appended to the parent items and corresponding element nodes,
-        however, this is not necessarily the desired outcome as it may have messed with the
-        positioning of items and element nodes. To fix this, we re-parent the item and dom
-        nodes to accurately reflect the positions they used to maintain in the XMl text. */
       GCTreeWidgetItem *previousSiblingItem = gcItemFromNode( previousSibling );
       GCTreeWidgetItem *newElementItem = gcItemFromNode( newElement );
 
