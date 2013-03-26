@@ -211,16 +211,28 @@ void GCPlainTextEdit::uncommentSelection()
 {
   m_cursorPositionChanging = true;
 
+  int selectionStart = textCursor().selectionStart();
+  int selectionEnd = textCursor().selectionEnd();
+
+  QTextCursor cursor = textCursor();
+  cursor.setPosition( selectionStart );
+  cursor.movePosition( QTextCursor::StartOfBlock );
+
+  cursor.setPosition( selectionEnd, QTextCursor::KeepAnchor );
+  cursor.movePosition( QTextCursor::EndOfBlock, QTextCursor::KeepAnchor  );
+
   /* We need to capture this text way in the beginning before we start
     messing with cursor positions, etc. */
-  QString selectedText = textCursor().selectedText();
+  QString selectedText = cursor.selectedText();
 
-  textCursor().beginEditBlock();
-  textCursor().removeSelectedText();
+  cursor.beginEditBlock();
+  cursor.removeSelectedText();
   selectedText.remove( OPENCOMMENT );
   selectedText.remove( CLOSECOMMENT );
-  textCursor().insertText( selectedText );
-  textCursor().endEditBlock();
+  cursor.insertText( selectedText );
+  cursor.endEditBlock();
+
+  setTextCursor( cursor );
 
   m_cursorPositionChanging = false;
 
