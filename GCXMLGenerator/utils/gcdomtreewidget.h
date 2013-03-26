@@ -192,6 +192,9 @@ protected:
   /*! Re-implemented from QTreeWidget. */
   void dropEvent( QDropEvent *event );
 
+  /*! Re-implemented from QTreeWidget. */
+  void keyPressEvent( QKeyEvent *event );
+
 private slots:
   /*! Connected to "itemClicked" and "itemActivated". Re-emits the clicked item
       as a GCTreeWidgetItem.

@@ -723,6 +723,21 @@ void GCDomTreeWidget::dropEvent( QDropEvent *event )
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCDomTreeWidget::keyPressEvent( QKeyEvent *event )
+{
+  if( event->key() == Qt::Key_Delete )
+  {
+    removeItem();
+    m_activeItem = gcCurrentItem();
+  }
+  else
+  {
+    QTreeWidget::keyPressEvent( event );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCDomTreeWidget::emitGcCurrentItemSelected( QTreeWidgetItem *item, int column, bool highlightElement )
 {
   if( !m_busyIterating )
@@ -809,7 +824,7 @@ void GCDomTreeWidget::removeItem()
     m_activeItem = NULL;
 
     updateIndices();
-    emitGcCurrentItemSelected( currentItem(), 0 );
+    emitGcCurrentItemChanged( currentItem(), 0 );
   }
 }
 
