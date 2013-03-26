@@ -353,7 +353,7 @@ void GCDomTreeWidget::replaceCommentWithItems( const QString &comment )
 
   if( !commentNode.isNull() )
   {
-    /* Ensure that we get the previous element node (e.g. the comment may have another comment
+    /* Ensure that we get the previous element parent (e.g. the comment may have another comment
       node as parent). */
     QDomNode parentElement = commentNode.parentNode();
 
@@ -367,64 +367,36 @@ void GCDomTreeWidget::replaceCommentWithItems( const QString &comment )
 
     if( parentItem )
     {
-      /* Obtain the previous sibling element before we lose the comment node. */
-      QDomNode previousSibling = commentNode.previousSibling();
-
-      while( !previousSibling.isNull() &&
-             !previousSibling.isElement() )
-      {
-        previousSibling = previousSibling.previousSibling();
-      }
-
-      QDomNode parent = commentNode.parentNode();
-      parent.removeChild( commentNode );
-      m_comments.removeAll( commentNode );
-
-      QDomDocument doc;
-      doc.setContent( comment );
-
-      QDomElement newElement = doc.documentElement().toElement();
-
       /* What happens when setting a bunch of sibling items as DOM content is that the DOM document
         only recognises the first item, assigning it to the root position.  This is a workaround
         to ensure that these cases are catered for and that sibling items wrapped in comment tags
         are added correctly. */
-      QString docContent = doc.toString();
+      QString parentItemText;
+      QTextStream stream( &parentItemText );
+      parentItem->element().save( stream, 2 );
+      parentItemText = parentItemText.replace( QString( "<!--%1-->").arg( comment ), comment );
 
-      if( docContent.simplified() != comment.simplified() )
+      /* We can't remove the comment node before we've obtained the text above (or else it's obviously
+        excluded from its parent and won't show). */
+      commentNode.parentNode().removeChild( commentNode );
+      m_comments.removeAll( commentNode );
+
+      if( parentItem->gcParent() )
       {
-        QStringList elementSiblingList = comment.split( "\n" );
+        GCTreeWidgetItem *oldItem = parentItem;
+        parentItem = parentItem->gcParent();
+        parentItem->removeChild( oldItem );
 
-        /* It's OK to call appendChild here, even though it will be called again in "appendSnippet"
-          below since the only affect will be in the child element's position.  We need to do this or
-          else we can't create sibling elements. */
-        parentItem->element().appendChild( newElement );
+        parentElement = parentItem->element();
+        parentElement.removeChild( oldItem->element() );
 
-        /* Remove the first node as it has already been assigned to "newElement" above. */
-        elementSiblingList.removeAt( 0 );
-
-        foreach( QString elementNode, elementSiblingList )
-        {
-          /* This is easier than extracting element names, attributes and attribute
-            values from the individual strings themselves. */
-          doc.setContent( elementNode );
-          newElement.parentNode().insertAfter( doc.documentElement().toElement(), newElement );
-        }
+        m_items.removeAll( oldItem );
       }
 
-      appendSnippet( parentItem, newElement );
-
-      GCTreeWidgetItem *previousSiblingItem = gcItemFromNode( previousSibling );
-      GCTreeWidgetItem *newElementItem = gcItemFromNode( newElement );
-
-      if( previousSiblingItem &&
-          newElementItem )
-      {
-        parentItem->removeChild( newElementItem );
-        parentItem->insertChild( parentItem->indexOfChild( previousSiblingItem ), newElementItem );
-        parentElement.insertBefore( newElement, previousSibling );
-        updateIndices();
-      }
+      QDomDocument doc;
+      doc.setContent( parentItemText );
+      appendSnippet( parentItem, doc.documentElement().cloneNode().toElement() );
+      updateIndices();
     }
   }
 }
