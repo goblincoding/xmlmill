@@ -241,6 +241,9 @@ private:
   /*! Finds and returns the GCTreeWidget item that is linked to "element". */
   GCTreeWidgetItem *gcItemFromNode( QDomNode element );
 
+  /*! Recursively removes items from the list. */
+  void removeFromList( GCTreeWidgetItem *item );
+
   GCTreeWidgetItem *m_activeItem;
   QDomDocument     *m_domDoc;
   bool              m_isEmpty;

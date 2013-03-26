@@ -310,11 +310,12 @@ void GCDomTreeWidget::replaceItemsWithComment( const QList< int > &indices, cons
   for( int i = 0; i < itemsToDelete.size(); ++ i )
   {
     GCTreeWidgetItem *item = itemsToDelete.at( i );
-    m_items.removeAll( item );
+    removeFromList( item );
 
     if( item )
     {
       delete item;
+      item = NULL;
     }
   }
 
@@ -390,7 +391,7 @@ void GCDomTreeWidget::replaceCommentWithItems( const QString &comment )
         parentElement = parentItem->element();
         parentElement.removeChild( oldItem->element() );
 
-        m_items.removeAll( oldItem );
+        removeFromList( oldItem );
       }
 
       QDomDocument doc;
@@ -636,6 +637,19 @@ GCTreeWidgetItem *GCDomTreeWidget::gcItemFromNode( QDomNode element )
 
 /*--------------------------------------------------------------------------------------*/
 
+void GCDomTreeWidget::removeFromList( GCTreeWidgetItem *item )
+{
+  for( int i = 0; i < item->childCount(); ++i )
+  {
+    GCTreeWidgetItem *childItem = item->gcChild( i );
+    removeFromList( childItem );
+  }
+
+  m_items.removeAll( item );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
 void GCDomTreeWidget::populateCommentList( QDomNode node )
 {
   QDomNode childNode = node.firstChild();
@@ -730,6 +744,13 @@ void GCDomTreeWidget::keyPressEvent( QKeyEvent *event )
     removeItem();
     m_activeItem = gcCurrentItem();
   }
+  else if( event->key() == Qt::Key_Up ||
+           event->key() == Qt::Key_Down )
+  {
+    QTreeWidget::keyPressEvent( event );
+    m_activeItem = gcCurrentItem();
+    emitGcCurrentItemSelected( m_activeItem, 0 );
+  }
   else
   {
     QTreeWidget::keyPressEvent( event );
@@ -819,12 +840,14 @@ void GCDomTreeWidget::removeItem()
       invisibleRootItem()->removeChild( m_activeItem );
     }
 
-    m_items.removeAll( m_activeItem );
+    removeFromList( m_activeItem );
     m_isEmpty = m_items.isEmpty();
-    m_activeItem = NULL;
+
+    delete m_activeItem;
+    m_activeItem = gcCurrentItem();
 
     updateIndices();
-    emitGcCurrentItemChanged( currentItem(), 0 );
+    emitGcCurrentItemChanged( m_activeItem, 0 );
   }
 }
 
