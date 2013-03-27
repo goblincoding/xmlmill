@@ -742,7 +742,6 @@ void GCDomTreeWidget::keyPressEvent( QKeyEvent *event )
   if( event->key() == Qt::Key_Delete )
   {
     removeItem();
-    m_activeItem = gcCurrentItem();
   }
   else if( event->key() == Qt::Key_Up ||
            event->key() == Qt::Key_Down )

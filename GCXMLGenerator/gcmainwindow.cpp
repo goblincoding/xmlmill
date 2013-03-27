@@ -217,18 +217,17 @@ void GCMainWindow::initialise()
 
 void GCMainWindow::elementChanged( GCTreeWidgetItem *item, int column )
 {
-  Q_UNUSED( column );
-
   if( !ui->treeWidget->isEmpty() )
   {
-    /* If all we have is a document root element, reset everything. */
-    if( ui->treeWidget->matchesRootName( item->name() ) )
-    {
-      resetDOM();
-    }
+    /* No need to highlight the element in "elementSelected" as "setTextEditContent"
+        will take care of it. */
+    elementSelected( item, column, false );
+    setTextEditContent( item );
   }
-
-  setTextEditContent( item );
+  else
+  {
+    resetDOM();
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
