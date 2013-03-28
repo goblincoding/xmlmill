@@ -299,3 +299,26 @@ void GCTreeWidgetItem::setVerbose( bool verbose )
 }
 
 /*--------------------------------------------------------------------------------------*/
+
+void GCTreeWidgetItem::insertGcChild( int index, GCTreeWidgetItem *item )
+{
+  QTreeWidgetItem::insertChild( index + 1, item );
+
+  QDomElement siblingElement = m_element.firstChildElement();
+  int counter = 0;
+
+  while( !siblingElement.isNull() )
+  {
+    if( counter == index )
+    {
+      break;
+    }
+
+    counter++;
+    siblingElement = siblingElement.nextSiblingElement();
+  }
+
+  m_element.insertAfter( item->element(), siblingElement );
+}
+
+/*--------------------------------------------------------------------------------------*/

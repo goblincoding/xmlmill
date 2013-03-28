@@ -157,8 +157,7 @@ public:
       otherwise it will be added as a child of the current item.  The new item is also
       set as the current item. If "toParent" is true, the new item will be added as a
       child to the current item's parent (i.e. as a sibling to the current item).
-      \sa insertItem
-      \sa addComment */
+      \sa insertItem */
   void addItem( const QString &element, bool toParent = false );
 
   /*! Adds a new item and corresponding DOM element node named "elementName" and inserts
@@ -166,14 +165,8 @@ public:
       is empty, the new item will be added to the invisible root. The new item is also set
       as the current item. If "toParent" is true, the new item will be added as a child to
       the current item's parent (i.e. as a sibling to the current item).
-      \sa addItem
-      \sa addComment */
+      \sa addItem */
   void insertItem( const QString &elementName, int index, bool toParent = false );
-
-  /*! Adds a DOM comment to the current active element.
-      \sa addItem
-      \sa insertItem */
-  void addComment( const QString &text );
 
   /*! Iterates through the tree and sets all items' check states to "state". */
   void setAllCheckStates( Qt::CheckState state );

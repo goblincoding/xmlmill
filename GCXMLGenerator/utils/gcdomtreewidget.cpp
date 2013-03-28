@@ -142,7 +142,14 @@ void GCDomTreeWidget::setActiveCommentValue( const QString &value )
   }
   else
   {
-    addComment( value );
+    if( m_activeItem &&
+        !value.isEmpty() )
+    {
+      QDomComment comment = m_domDoc->createComment( value );
+      m_activeItem->element().parentNode().insertBefore( comment, m_activeItem->element() );
+      m_comments.append( comment );
+      emitGcCurrentItemChanged( m_activeItem, 0 );
+    }
   }
 
   emitGcCurrentItemChanged( m_activeItem, 0 );
@@ -520,16 +527,23 @@ void GCDomTreeWidget::processNextElement( const QString &element )
     }
   }
 
-  setCurrentItem( currentItem()->parent() );  // required to enforce sibling relationships
+  setCurrentItem( m_activeItem->parent() );  // required to enforce sibling relationships
 }
 
 /*--------------------------------------------------------------------------------------*/
 
 void GCDomTreeWidget::addItem( const QString &element, bool toParent )
 {
-  if( currentItem() )
+  if( m_activeItem )
   {
-    insertItem( element, currentItem()->childCount(), toParent );
+    if( toParent )
+    {
+      insertItem( element, m_activeItem->parent()->indexOfChild( m_activeItem ), toParent );
+    }
+    else
+    {
+      insertItem( element, m_activeItem->childCount() - 1, toParent );
+    }
   }
   else
   {
@@ -555,11 +569,6 @@ void GCDomTreeWidget::insertItem( const QString &elementName, int index, bool to
   GCTreeWidgetItem *item = new GCTreeWidgetItem( element, m_items.size() );
   m_items.append( item );
 
-  /* I will have to rethink this approach if it turns out that it is too expensive to
-    iterate through the tree on each and every addition...for now, this is the easiest
-    solution, even if not the best. */
-  updateIndices();
-
   if( m_isEmpty )
   {
     invisibleRootItem()->addChild( item );  // takes ownership
@@ -570,31 +579,20 @@ void GCDomTreeWidget::insertItem( const QString &elementName, int index, bool to
   {
     if( !toParent )
     {
-      currentItem()->insertChild( index, item );
-      gcCurrentItem()->element().appendChild( element );
+      m_activeItem->insertGcChild( index, item );
     }
     else
     {
-      currentItem()->parent()->insertChild( index, item );
-      gcCurrentItem()->gcParent()->element().appendChild( element );
+      m_activeItem->gcParent()->insertGcChild( index, item );
     }
   }
 
+  /* I will have to rethink this approach if it turns out that it is too expensive to
+    iterate through the tree on each and every addition...for now, this is the easiest
+    solution, even if not the best. */
+  updateIndices();
+
   setCurrentItem( item );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void GCDomTreeWidget::addComment( const QString &text )
-{
-  if( m_activeItem &&
-      !text.isEmpty() )
-  {
-    QDomComment comment = m_domDoc->createComment( text );
-    m_activeItem->element().parentNode().insertBefore( comment, m_activeItem->element() );
-    m_comments.append( comment );
-    emitGcCurrentItemChanged( m_activeItem, 0 );
-  }
 }
 
 /*--------------------------------------------------------------------------------------*/

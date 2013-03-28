@@ -940,10 +940,6 @@ void GCMainWindow::addElementToDocument()
       treeItem->element().setAttribute( attributes.at( i ), QString( "" ) );
     }
 
-    /* Check if the user provided a comment. */
-    ui->treeWidget->addComment( ui->commentLineEdit->text() );
-    ui->commentLineEdit->clear();
-
     setTextEditContent( treeItem );
     elementSelected( treeItem, 0 );
   }

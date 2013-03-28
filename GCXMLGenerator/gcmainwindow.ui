@@ -45,6 +45,12 @@
          </item>
          <item>
           <widget class="QPushButton" name="addSnippetButton">
+           <property name="toolTip">
+            <string>Add an entire snippet to the document.</string>
+           </property>
+           <property name="whatsThis">
+            <string>Add an entire snippet to the document.</string>
+           </property>
            <property name="text">
             <string>Add Snippet</string>
            </property>
@@ -52,8 +58,14 @@
          </item>
          <item>
           <widget class="QPushButton" name="addChildElementButton">
+           <property name="toolTip">
+            <string>Add a new element to the document.</string>
+           </property>
+           <property name="whatsThis">
+            <string>Add a new element to the document.</string>
+           </property>
            <property name="text">
-            <string>Add Child</string>
+            <string>Add Element</string>
            </property>
           </widget>
          </item>

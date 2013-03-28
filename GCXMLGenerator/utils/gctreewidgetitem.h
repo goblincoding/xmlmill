@@ -154,6 +154,10 @@ public:
       \sa setDisplayText */
   void setVerbose( bool verbose );
 
+  /*! Inserts "item" at "index" and ensures that the corresponding DOM element is also
+      inserted in the correct position (relative to the item's siblings). */
+  void insertGcChild( int index, GCTreeWidgetItem* item );
+
 private:
   /*! Initialise the item. */
   void init( QDomElement element, int index );
