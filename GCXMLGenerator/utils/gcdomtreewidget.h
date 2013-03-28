@@ -85,8 +85,13 @@ public:
   QString rootName() const;
 
   /*! Returns the comment associated with the current element (if any).  If no comment precedes
-      the current element, an empty string is returned. */
-  QString activeCommentText() const;
+      the current element, an empty string is returned.
+      \sa setActiveCommentValue */
+  QString activeCommentValue() const;
+
+  /*! Sets the value of the active comment node to "value".
+      \sa activeCommentValue */
+  void setActiveCommentValue( const QString &value );
 
   /*! Sets the underlying DOM document's content.  If successful, a recursive DOM tree traversal
       is kicked off in order to populate the tree widget with the information contained in the
@@ -164,10 +169,10 @@ public:
       \sa addComment */
   void insertItem( const QString &elementName, int index, bool toParent = false );
 
-  /*! Adds a DOM comment to the element corresponding to "item".
+  /*! Adds a DOM comment to the current active element.
       \sa addItem
       \sa insertItem */
-  void addComment( GCTreeWidgetItem* item, const QString &text );
+  void addComment( const QString &text );
 
   /*! Iterates through the tree and sets all items' check states to "state". */
   void setAllCheckStates( Qt::CheckState state );
@@ -191,15 +196,15 @@ signals:
 
 protected:
   /*! Re-implemented from QTreeWidget. */
-  void mousePressEvent( QMouseEvent *event );
-
-  /*! Re-implemented from QTreeWidget. */
   void dropEvent( QDropEvent *event );
 
   /*! Re-implemented from QTreeWidget. */
   void keyPressEvent( QKeyEvent *event );
 
 private slots:
+  /*! Connected to QTreeWidget::currentItemChanged(), sets the active item. */
+  void currentGcItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous );
+
   /*! Connected to "itemClicked" and "itemActivated". Re-emits the clicked item
       as a GCTreeWidgetItem.
       \sa gcCurrentItemSelected */

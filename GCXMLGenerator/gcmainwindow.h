@@ -293,6 +293,11 @@ private slots:
       to the main DOM and the tree. */
   void uncomment( const QString& comment );
 
+  /*! Connected to the comment line edit's "textEdited" signal, this updates the active comment node's
+      value to "comment".  This function will not execute its functionality when new comments or elements
+      are added. */
+  void updateComment( const QString &comment );
+
   /*! Connectd to the "Expand All" checkbox's "clicked( bool )" signal.  This slot toggles the expandsion or collapses
       of UI tree widget. */
   void collapseOrExpandTreeWidget( bool checked );

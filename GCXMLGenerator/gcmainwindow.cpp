@@ -112,6 +112,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionVisitOfficialSite, SIGNAL( triggered() ), this, SLOT( goToSite() ) );
   connect( ui->expandAllCheckBox, SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
   connect( ui->commentLineEdit, SIGNAL( returnPressed() ), this, SLOT( addComment() ) );
+  connect( ui->commentLineEdit, SIGNAL( textEdited( QString ) ), this, SLOT( updateComment( QString ) ) );
   connect( ui->actionUseDarkTheme, SIGNAL( triggered( bool ) ), this, SLOT( useDarkTheme( bool ) ) );
 
   connect( ui->wrapTextCheckBox, SIGNAL( clicked( bool ) ), ui->dockWidgetTextEdit, SLOT( wrapText( bool ) ) );
@@ -342,7 +343,7 @@ void GCMainWindow::elementSelected( GCTreeWidgetItem *item, int column, bool hig
       ui->addChildElementButton->setText( "Add Child" );
     }
 
-    ui->commentLineEdit->setText( ui->treeWidget->activeCommentText() );
+    ui->commentLineEdit->setText( ui->treeWidget->activeCommentValue() );
 
     /* Unset flag. */
     m_wasTreeItemActivated = false;
@@ -944,7 +945,7 @@ void GCMainWindow::addElementToDocument()
     /* Check if the user provided a comment. */
     if( !ui->commentLineEdit->text().isEmpty() )
     {
-      ui->treeWidget->addComment( treeItem, ui->commentLineEdit->text() );
+      ui->treeWidget->addComment( ui->commentLineEdit->text() );
       ui->commentLineEdit->clear();
     }
 
@@ -1080,6 +1081,13 @@ void GCMainWindow::uncomment( const QString &comment )
   ui->treeWidget->replaceCommentWithItems( comment );
   ui->treeWidget->expandAll();
   m_fileContentsChanged = true;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCMainWindow::updateComment( const QString &comment )
+{
+  ui->treeWidget->setActiveCommentValue( comment );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1280,9 +1288,8 @@ void GCMainWindow::addComment()
 {
   if( !ui->commentLineEdit->text().isEmpty() )
   {
-    ui->treeWidget->addComment( ui->treeWidget->gcCurrentItem(), ui->commentLineEdit->text() );
+    ui->treeWidget->addComment( ui->commentLineEdit->text() );
     ui->commentLineEdit->clear();
-    setTextEditContent( ui->treeWidget->gcCurrentItem() );
   }
 }
 

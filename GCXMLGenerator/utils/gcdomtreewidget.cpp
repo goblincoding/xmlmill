@@ -63,6 +63,7 @@ GCDomTreeWidget::GCDomTreeWidget( QWidget *parent ) :
 
   setContextMenuPolicy( Qt::ActionsContextMenu );
 
+  connect( this, SIGNAL( currentItemChanged( QTreeWidgetItem*,QTreeWidgetItem* ) ), this, SLOT( currentGcItemChanged( QTreeWidgetItem*,QTreeWidgetItem* ) ) );
   connect( this, SIGNAL( itemClicked( QTreeWidgetItem*,int ) ), this, SLOT( emitGcCurrentItemSelected( QTreeWidgetItem*,int ) ) );
   connect( this, SIGNAL( itemActivated( QTreeWidgetItem*, int ) ), this, SLOT( emitGcCurrentItemSelected( QTreeWidgetItem*, int ) ) );
   connect( this, SIGNAL( itemChanged( QTreeWidgetItem*, int ) ), this, SLOT( emitGcCurrentItemChanged( QTreeWidgetItem*, int ) ) );
@@ -79,7 +80,7 @@ GCDomTreeWidget::~GCDomTreeWidget()
 
 GCTreeWidgetItem* GCDomTreeWidget::gcCurrentItem() const
 {
-  return dynamic_cast< GCTreeWidgetItem* >( currentItem() );
+  return m_activeItem;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -105,7 +106,7 @@ QString GCDomTreeWidget::rootName() const
 
 /*--------------------------------------------------------------------------------------*/
 
-QString GCDomTreeWidget::activeCommentText() const
+QString GCDomTreeWidget::activeCommentValue() const
 {
   if( !m_commentNode.isNull() )
   {
@@ -120,6 +121,17 @@ QString GCDomTreeWidget::activeCommentText() const
   }
 
   return QString();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDomTreeWidget::setActiveCommentValue( const QString &value )
+{
+  if( !m_commentNode.isNull() )
+  {
+    m_commentNode.setNodeValue( value );
+    emitGcCurrentItemChanged( m_activeItem, 0 );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -559,13 +571,14 @@ void GCDomTreeWidget::insertItem( const QString &elementName, int index, bool to
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::addComment( GCTreeWidgetItem *item, const QString &text )
+void GCDomTreeWidget::addComment( const QString &text )
 {
-  if( item )
+  if( m_activeItem )
   {
     QDomComment comment = m_domDoc->createComment( text );
-    item->element().parentNode().insertBefore( comment, item->element() );
+    m_activeItem->element().parentNode().insertBefore( comment, m_activeItem->element() );
     m_comments.append( comment );
+    emitGcCurrentItemChanged( m_activeItem, 0 );
   }
 }
 
@@ -694,14 +707,6 @@ void GCDomTreeWidget::populateCommentList( QDomNode node )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::mousePressEvent( QMouseEvent *event )
-{
-  QTreeWidget::mousePressEvent( event );
-  m_activeItem = dynamic_cast< GCTreeWidgetItem* >( itemAt( event->pos() ) );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 void GCDomTreeWidget::dropEvent( QDropEvent *event )
 {
   QTreeWidget::dropEvent( event );
@@ -773,13 +778,19 @@ void GCDomTreeWidget::keyPressEvent( QKeyEvent *event )
            event->key() == Qt::Key_Down )
   {
     QTreeWidget::keyPressEvent( event );
-    m_activeItem = gcCurrentItem();
     emitGcCurrentItemSelected( m_activeItem, 0 );
   }
   else
   {
     QTreeWidget::keyPressEvent( event );
   }
+}
+/*--------------------------------------------------------------------------------------*/
+
+void GCDomTreeWidget::currentGcItemChanged( QTreeWidgetItem *current, QTreeWidgetItem *previous )
+{
+  Q_UNUSED( previous );
+  m_activeItem = dynamic_cast< GCTreeWidgetItem* >( current );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -790,15 +801,13 @@ void GCDomTreeWidget::emitGcCurrentItemSelected( QTreeWidgetItem *item, int colu
   {
     setCurrentItem( item, column );
 
-    GCTreeWidgetItem *gcItem = dynamic_cast< GCTreeWidgetItem* >( item );
-
-    if( gcItem )
+    if( m_activeItem )
     {
       /* Returns NULL object if not a comment. */
-      m_commentNode = gcItem->element().previousSibling().toComment();
+      m_commentNode = m_activeItem->element().previousSibling().toComment();
     }
 
-    emit gcCurrentItemSelected( gcItem, column, highlightElement );
+    emit gcCurrentItemSelected( m_activeItem, column, highlightElement );
   }
 }
 
@@ -810,15 +819,13 @@ void GCDomTreeWidget::emitGcCurrentItemChanged( QTreeWidgetItem *item, int colum
   {
     setCurrentItem( item, column );
 
-    GCTreeWidgetItem *gcItem = dynamic_cast< GCTreeWidgetItem* >( item );
-
-    if( gcItem )
+    if( m_activeItem )
     {
       /* Returns NULL object if not a comment. */
-      m_commentNode = gcItem->element().previousSibling().toComment();
+      m_commentNode = m_activeItem->element().previousSibling().toComment();
     }
 
-    emit gcCurrentItemChanged( gcItem, column );
+    emit gcCurrentItemChanged( m_activeItem, column );
   }
 }
 
