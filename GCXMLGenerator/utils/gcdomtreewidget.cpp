@@ -395,8 +395,14 @@ void GCDomTreeWidget::replaceCommentWithItems( const QString &comment )
       }
 
       QDomDocument doc;
-      doc.setContent( parentItemText );
-      appendSnippet( parentItem, doc.documentElement().cloneNode().toElement() );
+
+      if( doc.setContent( parentItemText ) )
+      {
+        /* Ensure that everything in the new snippet is known to the database. */
+        GCDataBaseInterface::instance()->batchProcessDomDocument( &doc );
+        appendSnippet( parentItem, doc.documentElement().cloneNode().toElement() );
+      }
+
       updateIndices();
     }
   }
@@ -824,6 +830,26 @@ void GCDomTreeWidget::removeItem()
 {
   if( m_activeItem )
   {
+    /* I think it is safe to assume that comment nodes will exist just above an element
+      although it might not always be the case that a multi-line comment exists within
+      a single set of comment tags.  However, for those cases, it's the user's responsibility
+      to clean them up. */
+    QDomNode commentNode = m_activeItem->element().previousSibling();
+
+    if( !commentNode.isNull() &&
+        commentNode.isComment() )
+    {
+      /* Check if the comment is an actual comment or if it's valid XML that's been
+        commented out. */
+      QDomDocument doc;
+
+      if( !doc.setContent( commentNode.toComment().nodeValue() ) )
+      {
+        m_comments.removeAll( commentNode.toComment() );
+        commentNode.parentNode().removeChild( commentNode );
+      }
+    }
+
     /* Remove the element from the DOM first. */
     QDomNode parentNode = m_activeItem->element().parentNode();
     parentNode.removeChild( m_activeItem->element() );

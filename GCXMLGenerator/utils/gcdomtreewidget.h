@@ -213,7 +213,8 @@ private slots:
   void renameItem();
 
   /*! Connected to a context menu action. Removes the item (and it's corresponding element) on which
-      the context menu action was invoked from the tree and underlying DOM. */
+      the context menu action was invoked from the tree and underlying DOM. This function will furthermore
+      remove all comment nodes directly above the element node. */
   void removeItem();
 
 private:
