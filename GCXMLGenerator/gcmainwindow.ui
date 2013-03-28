@@ -96,17 +96,6 @@
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QToolButton" name="showCommentHelpButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-           <property name="icon">
-            <iconset resource="resources/gcresources.qrc">
-             <normaloff>:/resources/helpicon.png</normaloff>:/resources/helpicon.png</iconset>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
        <item>

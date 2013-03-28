@@ -322,9 +322,6 @@ private slots:
       is empty and provides information that will help the user populate the active profile. */
   void showEmptyProfileHelp();
 
-  /*! Displays a brief message about adding comments to the XML. */
-  void showCommentHelp();
-
   /*! Displays a brief message about adding elements to a document. */
   void showElementHelp();
 
@@ -339,9 +336,6 @@ private slots:
 
   /*! Opens this application's website. */
   void goToSite();
-
-  /*! Adds an XML comment to the currently highlighted element. */
-  void addComment();
 
   /*! Sets the style sheet on the application. */
   void useDarkTheme( bool dark );

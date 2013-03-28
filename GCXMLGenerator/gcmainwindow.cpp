@@ -111,7 +111,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->actionHelpContents, SIGNAL( triggered() ), this, SLOT( showMainHelp() ) );
   connect( ui->actionVisitOfficialSite, SIGNAL( triggered() ), this, SLOT( goToSite() ) );
   connect( ui->expandAllCheckBox, SIGNAL( clicked( bool ) ), this, SLOT( collapseOrExpandTreeWidget( bool ) ) );
-  connect( ui->commentLineEdit, SIGNAL( returnPressed() ), this, SLOT( addComment() ) );
   connect( ui->commentLineEdit, SIGNAL( textEdited( QString ) ), this, SLOT( updateComment( QString ) ) );
   connect( ui->actionUseDarkTheme, SIGNAL( triggered( bool ) ), this, SLOT( useDarkTheme( bool ) ) );
 
@@ -123,7 +122,6 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   /* Help related. */
   connect( ui->actionShowHelpButtons, SIGNAL( triggered( bool ) ), this, SLOT( setShowHelpButtons( bool ) ) );
   connect( ui->showEmptyProfileHelpButton, SIGNAL( clicked() ), this, SLOT( showEmptyProfileHelp() ) );
-  connect( ui->showCommentHelpButton, SIGNAL( clicked() ), this, SLOT( showCommentHelp() ) );
   connect( ui->showAddElementHelpButton, SIGNAL( clicked() ), this, SLOT( showElementHelp() ) );
 
   /* Everything tree widget related. */
@@ -943,11 +941,8 @@ void GCMainWindow::addElementToDocument()
     }
 
     /* Check if the user provided a comment. */
-    if( !ui->commentLineEdit->text().isEmpty() )
-    {
-      ui->treeWidget->addComment( ui->commentLineEdit->text() );
-      ui->commentLineEdit->clear();
-    }
+    ui->treeWidget->addComment( ui->commentLineEdit->text() );
+    ui->commentLineEdit->clear();
 
     setTextEditContent( treeItem );
     elementSelected( treeItem, 0 );
@@ -1228,17 +1223,6 @@ void GCMainWindow::showEmptyProfileHelp()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::showCommentHelp()
-{
-  QMessageBox::information( this,
-                            "Adding Comments",
-                            "Comments are automatically added to newly created elements (if provided).\n\n"
-                            "To add a comment to an existing element, select the relevant element in the tree, "
-                            "provide the comment text and press \"Enter\"." );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 void GCMainWindow::showElementHelp()
 {
   QMessageBox::information( this,
@@ -1284,17 +1268,6 @@ void GCMainWindow::goToSite()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::addComment()
-{
-  if( !ui->commentLineEdit->text().isEmpty() )
-  {
-    ui->treeWidget->addComment( ui->commentLineEdit->text() );
-    ui->commentLineEdit->clear();
-  }
-}
-
-/*--------------------------------------------------------------------------------------*/
-
 void GCMainWindow::useDarkTheme( bool dark )
 {
   if( dark )
@@ -1318,7 +1291,6 @@ void GCMainWindow::setShowHelpButtons( bool show )
 {
   GCGlobalSpace::setShowHelpButtons( show );
   ui->showAddElementHelpButton->setVisible( show );
-  ui->showCommentHelpButton->setVisible( show );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -1469,7 +1441,6 @@ void GCMainWindow::toggleAddElementWidgets()
     ui->addElementComboBox->setEnabled( false );
     ui->addChildElementButton->setEnabled( false );
     ui->commentLineEdit->setEnabled( false );
-    ui->showCommentHelpButton->setEnabled( false );
 
     /* Check if the element combo box is empty due to an empty profile
       being active. */
@@ -1487,7 +1458,6 @@ void GCMainWindow::toggleAddElementWidgets()
     ui->addElementComboBox->setEnabled( true );
     ui->addChildElementButton->setEnabled( true );
     ui->commentLineEdit->setEnabled( true );
-    ui->showCommentHelpButton->setEnabled( true );
     ui->showEmptyProfileHelpButton->setVisible( false );
   }
 }

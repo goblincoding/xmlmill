@@ -127,11 +127,25 @@ QString GCDomTreeWidget::activeCommentValue() const
 
 void GCDomTreeWidget::setActiveCommentValue( const QString &value )
 {
+  /* Check if we're editing an existing comment, or if we should add a new one. */
   if( !m_commentNode.isNull() )
   {
-    m_commentNode.setNodeValue( value );
-    emitGcCurrentItemChanged( m_activeItem, 0 );
+    if( !value.isEmpty() )
+    {
+      m_commentNode.setNodeValue( value );
+    }
+    else
+    {
+      m_comments.removeAll( m_commentNode );
+      m_commentNode.parentNode().removeChild( m_commentNode );
+    }
   }
+  else
+  {
+    addComment( value );
+  }
+
+  emitGcCurrentItemChanged( m_activeItem, 0 );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -573,7 +587,8 @@ void GCDomTreeWidget::insertItem( const QString &elementName, int index, bool to
 
 void GCDomTreeWidget::addComment( const QString &text )
 {
-  if( m_activeItem )
+  if( m_activeItem &&
+      !text.isEmpty() )
   {
     QDomComment comment = m_domDoc->createComment( text );
     m_activeItem->element().parentNode().insertBefore( comment, m_activeItem->element() );
@@ -879,19 +894,16 @@ void GCDomTreeWidget::removeItem()
       although it might not always be the case that a multi-line comment exists within
       a single set of comment tags.  However, for those cases, it's the user's responsibility
       to clean them up. */
-    QDomNode commentNode = m_activeItem->element().previousSibling();
-
-    if( !commentNode.isNull() &&
-        commentNode.isComment() )
+    if( !m_commentNode.isNull() )
     {
       /* Check if the comment is an actual comment or if it's valid XML that's been
         commented out. */
       QDomDocument doc;
 
-      if( !doc.setContent( commentNode.toComment().nodeValue() ) )
+      if( !doc.setContent( m_commentNode.nodeValue() ) )
       {
-        m_comments.removeAll( commentNode.toComment() );
-        commentNode.parentNode().removeChild( commentNode );
+        m_comments.removeAll( m_commentNode );
+        m_commentNode.parentNode().removeChild( m_commentNode );
       }
     }
 

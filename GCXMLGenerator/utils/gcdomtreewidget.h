@@ -89,7 +89,8 @@ public:
       \sa setActiveCommentValue */
   QString activeCommentValue() const;
 
-  /*! Sets the value of the active comment node to "value".
+  /*! Sets the value of the active comment node to "value".  If the active element doesn't have
+      an associated comment, a comment node is created.
       \sa activeCommentValue */
   void setActiveCommentValue( const QString &value );
 
