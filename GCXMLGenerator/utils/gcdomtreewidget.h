@@ -30,11 +30,11 @@
 #define GCDOMTREEWIDGET_H
 
 #include <QTreeWidget>
+#include <QDomComment>
 
 class GCTreeWidgetItem;
 class QDomDocument;
 class QDomElement;
-class QDomComment;
 class QDomNode;
 
 /// Specialist tree widget class consiting of GCTreeWidgetItems.
@@ -83,6 +83,10 @@ public:
       \sa currentItemIsRoot
       \sa matchesRootName */
   QString rootName() const;
+
+  /*! Returns the comment associated with the current element (if any).  If no comment precedes
+      the current element, an empty string is returned. */
+  QString activeCommentText() const;
 
   /*! Sets the underlying DOM document's content.  If successful, a recursive DOM tree traversal
       is kicked off in order to populate the tree widget with the information contained in the
@@ -247,6 +251,7 @@ private:
 
   GCTreeWidgetItem *m_activeItem;
   QDomDocument     *m_domDoc;
+  QDomComment       m_commentNode;
   bool              m_isEmpty;
   bool              m_busyIterating;
 

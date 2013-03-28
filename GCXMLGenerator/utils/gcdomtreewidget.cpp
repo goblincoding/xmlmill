@@ -44,6 +44,7 @@ GCDomTreeWidget::GCDomTreeWidget( QWidget *parent ) :
   QTreeWidget    ( parent ),
   m_activeItem   ( NULL ),
   m_domDoc       ( new QDomDocument ),
+  m_commentNode  (),
   m_isEmpty      ( true ),
   m_busyIterating( false ),
   m_items        ()
@@ -100,6 +101,25 @@ QString GCDomTreeWidget::toString() const
 QString GCDomTreeWidget::rootName() const
 {
   return m_domDoc->documentElement().tagName();
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+QString GCDomTreeWidget::activeCommentText() const
+{
+  if( !m_commentNode.isNull() )
+  {
+    /* Check if the comment is an actual comment or if it's valid XML that's been
+      commented out. */
+    QDomDocument doc;
+
+    if( !doc.setContent( m_commentNode.nodeValue() ) )
+    {
+      return m_commentNode.nodeValue();
+    }
+  }
+
+  return QString();
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -769,7 +789,16 @@ void GCDomTreeWidget::emitGcCurrentItemSelected( QTreeWidgetItem *item, int colu
   if( !m_busyIterating )
   {
     setCurrentItem( item, column );
-    emit gcCurrentItemSelected( dynamic_cast< GCTreeWidgetItem* >( item ), column, highlightElement );
+
+    GCTreeWidgetItem *gcItem = dynamic_cast< GCTreeWidgetItem* >( item );
+
+    if( gcItem )
+    {
+      /* Returns NULL object if not a comment. */
+      m_commentNode = gcItem->element().previousSibling().toComment();
+    }
+
+    emit gcCurrentItemSelected( gcItem, column, highlightElement );
   }
 }
 
@@ -780,7 +809,16 @@ void GCDomTreeWidget::emitGcCurrentItemChanged( QTreeWidgetItem *item, int colum
   if( !m_busyIterating )
   {
     setCurrentItem( item, column );
-    emit gcCurrentItemChanged( dynamic_cast< GCTreeWidgetItem* >( item ), column );
+
+    GCTreeWidgetItem *gcItem = dynamic_cast< GCTreeWidgetItem* >( item );
+
+    if( gcItem )
+    {
+      /* Returns NULL object if not a comment. */
+      m_commentNode = gcItem->element().previousSibling().toComment();
+    }
+
+    emit gcCurrentItemChanged( gcItem, column );
   }
 }
 

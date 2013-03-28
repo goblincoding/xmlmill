@@ -342,6 +342,8 @@ void GCMainWindow::elementSelected( GCTreeWidgetItem *item, int column, bool hig
       ui->addChildElementButton->setText( "Add Child" );
     }
 
+    ui->commentLineEdit->setText( ui->treeWidget->activeCommentText() );
+
     /* Unset flag. */
     m_wasTreeItemActivated = false;
   }
