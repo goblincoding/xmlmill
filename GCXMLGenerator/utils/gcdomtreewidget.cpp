@@ -41,14 +41,14 @@
 /*--------------------------------------------------------------------------------------*/
 
 GCDomTreeWidget::GCDomTreeWidget( QWidget *parent ) :
-  QTreeWidget    ( parent ),
-  m_activeItem   ( NULL ),
-  m_domDoc       ( new QDomDocument ),
-  m_commentNode  (),
-  m_isEmpty      ( true ),
-  m_busyIterating( false ),
-  m_busyDropping ( false ),
-  m_items        ()
+  QTreeWidget           ( parent ),
+  m_activeItem          ( NULL ),
+  m_domDoc              ( new QDomDocument ),
+  m_commentNode         (),
+  m_isEmpty             ( true ),
+  m_busyIterating       ( false ),
+  m_itemBeingManipulated( false ),
+  m_items               ()
 {
   setFont( QFont( GCGlobalSpace::FONT, GCGlobalSpace::FONTSIZE ) );
   setSelectionMode( QAbstractItemView::SingleSelection );
@@ -81,7 +81,7 @@ GCDomTreeWidget::~GCDomTreeWidget()
 
 GCTreeWidgetItem* GCDomTreeWidget::gcCurrentItem() const
 {
-  return m_activeItem;
+  return dynamic_cast< GCTreeWidgetItem* >( currentItem() );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -715,7 +715,7 @@ void GCDomTreeWidget::populateCommentList( QDomNode node )
 
 void GCDomTreeWidget::dropEvent( QDropEvent *event )
 {
-  m_busyDropping = true;
+  m_itemBeingManipulated = true;
 
   QTreeWidget::dropEvent( event );
   DropIndicatorPosition indicatorPos = dropIndicatorPosition();
@@ -772,7 +772,7 @@ void GCDomTreeWidget::dropEvent( QDropEvent *event )
 
   updateIndices();
   emitGcCurrentItemChanged( m_activeItem, 0 );
-  m_busyDropping = false;
+  m_itemBeingManipulated = false;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -800,7 +800,7 @@ void GCDomTreeWidget::currentGcItemChanged( QTreeWidgetItem *current, QTreeWidge
 {
   Q_UNUSED( previous );
 
-  if( !m_busyDropping )
+  if( !m_itemBeingManipulated )
   {
     m_activeItem = dynamic_cast< GCTreeWidgetItem* >( current );
   }
@@ -888,6 +888,8 @@ void GCDomTreeWidget::removeItem()
 {
   if( m_activeItem )
   {
+    m_itemBeingManipulated = true;
+
     /* I think it is safe to assume that comment nodes will exist just above an element
       although it might not always be the case that a multi-line comment exists within
       a single set of comment tags.  However, for those cases, it's the user's responsibility
@@ -928,6 +930,7 @@ void GCDomTreeWidget::removeItem()
 
     updateIndices();
     emitGcCurrentItemChanged( m_activeItem, 0 );
+    m_itemBeingManipulated = false;
   }
 }
 

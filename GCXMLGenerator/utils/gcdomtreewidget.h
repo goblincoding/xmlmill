@@ -253,7 +253,7 @@ private:
   QDomComment       m_commentNode;
   bool              m_isEmpty;
   bool              m_busyIterating;
-  bool              m_busyDropping;
+  bool              m_itemBeingManipulated;
 
   QList< GCTreeWidgetItem* > m_items;
   QList< QDomComment > m_comments;
