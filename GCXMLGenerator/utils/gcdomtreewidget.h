@@ -59,13 +59,13 @@ public:
   /*! Returns the current item as a GCTreeWidgetItem. */
   GCTreeWidgetItem* gcCurrentItem() const;
 
-  /*! Returns a list of all the included GCTreeWidgetItems in the tree (in other
-      words those items with the "include" flags set).
+  /*! Populates "includedItems" with all the GCTreeWidgetItems in the tree that have their
+      "include" flags set.
       \sa allTreeWidgetItems */
-  QList< GCTreeWidgetItem* > includedTreeWidgetItems() const;
+  void getIncludedTreeWidgetItems( QList< GCTreeWidgetItem * > &includedItems ) const;
 
   /*! Returns a list of ALL the GCTreeWidgetItems currently in the tree.
-      \sa includedTreeWidgetItems */
+      \sa getIncludedTreeWidgetItems */
   const QList< GCTreeWidgetItem* > &allTreeWidgetItems() const;
 
   /*! Returns the position of "itemIndex" relative to that of ALL items matching "nodeText"
@@ -245,7 +245,7 @@ private:
   /*! Finds and returns the GCTreeWidget item that is linked to "element". */
   GCTreeWidgetItem *gcItemFromNode( QDomNode element );
 
-  /*! Recursively removes items from the list. */
+  /*! Recursively removes item and its children from the list. */
   void removeFromList( GCTreeWidgetItem *item );
 
   GCTreeWidgetItem *m_activeItem;

@@ -160,10 +160,8 @@ void GCDomTreeWidget::setActiveCommentValue( const QString &value )
 
 /*--------------------------------------------------------------------------------------*/
 
-QList< GCTreeWidgetItem* > GCDomTreeWidget::includedTreeWidgetItems() const
+void GCDomTreeWidget::getIncludedTreeWidgetItems( QList< GCTreeWidgetItem* > &includedItems ) const
 {
-  QList< GCTreeWidgetItem* > includedItems;
-
   for( int i = 0; i < m_items.size(); ++i )
   {
     GCTreeWidgetItem* localItem = m_items.at( i );
@@ -173,8 +171,6 @@ QList< GCTreeWidgetItem* > GCDomTreeWidget::includedTreeWidgetItems() const
       includedItems.append( localItem );
     }
   }
-
-  return includedItems;
 }
 
 /*--------------------------------------------------------------------------------------*/
