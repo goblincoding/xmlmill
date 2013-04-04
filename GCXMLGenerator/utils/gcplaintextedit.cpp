@@ -142,6 +142,17 @@ void GCPlainTextEdit::emitSelectedIndex()
 
 void GCPlainTextEdit::showContextMenu( const QPoint &point )
 {
+  if( textCursor().hasSelection() )
+  {
+    m_comment->setEnabled( true );
+    m_uncomment->setEnabled( true );
+  }
+  else
+  {
+    m_comment->setEnabled( false );
+    m_uncomment->setEnabled( false );
+  }
+
   QMenu *menu = createStandardContextMenu();
   menu->addSeparator();
   menu->addAction( m_comment );
