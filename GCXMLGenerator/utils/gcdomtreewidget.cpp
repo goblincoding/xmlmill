@@ -38,8 +38,6 @@
 #include <QMouseEvent>
 #include <QInputDialog>
 
-#include <QDebug>
-
 /*--------------------------------------------------------------------------------------*/
 
 GCDomTreeWidget::GCDomTreeWidget( QWidget *parent ) :
@@ -363,12 +361,8 @@ void GCDomTreeWidget::replaceItemsWithComment( const QList< int > &indices, cons
   {
     GCTreeWidgetItem *item = itemsToDelete.at( i );
     removeFromList( item );
-
-    if( item )
-    {
-      delete item;
-      item = NULL;
-    }
+    delete item;
+    item = NULL;
   }
 
   /* Create a comment node with the combined text of all the item nodes that were removed
@@ -769,7 +763,7 @@ void GCDomTreeWidget::dropEvent( QDropEvent *event )
         }
       }
 
-      /* Update the database so reflect the re-parenting. */
+      /* Update the database to reflect the re-parenting. */
       GCDataBaseInterface::instance()->updateElementChildren( parent->name(), QStringList( m_activeItem->name() ) );
     }
 
@@ -901,7 +895,7 @@ void GCDomTreeWidget::removeItem()
     if( !m_commentNode.isNull() )
     {
       /* Check if the comment is an actual comment or if it's valid XML that's been
-        commented out. */
+        commented out (we don't want to remove snippets). */
       QDomDocument doc;
 
       if( !doc.setContent( m_commentNode.nodeValue() ) )
