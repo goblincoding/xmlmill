@@ -38,6 +38,8 @@
 #include <QMouseEvent>
 #include <QInputDialog>
 
+#include <QDebug>
+
 /*--------------------------------------------------------------------------------------*/
 
 GCDomTreeWidget::GCDomTreeWidget( QWidget *parent ) :
@@ -47,6 +49,7 @@ GCDomTreeWidget::GCDomTreeWidget( QWidget *parent ) :
   m_commentNode  (),
   m_isEmpty      ( true ),
   m_busyIterating( false ),
+  m_busyDropping ( false ),
   m_items        ()
 {
   setFont( QFont( GCGlobalSpace::FONT, GCGlobalSpace::FONTSIZE ) );
@@ -722,6 +725,8 @@ void GCDomTreeWidget::populateCommentList( QDomNode node )
 
 void GCDomTreeWidget::dropEvent( QDropEvent *event )
 {
+  m_busyDropping = true;
+
   QTreeWidget::dropEvent( event );
   DropIndicatorPosition indicatorPos = dropIndicatorPosition();
 
@@ -777,6 +782,7 @@ void GCDomTreeWidget::dropEvent( QDropEvent *event )
 
   updateIndices();
   emitGcCurrentItemChanged( m_activeItem, 0 );
+  m_busyDropping = false;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -803,7 +809,11 @@ void GCDomTreeWidget::keyPressEvent( QKeyEvent *event )
 void GCDomTreeWidget::currentGcItemChanged( QTreeWidgetItem *current, QTreeWidgetItem *previous )
 {
   Q_UNUSED( previous );
-  m_activeItem = dynamic_cast< GCTreeWidgetItem* >( current );
+
+  if( !m_busyDropping )
+  {
+    m_activeItem = dynamic_cast< GCTreeWidgetItem* >( current );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
