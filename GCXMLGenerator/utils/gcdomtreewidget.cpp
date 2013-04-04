@@ -445,11 +445,17 @@ void GCDomTreeWidget::replaceCommentWithItems( const QString &comment )
       if( doc.setContent( parentItemText ) )
       {
         /* Ensure that everything in the new snippet is known to the database. */
-        GCDataBaseInterface::instance()->batchProcessDomDocument( &doc );
+        if( !GCDataBaseInterface::instance()->isDocumentCompatible( &doc ) )
+        {
+          /* This is very slow.  Need to rethink. */
+          GCDataBaseInterface::instance()->batchProcessDomDocument( &doc );
+        }
+
         appendSnippet( parentItem, doc.documentElement().cloneNode().toElement() );
       }
 
       updateIndices();
+      emitGcCurrentItemChanged( m_activeItem, 0 );
     }
   }
 }
