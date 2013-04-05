@@ -241,9 +241,7 @@ void GCPlainTextEdit::uncommentSelection()
 
   if( confirmDomNotBroken() )
   {
-    selectedText = selectedText.replace( QChar( 0x2029 ), '\n' );    // replace Unicode end of line character
-    selectedText = selectedText.trimmed();
-    emit uncomment( selectedText );
+    emit uncomment();
   }
 }
 

@@ -71,7 +71,7 @@ signals:
   /*! Emitted whenever a selection must be "uncommented". The parameter element corresponds to
       a DOM snippet created from the selection.
       \sa uncommentSelection */
-  void uncomment( const QString& );
+  void uncomment();
 
 private slots:
   /*! Activated when the cursor in the plain text edit changes.

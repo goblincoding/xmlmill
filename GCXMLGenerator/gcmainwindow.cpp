@@ -117,7 +117,7 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
   connect( ui->wrapTextCheckBox, SIGNAL( clicked( bool ) ), ui->dockWidgetTextEdit, SLOT( wrapText( bool ) ) );
   connect( ui->dockWidgetTextEdit, SIGNAL( selectedIndex( int ) ), ui->treeWidget, SLOT( setCurrentItemToMatchIndex( int ) ) );
   connect( ui->dockWidgetTextEdit, SIGNAL( commentOut( const QList< int >&, const QString& ) ), this, SLOT( commentOut( const QList< int >&, const QString& ) ) );
-  connect( ui->dockWidgetTextEdit, SIGNAL( uncomment( const QString& ) ), this, SLOT( uncomment( const QString& ) ) );
+  connect( ui->dockWidgetTextEdit, SIGNAL( uncomment() ), this, SLOT( uncomment() ) );
 
   /* Help related. */
   connect( ui->actionShowHelpButtons, SIGNAL( triggered( bool ) ), this, SLOT( setShowHelpButtons( bool ) ) );
@@ -1067,9 +1067,17 @@ void GCMainWindow::commentOut( const QList< int > &indices, const QString &comme
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::uncomment( const QString &comment )
+void GCMainWindow::uncomment()
 {
-  ui->treeWidget->replaceCommentWithItems( comment );
+  /* Capture the parent item's text content and position before we reset the doc content. */
+  QString stringToMatch = ui->treeWidget->gcCurrentItem()->toString();
+  int pos = ui->treeWidget->findItemPositionAmongDuplicates( stringToMatch, ui->treeWidget->gcCurrentItem()->index() );
+
+  /* No need to check if setContent is a success.  If this function gets called, the document
+    content is already valid XML. */
+  ui->treeWidget->setContent( ui->dockWidgetTextEdit->toPlainText() );
+  ui->dockWidgetTextEdit->findTextRelativeToDuplicates( stringToMatch, pos );
+
   ui->treeWidget->expandAll();
   m_fileContentsChanged = true;
 }

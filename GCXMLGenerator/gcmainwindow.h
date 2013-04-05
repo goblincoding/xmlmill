@@ -291,7 +291,7 @@ private slots:
 
   /*! Connected to GCPlainTextEdit's "uncomment" signal. Adds the uncommented element hierarchy back
       to the main DOM and the tree. */
-  void uncomment( const QString& comment );
+  void uncomment();
 
   /*! Connected to the comment line edit's "textEdited" signal, this updates the active comment node's
       value to "comment".  This function will not execute its functionality when new comments or elements

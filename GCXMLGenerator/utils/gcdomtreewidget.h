@@ -131,14 +131,8 @@ public:
   void appendSnippet( GCTreeWidgetItem *parentItem, QDomElement childElement );
 
   /*! Removes the items with indices matching those in the parameter list from the tree
-      as well as from the DOM document.
-      \sa replaceCommentWithItems */
+      as well as from the DOM document. */
   void replaceItemsWithComment( const QList< int > &indices, const QString &comment );
-
-  /*! Removes the comment represented by "comment" and converts the text to representative
-      nodes.
-      \sa replaceItemsWithComment */
-  void replaceCommentWithItems( const QString &comment );
 
   /*! Update all the tree widget items with text "oldName" to text "newName" */
   void updateItemNames( const QString &oldName, const QString &newName );
