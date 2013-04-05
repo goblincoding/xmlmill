@@ -64,14 +64,11 @@ signals:
   void selectedIndex( int );
 
   /*! Emitted whenever a selection has been commented out. The parameter list contains
-      the indices corresponding to the items that should be removed from the tree widget.
-      \sa commentOutSelection */
+      the indices corresponding to the items that should be removed from the tree widget. */
   void commentOut( const QList< int >&, const QString& );
 
-  /*! Emitted whenever a selection must be "uncommented". The parameter element corresponds to
-      a DOM snippet created from the selection.
-      \sa uncommentSelection */
-  void uncomment();
+  /*! Emitted whenever a selection must be "uncommented" or deleted. */
+  void manualEditAccepted();
 
 private slots:
   /*! Activated when the cursor in the plain text edit changes.
@@ -82,22 +79,25 @@ private slots:
       and "Uncomment Selection"
       \sa commentOut
       \sa commentOutSelection
-      \sa uncomment
-      \sa uncommentSelection */
+      \sa uncommentSelection
+      \sa manualEditAccepted */
   void showContextMenu( const QPoint &point );
 
-  /*! Comments out the selected text.  If the action broke the DOM, the user has the option
-      to "Undo" and try again. If successful, the text is commented out and the "commentOut"
+  /*! Comments out the selected text.  If successful, the text is commented out and the "commentOut"
       signal is emitted.
       \sa commentOut */
   void commentOutSelection();
 
   /*! Uncomments a selection that's currently commented out.
-      \sa uncomment */
+      \sa manualEditAccepted */
   void uncommentSelection();
 
+  /*! Permanently deletes the selection.
+      \sa manualEditAccepted*/
+  void deleteSelection();
+
   /*! Check if the DOM got broken when the user commented out or uncommented sections. */
-  bool confirmDomNotBroken();
+  bool confirmDomNotBroken( int undoCount );
 
   /*! Accounts for non-active document aspects (comments and element closing brackets),
       to determine the index corresponding to a specific block number. */
@@ -107,6 +107,7 @@ private:
   QBrush   m_savedPalette;
   QAction *m_comment;
   QAction *m_uncomment;
+  QAction *m_delete;
   bool m_cursorPositionChanging;
 };
 

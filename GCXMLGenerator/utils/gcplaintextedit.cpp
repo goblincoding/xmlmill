@@ -66,6 +66,7 @@ GCPlainTextEdit::GCPlainTextEdit( QWidget *parent ) :
   m_savedPalette  (),
   m_comment       ( NULL ),
   m_uncomment     ( NULL ),
+  m_delete        ( NULL ),
   m_cursorPositionChanging( false )
 {
   setAcceptDrops( false );
@@ -76,9 +77,11 @@ GCPlainTextEdit::GCPlainTextEdit( QWidget *parent ) :
 
   m_comment = new QAction( "Comment Out Selection", this );
   m_uncomment = new QAction( "Uncomment Selection", this );
+  m_delete = new QAction( "Delete Selection", this );
 
   connect( m_comment, SIGNAL( triggered() ), this, SLOT( commentOutSelection() ) );
   connect( m_uncomment, SIGNAL( triggered() ), this, SLOT( uncommentSelection() ) );
+  connect( m_delete, SIGNAL( triggered() ), this, SLOT( deleteSelection() ) );
 
   connect( this, SIGNAL( customContextMenuRequested( const QPoint& ) ), this, SLOT( showContextMenu( const QPoint& ) ) );
   connect( this, SIGNAL( cursorPositionChanged() ), this, SLOT( emitSelectedIndex() ) );
@@ -144,11 +147,14 @@ void GCPlainTextEdit::showContextMenu( const QPoint &point )
 {
   m_comment->setEnabled( textCursor().hasSelection() );
   m_uncomment->setEnabled( textCursor().hasSelection() );
+  m_delete->setEnabled( textCursor().hasSelection() );
 
   QMenu *menu = createStandardContextMenu();
   menu->addSeparator();
   menu->addAction( m_comment );
   menu->addAction( m_uncomment );
+  menu->addSeparator();
+  menu->addAction( m_delete );
   menu->exec( mapToGlobal( point ) );
   delete menu;
 }
@@ -197,7 +203,7 @@ void GCPlainTextEdit::commentOutSelection()
 
   setTextCursor( cursor );
 
-  if( confirmDomNotBroken() )
+  if( confirmDomNotBroken( 2 ) )
   {
     comment = comment.replace( QChar( 0x2029 ), '\n' );    // replace Unicode end of line character
     comment = comment.trimmed();
@@ -239,15 +245,31 @@ void GCPlainTextEdit::uncommentSelection()
 
   m_cursorPositionChanging = false;
 
-  if( confirmDomNotBroken() )
+  if( confirmDomNotBroken( 2 ) )
   {
-    emit uncomment();
+    emit manualEditAccepted();
   }
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCPlainTextEdit::confirmDomNotBroken()
+void GCPlainTextEdit::deleteSelection()
+{
+  m_cursorPositionChanging = true;
+
+  textCursor().removeSelectedText();
+
+  if( confirmDomNotBroken( 1 ) )
+  {
+    emit manualEditAccepted();
+  }
+
+  m_cursorPositionChanging = false;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCPlainTextEdit::confirmDomNotBroken( int undoCount )
 {
   QString xmlErr( "" );
   int     line  ( -1 );
@@ -287,9 +309,10 @@ bool GCPlainTextEdit::confirmDomNotBroken()
                        .arg( col );
     GCMessageSpace::showErrorMessageBox( this, errorMsg );
 
-    /* Not a typo, comment opening and closing brackets are matching pairs, undo in one go. */
-    undo();
-    undo();
+    for( int i = 0; i < undoCount; ++i )
+    {
+      undo();
+    }
 
     highlight.cursor = textCursor();
     highlight.format.setBackground( m_savedPalette );
@@ -324,7 +347,8 @@ int GCPlainTextEdit::findIndexMatchingBlockNumber( QTextBlock block )
     }
 
     if( insideComment ||
-        block.text().contains( "</" ) )
+        block.text().contains( "</" ) ||
+        block.text().remove( " " ).isEmpty() )
     {
       itemNumber--;
     }

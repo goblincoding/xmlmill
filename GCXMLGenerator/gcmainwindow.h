@@ -289,9 +289,9 @@ private slots:
       in the parameter list from the tree as well as from the DOM document. */
   void commentOut( const QList< int > &indices, const QString &comment );
 
-  /*! Connected to GCPlainTextEdit's "uncomment" signal. Adds the uncommented element hierarchy back
+  /*! Connected to GCPlainTextEdit's "manualEditAccepted" signal. Adds the uncommented element hierarchy back
       to the main DOM and the tree. */
-  void uncomment();
+  void rebuild();
 
   /*! Connected to the comment line edit's "textEdited" signal, this updates the active comment node's
       value to "comment".  This function will not execute its functionality when new comments or elements
