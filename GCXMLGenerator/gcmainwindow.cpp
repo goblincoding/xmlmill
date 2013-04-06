@@ -1348,6 +1348,7 @@ void GCMainWindow::processDOMDoc()
 
 void GCMainWindow::setStatusBarMessage( const QString &message )
 {
+    Q_UNUSED( message );
   // TODO.
 }
 

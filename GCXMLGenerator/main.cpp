@@ -26,7 +26,7 @@
  *                    <http://www.gnu.org/licenses/>
  */
 
-#include <QtGui/QApplication>
+#include <QApplication>
 #include <QFile>
 #include <QTextStream>
 #include <QSettings>

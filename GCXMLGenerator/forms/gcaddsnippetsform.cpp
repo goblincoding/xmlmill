@@ -151,9 +151,9 @@ void GCAddSnippetsForm::elementSelected( GCTreeWidgetItem *item, int column )
 
     updateCheckStates( item );
 
-    ui->tableWidget->horizontalHeader()->setResizeMode( LABELCOLUMN, QHeaderView::Stretch );
-    ui->tableWidget->horizontalHeader()->setResizeMode( COMBOCOLUMN, QHeaderView::Stretch );
-    ui->tableWidget->horizontalHeader()->setResizeMode( INCRCOLUMN,  QHeaderView::Fixed );
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode( LABELCOLUMN, QHeaderView::Stretch );
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode( COMBOCOLUMN, QHeaderView::Stretch );
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode( INCRCOLUMN,  QHeaderView::Fixed );
     m_treeItemActivated = false;
   }
 }

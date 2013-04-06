@@ -34,6 +34,10 @@
 
 QT       += core gui xml sql
 
+#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
+QT       += widgets
+#endif
+
 TARGET = XMLMill
 TEMPLATE = app
 
