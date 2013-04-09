@@ -1071,7 +1071,9 @@ void GCMainWindow::rebuild()
 {
   /* Capture the parent item's text content and position before we reset the doc content. */
   QString stringToMatch = ui->treeWidget->gcCurrentItem()->toString();
-  int pos = ui->treeWidget->findItemPositionAmongDuplicates( stringToMatch, ui->treeWidget->gcCurrentItem()->index() );
+
+  /* The -1 is due to a preference to highlight the parent rather than the child. */
+  int pos = ui->treeWidget->findItemPositionAmongDuplicates( stringToMatch, ui->treeWidget->gcCurrentItem()->index() ) - 1;
 
   /* No need to check if setContent is a success.  If this function gets called, the document
     content is already valid XML. */
