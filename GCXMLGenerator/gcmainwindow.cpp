@@ -418,21 +418,22 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *tableItem )
       }
     }
 
+    m_activeAttributeName = tableItem->text();
+
     /* Is this attribute included or excluded? */
     GCComboBox *attributeValueCombo = dynamic_cast< GCComboBox* >( ui->tableWidget->cellWidget( tableItem->row(), VALUESCOLUMN ) );
 
     if( tableItem->checkState() == Qt::Checked )
     {
       attributeValueCombo->setEnabled( true );
-      treeItem->includeAttribute( tableItem->text(), attributeValueCombo->currentText() );
+      treeItem->includeAttribute( m_activeAttributeName, attributeValueCombo->currentText() );
     }
     else
     {
       attributeValueCombo->setEnabled( false );
-      treeItem->excludeAttribute( tableItem->text() );
+      treeItem->excludeAttribute( m_activeAttributeName );
     }
 
-    m_activeAttributeName = tableItem->text();
     setTextEditContent( treeItem );
   }
 }
@@ -451,11 +452,10 @@ void GCMainWindow::attributeValueChanged( const QString &value )
 {
   /* Don't execute the logic if a tree widget item's activation is triggering
     a re-population of the table widget (which results in this slot being called). */
-  if( !m_wasTreeItemActivated )
+  if( !m_wasTreeItemActivated && !value.isEmpty() )
   {
     GCTreeWidgetItem *treeItem = ui->treeWidget->gcCurrentItem();
     QString currentAttributeName = ui->tableWidget->item( m_comboBoxes.value( m_currentCombo ), ATTRIBUTECOLUMN )->text();
-    treeItem->includeAttribute( currentAttributeName, value );
 
     /* If we don't know about this value, we need to add it to the DB. */
     QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( treeItem->name(), currentAttributeName );
@@ -470,6 +470,7 @@ void GCMainWindow::attributeValueChanged( const QString &value )
       }
     }
 
+    treeItem->includeAttribute( currentAttributeName, value );
     setTextEditContent( treeItem );
   }
 }

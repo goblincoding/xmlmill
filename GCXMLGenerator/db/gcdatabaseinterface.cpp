@@ -464,12 +464,15 @@ bool GCDataBaseInterface::updateElementAttributes( const QString &element, const
   /* Update the existing record (if we have one). */
   if( query.first() )
   {
-    QStringList allAttributes( attributes );
+    QStringList allAttributes;
 
     if( !replace )
     {
       allAttributes.append( query.record().field( "attributes" ).value().toString().split( SEPARATOR ) );
     }
+
+    /* Add it here so that we append the new attributes to the end of the list. */
+    allAttributes.append( attributes );
 
     if( !query.prepare( UPDATE_ATTRIBUTES ) )
     {
