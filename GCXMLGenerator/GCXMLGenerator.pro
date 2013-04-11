@@ -94,4 +94,4 @@ FORMS    += \
 RESOURCES += \
     resources/gcresources.qrc
 
-RC_FILE = resources/appicon/goblinappico.rc
+win32:RC_FILE = resources/appicon/goblinappico.rc
