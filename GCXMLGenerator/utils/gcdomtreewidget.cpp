@@ -651,6 +651,14 @@ void GCDomTreeWidget::dropEvent( QDropEvent *event )
 
   if( m_activeItem )
   {
+    bool moveComment = false;
+
+    if( m_activeItem->element().previousSibling().isComment() )
+    {
+      m_commentNode = m_activeItem->element().previousSibling().toComment();
+      moveComment = true;
+    }
+
     QDomElement previousParent = m_activeItem->element().parentNode().toElement();
     previousParent.removeChild( m_activeItem->element() );
 
@@ -690,6 +698,13 @@ void GCDomTreeWidget::dropEvent( QDropEvent *event )
         {
           parent->element().appendChild( m_activeItem->element() );
         }
+      }
+
+      /* Move the associated comment (if any). */
+      if( moveComment )
+      {
+        m_commentNode.parentNode().removeChild( m_commentNode );
+        m_activeItem->element().parentNode().insertBefore( m_commentNode, m_activeItem->element() );
       }
 
       /* Update the database to reflect the re-parenting. */
