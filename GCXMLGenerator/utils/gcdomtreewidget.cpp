@@ -37,6 +37,7 @@
 #include <QAction>
 #include <QMouseEvent>
 #include <QInputDialog>
+#include <QXmlInputSource>
 
 /*--------------------------------------------------------------------------------------*/
 
@@ -214,7 +215,11 @@ bool GCDomTreeWidget::setContent( const QString &text, QString *errorMsg, int *e
 {
   clearAndReset();
 
-  if( !m_domDoc->setContent( text, errorMsg, errorLine, errorColumn ) )
+  QXmlInputSource source;
+  source.setData( text );
+  QXmlSimpleReader reader;
+
+  if( !m_domDoc->setContent( &source, &reader, errorMsg, errorLine, errorColumn ) )
   {
     return false;
   }
