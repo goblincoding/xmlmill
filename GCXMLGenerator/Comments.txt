@@ -6,7 +6,10 @@ Remember to name page "xmlmill" as in http://www.goblincoding.com/xmlmill
 
 Still have to write main page (documentation).
 
-Drag tree items around - very NB
 Update adding elements help text to include information about snippets.
-Change element name brackets from <> to {} and note that it is names in the dropdown explicitly.
 
+When dragging and dropping, move comments also.
+
+Introduce right-click "step up", "step down" on elements for fine-tuning of positions.
+
+Plain text edit - right-click insert line and/or allow for "Enter" key pressed.

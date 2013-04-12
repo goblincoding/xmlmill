@@ -336,7 +336,7 @@ int GCPlainTextEdit::findIndexMatchingBlockNumber( QTextBlock block )
   bool insideComment = false;
 
   while( block.isValid() &&
-         block.blockNumber() > 0 )
+         block.blockNumber() >= 0 )
   {
     /* Check if we just entered a comment block (this is NOT wrong, remember
       that we are working our way back up the document, not down). */
@@ -347,8 +347,10 @@ int GCPlainTextEdit::findIndexMatchingBlockNumber( QTextBlock block )
     }
 
     if( insideComment ||
-        block.text().contains( "</" ) ||
-        block.text().remove( " " ).isEmpty() )
+        block.text().contains( "</" ) ||          // element close
+        block.text().remove( " " ).isEmpty() ||   // empty lines
+        ( block.text().contains( "<?" ) &&
+          block.text().contains( "?>" ) ) )       // xml version specification
     {
       itemNumber--;
     }
