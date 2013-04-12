@@ -62,11 +62,13 @@ void removeDuplicates( QList< int > &indices )
 /*---------------------------------- MEMBER FUNCTIONS ----------------------------------*/
 
 GCPlainTextEdit::GCPlainTextEdit( QWidget *parent ) :
-  QPlainTextEdit  ( parent ),
-  m_savedPalette  (),
-  m_comment       ( NULL ),
-  m_uncomment     ( NULL ),
-  m_delete        ( NULL ),
+  QPlainTextEdit   ( parent ),
+  m_savedPalette   (),
+  m_comment        ( NULL ),
+  m_uncomment      ( NULL ),
+  m_deleteSelection( NULL ),
+  m_deleteEmptyRow ( NULL ),
+  m_insertEmptyRow ( NULL ),
   m_cursorPositionChanging( false )
 {
   setAcceptDrops( false );
@@ -77,11 +79,18 @@ GCPlainTextEdit::GCPlainTextEdit( QWidget *parent ) :
 
   m_comment = new QAction( "Comment Out Selection", this );
   m_uncomment = new QAction( "Uncomment Selection", this );
-  m_delete = new QAction( "Delete Selection", this );
+  m_deleteSelection = new QAction( "Delete Selection", this );
+  m_deleteEmptyRow = new QAction( "Delete Empty Line", this );
+  m_insertEmptyRow = new QAction( "Insert Empty Line", this );
+
+  m_deleteEmptyRow->setShortcut( Qt::Key_Delete );
+  m_insertEmptyRow->setShortcut( Qt::Key_Return );
 
   connect( m_comment, SIGNAL( triggered() ), this, SLOT( commentOutSelection() ) );
   connect( m_uncomment, SIGNAL( triggered() ), this, SLOT( uncommentSelection() ) );
-  connect( m_delete, SIGNAL( triggered() ), this, SLOT( deleteSelection() ) );
+  connect( m_deleteSelection, SIGNAL( triggered() ), this, SLOT( deleteSelection() ) );
+  connect( m_deleteEmptyRow, SIGNAL( triggered() ), this, SLOT( deleteEmptyRow() ) );
+  connect( m_insertEmptyRow, SIGNAL( triggered() ), this, SLOT( insertEmptyRow() ) );
 
   connect( this, SIGNAL( customContextMenuRequested( const QPoint& ) ), this, SLOT( showContextMenu( const QPoint& ) ) );
   connect( this, SIGNAL( cursorPositionChanged() ), this, SLOT( emitSelectedIndex() ) );
@@ -147,14 +156,16 @@ void GCPlainTextEdit::showContextMenu( const QPoint &point )
 {
   m_comment->setEnabled( textCursor().hasSelection() );
   m_uncomment->setEnabled( textCursor().hasSelection() );
-  m_delete->setEnabled( textCursor().hasSelection() );
+  m_deleteSelection->setEnabled( textCursor().hasSelection() );
 
   QMenu *menu = createStandardContextMenu();
   menu->addSeparator();
   menu->addAction( m_comment );
   menu->addAction( m_uncomment );
   menu->addSeparator();
-  menu->addAction( m_delete );
+  menu->addAction( m_deleteSelection );
+  menu->addAction( m_deleteEmptyRow );
+  menu->addAction( m_insertEmptyRow );
   menu->exec( mapToGlobal( point ) );
   delete menu;
 }
@@ -265,6 +276,35 @@ void GCPlainTextEdit::deleteSelection()
   }
 
   m_cursorPositionChanging = false;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCPlainTextEdit::insertEmptyRow()
+{
+  QTextCursor cursor = textCursor();
+  cursor.movePosition( QTextCursor::EndOfBlock );
+  cursor.insertBlock();
+  setTextCursor( cursor );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCPlainTextEdit::deleteEmptyRow()
+{
+  QTextCursor cursor = textCursor();
+  QTextBlock block = cursor.block();
+
+  /* Check if the user is deleting an empty line (the only kind of deletion
+    that is allowed). */
+  if( block.text().remove( " " ).isEmpty() )
+  {
+    cursor.movePosition( QTextCursor::PreviousBlock );
+    cursor.movePosition( QTextCursor::EndOfBlock );
+    cursor.movePosition( QTextCursor::NextBlock, QTextCursor::KeepAnchor );
+    cursor.movePosition( QTextCursor::EndOfBlock, QTextCursor::KeepAnchor );
+    setTextCursor( cursor );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -386,6 +426,23 @@ void GCPlainTextEdit::wrapText( bool wrap )
   else
   {
     setLineWrapMode( QPlainTextEdit::NoWrap );
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCPlainTextEdit::keyPressEvent(QKeyEvent *e)
+{
+  switch( e->key() )
+  {
+  case Qt::Key_Return:
+        insertEmptyRow();
+    break;
+  case Qt::Key_Delete:
+        deleteEmptyRow();
+    break;
+  default:
+    QPlainTextEdit::keyPressEvent( e );
   }
 }
 

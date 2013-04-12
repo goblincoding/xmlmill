@@ -70,6 +70,9 @@ signals:
   /*! Emitted whenever a selection must be "uncommented" or deleted. */
   void manualEditAccepted();
 
+protected:
+  void keyPressEvent( QKeyEvent *e );
+
 private slots:
   /*! Activated when the cursor in the plain text edit changes.
       \sa selectedIndex */
@@ -96,6 +99,14 @@ private slots:
       \sa manualEditAccepted*/
   void deleteSelection();
 
+  /*! Adds an empty row (useful when improving XML legibility).
+      \sa deleteEmptyRow */
+  void insertEmptyRow();
+
+  /*! Deletes an empty row (the only manual deletion allowed directly in the text edit).
+      \sa insertEmptyRow */
+  void deleteEmptyRow();
+
   /*! Check if the DOM got broken when the user commented out or uncommented sections. */
   bool confirmDomNotBroken( int undoCount );
 
@@ -107,7 +118,9 @@ private:
   QBrush   m_savedPalette;
   QAction *m_comment;
   QAction *m_uncomment;
-  QAction *m_delete;
+  QAction *m_deleteSelection;
+  QAction *m_deleteEmptyRow;
+  QAction *m_insertEmptyRow;
   bool m_cursorPositionChanging;
 };
 
