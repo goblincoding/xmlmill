@@ -68,10 +68,12 @@ void GCTreeWidgetItem::setDisplayText()
   if( m_verbose )
   {
     setText( 0, toString() );
+    setToolTip( 0, "" );
   }
   else
   {
     setText( 0, m_element.tagName() );
+    setToolTip( 0, toString() );
   }
 }
 
