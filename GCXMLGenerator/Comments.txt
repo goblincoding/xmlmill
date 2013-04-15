@@ -6,10 +6,4 @@ Remember to name page "xmlmill" as in http://www.goblincoding.com/xmlmill
 
 Still have to write main page (documentation).
 
-Update adding elements help text to include information about snippets.
-
-When dragging and dropping, move comments also.
-
 Introduce right-click "step up", "step down" on elements for fine-tuning of positions.
-
-Plain text edit - right-click insert line and/or allow for "Enter" key pressed.

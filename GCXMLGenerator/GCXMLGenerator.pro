@@ -32,11 +32,9 @@
 #
 #-------------------------------------------------
 
-QT       += core gui xml sql
+QT       += core xml sql widgets
 
-#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
-QT       += widgets
-#endif
+QMAKE_LFLAGS += -static-libgcc
 
 TARGET = XMLMill
 TEMPLATE = app
