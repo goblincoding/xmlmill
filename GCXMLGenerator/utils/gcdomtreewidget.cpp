@@ -63,6 +63,14 @@ GCDomTreeWidget::GCDomTreeWidget( QWidget *parent ) :
   addAction( remove );
   connect( remove, SIGNAL( triggered() ), this, SLOT( removeItem() ) );
 
+  QAction *stepUp = new QAction( "Move up one level", this );
+  addAction( stepUp );
+  connect( stepUp, SIGNAL( triggered() ), this, SLOT( stepUp() ) );
+
+  QAction *stepDown = new QAction( "Move down one level", this );
+  addAction( stepDown );
+  connect( stepDown, SIGNAL( triggered() ), this, SLOT( stepDown() ) );
+
   setContextMenuPolicy( Qt::ActionsContextMenu );
 
   connect( this, SIGNAL( currentItemChanged( QTreeWidgetItem*,QTreeWidgetItem* ) ), this, SLOT( currentGcItemChanged( QTreeWidgetItem*,QTreeWidgetItem* ) ) );
@@ -880,6 +888,47 @@ void GCDomTreeWidget::removeItem()
     updateIndices();
     emitGcCurrentItemChanged( m_activeItem, 0 );
     m_itemBeingManipulated = false;
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDomTreeWidget::stepUp()
+{
+  if( m_activeItem )
+  {
+    m_itemBeingManipulated = true;
+
+    GCTreeWidgetItem* parentItem = m_activeItem->gcParent();
+
+    if( parentItem )
+    {
+      parentItem->element().removeChild( m_activeItem->element() );
+      parentItem->removeChild( m_activeItem );
+
+      GCTreeWidgetItem* grandParent = parentItem->gcParent();
+
+      if( grandParent )
+      {
+        grandParent->insertChild( grandParent->indexOfChild( parentItem ), m_activeItem );
+        grandParent->element().insertBefore( m_activeItem->element(), parentItem->element() );
+      }
+
+      updateIndices();
+      emitGcCurrentItemChanged( m_activeItem, 0 );
+    }
+
+    m_itemBeingManipulated = false;
+  }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDomTreeWidget::stepDown()
+{
+  if( m_activeItem )
+  {
+
   }
 }
 

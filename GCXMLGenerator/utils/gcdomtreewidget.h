@@ -214,6 +214,14 @@ private slots:
       remove all comment nodes directly above the element node. */
   void removeItem();
 
+  /*! Connected to a context menu action.  Moves the selected item to the level of its parent.
+      \sa stepDown */
+  void stepUp();
+
+  /*! Connected to a context menu action.  Moves the selected item to the level of its children.
+      \sa stepUp */
+  void stepDown();
+
 private:
   /*! Creates a new GCTreeWidgetItem item with corresponding "element" and adds it
       as a child to the "parentItem".
