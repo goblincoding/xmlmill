@@ -303,6 +303,7 @@ void GCPlainTextEdit::deleteEmptyRow()
     cursor.movePosition( QTextCursor::EndOfBlock );
     cursor.movePosition( QTextCursor::NextBlock, QTextCursor::KeepAnchor );
     cursor.movePosition( QTextCursor::EndOfBlock, QTextCursor::KeepAnchor );
+    cursor.removeSelectedText();
     setTextCursor( cursor );
   }
 }
