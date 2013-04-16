@@ -912,6 +912,9 @@ void GCDomTreeWidget::stepUp()
       {
         grandParent->insertChild( grandParent->indexOfChild( parentItem ), m_activeItem );
         grandParent->element().insertBefore( m_activeItem->element(), parentItem->element() );
+
+        /* Update the database to reflect the re-parenting. */
+        GCDataBaseInterface::instance()->updateElementChildren( grandParent->name(), QStringList( m_activeItem->name() ) );
       }
 
       updateIndices();
@@ -928,7 +931,27 @@ void GCDomTreeWidget::stepDown()
 {
   if( m_activeItem )
   {
+    m_itemBeingManipulated = true;
 
+    GCTreeWidgetItem* parentItem = m_activeItem->gcParent();
+    GCTreeWidgetItem* siblingItem = gcItemFromNode( m_activeItem->element().previousSiblingElement() );
+
+    if( siblingItem && parentItem )
+    {
+      parentItem->element().removeChild( m_activeItem->element() );
+      parentItem->removeChild( m_activeItem );
+
+      siblingItem->insertChild( 0, m_activeItem );
+      parentItem->element().insertBefore( m_activeItem->element(), siblingItem->element().firstChild() );
+
+      /* Update the database to reflect the re-parenting. */
+      GCDataBaseInterface::instance()->updateElementChildren( siblingItem->name(), QStringList( m_activeItem->name() ) );
+
+      updateIndices();
+      emitGcCurrentItemChanged( m_activeItem, 0 );
+    }
+
+    m_itemBeingManipulated = false;
   }
 }
 

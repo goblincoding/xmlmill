@@ -957,3 +957,5 @@ GCXMLGenerator_MinGW/debug/gcelementinfo.o
 GCXMLGenerator_MinGW
 GCXMLGenerato_MinGW
 GCXMLGeneratorDebug
+GCXMLGeneratorMinGW/debug
+GCXMLGeneratorMinGW/ui_gcaddsnippetsform.h
