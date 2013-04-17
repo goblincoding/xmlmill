@@ -92,6 +92,8 @@ GCMainWindow::GCMainWindow( QWidget *parent ) :
 {
   ui->setupUi( this );
   ui->showEmptyProfileHelpButton->setVisible( false );
+  ui->tableWidget->setFont( QFont( GCGlobalSpace::FONT, GCGlobalSpace::FONTSIZE ) );
+  ui->tableWidget->horizontalHeader()->setFont( QFont( GCGlobalSpace::FONT, GCGlobalSpace::FONTSIZE ) );
 
   /* XML File related. */
   connect( ui->actionNew, SIGNAL( triggered() ), this, SLOT( newXMLFile() ) );
