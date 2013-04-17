@@ -936,13 +936,19 @@ void GCDomTreeWidget::stepDown()
     GCTreeWidgetItem* parentItem = m_activeItem->gcParent();
     GCTreeWidgetItem* siblingItem = gcItemFromNode( m_activeItem->element().previousSiblingElement() );
 
+    /* Try again in the opposite direction. */
+    if( !siblingItem )
+    {
+      siblingItem = gcItemFromNode( m_activeItem->element().nextSiblingElement( ) );
+    }
+
     if( siblingItem && parentItem )
     {
       parentItem->element().removeChild( m_activeItem->element() );
       parentItem->removeChild( m_activeItem );
 
       siblingItem->insertChild( 0, m_activeItem );
-      parentItem->element().insertBefore( m_activeItem->element(), siblingItem->element().firstChild() );
+      siblingItem->element().insertBefore( m_activeItem->element(), siblingItem->element().firstChild() );
 
       /* Update the database to reflect the re-parenting. */
       GCDataBaseInterface::instance()->updateElementChildren( siblingItem->name(), QStringList( m_activeItem->name() ) );
