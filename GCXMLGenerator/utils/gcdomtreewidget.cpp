@@ -903,13 +903,11 @@ void GCDomTreeWidget::stepUp()
 
     if( parentItem )
     {
-      parentItem->element().removeChild( m_activeItem->element() );
-      parentItem->removeChild( m_activeItem );
-
       GCTreeWidgetItem* grandParent = parentItem->gcParent();
 
       if( grandParent )
       {
+        parentItem->removeChild( m_activeItem );
         grandParent->insertChild( grandParent->indexOfChild( parentItem ), m_activeItem );
         grandParent->element().insertBefore( m_activeItem->element(), parentItem->element() );
 
@@ -944,9 +942,7 @@ void GCDomTreeWidget::stepDown()
 
     if( siblingItem && parentItem )
     {
-      parentItem->element().removeChild( m_activeItem->element() );
       parentItem->removeChild( m_activeItem );
-
       siblingItem->insertChild( 0, m_activeItem );
       siblingItem->element().insertBefore( m_activeItem->element(), siblingItem->element().firstChild() );
 
