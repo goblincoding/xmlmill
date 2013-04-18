@@ -221,7 +221,7 @@ void GCMainWindow::elementChanged( GCTreeWidgetItem *item, int column )
   if( !ui->treeWidget->isEmpty() )
   {
     /* No need to highlight the element in "elementSelected" as "setTextEditContent"
-        will take care of it. */
+      will take care of it. */
     elementSelected( item, column, false );
     setTextEditContent( item );
   }
@@ -1006,7 +1006,8 @@ void GCMainWindow::removeItemsFromDB()
 
   if( !ui->treeWidget->isEmpty() )
   {
-    GCMessageSpace::showErrorMessageBox( this, "\"Save\" and \"Close\" the current document before continuing.");
+    GCMessageSpace::showErrorMessageBox( this, "For practical reasons, items cannot be removed when documents are open.\n"
+                                               "Please \"Save\" and/or \"Close\" the current document before returning back here.");
     return;
   }
 

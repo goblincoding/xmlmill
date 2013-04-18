@@ -6,4 +6,8 @@ Remember to name page "xmlmill" as in http://www.goblincoding.com/xmlmill
 
 Still have to write main page (documentation).
 
-Introduce right-click "step up", "step down" on elements for fine-tuning of positions.
+Make everything dockable.
+Hover in plain text edit?
+Line numbers?
+Collapse XML?
+Metal scrollbar type highlighting?
