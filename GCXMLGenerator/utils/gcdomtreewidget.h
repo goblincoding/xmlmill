@@ -235,7 +235,7 @@ private:
       DOM element) named "element" and adding it (the item) to the correct parent.
       @param element - the name of the element for which a tree widget item must be created.
       \sa populateFromDatabase */
-  void processNextElement( const QString &element );
+  void processNextElementFromDatabase( const QString &element );
 
   /*! Populates the comments list with all the comment nodes in the document. */
   void populateCommentList( QDomNode node );
@@ -259,6 +259,7 @@ private:
 
   QList< GCTreeWidgetItem* > m_items;
   QList< QDomComment > m_comments;
+  QList< QString > m_elementsProcessedFromDatabase;
 };
 
 #endif // GCDOMTREEWIDGET_H
