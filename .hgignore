@@ -961,3 +961,4 @@ GCXMLGeneratorMinGW/debug
 GCXMLGeneratorMinGW/ui_gcaddsnippetsform.h
 GCXMLGenerator_MinGW_Debug/debug
 GCXMLGenerator_MinGW_Debug
+GCXMLGenerator_MinGW_Release
