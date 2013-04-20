@@ -34,11 +34,8 @@
 
 QT       += core xml sql widgets
 
-QMAKE_LFLAGS += -static-libgcc
-
 TARGET = XMLMill
 TEMPLATE = app
-
 
 SOURCES += main.cpp\
     db/gcdatabaseinterface.cpp \
