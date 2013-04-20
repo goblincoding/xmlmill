@@ -52,6 +52,8 @@ GCAddSnippetsForm::GCAddSnippetsForm( const QString &elementName, GCTreeWidgetIt
   m_treeItemActivated( false )
 {
   ui->setupUi( this );
+  ui->tableWidget->setFont( QFont( GCGlobalSpace::FONT, GCGlobalSpace::FONTSIZE ) );
+  ui->tableWidget->horizontalHeader()->setFont( QFont( GCGlobalSpace::FONT, GCGlobalSpace::FONTSIZE ) );
 
   ui->tableWidget->setColumnWidth( INCRCOLUMN, 40 );  // restricted for checkbox
   ui->treeWidget->setColumnWidth ( 0, 50 );           // restricted for checkbox
