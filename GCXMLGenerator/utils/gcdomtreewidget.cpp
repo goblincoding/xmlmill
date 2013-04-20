@@ -50,8 +50,7 @@ GCDomTreeWidget::GCDomTreeWidget( QWidget *parent ) :
   m_busyIterating       ( false ),
   m_itemBeingManipulated( false ),
   m_items               (),
-  m_comments            (),
-  m_elementsProcessedFromDatabase   ()
+  m_comments            ()
 {
   setFont( QFont( GCGlobalSpace::FONT, GCGlobalSpace::FONTSIZE ) );
   setSelectionMode( QAbstractItemView::SingleSelection );
@@ -317,7 +316,6 @@ void GCDomTreeWidget::rebuildTreeWidget()
 
 void GCDomTreeWidget::appendSnippet( GCTreeWidgetItem *parentItem, QDomElement childElement )
 {
-  m_elementsProcessedFromDatabase.clear();
   parentItem->element().appendChild( childElement );
   processNextElement( parentItem, childElement );
   populateCommentList( childElement );
@@ -450,7 +448,6 @@ void GCDomTreeWidget::populateFromDatabase( const QString &baseElementName )
 void GCDomTreeWidget::processNextElementFromDatabase( const QString &element )
 {
   QStringList children = GCDataBaseInterface::instance()->children( element );
-  m_elementsProcessedFromDatabase.append( element );
 
   foreach( QString child, children )
   {
@@ -460,13 +457,37 @@ void GCDomTreeWidget::processNextElementFromDatabase( const QString &element )
       block it in the DB, however, if we DO have elements with children of the same name,
       this recursive call enters an infinite loop, so we need to make sure that doesn't
       happen. */
-    if( !m_elementsProcessedFromDatabase.contains( child ) )
+    GCTreeWidgetItem *newItem = gcCurrentItem();
+
+    if( !parentTreeAlreadyContainsElement( newItem, child ) )
     {
       processNextElementFromDatabase( child );
+    }
+    else
+    {
+      setCurrentItem( m_activeItem->parent() );  // required to enforce sibling relationships
     }
   }
 
   setCurrentItem( m_activeItem->parent() );  // required to enforce sibling relationships
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+bool GCDomTreeWidget::parentTreeAlreadyContainsElement( const GCTreeWidgetItem* item, const QString &element )
+{
+  while( item->gcParent() )
+  {
+    if( item->gcParent()->name() == element )
+    {
+      return true;
+    }
+
+    item = item->gcParent();
+    parentTreeAlreadyContainsElement( item, element );
+  }
+
+  return false;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -968,7 +989,6 @@ void GCDomTreeWidget::clearAndReset()
   clear();
   m_domDoc->clear();
   m_items.clear();
-  m_elementsProcessedFromDatabase.clear();
   m_isEmpty = true;
 }
 

@@ -237,6 +237,9 @@ private:
       \sa populateFromDatabase */
   void processNextElementFromDatabase( const QString &element );
 
+  /*! Used in "processnextElementFromDatabase" to prevent infinite recursion. */
+  bool parentTreeAlreadyContainsElement( const GCTreeWidgetItem *item, const QString &element );
+
   /*! Populates the comments list with all the comment nodes in the document. */
   void populateCommentList( QDomNode node );
 
@@ -259,7 +262,6 @@ private:
 
   QList< GCTreeWidgetItem* > m_items;
   QList< QDomComment > m_comments;
-  QList< QString > m_elementsProcessedFromDatabase;
 };
 
 #endif // GCDOMTREEWIDGET_H
