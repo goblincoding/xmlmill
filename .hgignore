@@ -964,3 +964,7 @@ GCXMLGenerator_MinGW_Debug/debug
 GCXMLGenerator_MinGW_Debug
 GCXMLGenerator_MinGW_Release
 GCXMLGeneratorMinGW/release
+GCXMLGenerator/docs/latex
+GCXMLGenerator/docs/html
+GCXMLGenerator/docs/Doxyfile.bak
+GCXMLGenerator/docs/UbuntuDoxyfile.bak

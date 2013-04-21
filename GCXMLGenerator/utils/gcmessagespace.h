@@ -33,7 +33,8 @@
 
 class QWidget;
 
-/// Responsible for the display of messages that don't necessarily have to be shown all the time.
+/// Responsible for the display of error messages and messages requiring user input with the
+/// option to remember the user's preference.
 
 /**
   Some message prompts displayed via this namespace contain the option to remember the user's
@@ -92,7 +93,7 @@ namespace GCMessageSpace
                      Icon icon = NoIcon,
                      bool saveCancel = true );
 
-  /*! Deletes all saved preferences from the registry/XML/ini files. */
+  /*! Deletes all saved dialog preferences from the registry/XML/ini files. */
   void forgetAllPreferences();
 
   /*! Displays a modal error message box with "message". */

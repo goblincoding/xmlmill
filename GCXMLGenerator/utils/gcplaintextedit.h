@@ -32,6 +32,8 @@
 #include <QPlainTextEdit>
 #include <QTextBlock>
 
+/// Specialist text edit class for displaying XML content in the XML Mill context.
+
 /**
    Provides functionality with which to comment out or uncomment XML selections
    and keeps track of which XML nodes are currently under investigation (based
@@ -71,6 +73,7 @@ signals:
   void manualEditAccepted();
 
 protected:
+  /*! Re-implemented from QPlainTextEdit. */
   void keyPressEvent( QKeyEvent *e );
 
 private slots:

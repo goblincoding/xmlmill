@@ -119,7 +119,7 @@ public:
   /*! Returns true if batch processing of DOM content to the active DB was successful. */
   bool isBatchProcessSuccess() const;
 
-  /*! Rebuild the tree in accordance with updated DOM content.
+  /*! Rebuild the tree to conform to updated DOM content.
       \sa processNextElement */
   void rebuildTreeWidget();
 
@@ -173,13 +173,17 @@ public:
 
 public slots:
   /*! Finds the item with index matching "index" and sets it as the current tree item. */
-  void setCurrentItemToMatchIndex( int index );
+  void setCurrentItemWithIndexMatching( int index );
 
 signals:
-  /*! \sa emitGcCurrentItemSelected */
+  /*! Emitted when the current active item changes.
+      \sa emitGcCurrentItemSelected
+      \sa gcCurrentItemChanged */
   void gcCurrentItemSelected( GCTreeWidgetItem*,int,bool );
 
-  /*! \sa emitGcCurrentItemChanged */
+  /*! Emitted when the current item's content changes
+      \sa emitGcCurrentItemChanged
+      \sa gcCurrentItemSelected */
   void gcCurrentItemChanged( GCTreeWidgetItem*, int );
 
 protected:
@@ -237,14 +241,16 @@ private:
       \sa populateFromDatabase */
   void processNextElementFromDatabase( const QString &element );
 
-  /*! Used in "processnextElementFromDatabase" to prevent infinite recursion. */
+  /*! Used in "processnextElementFromDatabase" to prevent infinite recursion. Returns true when
+      an element is part of a hierarchy containing itself (oddly allowed in XML). */
   bool parentTreeAlreadyContainsElement( const GCTreeWidgetItem *item, const QString &element );
 
   /*! Populates the comments list with all the comment nodes in the document. */
   void populateCommentList( QDomNode node );
 
   /*! Iterates through the tree and updates all items' indices (useful when new items
-      are added to ensure that indices correspond roughly to "row numbers"). */
+      are added or or items removed to ensure that indices correspond roughly to "row numbers"
+      in the accompanying plain text representation of the document's content). */
   void updateIndices();
 
   /*! Finds and returns the GCTreeWidget item that is linked to "element". */

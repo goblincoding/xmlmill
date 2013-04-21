@@ -42,7 +42,7 @@ namespace GCGlobalSpace
   /*! Used by various forms to determine whether or not they must display their "Help" tool buttons. */
   bool showHelpButtons();
 
-  /*! Saves the user's preference to the registry/ini/xml. */
+  /*! Saves the user's "Help" button preference to the registry/ini/xml. */
   void setShowHelpButtons( bool show );
 
   /*--------------------------------------------------------------------------------------*/
@@ -50,23 +50,23 @@ namespace GCGlobalSpace
   /*! Used by GCTreeWidgetItem to determine whether or not it should show its element as "verbose". */
   bool showTreeItemsVerbose();
 
-  /*! Saves the user's preference to the registry/ini/xml. */
+  /*! Saves the user's tree item verbosity preference to the registry/ini/xml. */
   void setShowTreeItemsVerbose( bool show );
 
   /*--------------------------------------------------------------------------------------*/
 
-  /*! Used when saving and loading settings to registry/XML/ini, used in GCMainWindow and GCMessageSpace. */
+  /*! Used when saving and loading settings to registry/XML/ini. */
   const QString ORGANISATION = "William Hallatt";
 
-  /*! Used when saving and loading settings to registry/XML/ini, used in GCMainWindow and GCMessageSpace. */
+  /*! Used when saving and loading settings to registry/XML/ini. */
   const QString APPLICATION  = "XML Mill";
 
   /*--------------------------------------------------------------------------------------*/
 
-  /*! Default font when displaying XML content, used in GCMainWindow and GCRestoreFilesForm. */
+  /*! Default font for displaying XML content (directly or via table and tree views). */
   const QString FONT = "Courier New";
 
-  /*! Default font when displaying XML content, used in GCMainWindow and GCRestoreFilesForm. */
+  /*! Default font size for displaying XML content (directly or via table and tree views). */
   const int FONTSIZE = 10;
 
   /*--------------------------------------------------------------------------------------*/

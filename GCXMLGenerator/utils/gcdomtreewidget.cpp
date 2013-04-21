@@ -557,7 +557,7 @@ void GCDomTreeWidget::insertItem( const QString &elementName, int index, bool to
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::setCurrentItemToMatchIndex( int index )
+void GCDomTreeWidget::setCurrentItemWithIndexMatching( int index )
 {
   index = ( index < 0 ) ? 0 : index;
 

@@ -51,8 +51,12 @@ class QMovie;
 
     \section intro_sec Introduction
 
-    If you want to know more, the <a href="http://goblincoding.com/xmlmill/">official site</a>
-    contains all the information about this application.
+    Please note that this is not a user manual or "Help" documentation, but rather source
+    documentation intended for use by developers or parties interested in the code.
+
+    If you are a user and want to know more about the application and its uses itself,
+    the <a href="http://goblincoding.com/xmlmill/">official site</a>
+    contains all the relevant information about this application.
 
     Please also feel free to <a href="http://goblincoding.com/contact">contact me</a> for any
     reason whatsoever.
@@ -63,7 +67,7 @@ class QMovie;
     for a list of possible download options.
 
     If you find any bugs or errors in the code, or typo's in the documentation, please 
-    use the contact form above to let me know.
+    use the <a href="http://goblincoding.com/contact">contact form</a> to let me know.
 */
 
 /// The main application window class.
@@ -72,7 +76,8 @@ class QMovie;
   All the code refers to "databases" whereas all the user prompts reference "profiles". This
   is deliberate.  In reality, everything is persisted to SQLite database files, but a friend
   suggested that end users may be intimidated by the use of the word "database" (especially
-  if they aren't necessarily technically inclined) and that "profile" may be less scary :)
+  if they aren't necessarily technically inclined) and that "profile" may be less scary and
+  I agreed :)
 */
 class GCMainWindow : public QMainWindow
 {
@@ -87,29 +92,24 @@ public:
 
 protected:
   /*! Re-implemented from QMainWindow.  Queries user to save before closing and
-      saves the window's geometry and position. */
+      saves the user's "Options" preferences to settings. */
   void closeEvent( QCloseEvent * event );
 
 private slots:
-  /*! Triggered as soon as the main event loop is entered (via a connection to single shot timer in the constructor).
-      This function ensures that GCDataBaseInterface is successfully initialised and prompts the user to select
-      a database for the current session. */
+  /*! Triggered as soon as the main event loop is entered (via a connection to a single shot
+      timer in the constructor). This function ensures that GCDataBaseInterface is successfully
+      initialised and prompts the user to select a database for the current session. */
   void initialise();
 
-  /*! Connected to the UI tree widget's "itemChanged( QTreeWidgetItem*, int )" signal.
-      Called only when a user edits the name of an existing tree widget item
-      (i.e. element).
+  /*! Connected to the UI tree widget's "gcCurrentItemChanged( GCTreeWidgetItem*, int )" signal.
       \sa elementSelected */
   void elementChanged( GCTreeWidgetItem *item, int column );
 
-  /*! Connected to the UI tree widget's "itemClicked( QTreeWidgetItem*, int )" signal.
-      Triggered by clicking on a tree widget item, the trigger will populate
-      the table widget with the names of the attributes associated with the
-      highlighted item's element as well as combo boxes containing their known
-      values.  This function will also create "empty" cells and combo boxes so
-      that the user may add new attribute names to the selected element.  The
-      addition of new attributes and values will automatically be persisted
-      to the database.
+  /*! Connected to the UI tree widget's "gcCurrentItemSelected( GCTreeWidgetItem*, int )" signal.
+      The trigger will populate the table widget with the names of the attributes associated with the
+      selected item's element as well as combo boxes containing their known values.  This function
+      will also create "empty" cells and combo boxes so that the user may add new attribute names. The
+      addition of new attributes and values will automatically be persisted to the active database.
       \sa elementChanged */
   void elementSelected( GCTreeWidgetItem *item, int column, bool highlightElement = true );
 
@@ -198,7 +198,8 @@ private slots:
   void closeXMLFile();
 
   /*! Saves a temporary file at 5 min intervals (when an active file is being edited) for auto-recovery purposes.
-      \sa deleteTempFile */
+      \sa deleteTempFile
+      \sa queryRestoreFiles */
   void saveTempFile();
 
   /*! Triggered by the "Import XML to Profile" UI action.
@@ -244,10 +245,10 @@ private slots:
       \sa switchActiveDatabase */
   void activeDatabaseChanged( QString dbName );
 
-  /*! Connected to the "Add Child Element" button's "clicked()" signal. This function adds the new
+  /*! Connected to the "Add Element" button's "clicked()" signal. This function adds the new
       element (selected in the combo box) as a child to the current element or as a sibling in the
-      case where the element of the same name and with the angular bracket syntax is selected in the
-      combo.  In other words, if the current element is "MyElement", then selecting "\<MyElement\>" from
+      case where the element of the same name and with the square bracket syntax is selected in the
+      combo.  In other words, if the current element is "MyElement", then selecting "[MyElement]" from
       the combo will add another MyElement element as a sibling to the currently active element.
       \sa addSnippetToDocument
       \sa insertSnippet */
@@ -286,20 +287,20 @@ private slots:
   void itemFound( GCTreeWidgetItem *item );
 
   /*! Connected to GCPlainTextEdit's "commentOut" signal. Removes the items with indices matching those
-      in the parameter list from the tree as well as from the DOM document. */
+      in the parameter list from the tree as well as from the DOM document and replaces their XML with
+      that of a comment node containing the (well-formed) "comment" string. */
   void commentOut( const QList< int > &indices, const QString &comment );
 
-  /*! Connected to GCPlainTextEdit's "manualEditAccepted" signal. Adds the uncommented element hierarchy back
-      to the main DOM and the tree. */
+  /*! Connected to GCPlainTextEdit's "manualEditAccepted()" signal. Rebuilds the XML hierarchy for
+      the special occasions where a manual user edit is allowed. */
   void rebuild();
 
   /*! Connected to the comment line edit's "textEdited" signal, this updates the active comment node's
-      value to "comment".  This function will not execute its functionality when new comments or elements
-      are added. */
+      value to "comment".  This function will not execute when new comments or elements are added. */
   void updateComment( const QString &comment );
 
-  /*! Connectd to the "Expand All" checkbox's "clicked( bool )" signal.  This slot toggles the expandsion or collapses
-      of UI tree widget. */
+  /*! Connectd to the "Expand All" checkbox's "clicked( bool )" signal.  This slot toggles the expansion
+      and collapse of the UI tree widget. */
   void collapseOrExpandTreeWidget( bool checked );
 
   /*! Unchecks the "Expand All" checkbox as soon as any of the tree items are collapsed. */
@@ -337,7 +338,7 @@ private slots:
   /*! Opens this application's website. */
   void goToSite();
 
-  /*! Sets the style sheet on the application. */
+  /*! Sets the "dark theme" style sheet on the application. */
   void useDarkTheme( bool dark );
   
 private:
@@ -360,8 +361,8 @@ private:
       \sa setTextEditContent */
   void highlightTextElement( GCTreeWidgetItem *item );
 
-  /*! Creates an additional table row that the user can use to add new attributes to the
-      active element. */
+  /*! Creates an additional empty table row each time the table widget is populated so
+      that the user may add new attributes to the active element. */
   void insertEmptyTableRow();
 
   /*! Cleans up and clears the table widget. */
@@ -400,13 +401,16 @@ private:
       \sa createSpinner */
   void deleteSpinner();
 
-  /*! If temporary files exists, it may be that the application (unlikely) or Windows (more likely)
-      crashed while the user was working on a file.  In this case, as the user if he/she would like to
-      recover their work. */
+  /*! If temporary files exist, it may be that the application (unlikely) or Windows (more likely)
+      crashed while the user was working on a file.  In this case, ask the user if he/she would like to
+      recover their work.
+      \sa saveTempFile
+      \sa deleteTempFile */
   void queryRestoreFiles();
 
   /*! Delete the auto-recover temporary file every time the user changes or explicitly saves the active file.
-      \sa saveTempFile */
+      \sa saveTempFile
+      \sa queryRestorefiles */
   void deleteTempFile();
 
   Ui::GCMainWindow *ui;
