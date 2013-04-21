@@ -54,7 +54,7 @@ namespace GCGlobalSpace
   bool showTreeItemsVerbose()
   {
     QSettings settings( GCGlobalSpace::ORGANISATION, GCGlobalSpace::APPLICATION );
-    return settings.value( VERBOSE, true ).toBool();
+    return settings.value( VERBOSE, false ).toBool();
   }
 
   void setShowTreeItemsVerbose( bool show )
