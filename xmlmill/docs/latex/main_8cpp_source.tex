@@ -1,0 +1,83 @@
+\hypertarget{main_8cpp_source}{\section{main.\-cpp}
+}
+
+\begin{DoxyCode}
+00001 \textcolor{comment}{/* Copyright (c) 2012 - 2013 by William Hallatt.}
+00002 \textcolor{comment}{ *}
+00003 \textcolor{comment}{ * This file forms part of "XML Mill".}
+00004 \textcolor{comment}{ *}
+00005 \textcolor{comment}{ * The official website for this project is <http://www.goblincoding.com> and,}
+00006 \textcolor{comment}{ * although not compulsory, it would be appreciated if all works of whatever}
+00007 \textcolor{comment}{ * nature using this source code (in whole or in part) include a reference to}
+00008 \textcolor{comment}{ * this site.}
+00009 \textcolor{comment}{ *}
+00010 \textcolor{comment}{ * Should you wish to contact me for whatever reason, please do so via:}
+00011 \textcolor{comment}{ *}
+00012 \textcolor{comment}{ *                 <http://www.goblincoding.com/contact>}
+00013 \textcolor{comment}{ *}
+00014 \textcolor{comment}{ * This program is free software: you can redistribute it and/or modify it
+       under}
+00015 \textcolor{comment}{ * the terms of the GNU General Public License as published by the Free
+       Software}
+00016 \textcolor{comment}{ * Foundation, either version 3 of the License, or (at your option) any later}
+00017 \textcolor{comment}{ * version.}
+00018 \textcolor{comment}{ *}
+00019 \textcolor{comment}{ * This program is distributed in the hope that it will be useful, but WITHOUT}
+00020 \textcolor{comment}{ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+       FITNESS}
+00021 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+       details.}
+00022 \textcolor{comment}{ *}
+00023 \textcolor{comment}{ * You should have received a copy of the GNU General Public License along with}
+00024 \textcolor{comment}{ * this program (GNUGPL.txt).  If not, see}
+00025 \textcolor{comment}{ *}
+00026 \textcolor{comment}{ *                    <http://www.gnu.org/licenses/>}
+00027 \textcolor{comment}{ */}
+00028 
+00029 \textcolor{preprocessor}{#include <QApplication>}
+00030 \textcolor{preprocessor}{#include <QFile>}
+00031 \textcolor{preprocessor}{#include <QTextStream>}
+00032 \textcolor{preprocessor}{#include <QSettings>}
+00033 
+00034 \textcolor{preprocessor}{#include "gcmainwindow.h"}
+00035 \textcolor{preprocessor}{#include "utils/gcglobalspace.h"}
+00036 
+00037 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00038 
+00039 QString styleSheet()
+00040 \{
+00041   QFile file( \textcolor{stringliteral}{":resources/StyleSheet.txt"} );
+00042   file.open( QIODevice::ReadOnly | QIODevice::Text );
+00043   QTextStream stream( &file );
+00044   QString style = stream.readAll();
+00045   file.close();
+00046 
+00047   \textcolor{keywordflow}{return} style;
+00048 \}
+00049 
+00050 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00051 
+00052 \textcolor{keywordtype}{int} main(\textcolor{keywordtype}{int} argc, \textcolor{keywordtype}{char} *argv[])
+00053 \{
+00054   QApplication a(argc, argv);
+00055 
+00056   QSettings settings( \hyperlink{namespace_g_c_global_space_a97583835f9987b1c94ff05802ccfe42f}{GCGlobalSpace::ORGANISATION}, \hyperlink{namespace_g_c_global_space_ab53b9c3447f00f1cc45a1d3fdfbba564}{GCGlobalSpace::APPLICATION} )
+      ;
+00057   QVariant useDark = settings.value( \textcolor{stringliteral}{"useDarkTheme"}, \textcolor{keyword}{false} );
+00058 
+00059   \textcolor{keywordflow}{if}( useDark.toBool() )
+00060   \{
+00061     a.setStyleSheet( styleSheet() );
+00062   \}
+00063 
+00064   \hyperlink{class_g_c_main_window}{GCMainWindow} w;
+00065   w.show();
+00066   
+00067   \textcolor{keywordflow}{return} a.exec();
+00068 \}
+00069 
+00070 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+\end{DoxyCode}

@@ -1,0 +1,156 @@
+\hypertarget{gcdatabaseinterface_8h_source}{\section{gcdatabaseinterface.\-h}
+}
+
+\begin{DoxyCode}
+00001 \textcolor{comment}{/* Copyright (c) 2012 - 2013 by William Hallatt.}
+00002 \textcolor{comment}{ *}
+00003 \textcolor{comment}{ * This file forms part of "XML Mill".}
+00004 \textcolor{comment}{ *}
+00005 \textcolor{comment}{ * The official website for this project is <http://www.goblincoding.com> and,}
+00006 \textcolor{comment}{ * although not compulsory, it would be appreciated if all works of whatever}
+00007 \textcolor{comment}{ * nature using this source code (in whole or in part) include a reference to}
+00008 \textcolor{comment}{ * this site.}
+00009 \textcolor{comment}{ *}
+00010 \textcolor{comment}{ * Should you wish to contact me for whatever reason, please do so via:}
+00011 \textcolor{comment}{ *}
+00012 \textcolor{comment}{ *                 <http://www.goblincoding.com/contact>}
+00013 \textcolor{comment}{ *}
+00014 \textcolor{comment}{ * This program is free software: you can redistribute it and/or modify it
+       under}
+00015 \textcolor{comment}{ * the terms of the GNU General Public License as published by the Free
+       Software}
+00016 \textcolor{comment}{ * Foundation, either version 3 of the License, or (at your option) any later}
+00017 \textcolor{comment}{ * version.}
+00018 \textcolor{comment}{ *}
+00019 \textcolor{comment}{ * This program is distributed in the hope that it will be useful, but WITHOUT}
+00020 \textcolor{comment}{ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+       FITNESS}
+00021 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+       details.}
+00022 \textcolor{comment}{ *}
+00023 \textcolor{comment}{ * You should have received a copy of the GNU General Public License along with}
+00024 \textcolor{comment}{ * this program (GNUGPL.txt).  If not, see}
+00025 \textcolor{comment}{ *}
+00026 \textcolor{comment}{ *                    <http://www.gnu.org/licenses/>}
+00027 \textcolor{comment}{ */}
+00028 
+00029 \textcolor{preprocessor}{#ifndef GCDATABASEINTERFACE\_H}
+00030 \textcolor{preprocessor}{}\textcolor{preprocessor}{#define GCDATABASEINTERFACE\_H}
+00031 \textcolor{preprocessor}{}
+00032 \textcolor{preprocessor}{#include <QObject>}
+00033 \textcolor{preprocessor}{#include <QMap>}
+00034 \textcolor{preprocessor}{#include <QtSql/QSqlQuery>}
+00035 
+00036 \textcolor{keyword}{class }QDomDocument;
+00037 
+00039 
+\hypertarget{gcdatabaseinterface_8h_source_l00066}{}\hyperlink{class_g_c_data_base_interface}{00066} \textcolor{keyword}{class }\hyperlink{class_g_c_data_base_interface}{GCDataBaseInterface} : \textcolor{keyword}{public} QObject
+00067 \{
+00068   Q\_OBJECT
+00069 
+00070 \textcolor{keyword}{public}:
+00072   \textcolor{keyword}{static} \hyperlink{class_g_c_data_base_interface}{GCDataBaseInterface}* \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{instance}();
+00073 
+00076   \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a2d20cd6ae4f1ba007fdc1367611b97e0}{isInitialised}() \textcolor{keyword}{const};
+00077 
+00081   \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a2c20ff88464664aef988c9c0417e19be}{batchProcessDomDocument}( \textcolor{keyword}{const} QDomDocument *domDoc ) \textcolor{keyword}{const};
+00082 
+00088   \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a650cbb413d65c7b2f76fb4c8621295f7}{addElement}( \textcolor{keyword}{const} QString &element, \textcolor{keyword}{const} QStringList &\hyperlink{class_g_c_data_base_interface_aab5126783bc3acc7c718c8ffd8af62bc}{children}, \textcolor{keyword}{const} 
+      QStringList &\hyperlink{class_g_c_data_base_interface_afb1e49e08f98ca453f9ac66340a35642}{attributes} ) \textcolor{keyword}{const};
+00089 
+00093   \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a83ecf5fa6efc6650c834274e0e3b3aa5}{addRootElement}( \textcolor{keyword}{const} QString &root ) \textcolor{keyword}{const};
+00094 
+00102   \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a91a60134bfb21a3f49d826340bebb852}{updateElementChildren}( \textcolor{keyword}{const} QString &element, \textcolor{keyword}{const} QStringList &
+      children, \textcolor{keywordtype}{bool} replace = \textcolor{keyword}{false} ) \textcolor{keyword}{const};
+00103 
+00111   \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_abc13d0cb75b233fd83575bfef575ff19}{updateElementAttributes}( \textcolor{keyword}{const} QString &element, \textcolor{keyword}{const} QStringList &
+      attributes, \textcolor{keywordtype}{bool} replace = \textcolor{keyword}{false} ) \textcolor{keyword}{const};
+00112 
+00122   \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_ae4f158875b5a8a109d301f19ce5d21ae}{updateAttributeValues}( \textcolor{keyword}{const} QString &element, \textcolor{keyword}{const} QString &attribute,
+       \textcolor{keyword}{const} QStringList &\hyperlink{class_g_c_data_base_interface_a329e17f6c02c62fd554884f2b5a7e2df}{attributeValues}, \textcolor{keywordtype}{bool} replace = \textcolor{keyword}{false} ) \textcolor{keyword}{const};
+00123 
+00125   \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_ad8aa20de89390f0cc2a1b64270a831b3}{removeElement}( \textcolor{keyword}{const} QString &element ) \textcolor{keyword}{const};
+00126 
+00128   \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_adbace3a2d395dae9cd915238556a6f77}{removeRootElement}( \textcolor{keyword}{const} QString &element ) \textcolor{keyword}{const};
+00129 
+00132   \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a657f2885b6741f8ac229939f77e7dd73}{removeChildElement}( \textcolor{keyword}{const} QString &element, \textcolor{keyword}{const} QString &child ) \textcolor{keyword}{const}
+      ;
+00133 
+00136   \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a6fbf551a825c0fca13926449be4a5215}{removeAttribute}( \textcolor{keyword}{const} QString &element, \textcolor{keyword}{const} QString &attribute ) \textcolor{keyword}{
+      const};
+00137 
+00140   \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a875e3999c9d91b5e0f59be8bdef54408}{hasActiveSession}() \textcolor{keyword}{const};
+00141 
+00143   \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_ae570c403f1b6b7f85e6a5c46829f42a8}{isProfileEmpty}() \textcolor{keyword}{const};
+00144 
+00146   \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a91183c2d227bf90d0d26fccc1e4ae878}{containsKnownRootElement}( \textcolor{keyword}{const} QString &dbName, \textcolor{keyword}{const} QString &root ) \textcolor{keyword}{
+      const};
+00147 
+00150   \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a94559ea23489e360757db42c50d3a261}{isUniqueChildElement}( \textcolor{keyword}{const} QString &parentElement, \textcolor{keyword}{const} QString &
+      element ) \textcolor{keyword}{const};
+00151 
+00154   \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_ae16d516cbefe58ccf9ef0e8ece4a394f}{isDocumentCompatible}( \textcolor{keyword}{const} QDomDocument *doc ) \textcolor{keyword}{const};
+00155 
+00158   QStringList \hyperlink{class_g_c_data_base_interface_a6c4eabd4f39a1c23ab320bb0dbc855d4}{knownElements}() \textcolor{keyword}{const};
+00159 
+00162   QStringList \hyperlink{class_g_c_data_base_interface_aab5126783bc3acc7c718c8ffd8af62bc}{children}( \textcolor{keyword}{const} QString &element ) \textcolor{keyword}{const};
+00163 
+00168   QStringList \hyperlink{class_g_c_data_base_interface_afb1e49e08f98ca453f9ac66340a35642}{attributes}( \textcolor{keyword}{const} QString &element ) \textcolor{keyword}{const};
+00169 
+00173   QStringList \hyperlink{class_g_c_data_base_interface_a329e17f6c02c62fd554884f2b5a7e2df}{attributeValues}( \textcolor{keyword}{const} QString &element, \textcolor{keyword}{const} QString &attribute
+       ) \textcolor{keyword}{const};
+00174 
+00177   QStringList \hyperlink{class_g_c_data_base_interface_ac5c57277f9476ab74cfe13fbcee52f15}{knownRootElements}() \textcolor{keyword}{const};
+00178 
+00180   QStringList \hyperlink{class_g_c_data_base_interface_ab34f716b89ee96de9bf599f5d5d2c152}{connectionList}() \textcolor{keyword}{const};
+00181 
+00183   \textcolor{keyword}{const} QString &\hyperlink{class_g_c_data_base_interface_a30d5bbea06462c5ed0f76ad8a68c4b08}{lastError}() \textcolor{keyword}{const};
+00184 
+00187   QString \hyperlink{class_g_c_data_base_interface_a53aff43e5997c5f0180ba214205e5bc6}{activeSessionName}() \textcolor{keyword}{const};
+00188   
+00189 \textcolor{keyword}{public} slots:
+00191   \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a176952c9ba2fbc90809f9d64ea14a69f}{setActiveDatabase}( \textcolor{keyword}{const} QString &dbName );
+00192 
+00194   \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a6b3cc67ba9e4bdf58b49869243446764}{addDatabase}( \textcolor{keyword}{const} QString &dbName );
+00195 
+00197   \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a86dcb92e64a35e3fb72fa58a4bacc3b9}{removeDatabase}( \textcolor{keyword}{const} QString &dbName );
+00198 
+00199 \textcolor{keyword}{private}:
+00200   \textcolor{keyword}{static} \hyperlink{class_g_c_data_base_interface}{GCDataBaseInterface} *m\_instance;
+00201 
+00203   \hyperlink{class_g_c_data_base_interface}{GCDataBaseInterface}();
+00204 
+00206   \hyperlink{class_g_c_data_base_interface}{GCDataBaseInterface}( \textcolor{keyword}{const} \hyperlink{class_g_c_data_base_interface}{GCDataBaseInterface}& );
+00207 
+00209   \hyperlink{class_g_c_data_base_interface}{GCDataBaseInterface} &operator=( \textcolor{keyword}{const} \hyperlink{class_g_c_data_base_interface}{GCDataBaseInterface}& );
+00210 
+00212   QStringList knownAttributeKeys() \textcolor{keyword}{const};
+00213 
+00216   QSqlQuery selectElement( \textcolor{keyword}{const} QString &element ) \textcolor{keyword}{const};
+00217 
+00219   QSqlQuery selectAllElements() \textcolor{keyword}{const};
+00220 
+00223   QSqlQuery selectAttribute( \textcolor{keyword}{const} QString &attribute, \textcolor{keyword}{const} QString &
+      associatedElement ) \textcolor{keyword}{const};
+00224 
+00226   QSqlQuery selectAllAttributes() \textcolor{keyword}{const};
+00227 
+00229   QStringList \hyperlink{class_g_c_data_base_interface_ac5c57277f9476ab74cfe13fbcee52f15}{knownRootElements}( QSqlDatabase db ) \textcolor{keyword}{const};
+00230 
+00235   \textcolor{keywordtype}{bool} removeDuplicatesFromFields() \textcolor{keyword}{const};
+00236 
+00239   \textcolor{keywordtype}{bool} openConnection( \textcolor{keyword}{const} QString &dbConName );
+00240 
+00242   \textcolor{keywordtype}{bool} createTables() \textcolor{keyword}{const};
+00243 
+00245   \textcolor{keywordtype}{void} saveDatabaseFile() \textcolor{keyword}{const};
+00246 
+00247   QSqlDatabase    m\_sessionDB;
+00248   \textcolor{keyword}{mutable} QString m\_lastErrorMsg;
+00249   \textcolor{keywordtype}{bool}            m\_hasActiveSession;
+00250   \textcolor{keywordtype}{bool}            m\_initialised;
+00251   QMap< QString \textcolor{comment}{/*connection name*/}, QString \textcolor{comment}{/*file name*/} > m\_dbMap;
+00252 \};
+00253 
+00254 \textcolor{preprocessor}{#endif // GCDATABASEINTERFACE\_H}
+\end{DoxyCode}

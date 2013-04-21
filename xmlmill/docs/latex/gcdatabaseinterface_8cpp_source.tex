@@ -1,0 +1,1579 @@
+\hypertarget{gcdatabaseinterface_8cpp_source}{\section{gcdatabaseinterface.\-cpp}
+}
+
+\begin{DoxyCode}
+00001 \textcolor{comment}{/* Copyright (c) 2012 - 2013 by William Hallatt.}
+00002 \textcolor{comment}{ *}
+00003 \textcolor{comment}{ * This file forms part of "XML Mill".}
+00004 \textcolor{comment}{ *}
+00005 \textcolor{comment}{ * The official website for this project is <http://www.goblincoding.com> and,}
+00006 \textcolor{comment}{ * although not compulsory, it would be appreciated if all works of whatever}
+00007 \textcolor{comment}{ * nature using this source code (in whole or in part) include a reference to}
+00008 \textcolor{comment}{ * this site.}
+00009 \textcolor{comment}{ *}
+00010 \textcolor{comment}{ * Should you wish to contact me for whatever reason, please do so via:}
+00011 \textcolor{comment}{ *}
+00012 \textcolor{comment}{ *                 <http://www.goblincoding.com/contact>}
+00013 \textcolor{comment}{ *}
+00014 \textcolor{comment}{ * This program is free software: you can redistribute it and/or modify it
+       under}
+00015 \textcolor{comment}{ * the terms of the GNU General Public License as published by the Free
+       Software}
+00016 \textcolor{comment}{ * Foundation, either version 3 of the License, or (at your option) any later}
+00017 \textcolor{comment}{ * version.}
+00018 \textcolor{comment}{ *}
+00019 \textcolor{comment}{ * This program is distributed in the hope that it will be useful, but WITHOUT}
+00020 \textcolor{comment}{ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+       FITNESS}
+00021 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+       details.}
+00022 \textcolor{comment}{ *}
+00023 \textcolor{comment}{ * You should have received a copy of the GNU General Public License along with}
+00024 \textcolor{comment}{ * this program (GNUGPL.txt).  If not, see}
+00025 \textcolor{comment}{ *}
+00026 \textcolor{comment}{ *                    <http://www.gnu.org/licenses/>}
+00027 \textcolor{comment}{ */}
+00028 
+00029 \textcolor{preprocessor}{#include "gcdatabaseinterface.h"}
+00030 \textcolor{preprocessor}{#include "gcbatchprocessorhelper.h"}
+00031 
+00032 \textcolor{preprocessor}{#include <QDomDocument>}
+00033 \textcolor{preprocessor}{#include <QStringList>}
+00034 \textcolor{preprocessor}{#include <QFile>}
+00035 \textcolor{preprocessor}{#include <QTextStream>}
+00036 \textcolor{preprocessor}{#include <QApplication>}
+00037 \textcolor{preprocessor}{#include <QtSql/QSqlDatabase>}
+00038 \textcolor{preprocessor}{#include <QtSql/QSqlError>}
+00039 \textcolor{preprocessor}{#include <QtSql/QSqlRecord>}
+00040 \textcolor{preprocessor}{#include <QtSql/QSqlField>}
+00041 
+00042 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00043 
+00044 \textcolor{comment}{/* Have a look at "createTables" to see how the DB is set up. */}
+00045 \textcolor{keyword}{static} \textcolor{keyword}{const} QLatin1String INSERT\_ELEMENT(
+00046     \textcolor{stringliteral}{"INSERT INTO xmlelements( element, children, attributes ) VALUES( ?, ?, ? )
+      "} );
+00047 
+00048 \textcolor{keyword}{static} \textcolor{keyword}{const} QLatin1String INSERT\_ATTRIBUTEVALUES(
+00049     \textcolor{stringliteral}{"INSERT INTO xmlattributes( attribute, associatedElement, attributeValues )
+       VALUES( ?, ?, ? )"} );
+00050 
+00051 \textcolor{keyword}{static} \textcolor{keyword}{const} QLatin1String UPDATE\_CHILDREN(
+00052     \textcolor{stringliteral}{"UPDATE xmlelements SET children = ? WHERE element = ?"} );
+00053 
+00054 \textcolor{keyword}{static} \textcolor{keyword}{const} QLatin1String UPDATE\_ATTRIBUTES(
+00055     \textcolor{stringliteral}{"UPDATE xmlelements SET attributes = ? WHERE element = ?"} );
+00056 
+00057 \textcolor{keyword}{static} \textcolor{keyword}{const} QLatin1String UPDATE\_ATTRIBUTEVALUES(
+00058     \textcolor{stringliteral}{"UPDATE xmlattributes SET attributeValues = ? WHERE attribute = ? AND
+       associatedElement = ?"} );
+00059 
+00060 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00061 
+00062 \textcolor{comment}{/* Flat file containing list of databases. */}
+00063 \textcolor{keyword}{static} \textcolor{keyword}{const} QString DB\_FILE( \textcolor{stringliteral}{"dblist.txt"} );
+00064 
+00065 \textcolor{comment}{/* Regular expression string to split "\(\backslash\)" (Windows) or "/" (Unix) from file
+       path. */}
+00066 \textcolor{keyword}{static} \textcolor{keyword}{const} QString REGEXP\_SLASHES( \textcolor{stringliteral}{"(\(\backslash\)\(\backslash\)\(\backslash\)\(\backslash\)|\(\backslash\)\(\backslash\)/)"} );
+00067 
+00068 \textcolor{comment}{/* The database tables have fields containing strings of strings. For example,
+       the}
+00069 \textcolor{comment}{  "xmlelements" table maps a unique element against a list of all associated
+       attribute}
+00070 \textcolor{comment}{  values.  Since these values have to be entered into a single record, the
+       easiest way}
+00071 \textcolor{comment}{  is to insert a single (possibly massive) string containing all the associated
+       attributes.}
+00072 \textcolor{comment}{  To ensure that we can later extract the individual attributes again, we
+       separate them with}
+00073 \textcolor{comment}{  a sequence that should (theoretically) never be encountered.  This is that
+       sequence. */}
+00074 \textcolor{keyword}{static} \textcolor{keyword}{const} QString SEPARATOR( \textcolor{stringliteral}{"~!@"} );
+00075 
+00076 
+00077 \textcolor{comment}{/*--------------------------- NON-MEMBER UTILITY FUNCTIONS
+       ----------------------------*/}
+00078 
+00079 \textcolor{keywordtype}{void} cleanList( QStringList &list )
+00080 \{
+00081   list.removeDuplicates();
+00082   list.removeAll( \textcolor{stringliteral}{""} );
+00083 \}
+00084 
+00085 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00086 
+00087 QString cleanAndJoinListElements( QStringList list )
+00088 \{
+00089   cleanList( list );
+00090   \textcolor{keywordflow}{return} list.join( SEPARATOR );
+00091 \}
+00092 
+00093 \textcolor{comment}{/*--------------------------------- MEMBER FUNCTIONS
+       ----------------------------------*/}
+00094 
+00095 \hyperlink{class_g_c_data_base_interface}{GCDataBaseInterface}* GCDataBaseInterface::m\_instance = NULL;
+00096 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00097}{}\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{00097} \hyperlink{class_g_c_data_base_interface}{GCDataBaseInterface}* \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()
+00098 \{
+00099   \textcolor{keywordflow}{if}( !m\_instance )
+00100   \{
+00101     m\_instance = \textcolor{keyword}{new} \hyperlink{class_g_c_data_base_interface}{GCDataBaseInterface};
+00102   \}
+00103 
+00104   \textcolor{keywordflow}{return} m\_instance;
+00105 \}
+00106 
+00107 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00108 
+00109 GCDataBaseInterface::GCDataBaseInterface() :
+00110   m\_sessionDB       (),
+00111   m\_lastErrorMsg    ( \textcolor{stringliteral}{""} ),
+00112   m\_hasActiveSession( false ),
+00113   m\_initialised     ( false ),
+00114   m\_dbMap           ()
+00115 \{
+00116   QFile flatFile( DB\_FILE );
+00117 
+00118   \textcolor{comment}{/* ReadWrite mode is required to create the file if it doesn't exist. */}
+00119   \textcolor{keywordflow}{if}( flatFile.open( QIODevice::ReadWrite | QIODevice::Text ) )
+00120   \{
+00121     m\_lastErrorMsg = \textcolor{stringliteral}{""};
+00122     m\_initialised = \textcolor{keyword}{true};
+00123 
+00124     QTextStream inStream( &flatFile );
+00125     QString fileContent = inStream.readAll();
+00126     flatFile.close();
+00127 
+00128     \textcolor{comment}{/* Split the input into separate lines (path/to/file lines). */}
+00129     QStringList list = fileContent.split( \textcolor{stringliteral}{"\(\backslash\)n"}, QString::SkipEmptyParts );
+00130 
+00131     \textcolor{keywordflow}{foreach}( QString str, list )
+00132     \{
+00133       \textcolor{keywordflow}{if}( !\hyperlink{class_g_c_data_base_interface_a6b3cc67ba9e4bdf58b49869243446764}{addDatabase}( str ) )
+00134       \{
+00135         m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Failed to load existing connection: \(\backslash\)n %1"} )
+      .arg( str );
+00136         m\_initialised = \textcolor{keyword}{false};
+00137       \}
+00138     \}
+00139   \}
+00140   \textcolor{keywordflow}{else}
+00141   \{
+00142     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Failed to access list of databases, file open
+       error: [%1]."} ).arg( flatFile.errorString() );
+00143     m\_initialised = \textcolor{keyword}{false};
+00144   \}
+00145 \}
+00146 
+00147 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00148 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00149}{}\hyperlink{class_g_c_data_base_interface_a2d20cd6ae4f1ba007fdc1367611b97e0}{00149} \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a2d20cd6ae4f1ba007fdc1367611b97e0}{GCDataBaseInterface::isInitialised}()\textcolor{keyword}{ const}
+00150 \textcolor{keyword}{}\{
+00151   \textcolor{keywordflow}{return} m\_initialised;
+00152 \}
+00153 
+00154 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00155 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00156}{}\hyperlink{class_g_c_data_base_interface_a2c20ff88464664aef988c9c0417e19be}{00156} \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a2c20ff88464664aef988c9c0417e19be}{GCDataBaseInterface::batchProcessDomDocument}( \textcolor{keyword}{const} QDomDocument *domDoc )\textcolor{keyword}{
+       const}
+00157 \textcolor{keyword}{}\{
+00158   \hyperlink{class_g_c_batch_processor_helper}{GCBatchProcessorHelper} helper( domDoc,
+00159                                  SEPARATOR,
+00160                                  \hyperlink{class_g_c_data_base_interface_a6c4eabd4f39a1c23ab320bb0dbc855d4}{knownElements}(),
+00161                                  knownAttributeKeys() );
+00162 
+00163   qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+00164 
+00165   \textcolor{keywordflow}{if}( !\hyperlink{class_g_c_data_base_interface_a83ecf5fa6efc6650c834274e0e3b3aa5}{addRootElement}( domDoc->documentElement().tagName() ) )
+00166   \{
+00167     \textcolor{comment}{/* Last error message is set in "addRootElement". */}
+00168     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00169   \}
+00170 
+00171   QSqlQuery query( m\_sessionDB );
+00172 
+00173   \textcolor{comment}{/* Batch insert all the new elements. */}
+00174   \textcolor{keywordflow}{if}( !query.prepare( INSERT\_ELEMENT ) )
+00175   \{
+00176     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Prepare batch INSERT elements failed: [%1]"} )
+00177         .arg( query.lastError().text() );
+00178     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00179   \}
+00180 
+00181   query.addBindValue( helper.\hyperlink{class_g_c_batch_processor_helper_afdedbc674698c019ebd2a3938a239661}{newElementsToAdd}() );
+00182   query.addBindValue( helper.\hyperlink{class_g_c_batch_processor_helper_a89c14c3740c7cb57c937ef8db99b4af1}{newElementChildrenToAdd}() );
+00183   query.addBindValue( helper.\hyperlink{class_g_c_batch_processor_helper_a640ca9bd78b7da0796fdfb82fefce8b6}{newElementAttributesToAdd}() );
+00184 
+00185   \textcolor{keywordflow}{if}( !query.execBatch() )
+00186   \{
+00187     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Batch INSERT elements failed: [%1]"} )
+00188         .arg( query.lastError().text() );
+00189     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00190   \}
+00191 
+00192   qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+00193 
+00194   \textcolor{comment}{/* Batch update all the existing elements by concatenating the new values to
+       the}
+00195 \textcolor{comment}{    existing values. The second '?' represents our string SEPARATOR. */}
+00196   \textcolor{keywordflow}{if}( !query.prepare( \textcolor{stringliteral}{"UPDATE xmlelements "}
+00197                       \textcolor{stringliteral}{"SET children = ( IFNULL( ?, \(\backslash\)"\(\backslash\)" ) || IFNULL( ?, \(\backslash\)"\(\backslash\)" )
+       || IFNULL( children, \(\backslash\)"\(\backslash\)" ) ) "}
+00198                       \textcolor{stringliteral}{"WHERE element = ?"} ) )
+00199   \{
+00200     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Prepare batch UPDATE element children failed:
+       [%1]"} )
+00201         .arg( query.lastError().text() );
+00202     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00203   \}
+00204 
+00205   \textcolor{comment}{/* Since we're doing batch updates we need to ensure that all the variant
+       lists we provide}
+00206 \textcolor{comment}{    have exactly the same size.  We furthermore require that the concatenation
+       of new and old values}
+00207 \textcolor{comment}{    are done in a way that includes our SEPARATOR string (which is why the
+       separator list below). */}
+00208   QVariantList separatorList;
+00209 
+00210   \textcolor{keywordflow}{for}( \textcolor{keywordtype}{int} i = 0; i < helper.\hyperlink{class_g_c_batch_processor_helper_aca0a2d6bbfcb23907e917b5d2251fc6f}{elementsToUpdate}().size(); ++i )
+00211   \{
+00212     separatorList << SEPARATOR;
+00213   \}
+00214 
+00215   query.addBindValue( helper.\hyperlink{class_g_c_batch_processor_helper_a8fd4cac8af9a54df52a98628d5ba6fbe}{elementChildrenToUpdate}() );
+00216   query.addBindValue( separatorList );
+00217   query.addBindValue( helper.\hyperlink{class_g_c_batch_processor_helper_aca0a2d6bbfcb23907e917b5d2251fc6f}{elementsToUpdate}() );
+00218 
+00219   \textcolor{keywordflow}{if}( !query.execBatch() )
+00220   \{
+00221     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Batch UPDATE element children failed: [%1]"} )
+00222         .arg( query.lastError().text() );
+00223     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00224   \}
+00225 
+00226   qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+00227 
+00228   \textcolor{keywordflow}{if}( !query.prepare( \textcolor{stringliteral}{"UPDATE xmlelements "}
+00229                       \textcolor{stringliteral}{"SET attributes = ( IFNULL( ?, \(\backslash\)"\(\backslash\)" ) || IFNULL( ?, \(\backslash\)"\(\backslash\)"
+       ) || IFNULL( attributes, \(\backslash\)"\(\backslash\)" )  ) "}
+00230                       \textcolor{stringliteral}{"WHERE element = ?"} ) )
+00231   \{
+00232     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Prepare batch UPDATE element attributes failed:
+       [%1]"} )
+00233         .arg( query.lastError().text() );
+00234     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00235   \}
+00236 
+00237   query.addBindValue( helper.\hyperlink{class_g_c_batch_processor_helper_a3b0630e9e210b2b86e58cb43d3706b73}{elementAttributesToUpdate}() );
+00238   query.addBindValue( separatorList );
+00239   query.addBindValue( helper.\hyperlink{class_g_c_batch_processor_helper_aca0a2d6bbfcb23907e917b5d2251fc6f}{elementsToUpdate}() );
+00240 
+00241   \textcolor{keywordflow}{if}( !query.execBatch() )
+00242   \{
+00243     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Batch UPDATE element attributes failed: [%1]"} )
+00244         .arg( query.lastError().text() );
+00245     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00246   \}
+00247 
+00248   qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+00249 
+00250   \textcolor{comment}{/* Batch insert all the new attribute values. */}
+00251   \textcolor{keywordflow}{if}( !query.prepare( INSERT\_ATTRIBUTEVALUES ) )
+00252   \{
+00253     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Prepare batch INSERT attribute values failed:
+       [%1]"} )
+00254         .arg( query.lastError().text() );
+00255     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00256   \}
+00257 
+00258   query.addBindValue( helper.\hyperlink{class_g_c_batch_processor_helper_a605ca53123f28467df39cabeb3aa65cd}{newAttributeKeysToAdd}() );
+00259   query.addBindValue( helper.\hyperlink{class_g_c_batch_processor_helper_abf195046fd00e629b2ce5e3bd6bcf90d}{newAssociatedElementsToAdd}() );
+00260   query.addBindValue( helper.\hyperlink{class_g_c_batch_processor_helper_af06d87d433f9402667f1cd654ad4b422}{newAttributeValuesToAdd}() );
+00261 
+00262   \textcolor{keywordflow}{if}( !query.execBatch() )
+00263   \{
+00264     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Batch INSERT attribute values failed: [%1]"} )
+00265         .arg( query.lastError().text() );
+00266     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00267   \}
+00268 
+00269   qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+00270 
+00271   \textcolor{comment}{/* Batch update all the existing attribute values. */}
+00272   \textcolor{keywordflow}{if}( !query.prepare( \textcolor{stringliteral}{"UPDATE xmlattributes "}
+00273                       \textcolor{stringliteral}{"SET attributeValues = ( IFNULL( ?, \(\backslash\)"\(\backslash\)" ) || IFNULL( ?, 
+      \(\backslash\)"\(\backslash\)" ) || IFNULL( attributeValues, \(\backslash\)"\(\backslash\)" ) ) "}
+00274                       \textcolor{stringliteral}{"WHERE attribute = ? "}
+00275                       \textcolor{stringliteral}{"AND associatedElement = ?"} ) )
+00276   \{
+00277     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Prepare batch UPDATE attribute values failed:
+       [%1]"} )
+00278         .arg( query.lastError().text() );
+00279     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00280   \}
+00281 
+00282   separatorList.clear();
+00283 
+00284   \textcolor{keywordflow}{for}( \textcolor{keywordtype}{int} i = 0; i < helper.\hyperlink{class_g_c_batch_processor_helper_a4cad81bffaa5af1531a72ccaeaedd600}{attributeKeysToUpdate}().size(); ++i )
+00285   \{
+00286     separatorList << SEPARATOR;
+00287   \}
+00288 
+00289   query.addBindValue( helper.\hyperlink{class_g_c_batch_processor_helper_a390cab72c76739bea0d98d5ba1ff7e21}{attributeValuesToUpdate}() );
+00290   query.addBindValue( separatorList );
+00291   query.addBindValue( helper.\hyperlink{class_g_c_batch_processor_helper_a4cad81bffaa5af1531a72ccaeaedd600}{attributeKeysToUpdate}() );
+00292   query.addBindValue( helper.\hyperlink{class_g_c_batch_processor_helper_a22c3d5f21c3dff029e89536c0a08daf4}{associatedElementsToUpdate}() );
+00293 
+00294   \textcolor{keywordflow}{if}( !query.execBatch() )
+00295   \{
+00296     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Batch UPDATE attribute values failed: [%1]"} )
+00297         .arg( query.lastError().text() );
+00298     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00299   \}
+00300 
+00301   \textcolor{keywordflow}{return} removeDuplicatesFromFields();
+00302 \}
+00303 
+00304 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00305 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00306}{}\hyperlink{class_g_c_data_base_interface_a650cbb413d65c7b2f76fb4c8621295f7}{00306} \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a650cbb413d65c7b2f76fb4c8621295f7}{GCDataBaseInterface::addElement}( \textcolor{keyword}{const} QString &element, \textcolor{keyword}{const} QStringList
+       &children, \textcolor{keyword}{const} QStringList &attributes )\textcolor{keyword}{ const}
+00307 \textcolor{keyword}{}\{
+00308   \textcolor{keywordflow}{if}( element.isEmpty() )
+00309   \{
+00310     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Trying to add an empty element name."} );
+00311     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00312   \}
+00313 
+00314   QSqlQuery query = selectElement( element );
+00315 
+00316   \textcolor{comment}{/* If we don't have an existing record, add it. */}
+00317   \textcolor{keywordflow}{if}( !query.first() )
+00318   \{
+00319     \textcolor{keywordflow}{if}( !query.prepare( INSERT\_ELEMENT ) )
+00320     \{
+00321       m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Prepare INSERT element failed for element \(\backslash\)"%1
+      \(\backslash\)": [%2]"} )
+00322           .arg( element )
+00323           .arg( query.lastError().text() );
+00324       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00325     \}
+00326 
+00327     query.addBindValue( element );
+00328     query.addBindValue( cleanAndJoinListElements( children ) );
+00329     query.addBindValue( cleanAndJoinListElements( attributes ) );
+00330 
+00331     \textcolor{keywordflow}{if}( !query.exec() )
+00332     \{
+00333       m\_lastErrorMsg = QString( \textcolor{stringliteral}{"INSERT element failed for element \(\backslash\)"%1\(\backslash\)": [%2]
+      "} )
+00334           .arg( element )
+00335           .arg( query.lastError().text() );
+00336       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00337     \}
+00338   \}
+00339 
+00340   m\_lastErrorMsg = \textcolor{stringliteral}{""};
+00341   \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+00342 \}
+00343 
+00344 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00345 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00346}{}\hyperlink{class_g_c_data_base_interface_a83ecf5fa6efc6650c834274e0e3b3aa5}{00346} \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a83ecf5fa6efc6650c834274e0e3b3aa5}{GCDataBaseInterface::addRootElement}( \textcolor{keyword}{const} QString &root )\textcolor{keyword}{ const}
+00347 \textcolor{keyword}{}\{
+00348   \textcolor{keywordflow}{if}( root.isEmpty() )
+00349   \{
+00350     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Trying to add an empty root element name."} );
+00351     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00352   \}
+00353 
+00354   QSqlQuery query( m\_sessionDB );
+00355 
+00356   \textcolor{keywordflow}{if}( !query.prepare( \textcolor{stringliteral}{"SELECT * FROM rootelements WHERE root = ? "}) )
+00357   \{
+00358     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Prepare SELECT root element failed for root \(\backslash\)"%1
+      \(\backslash\)": [%2]"} )
+00359         .arg( root )
+00360         .arg( query.lastError().text() );
+00361     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00362   \}
+00363 
+00364   query.addBindValue( root );
+00365 
+00366   \textcolor{keywordflow}{if}( !query.exec() )
+00367   \{
+00368     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"SELECT root element failed for root \(\backslash\)"%1\(\backslash\)": [%2]
+      "} )
+00369         .arg( root )
+00370         .arg( query.lastError().text() );
+00371     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00372   \}
+00373 
+00374   \textcolor{comment}{/* Make sure we aren't trying to insert a known root element. */}
+00375   \textcolor{keywordflow}{if}( !query.first() )
+00376   \{
+00377     \textcolor{keywordflow}{if}( !query.prepare( \textcolor{stringliteral}{"INSERT INTO rootelements ( root ) VALUES( ? )"} ) )
+00378     \{
+00379       m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Prepare INSERT root element failed for root \(\backslash\)"
+      %1\(\backslash\)": [%2]"} )
+00380           .arg( root )
+00381           .arg( query.lastError().text() );
+00382       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00383     \}
+00384 
+00385     query.addBindValue( root );
+00386 
+00387     \textcolor{keywordflow}{if}( !query.exec() )
+00388     \{
+00389       m\_lastErrorMsg = QString( \textcolor{stringliteral}{"INSERT root element failed for element \(\backslash\)"%1\(\backslash\)":
+       [%2]"} )
+00390           .arg( root )
+00391           .arg( query.lastError().text() );
+00392       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00393     \}
+00394   \}
+00395 
+00396   m\_lastErrorMsg = \textcolor{stringliteral}{""};
+00397   \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+00398 \}
+00399 
+00400 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00401 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00402}{}\hyperlink{class_g_c_data_base_interface_a91a60134bfb21a3f49d826340bebb852}{00402} \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a91a60134bfb21a3f49d826340bebb852}{GCDataBaseInterface::updateElementChildren}( \textcolor{keyword}{const} QString &element, \textcolor{keyword}{const} 
+      QStringList &children, \textcolor{keywordtype}{bool} replace )\textcolor{keyword}{ const}
+00403 \textcolor{keyword}{}\{
+00404   \textcolor{keywordflow}{if}( element.isEmpty() )
+00405   \{
+00406     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Invalid element name provided."} );
+00407     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00408   \}
+00409 
+00410   QSqlQuery query = selectElement( element );
+00411 
+00412   \textcolor{comment}{/* Update the existing record (if we have one). */}
+00413   \textcolor{keywordflow}{if}( query.first() )
+00414   \{
+00415     QStringList allChildren( children );
+00416 
+00417     \textcolor{keywordflow}{if}( !replace )
+00418     \{
+00419       allChildren.append( query.record().field( \textcolor{stringliteral}{"children"} ).value().toString()
+      .split( SEPARATOR ) );
+00420     \}
+00421 
+00422     \textcolor{keywordflow}{if}( !query.prepare( UPDATE\_CHILDREN ) )
+00423     \{
+00424       m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Prepare UPDATE element children failed for
+       element \(\backslash\)"%1\(\backslash\)": [%2]"} )
+00425           .arg( element )
+00426           .arg( query.lastError().text() );
+00427       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00428     \}
+00429 
+00430     query.addBindValue( cleanAndJoinListElements( allChildren ) );
+00431     query.addBindValue( element );
+00432 
+00433     \textcolor{keywordflow}{if}( !query.exec() )
+00434     \{
+00435       m\_lastErrorMsg = QString( \textcolor{stringliteral}{"UPDATE children failed for element \(\backslash\)"%1\(\backslash\)":
+       [%2]"} )
+00436           .arg( element )
+00437           .arg( query.lastError().text() );
+00438       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00439     \}
+00440   \}
+00441   \textcolor{keywordflow}{else}
+00442   \{
+00443     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"No knowledge of element \(\backslash\)"%1\(\backslash\)", add it first."} )
+00444         .arg( element );
+00445     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00446   \}
+00447 
+00448   m\_lastErrorMsg = \textcolor{stringliteral}{""};
+00449   \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+00450 \}
+00451 
+00452 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00453 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00454}{}\hyperlink{class_g_c_data_base_interface_abc13d0cb75b233fd83575bfef575ff19}{00454} \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_abc13d0cb75b233fd83575bfef575ff19}{GCDataBaseInterface::updateElementAttributes}( \textcolor{keyword}{const} QString &element, \textcolor{keyword}{
+      const} QStringList &attributes, \textcolor{keywordtype}{bool} replace )\textcolor{keyword}{ const}
+00455 \textcolor{keyword}{}\{
+00456   \textcolor{keywordflow}{if}( element.isEmpty() )
+00457   \{
+00458     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Invalid element name provided."} );
+00459     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00460   \}
+00461 
+00462   QSqlQuery query = selectElement( element );
+00463 
+00464   \textcolor{comment}{/* Update the existing record (if we have one). */}
+00465   \textcolor{keywordflow}{if}( query.first() )
+00466   \{
+00467     QStringList allAttributes;
+00468 
+00469     \textcolor{keywordflow}{if}( !replace )
+00470     \{
+00471       allAttributes.append( query.record().field( \textcolor{stringliteral}{"attributes"} ).value().
+      toString().split( SEPARATOR ) );
+00472     \}
+00473 
+00474     \textcolor{comment}{/* Add it here so that we append the new attributes to the end of the list.
+       */}
+00475     allAttributes.append( attributes );
+00476 
+00477     \textcolor{keywordflow}{if}( !query.prepare( UPDATE\_ATTRIBUTES ) )
+00478     \{
+00479       m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Prepare UPDATE element attribute failed for
+       element \(\backslash\)"%1\(\backslash\)": [%2]"} )
+00480           .arg( element )
+00481           .arg( query.lastError().text() );
+00482       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00483     \}
+00484 
+00485     query.addBindValue( cleanAndJoinListElements( allAttributes ) );
+00486     query.addBindValue( element );
+00487 
+00488     \textcolor{keywordflow}{if}( !query.exec() )
+00489     \{
+00490       m\_lastErrorMsg = QString( \textcolor{stringliteral}{"UPDATE attribute failed for element \(\backslash\)"%1\(\backslash\)":
+       [%2]"} )
+00491           .arg( element )
+00492           .arg( query.lastError().text() );
+00493       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00494     \}
+00495   \}
+00496   \textcolor{keywordflow}{else}
+00497   \{
+00498     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"No element \(\backslash\)"%1\(\backslash\)" exists."} )
+00499         .arg( element );
+00500     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00501   \}
+00502 
+00503   m\_lastErrorMsg = \textcolor{stringliteral}{""};
+00504   \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+00505 \}
+00506 
+00507 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00508 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00509}{}\hyperlink{class_g_c_data_base_interface_ae4f158875b5a8a109d301f19ce5d21ae}{00509} \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_ae4f158875b5a8a109d301f19ce5d21ae}{GCDataBaseInterface::updateAttributeValues}( \textcolor{keyword}{const} QString &element, \textcolor{keyword}{const} 
+      QString &attribute, \textcolor{keyword}{const} QStringList &attributeValues, \textcolor{keywordtype}{bool} replace )\textcolor{keyword}{ const}
+00510 \textcolor{keyword}{}\{
+00511   \textcolor{keywordflow}{if}( element.isEmpty() || attribute.isEmpty() )
+00512   \{
+00513     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Invalid element or attribute values provided."} )
+      ;
+00514     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00515   \}
+00516 
+00517   QSqlQuery query = selectAttribute( attribute, element );
+00518 
+00519   \textcolor{comment}{/* If we don't have an existing record, add it, otherwise update the existing
+       one. */}
+00520   \textcolor{keywordflow}{if}( !query.first() )
+00521   \{
+00522     \textcolor{keywordflow}{if}( !query.prepare( INSERT\_ATTRIBUTEVALUES ) )
+00523     \{
+00524       m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Prepare INSERT attribute value failed for
+       element \(\backslash\)"%1\(\backslash\)": [%2]"} )
+00525           .arg( element )
+00526           .arg( query.lastError().text() );
+00527       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00528     \}
+00529 
+00530     query.addBindValue( attribute );
+00531     query.addBindValue( element );
+00532     query.addBindValue( cleanAndJoinListElements( attributeValues ) );
+00533 
+00534     \textcolor{keywordflow}{if}( !query.exec() )
+00535     \{
+00536       m\_lastErrorMsg = QString( \textcolor{stringliteral}{"INSERT attribute failed for element \(\backslash\)"%1\(\backslash\)":
+       [%2]"} )
+00537           .arg( element )
+00538           .arg( query.lastError().text() );
+00539       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00540     \}
+00541   \}
+00542   \textcolor{keywordflow}{else}
+00543   \{
+00544     QStringList existingValues( attributeValues );
+00545 
+00546     \textcolor{keywordflow}{if}( !replace )
+00547     \{
+00548       existingValues.append( query.record().field( \textcolor{stringliteral}{"attributeValues"} ).value().
+      toString().split( SEPARATOR ) );
+00549     \}
+00550 
+00551     \textcolor{comment}{/* The reason for not using concatenating values here is that we don't
+       simply want to add}
+00552 \textcolor{comment}{      all the supposed new values, we want to make sure they are all unique by
+       removing all duplicates}
+00553 \textcolor{comment}{      before sticking it all back into the DB. */}
+00554     \textcolor{keywordflow}{if}( !query.prepare( UPDATE\_ATTRIBUTEVALUES ) )
+00555     \{
+00556       m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Prepare UPDATE attribute values failed for
+       element \(\backslash\)"%1\(\backslash\)" and attribute \(\backslash\)"%2\(\backslash\)": [%3]"} )
+00557           .arg( element )
+00558           .arg( attribute )
+00559           .arg( query.lastError().text() );
+00560       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00561     \}
+00562 
+00563     query.addBindValue( cleanAndJoinListElements( existingValues ) );
+00564     query.addBindValue( attribute );
+00565     query.addBindValue( element );
+00566 
+00567     \textcolor{keywordflow}{if}( !query.exec() )
+00568     \{
+00569       m\_lastErrorMsg = QString( \textcolor{stringliteral}{"UPDATE attribute values failed for element \(\backslash\)"
+      %1\(\backslash\)" and attribute [%2]: [%3]"} )
+00570           .arg( element )
+00571           .arg( attribute )
+00572           .arg( query.lastError().text() );
+00573       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00574     \}
+00575   \}
+00576 
+00577   m\_lastErrorMsg = \textcolor{stringliteral}{""};
+00578   \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+00579 \}
+00580 
+00581 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00582 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00583}{}\hyperlink{class_g_c_data_base_interface_ad8aa20de89390f0cc2a1b64270a831b3}{00583} \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_ad8aa20de89390f0cc2a1b64270a831b3}{GCDataBaseInterface::removeElement}( \textcolor{keyword}{const} QString &element )\textcolor{keyword}{ const}
+00584 \textcolor{keyword}{}\{
+00585   QSqlQuery query = selectElement( element );
+00586 
+00587   \textcolor{comment}{/* Only continue if we have an existing record. */}
+00588   \textcolor{keywordflow}{if}( query.first() )
+00589   \{
+00590     \textcolor{keywordflow}{if}( !query.prepare( \textcolor{stringliteral}{"DELETE FROM xmlelements WHERE element = ?"} ) )
+00591     \{
+00592       m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Prepare DELETE element failed for element \(\backslash\)"%1
+      \(\backslash\)": [%3]"} )
+00593                        .arg( element )
+00594                        .arg( query.lastError().text() );
+00595       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00596     \}
+00597 
+00598     query.addBindValue( element );
+00599 
+00600     \textcolor{keywordflow}{if}( !query.exec() )
+00601     \{
+00602       m\_lastErrorMsg = QString( \textcolor{stringliteral}{"DELETE element failed for element \(\backslash\)"%1\(\backslash\)": [%3]
+      "} )
+00603                        .arg( element )
+00604                        .arg( query.lastError().text() );
+00605       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00606     \}
+00607   \}
+00608 
+00609   m\_lastErrorMsg = \textcolor{stringliteral}{""};
+00610   \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+00611 \}
+00612 
+00613 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00614 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00615}{}\hyperlink{class_g_c_data_base_interface_a657f2885b6741f8ac229939f77e7dd73}{00615} \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a657f2885b6741f8ac229939f77e7dd73}{GCDataBaseInterface::removeChildElement}( \textcolor{keyword}{const} QString &element, \textcolor{keyword}{const} 
+      QString &child )\textcolor{keyword}{ const}
+00616 \textcolor{keyword}{}\{
+00617   QSqlQuery query = selectElement( element );
+00618 
+00619   \textcolor{comment}{/* Update the existing record (if we have one). */}
+00620   \textcolor{keywordflow}{if}( query.first() )
+00621   \{
+00622     QStringList allChildren( query.record().field( \textcolor{stringliteral}{"children"} ).value().
+      toString().split( SEPARATOR ) );
+00623     allChildren.removeAll( child );
+00624     \hyperlink{class_g_c_data_base_interface_a91a60134bfb21a3f49d826340bebb852}{updateElementChildren}( element, allChildren, \textcolor{keyword}{true} );
+00625   \}
+00626 
+00627   m\_lastErrorMsg = \textcolor{stringliteral}{""};
+00628   \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+00629 \}
+00630 
+00631 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00632 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00633}{}\hyperlink{class_g_c_data_base_interface_a6fbf551a825c0fca13926449be4a5215}{00633} \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a6fbf551a825c0fca13926449be4a5215}{GCDataBaseInterface::removeAttribute}( \textcolor{keyword}{const} QString &element, \textcolor{keyword}{const} 
+      QString &attribute )\textcolor{keyword}{ const}
+00634 \textcolor{keyword}{}\{    
+00635   QSqlQuery query = selectAttribute( attribute, element );
+00636 
+00637   \textcolor{comment}{/* Only continue if we have an existing record. */}
+00638   \textcolor{keywordflow}{if}( query.first() )
+00639   \{
+00640     \textcolor{keywordflow}{if}( !query.prepare( \textcolor{stringliteral}{"DELETE FROM xmlattributes "}
+00641                         \textcolor{stringliteral}{"WHERE attribute = ? "}
+00642                         \textcolor{stringliteral}{"AND associatedElement = ?"} ) )
+00643     \{
+00644       m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Prepare DELETE attribute failed for element \(\backslash\)"
+      %1\(\backslash\)" and attribute \(\backslash\)"%2\(\backslash\)": [%3]"} )
+00645                        .arg( element )
+00646                        .arg( attribute )
+00647                        .arg( query.lastError().text() );
+00648       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00649     \}
+00650 
+00651     query.addBindValue( attribute );
+00652     query.addBindValue( element );
+00653 
+00654     \textcolor{keywordflow}{if}( !query.exec() )
+00655     \{
+00656       m\_lastErrorMsg = QString( \textcolor{stringliteral}{"DELETE attribute failed for element \(\backslash\)"%1\(\backslash\)" and
+       attribute [%2]: [%3]"} )
+00657                        .arg( element )
+00658                        .arg( attribute )
+00659                        .arg( query.lastError().text() );
+00660       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00661     \}
+00662   \}
+00663 
+00664   query = selectElement( element );
+00665   QStringList allAttributes = \hyperlink{class_g_c_data_base_interface_afb1e49e08f98ca453f9ac66340a35642}{attributes}( element );
+00666   allAttributes.removeAll( attribute );
+00667   \hyperlink{class_g_c_data_base_interface_abc13d0cb75b233fd83575bfef575ff19}{updateElementAttributes}( element, allAttributes, \textcolor{keyword}{true} );
+00668 
+00669   m\_lastErrorMsg = \textcolor{stringliteral}{""};
+00670   \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+00671 \}
+00672 
+00673 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00674 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00675}{}\hyperlink{class_g_c_data_base_interface_adbace3a2d395dae9cd915238556a6f77}{00675} \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_adbace3a2d395dae9cd915238556a6f77}{GCDataBaseInterface::removeRootElement}( \textcolor{keyword}{const} QString &element )\textcolor{keyword}{ const}
+00676 \textcolor{keyword}{}\{
+00677   QSqlQuery query( m\_sessionDB );
+00678 
+00679   \textcolor{keywordflow}{if}( !query.prepare( \textcolor{stringliteral}{"DELETE FROM rootelements WHERE root = ?"} ) )
+00680   \{
+00681     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Prepare DELETE failed for root \(\backslash\)"%1\(\backslash\)": [%2]"} )
+00682         .arg( element )
+00683         .arg( query.lastError().text() );
+00684     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00685   \}
+00686 
+00687   query.addBindValue( element );
+00688 
+00689   \textcolor{keywordflow}{if}( !query.exec() )
+00690   \{
+00691     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"DELETE root element failed for root \(\backslash\)"%1\(\backslash\)": [%2]
+      "} )
+00692         .arg( element )
+00693         .arg( query.lastError().text() );
+00694     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00695   \}
+00696 
+00697   m\_lastErrorMsg = \textcolor{stringliteral}{""};
+00698   \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+00699 \}
+00700 
+00701 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00702 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00703}{}\hyperlink{class_g_c_data_base_interface_a875e3999c9d91b5e0f59be8bdef54408}{00703} \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a875e3999c9d91b5e0f59be8bdef54408}{GCDataBaseInterface::hasActiveSession}()\textcolor{keyword}{ const}
+00704 \textcolor{keyword}{}\{
+00705   \textcolor{keywordflow}{return} m\_hasActiveSession;
+00706 \}
+00707 
+00708 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00709 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00710}{}\hyperlink{class_g_c_data_base_interface_a53aff43e5997c5f0180ba214205e5bc6}{00710} QString \hyperlink{class_g_c_data_base_interface_a53aff43e5997c5f0180ba214205e5bc6}{GCDataBaseInterface::activeSessionName}()\textcolor{keyword}{ const}
+00711 \textcolor{keyword}{}\{
+00712   \textcolor{keywordflow}{if}( m\_hasActiveSession )
+00713   \{
+00714     \textcolor{keywordflow}{return} m\_sessionDB.connectionName();
+00715   \}
+00716 
+00717   \textcolor{keywordflow}{return} QString();
+00718 \}
+00719 
+00720 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00721 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00722}{}\hyperlink{class_g_c_data_base_interface_ae570c403f1b6b7f85e6a5c46829f42a8}{00722} \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_ae570c403f1b6b7f85e6a5c46829f42a8}{GCDataBaseInterface::isProfileEmpty}()\textcolor{keyword}{ const}
+00723 \textcolor{keyword}{}\{
+00724   \textcolor{keywordflow}{return} \hyperlink{class_g_c_data_base_interface_ac5c57277f9476ab74cfe13fbcee52f15}{knownRootElements}().isEmpty();
+00725 \}
+00726 
+00727 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00728 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00729}{}\hyperlink{class_g_c_data_base_interface_a94559ea23489e360757db42c50d3a261}{00729} \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a94559ea23489e360757db42c50d3a261}{GCDataBaseInterface::isUniqueChildElement}( \textcolor{keyword}{const} QString &parentElement, \textcolor{keyword}{
+      const} QString &element )\textcolor{keyword}{ const}
+00730 \textcolor{keyword}{}\{
+00731   QSqlQuery query = selectAllElements();
+00732 
+00733   \textcolor{keywordflow}{while}( query.next() )
+00734   \{
+00735     \textcolor{keywordflow}{if}( query.record().field( \textcolor{stringliteral}{"element"} ).value().toString() != parentElement &
+      &
+00736         query.record().value( \textcolor{stringliteral}{"children"} ).toString().split( SEPARATOR ).
+      contains( element ) )
+00737     \{
+00738       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00739     \}
+00740   \}
+00741 
+00742   \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+00743 \}
+00744 
+00745 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00746 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00747}{}\hyperlink{class_g_c_data_base_interface_ae16d516cbefe58ccf9ef0e8ece4a394f}{00747} \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_ae16d516cbefe58ccf9ef0e8ece4a394f}{GCDataBaseInterface::isDocumentCompatible}( \textcolor{keyword}{const} QDomDocument *doc )\textcolor{keyword}{ const}
+00748 \textcolor{keyword}{}\{
+00749   \hyperlink{class_g_c_batch_processor_helper}{GCBatchProcessorHelper} helper( doc,
+00750                                  SEPARATOR,
+00751                                  \hyperlink{class_g_c_data_base_interface_a6c4eabd4f39a1c23ab320bb0dbc855d4}{knownElements}(),
+00752                                  knownAttributeKeys() );
+00753 
+00754   qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+00755 
+00756   \textcolor{comment}{/* If there are any new elements or attributes to add, the document is
+       incompatible (not checking}
+00757 \textcolor{comment}{    for new attribute values since new values don't affect XML relationships,
+       i.e. it isn't important}
+00758 \textcolor{comment}{    enough to import entire documents each time an unknown value is
+       encountered) */}
+00759   \textcolor{keywordflow}{if}( !helper.\hyperlink{class_g_c_batch_processor_helper_abf195046fd00e629b2ce5e3bd6bcf90d}{newAssociatedElementsToAdd}().isEmpty() ||
+00760       !helper.\hyperlink{class_g_c_batch_processor_helper_a605ca53123f28467df39cabeb3aa65cd}{newAttributeKeysToAdd}().isEmpty() ||
+00761       !helper.\hyperlink{class_g_c_batch_processor_helper_a640ca9bd78b7da0796fdfb82fefce8b6}{newElementAttributesToAdd}().isEmpty() ||
+00762       !helper.\hyperlink{class_g_c_batch_processor_helper_a89c14c3740c7cb57c937ef8db99b4af1}{newElementChildrenToAdd}().isEmpty() ||
+00763       !helper.\hyperlink{class_g_c_batch_processor_helper_afdedbc674698c019ebd2a3938a239661}{newElementsToAdd}().isEmpty() )
+00764   \{
+00765     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00766   \}
+00767 
+00768   \textcolor{comment}{/* If there are no new items, we may still have previously unknown
+       relationships which we}
+00769 \textcolor{comment}{    need to check.  This is slightly more involved than simply checking for
+       empty lists.}
+00770 \textcolor{comment}{    Also remember that the lists returned by GCBatchProcessorHelper are all
+       synchronised}
+00771 \textcolor{comment}{    with regards to their indices (which is the only reason why we can loop
+       through the}
+00772 \textcolor{comment}{    lists like this). */}
+00773   \textcolor{keywordflow}{for}( \textcolor{keywordtype}{int} i = 0; i < helper.\hyperlink{class_g_c_batch_processor_helper_aca0a2d6bbfcb23907e917b5d2251fc6f}{elementsToUpdate}().size(); ++i )
+00774   \{
+00775     \textcolor{comment}{/* If any new element children were added, we have an incompatible
+       document. */}
+00776     QStringList knownChildren = \hyperlink{class_g_c_data_base_interface_aab5126783bc3acc7c718c8ffd8af62bc}{children}( helper.\hyperlink{class_g_c_batch_processor_helper_aca0a2d6bbfcb23907e917b5d2251fc6f}{elementsToUpdate}().at( i ).
+      toString() );
+00777     QStringList allChildren = QStringList() << knownChildren << helper.
+      \hyperlink{class_g_c_batch_processor_helper_a8fd4cac8af9a54df52a98628d5ba6fbe}{elementChildrenToUpdate}().at( i ).toString().split( SEPARATOR );
+00778     cleanList( allChildren );
+00779 
+00780     \textcolor{comment}{/* Check for larger since we only care about added items. */}
+00781     \textcolor{keywordflow}{if}( allChildren.size() > knownChildren.size() )
+00782     \{
+00783       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00784     \}
+00785 
+00786     \textcolor{comment}{/* If any new attributes were added, we also have an incompatible document.
+       */}
+00787     QStringList knownAttributes = \hyperlink{class_g_c_data_base_interface_afb1e49e08f98ca453f9ac66340a35642}{attributes}( helper.\hyperlink{class_g_c_batch_processor_helper_aca0a2d6bbfcb23907e917b5d2251fc6f}{elementsToUpdate}().at( i )
+      .toString() );
+00788     QStringList allAttributes = QStringList() << knownAttributes << helper.
+      \hyperlink{class_g_c_batch_processor_helper_a3b0630e9e210b2b86e58cb43d3706b73}{elementAttributesToUpdate}().at( i ).toString().split( SEPARATOR );
+00789     cleanList( allAttributes );
+00790 
+00791     \textcolor{keywordflow}{if}( allAttributes.size() > knownAttributes.size() )
+00792     \{
+00793       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00794     \}
+00795   \}
+00796 
+00797   \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+00798 \}
+00799 
+00800 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00801 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00802}{}\hyperlink{class_g_c_data_base_interface_a6c4eabd4f39a1c23ab320bb0dbc855d4}{00802} QStringList \hyperlink{class_g_c_data_base_interface_a6c4eabd4f39a1c23ab320bb0dbc855d4}{GCDataBaseInterface::knownElements}()\textcolor{keyword}{ const}
+00803 \textcolor{keyword}{}\{
+00804   QSqlQuery query = selectAllElements();
+00805 
+00806   m\_lastErrorMsg = \textcolor{stringliteral}{""};
+00807 
+00808   QStringList elementNames;
+00809 
+00810   \textcolor{keywordflow}{while}( query.next() )
+00811   \{
+00812     elementNames.append( query.record().field( \textcolor{stringliteral}{"element"} ).value().toString() )
+      ;
+00813   \}
+00814 
+00815   cleanList( elementNames );
+00816   elementNames.sort();
+00817   \textcolor{keywordflow}{return} elementNames;
+00818 \}
+00819 
+00820 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00821 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00822}{}\hyperlink{class_g_c_data_base_interface_aab5126783bc3acc7c718c8ffd8af62bc}{00822} QStringList \hyperlink{class_g_c_data_base_interface_aab5126783bc3acc7c718c8ffd8af62bc}{GCDataBaseInterface::children}( \textcolor{keyword}{const} QString &element )\textcolor{keyword}{ const}
+00823 \textcolor{keyword}{}\{
+00824   QSqlQuery query = selectElement( element );
+00825 
+00826   \textcolor{comment}{/* There should be only one record corresponding to this element. */}
+00827   \textcolor{keywordflow}{if}( !query.first() )
+00828   \{
+00829     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Failed to obtain the list of children for
+       element \(\backslash\)"%1\(\backslash\)""} )
+00830         .arg( element );
+00831     \textcolor{keywordflow}{return} QStringList();
+00832   \}
+00833 
+00834   m\_lastErrorMsg = \textcolor{stringliteral}{""};
+00835 
+00836   QStringList \hyperlink{class_g_c_data_base_interface_aab5126783bc3acc7c718c8ffd8af62bc}{children} = query.record().value( \textcolor{stringliteral}{"children"} ).toString().split( 
+      SEPARATOR );
+00837   cleanList( children );
+00838   children.sort();
+00839   \textcolor{keywordflow}{return} \hyperlink{class_g_c_data_base_interface_aab5126783bc3acc7c718c8ffd8af62bc}{children};
+00840 \}
+00841 
+00842 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00843 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00844}{}\hyperlink{class_g_c_data_base_interface_afb1e49e08f98ca453f9ac66340a35642}{00844} QStringList \hyperlink{class_g_c_data_base_interface_afb1e49e08f98ca453f9ac66340a35642}{GCDataBaseInterface::attributes}( \textcolor{keyword}{const} QString &element )\textcolor{keyword}{ const}
+00845 \textcolor{keyword}{}\{
+00846   QSqlQuery query = selectElement( element );
+00847 
+00848   \textcolor{comment}{/* There should be only one record corresponding to this element. */}
+00849   \textcolor{keywordflow}{if}( !query.first() )
+00850   \{
+00851     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Failed to obtain the list of attributes for
+       element \(\backslash\)"%1\(\backslash\)""} )
+00852         .arg( element );
+00853     \textcolor{keywordflow}{return} QStringList();
+00854   \}
+00855 
+00856   m\_lastErrorMsg = \textcolor{stringliteral}{""};
+00857 
+00858   QStringList \hyperlink{class_g_c_data_base_interface_afb1e49e08f98ca453f9ac66340a35642}{attributes} = query.record().value( \textcolor{stringliteral}{"attributes"} ).toString().
+      split( SEPARATOR );
+00859   cleanList( attributes );
+00860   \textcolor{keywordflow}{return} \hyperlink{class_g_c_data_base_interface_afb1e49e08f98ca453f9ac66340a35642}{attributes};
+00861 \}
+00862 
+00863 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00864 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00865}{}\hyperlink{class_g_c_data_base_interface_a329e17f6c02c62fd554884f2b5a7e2df}{00865} QStringList \hyperlink{class_g_c_data_base_interface_a329e17f6c02c62fd554884f2b5a7e2df}{GCDataBaseInterface::attributeValues}( \textcolor{keyword}{const} QString &element, \textcolor{keyword}{const}
+       QString &attribute )\textcolor{keyword}{ const}
+00866 \textcolor{keyword}{}\{
+00867   QSqlQuery query = selectAttribute( attribute, element );
+00868 
+00869   \textcolor{comment}{/* There should be only one record corresponding to this element. */}
+00870   \textcolor{keywordflow}{if}( !query.first() )
+00871   \{
+00872     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Failed to obtain the list of attribute values
+       for attribute \(\backslash\)"%1\(\backslash\)""} )
+00873         .arg( attribute );
+00874     \textcolor{keywordflow}{return} QStringList();
+00875   \}
+00876 
+00877   m\_lastErrorMsg = \textcolor{stringliteral}{""};
+00878 
+00879   QStringList \hyperlink{class_g_c_data_base_interface_a329e17f6c02c62fd554884f2b5a7e2df}{attributeValues} = query.record().value( \textcolor{stringliteral}{"attributeValues"} ).
+      toString().split( SEPARATOR );
+00880   cleanList( attributeValues );
+00881   attributeValues.sort();
+00882   \textcolor{keywordflow}{return} \hyperlink{class_g_c_data_base_interface_a329e17f6c02c62fd554884f2b5a7e2df}{attributeValues};
+00883 \}
+00884 
+00885 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00886 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00887}{}\hyperlink{class_g_c_data_base_interface_ac5c57277f9476ab74cfe13fbcee52f15}{00887} QStringList \hyperlink{class_g_c_data_base_interface_ac5c57277f9476ab74cfe13fbcee52f15}{GCDataBaseInterface::knownRootElements}()\textcolor{keyword}{ const}
+00888 \textcolor{keyword}{}\{
+00889   \textcolor{keywordflow}{return} \hyperlink{class_g_c_data_base_interface_ac5c57277f9476ab74cfe13fbcee52f15}{knownRootElements}( m\_sessionDB );
+00890 \}
+00891 
+00892 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00893 
+00894 QStringList \hyperlink{class_g_c_data_base_interface_ac5c57277f9476ab74cfe13fbcee52f15}{GCDataBaseInterface::knownRootElements}( QSqlDatabase db )\textcolor{keyword}{ const}
+00895 \textcolor{keyword}{}\{
+00896   QSqlQuery query( db );
+00897 
+00898   \textcolor{keywordflow}{if}( !query.exec( \textcolor{stringliteral}{"SELECT * FROM rootelements"} ) )
+00899   \{
+00900     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"SELECT all root elements failed: [%1]"} )
+00901         .arg( query.lastError().text() );
+00902     \textcolor{keywordflow}{return} QStringList();
+00903   \}
+00904 
+00905   m\_lastErrorMsg = \textcolor{stringliteral}{""};
+00906 
+00907   QStringList rootElements;
+00908 
+00909   \textcolor{keywordflow}{while}( query.next() )
+00910   \{
+00911     rootElements.append( query.record().field( \textcolor{stringliteral}{"root"} ).value().toString() );
+00912   \}
+00913 
+00914   cleanList( rootElements );
+00915   \textcolor{keywordflow}{return} rootElements;
+00916 \}
+00917 
+00918 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00919 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00920}{}\hyperlink{class_g_c_data_base_interface_a91183c2d227bf90d0d26fccc1e4ae878}{00920} \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a91183c2d227bf90d0d26fccc1e4ae878}{GCDataBaseInterface::containsKnownRootElement}( \textcolor{keyword}{const} QString &dbName, \textcolor{keyword}{
+      const} QString &root )\textcolor{keyword}{ const}
+00921 \textcolor{keyword}{}\{
+00922   \textcolor{comment}{/* In case the db name passed in consists of a path/to/file string. */}
+00923   QString dbConName = dbName.split( QRegExp( REGEXP\_SLASHES ), 
+      QString::SkipEmptyParts ).last();
+00924 
+00925   \textcolor{comment}{/* No error messages are logged for this specific query since we aren't
+       necessarily concerned with}
+00926 \textcolor{comment}{    the session we're querying (it may not be the active session). */}
+00927   \textcolor{keywordflow}{if}( QSqlDatabase::contains( dbConName ) )
+00928   \{
+00929     QSqlDatabase db = QSqlDatabase::database( dbConName );
+00930 
+00931     \textcolor{keywordflow}{if}( db.isValid() && db.open() )
+00932     \{
+00933       \textcolor{keywordflow}{if}( \hyperlink{class_g_c_data_base_interface_ac5c57277f9476ab74cfe13fbcee52f15}{knownRootElements}( db ).contains( root ) )
+00934       \{
+00935         \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+00936       \}
+00937       \textcolor{keywordflow}{else}
+00938       \{
+00939         \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00940       \}
+00941     \}
+00942   \}
+00943 
+00944   \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00945 \}
+00946 
+00947 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00948 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00949}{}\hyperlink{class_g_c_data_base_interface_ab34f716b89ee96de9bf599f5d5d2c152}{00949} QStringList \hyperlink{class_g_c_data_base_interface_ab34f716b89ee96de9bf599f5d5d2c152}{GCDataBaseInterface::connectionList}()\textcolor{keyword}{ const}
+00950 \textcolor{keyword}{}\{
+00951   \textcolor{keywordflow}{return} m\_dbMap.keys();
+00952 \}
+00953 
+00954 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00955 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00956}{}\hyperlink{class_g_c_data_base_interface_a30d5bbea06462c5ed0f76ad8a68c4b08}{00956} \textcolor{keyword}{const} QString &\hyperlink{class_g_c_data_base_interface_a30d5bbea06462c5ed0f76ad8a68c4b08}{GCDataBaseInterface::lastError}()\textcolor{keyword}{ const}
+00957 \textcolor{keyword}{}\{
+00958   \textcolor{keywordflow}{return} m\_lastErrorMsg;
+00959 \}
+00960 
+00961 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00962 
+\hypertarget{gcdatabaseinterface_8cpp_source_l00963}{}\hyperlink{class_g_c_data_base_interface_a6b3cc67ba9e4bdf58b49869243446764}{00963} \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a6b3cc67ba9e4bdf58b49869243446764}{GCDataBaseInterface::addDatabase}( \textcolor{keyword}{const} QString &dbName )
+00964 \{
+00965   \textcolor{keywordflow}{if}( !dbName.isEmpty() )
+00966   \{
+00967     \textcolor{comment}{/* In case the db name passed in consists of a path/to/file string. */}
+00968     QString dbConName = dbName.split( QRegExp( REGEXP\_SLASHES ), 
+      QString::SkipEmptyParts ).last();
+00969 
+00970     \textcolor{keywordflow}{if}( !m\_dbMap.contains( dbConName ) )
+00971     \{
+00972       QSqlDatabase db = \hyperlink{class_g_c_data_base_interface_a6b3cc67ba9e4bdf58b49869243446764}{QSqlDatabase::addDatabase}( \textcolor{stringliteral}{"QSQLITE"}, dbConName );
+00973 
+00974       \textcolor{keywordflow}{if}( db.isValid() )
+00975       \{
+00976         db.setDatabaseName( dbName );
+00977         m\_dbMap.insert( dbConName, dbName );
+00978         saveDatabaseFile();
+00979 
+00980         m\_lastErrorMsg = \textcolor{stringliteral}{""};
+00981         \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+00982       \}
+00983 
+00984       m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Failed to add database \(\backslash\)"%1\(\backslash\)": [%2]."} ).arg( 
+      dbConName ).arg( db.lastError().text() );
+00985       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00986     \}
+00987     \textcolor{keywordflow}{else}
+00988     \{
+00989       m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Connection \(\backslash\)"%1\(\backslash\)" already exists."} ).arg( 
+      dbConName );
+00990       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00991     \}
+00992   \}
+00993 
+00994   m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Database name is empty."} );
+00995   \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00996 \}
+00997 
+00998 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00999 
+\hypertarget{gcdatabaseinterface_8cpp_source_l01000}{}\hyperlink{class_g_c_data_base_interface_a86dcb92e64a35e3fb72fa58a4bacc3b9}{01000} \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a86dcb92e64a35e3fb72fa58a4bacc3b9}{GCDataBaseInterface::removeDatabase}( \textcolor{keyword}{const} QString &dbName )
+01001 \{
+01002   \textcolor{keywordflow}{if}( !dbName.isEmpty() )
+01003   \{
+01004     \textcolor{comment}{/* In case the db name passed in consists of a path/to/file string. */}
+01005     QString dbConName = dbName.split( QRegExp( REGEXP\_SLASHES ), 
+      QString::SkipEmptyParts ).last();
+01006 
+01007     \textcolor{keywordflow}{if}( m\_sessionDB.connectionName() == dbConName )
+01008     \{
+01009       m\_sessionDB.close();
+01010       m\_hasActiveSession = \textcolor{keyword}{false};
+01011     \}
+01012 
+01013     QFile file( m\_dbMap.value( dbConName ) );
+01014 
+01015     \textcolor{keywordflow}{if}( !file.remove() )
+01016     \{
+01017       m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Failed to remove database file: [%1]"})
+01018           .arg( dbName );
+01019       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+01020     \}
+01021 
+01022     \textcolor{comment}{/* If the DB connection being removed was also the active one,
+       "removeDatabase" will output}
+01023 \textcolor{comment}{      a warning (to the Qt IDE's "Application Output" window).  This is purely
+       because we have a}
+01024 \textcolor{comment}{      DB member variable and isn't cause for concern as there seems to be no
+       way around it with}
+01025 \textcolor{comment}{      the current QtSQL modules. */}
+01026     \hyperlink{class_g_c_data_base_interface_a86dcb92e64a35e3fb72fa58a4bacc3b9}{QSqlDatabase::removeDatabase}( dbConName );
+01027     m\_dbMap.remove( dbConName );
+01028     saveDatabaseFile();
+01029 
+01030     m\_lastErrorMsg = \textcolor{stringliteral}{""};
+01031     \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+01032   \}
+01033 
+01034   m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Database name is empty."} );
+01035   \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+01036 \}
+01037 
+01038 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01039 
+\hypertarget{gcdatabaseinterface_8cpp_source_l01040}{}\hyperlink{class_g_c_data_base_interface_a176952c9ba2fbc90809f9d64ea14a69f}{01040} \textcolor{keywordtype}{bool} \hyperlink{class_g_c_data_base_interface_a176952c9ba2fbc90809f9d64ea14a69f}{GCDataBaseInterface::setActiveDatabase}( \textcolor{keyword}{const} QString &dbName )
+01041 \{
+01042   \textcolor{comment}{/* In case the db name passed in consists of a path/to/file string. */}
+01043   QString dbConName = dbName.split( QRegExp( REGEXP\_SLASHES ), 
+      QString::SkipEmptyParts ).last();
+01044 
+01045   \textcolor{keywordflow}{if}( QSqlDatabase::contains( dbConName ) )
+01046   \{
+01047     \textcolor{keywordflow}{if}( openConnection( dbConName ) )
+01048     \{
+01049       m\_hasActiveSession = \textcolor{keyword}{true};
+01050       \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+01051     \}
+01052   \}
+01053   \textcolor{keywordflow}{else}
+01054   \{
+01055     \textcolor{comment}{/* If we set a DB for the session that doesn't exist (new, unknown),}
+01056 \textcolor{comment}{      then we'll automatically try to add it and set it as active. */}
+01057     \textcolor{keywordflow}{if}( \hyperlink{class_g_c_data_base_interface_a6b3cc67ba9e4bdf58b49869243446764}{addDatabase}( dbName ) )
+01058     \{
+01059       \textcolor{keywordflow}{if}( openConnection( dbConName ) )
+01060       \{
+01061         m\_hasActiveSession = \textcolor{keyword}{true};
+01062         \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+01063       \}
+01064     \}
+01065 
+01066     m\_hasActiveSession = \textcolor{keyword}{false};
+01067     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+01068   \}
+01069 
+01070   m\_hasActiveSession = \textcolor{keyword}{false};
+01071   \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+01072 \}
+01073 
+01074 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01075 
+01076 QStringList GCDataBaseInterface::knownAttributeKeys()\textcolor{keyword}{ const}
+01077 \textcolor{keyword}{}\{
+01078   QSqlQuery query = selectAllAttributes();
+01079 
+01080   m\_lastErrorMsg = \textcolor{stringliteral}{""};
+01081 
+01082   QStringList attributeNames;
+01083 
+01084   \textcolor{keywordflow}{while}( query.next() )
+01085   \{
+01086     \textcolor{comment}{/* Concatenate the attribute name and associated element into a single
+       string}
+01087 \textcolor{comment}{      so that it is easier to determine whether a record already exists for
+       that}
+01088 \textcolor{comment}{      particular combination (this is used in GCBatchProcessorHelper). */}
+01089     attributeNames.append( query.record().field( \textcolor{stringliteral}{"attribute"} ).value().toString
+      () +
+01090                            \textcolor{stringliteral}{"!"} +
+01091                            query.record().field( \textcolor{stringliteral}{"associatedElement"} ).value().
+      toString());
+01092   \}
+01093 
+01094   \textcolor{keywordflow}{return} attributeNames;
+01095 \}
+01096 
+01097 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01098 
+01099 QSqlQuery GCDataBaseInterface::selectElement( \textcolor{keyword}{const} QString &element )\textcolor{keyword}{ const}
+01100 \textcolor{keyword}{}\{
+01101   \textcolor{comment}{/* See if we already have this element in the DB. */}
+01102   QSqlQuery query( m\_sessionDB );
+01103 
+01104   \textcolor{keywordflow}{if}( !query.prepare( \textcolor{stringliteral}{"SELECT * FROM xmlelements WHERE element = ?"} ) )
+01105   \{
+01106     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Prepare SELECT failed for element \(\backslash\)"%1\(\backslash\)": [%2]"} 
+      )
+01107         .arg( element )
+01108         .arg( query.lastError().text() );
+01109   \}
+01110 
+01111   query.addBindValue( element );
+01112 
+01113   \textcolor{keywordflow}{if}( !query.exec() )
+01114   \{
+01115     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"SELECT element failed for element \(\backslash\)"%1\(\backslash\)": [%2]"} 
+      )
+01116         .arg( element )
+01117         .arg( query.lastError().text() );
+01118   \}
+01119 
+01120   \textcolor{keywordflow}{return} query;
+01121 \}
+01122 
+01123 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01124 
+01125 QSqlQuery GCDataBaseInterface::selectAllElements()\textcolor{keyword}{ const}
+01126 \textcolor{keyword}{}\{
+01127   QSqlQuery query( m\_sessionDB );
+01128 
+01129   \textcolor{keywordflow}{if}( !query.exec( \textcolor{stringliteral}{"SELECT * FROM xmlelements"} ) )
+01130   \{
+01131     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"SELECT all root elements failed: [%1]"} )
+01132         .arg( query.lastError().text() );
+01133   \}
+01134 
+01135   \textcolor{keywordflow}{return} query;
+01136 \}
+01137 
+01138 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01139 
+01140 QSqlQuery GCDataBaseInterface::selectAttribute( \textcolor{keyword}{const} QString &attribute, \textcolor{keyword}{const}
+       QString &associatedElement )\textcolor{keyword}{ const}
+01141 \textcolor{keyword}{}\{
+01142   QSqlQuery query( m\_sessionDB );
+01143 
+01144   \textcolor{keywordflow}{if}( !query.prepare( \textcolor{stringliteral}{"SELECT * FROM xmlattributes "}
+01145                       \textcolor{stringliteral}{"WHERE attribute = ? "}
+01146                       \textcolor{stringliteral}{"AND associatedElement = ?"} ) )
+01147   \{
+01148     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Prepare SELECT attribute failed for attribute \(\backslash\)"
+      %1\(\backslash\)" and element \(\backslash\)"%2\(\backslash\)": [%3]"} )
+01149         .arg( attribute )
+01150         .arg( associatedElement )
+01151         .arg( query.lastError().text() );
+01152   \}
+01153 
+01154   query.addBindValue( attribute );
+01155   query.addBindValue( associatedElement );
+01156 
+01157   \textcolor{keywordflow}{if}( !query.exec() )
+01158   \{
+01159     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"SELECT attribute failed for attribute \(\backslash\)"%1\(\backslash\)" and
+       element \(\backslash\)"%2\(\backslash\)": [%3]"} )
+01160         .arg( attribute )
+01161         .arg( associatedElement )
+01162         .arg( query.lastError().text() );
+01163   \}
+01164 
+01165   \textcolor{keywordflow}{return} query;
+01166 \}
+01167 
+01168 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01169 
+01170 QSqlQuery GCDataBaseInterface::selectAllAttributes()\textcolor{keyword}{ const}
+01171 \textcolor{keyword}{}\{
+01172   QSqlQuery query( m\_sessionDB );
+01173 
+01174   \textcolor{keywordflow}{if}( !query.exec( \textcolor{stringliteral}{"SELECT * FROM xmlattributes"} ) )
+01175   \{
+01176     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"SELECT all attribute values failed: [%1]"} )
+01177         .arg( query.lastError().text() );
+01178   \}
+01179 
+01180   \textcolor{keywordflow}{return} query;
+01181 \}
+01182 
+01183 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01184 
+01185 \textcolor{keywordtype}{bool} GCDataBaseInterface::removeDuplicatesFromFields()\textcolor{keyword}{ const}
+01186 \textcolor{keyword}{}\{
+01187   \textcolor{comment}{/* Remove duplicates and update the element records. */}
+01188   QStringList elementNames = \hyperlink{class_g_c_data_base_interface_a6c4eabd4f39a1c23ab320bb0dbc855d4}{knownElements}();
+01189   QString element( \textcolor{stringliteral}{""} );
+01190 
+01191   \textcolor{keywordflow}{for}( \textcolor{keywordtype}{int} i = 0; i < elementNames.size(); ++i )
+01192   \{
+01193     element = elementNames.at( i );
+01194     QSqlQuery query = selectElement( element );
+01195 
+01196     \textcolor{comment}{/* Not checking for query validity since the table may still be empty when}
+01197 \textcolor{comment}{      this funciton gets called (i.e. there is a potentially valid reason for
+       cases}
+01198 \textcolor{comment}{      where no valid records exist). */}
+01199     \textcolor{keywordflow}{if}( query.first() )
+01200     \{
+01201       QStringList allChildren  ( query.record().field( \textcolor{stringliteral}{"children"} ).value().
+      toString().split( SEPARATOR ) );
+01202       QStringList allAttributes( query.record().field( \textcolor{stringliteral}{"attributes"} ).value().
+      toString().split( SEPARATOR ) );
+01203 
+01204       \textcolor{keywordflow}{if}( !query.prepare( UPDATE\_CHILDREN ) )
+01205       \{
+01206         m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Prepare UPDATE element children failed for
+       element \(\backslash\)"%1\(\backslash\)": [%2]"} )
+01207                          .arg( element )
+01208                          .arg( query.lastError().text() );
+01209         \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+01210       \}
+01211 
+01212       query.addBindValue( cleanAndJoinListElements( allChildren ) );
+01213       query.addBindValue( element );
+01214 
+01215       \textcolor{keywordflow}{if}( !query.exec() )
+01216       \{
+01217         m\_lastErrorMsg = QString( \textcolor{stringliteral}{"UPDATE children failed for element \(\backslash\)"%1\(\backslash\)":
+       [%2]"} )
+01218                          .arg( element )
+01219                          .arg( query.lastError().text() );
+01220         \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+01221       \}
+01222 
+01223       \textcolor{keywordflow}{if}( !query.prepare( UPDATE\_ATTRIBUTES ) )
+01224       \{
+01225         m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Prepare UPDATE element attributes failed for
+       element \(\backslash\)"%1\(\backslash\)": [%2]"} )
+01226                          .arg( element )
+01227                          .arg( query.lastError().text() );
+01228         \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+01229       \}
+01230 
+01231       query.addBindValue( cleanAndJoinListElements( allAttributes ) );
+01232       query.addBindValue( element );
+01233 
+01234       \textcolor{keywordflow}{if}( !query.exec() )
+01235       \{
+01236         m\_lastErrorMsg = QString( \textcolor{stringliteral}{"UPDATE attributes failed for element \(\backslash\)"%1\(\backslash\)":
+       [%2]"} )
+01237                          .arg( element )
+01238                          .arg( query.lastError().text() );
+01239         \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+01240       \}
+01241 
+01242       qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+01243     \}
+01244   \}
+01245 
+01246   \textcolor{comment}{/* Remove duplicates and update the attribute values records. */}
+01247   QStringList attributeKeys = knownAttributeKeys();
+01248 
+01249   \textcolor{comment}{/* Not checking for query validity since the table may still be empty when}
+01250 \textcolor{comment}{    this funciton gets called (i.e. there is a potentially valid reason for
+       cases}
+01251 \textcolor{comment}{    where no valid records exist). */}
+01252   \textcolor{keywordflow}{for}( \textcolor{keywordtype}{int} i = 0; i < attributeKeys.size(); ++i )
+01253   \{
+01254     QString attribute         = attributeKeys.at( i ).split( \textcolor{stringliteral}{"!"} ).at( 0 );
+01255     QString associatedElement = attributeKeys.at( i ).split( \textcolor{stringliteral}{"!"} ).at( 1 );
+01256     QSqlQuery query = selectAttribute( attribute, associatedElement );
+01257 
+01258     \textcolor{comment}{/* Does a record for this attribute exist? */}
+01259     \textcolor{keywordflow}{if}( query.first() )
+01260     \{
+01261       QStringList allValues( query.record().field( \textcolor{stringliteral}{"attributeValues"} ).value().
+      toString().split( SEPARATOR ) );
+01262 
+01263       \textcolor{keywordflow}{if}( !query.prepare( UPDATE\_ATTRIBUTEVALUES ) )
+01264       \{
+01265         m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Prepare UPDATE attribute values failed for
+       element \(\backslash\)"%1\(\backslash\)" and attribute \(\backslash\)"%2\(\backslash\)": [%3]"} )
+01266                          .arg( associatedElement )
+01267                          .arg( attribute )
+01268                          .arg( query.lastError().text() );
+01269         \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+01270       \}
+01271 
+01272       query.addBindValue( cleanAndJoinListElements( allValues ) );
+01273       query.addBindValue( attribute );
+01274       query.addBindValue( associatedElement );
+01275 
+01276       \textcolor{keywordflow}{if}( !query.exec() )
+01277       \{
+01278         m\_lastErrorMsg = QString( \textcolor{stringliteral}{"UPDATE attribute values failed for element 
+      \(\backslash\)"%1\(\backslash\)" and attribute \(\backslash\)"%2\(\backslash\)": [%3]"} )
+01279                          .arg( associatedElement )
+01280                          .arg( attribute )
+01281                          .arg( query.lastError().text() );
+01282         \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+01283       \}
+01284 
+01285       qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+01286     \}
+01287   \}
+01288 
+01289   m\_lastErrorMsg = \textcolor{stringliteral}{""};
+01290   \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+01291 \}
+01292 
+01293 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01294 
+01295 \textcolor{keywordtype}{bool} GCDataBaseInterface::openConnection( \textcolor{keyword}{const} QString &dbConName )
+01296 \{
+01297   \textcolor{comment}{/* If we have a previous connection open, close it. */}
+01298   \textcolor{keywordflow}{if}( m\_sessionDB.isValid() && m\_sessionDB.isOpen() )
+01299   \{
+01300     m\_sessionDB.close();
+01301   \}
+01302 
+01303   \textcolor{comment}{/* Open the new connection. */}
+01304   m\_sessionDB = QSqlDatabase::database( dbConName );
+01305 
+01306   \textcolor{keywordflow}{if}( m\_sessionDB.isValid() )
+01307   \{
+01308     \textcolor{keywordflow}{if} ( !m\_sessionDB.open() )
+01309     \{
+01310       m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Failed to open database \(\backslash\)"%1\(\backslash\)": [%2]."} )
+01311           .arg( m\_dbMap.value( dbConName ) )
+01312           .arg( m\_sessionDB.lastError().text() );
+01313       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+01314     \}
+01315 
+01316     \textcolor{comment}{/* If the DB has not yet been initialised. */}
+01317     QStringList tables = m\_sessionDB.tables();
+01318 
+01319     \textcolor{keywordflow}{if} ( !tables.contains( \textcolor{stringliteral}{"xmlelements"}, Qt::CaseInsensitive ) )
+01320     \{
+01321       \textcolor{keywordflow}{return} createTables();
+01322     \}
+01323   \}
+01324   \textcolor{keywordflow}{else}
+01325   \{
+01326     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Failed to open a valid session connection \(\backslash\)"%1\(\backslash\)"
+      : [%2]"} )
+01327         .arg( dbConName )
+01328         .arg( m\_sessionDB.lastError().text() );
+01329     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+01330   \}
+01331 
+01332   m\_lastErrorMsg = \textcolor{stringliteral}{""};
+01333   \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+01334 \}
+01335 
+01336 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01337 
+01338 \textcolor{keywordtype}{bool} GCDataBaseInterface::createTables()\textcolor{keyword}{ const}
+01339 \textcolor{keyword}{}\{
+01340   \textcolor{comment}{/* DB connection will be open from openConnection() above so no need to do
+       any checks here. */}
+01341   QSqlQuery query( m\_sessionDB );
+01342 
+01343   \textcolor{keywordflow}{if}( !query.exec( \textcolor{stringliteral}{"CREATE TABLE xmlelements( element QString primary key,
+       children QString, attributes QString )"} ) )
+01344   \{
+01345     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Failed to create elements table for \(\backslash\)"%1\(\backslash\)":
+       [%2]."} )
+01346         .arg( m\_sessionDB.connectionName() )
+01347         .arg( query.lastError().text() );
+01348     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+01349   \}
+01350 
+01351   \textcolor{keywordflow}{if}( !query.exec( \textcolor{stringliteral}{"CREATE TABLE xmlattributes( attribute QString,
+       associatedElement QString, attributeValues QString, "}
+01352                    \textcolor{stringliteral}{"UNIQUE(attribute, associatedElement), "}
+01353                    \textcolor{stringliteral}{"FOREIGN KEY(associatedElement) REFERENCES
+       xmlelements(element) )"} ) )
+01354   \{
+01355     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Failed to create attribute values table for \(\backslash\)"%1
+      \(\backslash\)": [%2]"} )
+01356         .arg( m\_sessionDB.connectionName() )
+01357         .arg( query.lastError().text() );
+01358     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+01359   \}
+01360   \textcolor{keywordflow}{else}
+01361   \{
+01362     \textcolor{keywordflow}{if}( !query.exec( \textcolor{stringliteral}{"CREATE UNIQUE INDEX attributeKey ON xmlattributes(
+       attribute, associatedElement)"}) )
+01363     \{
+01364       m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Failed to create unique index for \(\backslash\)"%1\(\backslash\)": [%2]
+      "} )
+01365           .arg( m\_sessionDB.connectionName() )
+01366           .arg( query.lastError().text() );
+01367       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+01368     \}
+01369   \}
+01370 
+01371   \textcolor{keywordflow}{if}( !query.exec( \textcolor{stringliteral}{"CREATE TABLE rootelements( root QString primary key )"} ) )
+01372   \{
+01373     m\_lastErrorMsg = QString( \textcolor{stringliteral}{"Failed to create root elements table for \(\backslash\)"%1\(\backslash\)":
+       [%2]"} )
+01374         .arg( m\_sessionDB.connectionName() )
+01375         .arg( query.lastError().text() );
+01376     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+01377   \}
+01378 
+01379   m\_lastErrorMsg = \textcolor{stringliteral}{""};
+01380   \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+01381 \}
+01382 
+01383 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01384 
+01385 \textcolor{keywordtype}{void} GCDataBaseInterface::saveDatabaseFile()\textcolor{keyword}{ const}
+01386 \textcolor{keyword}{}\{
+01387   QFile flatFile( DB\_FILE );
+01388 
+01389   \textcolor{keywordflow}{if}( flatFile.open( QIODevice::ReadWrite | QIODevice::Text | 
+      QIODevice::Truncate ) )
+01390   \{
+01391     QTextStream outStream( &flatFile );
+01392 
+01393     \textcolor{keywordflow}{foreach}( QString str, m\_dbMap.values() )
+01394     \{
+01395       outStream << str << \textcolor{stringliteral}{"\(\backslash\)n"};
+01396     \}
+01397 
+01398     flatFile.close();
+01399   \}
+01400 \}
+01401 
+01402 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+\end{DoxyCode}

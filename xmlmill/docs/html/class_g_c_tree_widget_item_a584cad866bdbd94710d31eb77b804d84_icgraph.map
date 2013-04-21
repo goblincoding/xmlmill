@@ -1,0 +1,13 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$class_g_c_dom_tree_widget.html#a29bd5591054036ef5d6073a606716df3" title="Sets the value of the active comment node to &quot;value&quot;." alt="" coords="249,5,540,35"/>
+<area shape="rect" id="node5" href="$class_g_c_dom_tree_widget.html#a0ac81800aa6d507dd17cbffa6814a632" title="Rebuild the tree to conform to updated DOM content." alt="" coords="269,59,520,88"/>
+<area shape="rect" id="node9" href="$class_g_c_dom_tree_widget.html#afdf29124d6e6cc6061f5e9978c6a7f81" title="Creates and adds tree widget items for each element in the parameter element hierarchy." alt="" coords="280,112,509,141"/>
+<area shape="rect" id="node11" href="$class_g_c_dom_tree_widget.html#a0badfb9fc7250c5186fb9575019c335f" title="Removes the items with indices matching those in the parameter list from the tree as well as from the..." alt="" coords="243,165,547,195"/>
+<area shape="rect" id="node13" href="$class_g_c_dom_tree_widget.html#ac4ccf569a0c538e3c1c72e887f78f5b6" title="Re&#45;implemented from QTreeWidget." alt="" coords="293,219,496,248"/>
+<area shape="rect" id="node15" href="$class_g_c_tree_widget_item.html#a4c1932884c3e7c0da8be9e2582e02f41" title="Sets the &quot;exclude&quot; flag (used to determine if the element must be included in GCDomTreeWidget&#39;s DOM..." alt="" coords="267,272,523,301"/>
+<area shape="rect" id="node17" href="$class_g_c_tree_widget_item.html#a197806cd712ae04b129acd1699674df5" title="Inserts &quot;item&quot; at &quot;index&quot; and ensures that the corresponding DOM element is also inserted in the ..." alt="" coords="284,325,505,355"/>
+<area shape="rect" id="node7" href="$class_g_c_dom_tree_widget.html#a7bcd409950b7e72202426ac0c42c9476" title="Sets the underlying DOM document&#39;s content." alt="" coords="596,59,804,88"/>
+<area shape="rect" id="node19" href="$class_g_c_dom_tree_widget.html#a5e4117a9b47ac0bd520d32fc54d5f1ed" title="Adds a new item and corresponding DOM element node named &quot;elementName&quot; and inserts the new tree widge..." alt="" coords="599,325,801,355"/>
+<area shape="rect" id="node21" href="$class_g_c_dom_tree_widget.html#adbbe1eeb6dc9a2d6c84a7133106a7f77" title="Adds a new item and corresponding DOM element node named &quot;element&quot;." alt="" coords="853,325,1045,355"/>
+<area shape="rect" id="node23" href="$class_g_c_dom_tree_widget.html#a06ee56d0aa9348302dbb8d3f4e5bab44" title="This function starts the recursive process of populating the tree widget with items consisting of the..." alt="" coords="1093,325,1373,355"/>
+</map>

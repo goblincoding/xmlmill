@@ -1,0 +1,71 @@
+\hypertarget{gcadditemsform_8h_source}{\section{gcadditemsform.\-h}
+}
+
+\begin{DoxyCode}
+00001 \textcolor{comment}{/* Copyright (c) 2012 - 2013 by William Hallatt.}
+00002 \textcolor{comment}{ *}
+00003 \textcolor{comment}{ * This file forms part of "XML Mill".}
+00004 \textcolor{comment}{ *}
+00005 \textcolor{comment}{ * The official website for this project is <http://www.goblincoding.com> and,}
+00006 \textcolor{comment}{ * although not compulsory, it would be appreciated if all works of whatever}
+00007 \textcolor{comment}{ * nature using this source code (in whole or in part) include a reference to}
+00008 \textcolor{comment}{ * this site.}
+00009 \textcolor{comment}{ *}
+00010 \textcolor{comment}{ * Should you wish to contact me for whatever reason, please do so via:}
+00011 \textcolor{comment}{ *}
+00012 \textcolor{comment}{ *                 <http://www.goblincoding.com/contact>}
+00013 \textcolor{comment}{ *}
+00014 \textcolor{comment}{ * This program is free software: you can redistribute it and/or modify it
+       under}
+00015 \textcolor{comment}{ * the terms of the GNU General Public License as published by the Free
+       Software}
+00016 \textcolor{comment}{ * Foundation, either version 3 of the License, or (at your option) any later}
+00017 \textcolor{comment}{ * version.}
+00018 \textcolor{comment}{ *}
+00019 \textcolor{comment}{ * This program is distributed in the hope that it will be useful, but WITHOUT}
+00020 \textcolor{comment}{ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+       FITNESS}
+00021 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+       details.}
+00022 \textcolor{comment}{ *}
+00023 \textcolor{comment}{ * You should have received a copy of the GNU General Public License along with}
+00024 \textcolor{comment}{ * this program (GNUGPL.txt).  If not, see}
+00025 \textcolor{comment}{ *}
+00026 \textcolor{comment}{ *                    <http://www.gnu.org/licenses/>}
+00027 \textcolor{comment}{ */}
+00028 
+00029 \textcolor{preprocessor}{#ifndef GCADDITEMSFORM\_H}
+00030 \textcolor{preprocessor}{}\textcolor{preprocessor}{#define GCADDITEMSFORM\_H}
+00031 \textcolor{preprocessor}{}
+00032 \textcolor{preprocessor}{#include <QDialog>}
+00033 
+00034 \textcolor{keyword}{namespace }Ui
+00035 \{
+00036   \textcolor{keyword}{class }\hyperlink{class_g_c_add_items_form}{GCAddItemsForm};
+00037 \}
+00038 
+00040 
+\hypertarget{gcadditemsform_8h_source_l00054}{}\hyperlink{class_g_c_add_items_form}{00054} \textcolor{keyword}{class }\hyperlink{class_g_c_add_items_form}{GCAddItemsForm} : \textcolor{keyword}{public} QDialog
+00055 \{
+00056   Q\_OBJECT
+00057   
+00058 \textcolor{keyword}{public}:
+00060   \textcolor{keyword}{explicit} \hyperlink{class_g_c_add_items_form_adfd8359e3e47a03741efee4e2be3d229}{GCAddItemsForm}( QWidget *parent = 0 );
+00061 
+00063   \hyperlink{class_g_c_add_items_form_adbcd4fa77a2c1c345fd08e2333a45102}{~GCAddItemsForm}();
+00064   
+00065 \textcolor{keyword}{private} slots:
+00069   \textcolor{keywordtype}{void} addElementAndAttributes();
+00070 
+00072   \textcolor{keywordtype}{void} comboValueChanged( \textcolor{keyword}{const} QString &element );
+00073 
+00075   \textcolor{keywordtype}{void} showHelp();
+00076 
+00077 \textcolor{keyword}{private}:
+00079   \textcolor{keywordtype}{void} populateCombo();
+00080 
+00081   Ui::GCAddItemsForm *ui;
+00082 \};
+00083 
+00084 \textcolor{preprocessor}{#endif // GCADDITEMSFORM\_H}
+\end{DoxyCode}

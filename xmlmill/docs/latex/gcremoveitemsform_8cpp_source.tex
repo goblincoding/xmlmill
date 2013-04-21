@@ -1,0 +1,422 @@
+\hypertarget{gcremoveitemsform_8cpp_source}{\section{gcremoveitemsform.\-cpp}
+}
+
+\begin{DoxyCode}
+00001 \textcolor{comment}{/* Copyright (c) 2012 - 2013 by William Hallatt.}
+00002 \textcolor{comment}{ *}
+00003 \textcolor{comment}{ * This file forms part of "XML Mill".}
+00004 \textcolor{comment}{ *}
+00005 \textcolor{comment}{ * The official website for this project is <http://www.goblincoding.com> and,}
+00006 \textcolor{comment}{ * although not compulsory, it would be appreciated if all works of whatever}
+00007 \textcolor{comment}{ * nature using this source code (in whole or in part) include a reference to}
+00008 \textcolor{comment}{ * this site.}
+00009 \textcolor{comment}{ *}
+00010 \textcolor{comment}{ * Should you wish to contact me for whatever reason, please do so via:}
+00011 \textcolor{comment}{ *}
+00012 \textcolor{comment}{ *                 <http://www.goblincoding.com/contact>}
+00013 \textcolor{comment}{ *}
+00014 \textcolor{comment}{ * This program is free software: you can redistribute it and/or modify it
+       under}
+00015 \textcolor{comment}{ * the terms of the GNU General Public License as published by the Free
+       Software}
+00016 \textcolor{comment}{ * Foundation, either version 3 of the License, or (at your option) any later}
+00017 \textcolor{comment}{ * version.}
+00018 \textcolor{comment}{ *}
+00019 \textcolor{comment}{ * This program is distributed in the hope that it will be useful, but WITHOUT}
+00020 \textcolor{comment}{ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+       FITNESS}
+00021 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+       details.}
+00022 \textcolor{comment}{ *}
+00023 \textcolor{comment}{ * You should have received a copy of the GNU General Public License along with}
+00024 \textcolor{comment}{ * this program (GNUGPL.txt).  If not, see}
+00025 \textcolor{comment}{ *}
+00026 \textcolor{comment}{ *                    <http://www.gnu.org/licenses/>}
+00027 \textcolor{comment}{ */}
+00028 
+00029 \textcolor{preprocessor}{#include "gcremoveitemsform.h"}
+00030 \textcolor{preprocessor}{#include "ui\_gcremoveitemsform.h"}
+00031 \textcolor{preprocessor}{#include "db/gcdatabaseinterface.h"}
+00032 \textcolor{preprocessor}{#include "utils/gcmessagespace.h"}
+00033 \textcolor{preprocessor}{#include "utils/gcglobalspace.h"}
+00034 \textcolor{preprocessor}{#include "utils/gctreewidgetitem.h"}
+00035 
+00036 \textcolor{preprocessor}{#include <QMessageBox>}
+00037 
+00038 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00039 
+\hypertarget{gcremoveitemsform_8cpp_source_l00040}{}\hyperlink{class_g_c_remove_items_form_a8ef59eb50c10a50f70ef268110916d39}{00040} \hyperlink{class_g_c_remove_items_form_a8ef59eb50c10a50f70ef268110916d39}{GCRemoveItemsForm::GCRemoveItemsForm}( QWidget *parent ) :
+00041   QDialog               ( parent ),
+00042   ui                    ( new Ui::\hyperlink{class_g_c_remove_items_form}{GCRemoveItemsForm} ),
+00043   m\_currentElement      ( \textcolor{stringliteral}{""} ),
+00044   m\_currentElementParent( \textcolor{stringliteral}{""} ),
+00045   m\_currentAttribute    ( \textcolor{stringliteral}{""} ),
+00046   m\_deletedElements     ()
+00047 \{
+00048   ui->setupUi( \textcolor{keyword}{this} );
+00049   ui->showAttributeHelpButton->setVisible( \hyperlink{namespace_g_c_global_space_a981753e55f0f77f981f67ccb1ad4ecf1}{GCGlobalSpace::showHelpButtons}() );
+00050   ui->showElementHelpButton->setVisible( \hyperlink{namespace_g_c_global_space_a981753e55f0f77f981f67ccb1ad4ecf1}{GCGlobalSpace::showHelpButtons}() );
+00051 
+00052   connect( ui->showElementHelpButton,   SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( 
+      showElementHelp() ) );
+00053   connect( ui->showAttributeHelpButton, SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( 
+      showAttributeHelp() ) );
+00054   connect( ui->updateValuesButton,      SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( 
+      updateAttributeValues() ) );
+00055   connect( ui->deleteAttributeButton,   SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( 
+      deleteAttribute() ) );
+00056   connect( ui->deleteElementButton,     SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( 
+      deleteElement() ) );
+00057   connect( ui->removeFromParentButton,  SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( 
+      removeChildElement() ) );
+00058 
+00059   connect( ui->treeWidget, SIGNAL( gcCurrentItemSelected( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem}*,\textcolor{keywordtype}{int}
+      ,\textcolor{keywordtype}{bool} ) ), \textcolor{keyword}{this}, SLOT( elementSelected( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem}*,\textcolor{keywordtype}{int} ) ) );
+00060   connect( ui->comboBox, SIGNAL( currentIndexChanged( QString ) ), \textcolor{keyword}{this}, SLOT( 
+      attributeActivated( QString ) ) );
+00061 
+00062   ui->treeWidget->populateFromDatabase();
+00063 
+00064   setAttribute( Qt::WA\_DeleteOnClose );
+00065 \}
+00066 
+00067 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00068 
+\hypertarget{gcremoveitemsform_8cpp_source_l00069}{}\hyperlink{class_g_c_remove_items_form_a9cf2b70d83b8f13e0283a76ef62b47d2}{00069} \hyperlink{class_g_c_remove_items_form_a9cf2b70d83b8f13e0283a76ef62b47d2}{GCRemoveItemsForm::~GCRemoveItemsForm}()
+00070 \{
+00071   \textcolor{keyword}{delete} ui;
+00072 \}
+00073 
+00074 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00075 
+00076 \textcolor{keywordtype}{void} GCRemoveItemsForm::elementSelected( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem} *item, \textcolor{keywordtype}{int} column )
+00077 \{
+00078   Q\_UNUSED( column );
+00079 
+00080   \textcolor{keywordflow}{if}( item )
+00081   \{
+00082     \textcolor{keywordflow}{if}( item->\hyperlink{class_g_c_tree_widget_item_a1125dbc55a8ba3e50662b8258cb35fdf}{gcParent}() )
+00083     \{
+00084       m\_currentElementParent = item->\hyperlink{class_g_c_tree_widget_item_a1125dbc55a8ba3e50662b8258cb35fdf}{gcParent}()->\hyperlink{class_g_c_tree_widget_item_a3af8c66a690cd55986a38b996a375ba4}{name}();
+00085     \}
+00086 
+00087     m\_currentElement = item->\hyperlink{class_g_c_tree_widget_item_a3af8c66a690cd55986a38b996a375ba4}{name}();
+00088 
+00089     \textcolor{comment}{/* Since it isn't illegal to have elements with children of the same name,
+       we cannot}
+00090 \textcolor{comment}{      block it in the DB, however, if we DO have elements with children of the
+       same name,}
+00091 \textcolor{comment}{      we don't want the user to delete the element since bad things will
+       happen. */}
+00092     \textcolor{keywordflow}{if}( m\_currentElement == m\_currentElementParent )
+00093     \{
+00094       ui->deleteElementButton->setEnabled( \textcolor{keyword}{false} );
+00095     \}
+00096     \textcolor{keywordflow}{else}
+00097     \{
+00098       ui->deleteElementButton->setEnabled( \textcolor{keyword}{true} );
+00099     \}
+00100 
+00101     QStringList attributes = \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_afb1e49e08f98ca453f9ac66340a35642}{attributes}( 
+      m\_currentElement );
+00102 
+00103     ui->comboBox->clear();
+00104     ui->comboBox->addItems( attributes );
+00105   \}
+00106 \}
+00107 
+00108 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00109 
+00110 \textcolor{keywordtype}{void} GCRemoveItemsForm::attributeActivated( \textcolor{keyword}{const} QString &attribute )
+00111 \{
+00112   m\_currentAttribute = attribute;
+00113   QStringList attributeValues = \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_a329e17f6c02c62fd554884f2b5a7e2df}{attributeValues}
+      ( m\_currentElement, m\_currentAttribute );
+00114 
+00115   ui->plainTextEdit->clear();
+00116 
+00117   \textcolor{keywordflow}{foreach}( QString value, attributeValues )
+00118   \{
+00119     ui->plainTextEdit->insertPlainText( QString( \textcolor{stringliteral}{"%1\(\backslash\)n"} ).arg( value ) );
+00120   \}
+00121 \}
+00122 
+00123 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00124 
+00125 \textcolor{keywordtype}{void} GCRemoveItemsForm::deleteElement( \textcolor{keyword}{const} QString &element )
+00126 \{
+00127   \textcolor{comment}{/* If the element name is empty, then this function was called directly by
+       the user}
+00128 \textcolor{comment}{    clicking on "delete" (as opposed to this function being called further down
+       below}
+00129 \textcolor{comment}{    during the recursive process of getting rid of the element's children) in
+       that case,}
+00130 \textcolor{comment}{    the first element to be removed is the current one (set in
+       "elementSelected"). */}
+00131   QString currentElement = ( element.isEmpty() ) ? m\_currentElement : element;
+00132 
+00133   QStringList children = \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_aab5126783bc3acc7c718c8ffd8af62bc}{children}( 
+      currentElement );
+00134   m\_deletedElements.clear();
+00135 
+00136   \textcolor{comment}{/* Attributes and values must be removed before we can remove elements and we
+       must also}
+00137 \textcolor{comment}{    ensure that children are removed before their parents.  To achieve this, we
+       need to ensure}
+00138 \textcolor{comment}{    that we clean the element tree from "the bottom up". */}
+00139   \textcolor{keywordflow}{if}( !children.isEmpty() )
+00140   \{
+00141     \textcolor{keywordflow}{foreach}( QString child, children )
+00142     \{
+00143       \textcolor{keywordflow}{if}( \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_a94559ea23489e360757db42c50d3a261}{isUniqueChildElement}( currentElement
+      , child ) )
+00144       \{
+00145         deleteElement( child );
+00146       \}
+00147     \}
+00148   \}
+00149 
+00150   \textcolor{comment}{/* Remove all the attributes (and their known values) associated with this
+       element. */}
+00151   QStringList attributes = \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_afb1e49e08f98ca453f9ac66340a35642}{attributes}( 
+      currentElement );
+00152 
+00153   \textcolor{keywordflow}{foreach}( QString attribute, attributes )
+00154   \{
+00155     \textcolor{keywordflow}{if}( !\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->removeAttribute( currentElement, 
+      attribute ) )
+00156     \{
+00157       \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}(
+      )->lastError() );
+00158     \}
+00159   \}
+00160 
+00161   \textcolor{comment}{/* Now we can remove the element itself. */}
+00162   \textcolor{keywordflow}{if}( !\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->removeElement( currentElement ) )
+00163   \{
+00164     \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()-
+      >lastError() );
+00165   \}
+00166   \textcolor{keywordflow}{else}
+00167   \{
+00168     m\_deletedElements.append( currentElement );
+00169   \}
+00170 
+00171   \textcolor{comment}{/* Check if the user removed a root element. */}
+00172   \textcolor{keywordflow}{if}( \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->knownRootElements().contains( 
+      currentElement ) )
+00173   \{
+00174     \textcolor{keywordflow}{if}( !\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->removeRootElement( currentElement ) )
+00175     \{
+00176       \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}(
+      )->lastError() );
+00177     \}
+00178   \}
+00179 
+00180   \textcolor{comment}{/* Remove the element from all its parents' first level child lists. */}
+00181   updateChildLists();
+00182 
+00183   ui->comboBox->clear();
+00184   ui->plainTextEdit->clear();
+00185   ui->treeWidget->populateFromDatabase();
+00186 \}
+00187 
+00188 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00189 
+00190 \textcolor{keywordtype}{void} GCRemoveItemsForm::removeChildElement()
+00191 \{
+00192   \textcolor{keywordflow}{if}( !m\_currentElementParent.isEmpty() )
+00193   \{
+00194     \textcolor{keywordflow}{if}( !\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_a657f2885b6741f8ac229939f77e7dd73}{removeChildElement}( 
+      m\_currentElementParent, m\_currentElement ) )
+00195     \{
+00196       \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}(
+      )->lastError() );
+00197     \}
+00198     \textcolor{keywordflow}{else}
+00199     \{
+00200       \textcolor{keywordflow}{if}( \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->isUniqueChildElement( 
+      m\_currentElementParent, m\_currentElement ) )
+00201       \{
+00202         \textcolor{keywordtype}{bool} accepted = \hyperlink{namespace_g_c_message_space_ae6f97d25f38a6b35c49e6e67ce4afaca}{GCMessageSpace::userAccepted}( \textcolor{stringliteral}{"RemoveUnlistedElement"},
+00203                                                       \textcolor{stringliteral}{"Element not used"},
+00204                                                       QString( \textcolor{stringliteral}{"\(\backslash\)"%1\(\backslash\)" is not
+       assigned to any other element (i.e. "}
+00205                                                                \textcolor{stringliteral}{"it isn't used
+       anywhere else in the profile).\(\backslash\)n"}
+00206                                                                \textcolor{stringliteral}{"Would you like
+       to remove the element completely?"} ).arg( m\_currentElement ),
+00207                                                       \hyperlink{namespace_g_c_message_space_ac1db082c29062fe6508ba03bf76bea44ab2defe87f3e886edf34f537f4ac8c282}{GCMessageSpace::YesNo},
+00208                                                       GCMessageSpace::No,
+00209                                                       \hyperlink{namespace_g_c_message_space_a67e94586e09cbc305257fbcdd7b686e2ae66d6709c87ccb0832b1456e2b4ad895}{GCMessageSpace::Question} 
+      );
+00210 
+00211         \textcolor{keywordflow}{if}( accepted )
+00212         \{
+00213           deleteElement();
+00214         \}
+00215       \}
+00216 
+00217       ui->comboBox->clear();
+00218       ui->plainTextEdit->clear();
+00219       ui->treeWidget->populateFromDatabase();
+00220     \}
+00221   \}
+00222 \}
+00223 
+00224 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00225 
+00226 \textcolor{keywordtype}{void} GCRemoveItemsForm::updateAttributeValues()
+00227 \{
+00228   QStringList attributes = ui->plainTextEdit->toPlainText().split( \textcolor{stringliteral}{"\(\backslash\)n"} );
+00229   attributes.removeAll( \textcolor{stringliteral}{""} );
+00230 
+00231   \textcolor{keywordflow}{if}( attributes.isEmpty() )
+00232   \{
+00233     \textcolor{keywordtype}{bool} accepted = \hyperlink{namespace_g_c_message_space_ae6f97d25f38a6b35c49e6e67ce4afaca}{GCMessageSpace::userAccepted}( \textcolor{stringliteral}{"UpdateEmptyAttributeValues"},
+00234                                                   \textcolor{stringliteral}{"Update with empty attribute
+       values?"},
+00235                                                   \textcolor{stringliteral}{"All known values were
+       removed. "}
+00236                                                   \textcolor{stringliteral}{"Would you like to remove the
+       attribute completely?"},
+00237                                                   \hyperlink{namespace_g_c_message_space_ac1db082c29062fe6508ba03bf76bea44ab2defe87f3e886edf34f537f4ac8c282}{GCMessageSpace::YesNo},
+00238                                                   GCMessageSpace::No,
+00239                                                   \hyperlink{namespace_g_c_message_space_a67e94586e09cbc305257fbcdd7b686e2ae66d6709c87ccb0832b1456e2b4ad895}{GCMessageSpace::Question} );
+00240 
+00241     \textcolor{keywordflow}{if}( accepted )
+00242     \{
+00243       deleteAttribute();
+00244     \}
+00245   \}
+00246   \textcolor{keywordflow}{else}
+00247   \{
+00248     \textcolor{comment}{/* All existing values will be replaced with whatever remained in the text
+       edit by the time the}
+00249 \textcolor{comment}{      user was done. */}
+00250     \textcolor{keywordflow}{if}( !\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->updateAttributeValues( 
+      m\_currentElement, m\_currentAttribute, attributes, \textcolor{keyword}{true} ) )
+00251     \{
+00252       \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}(
+      )->lastError() );
+00253     \}
+00254     \textcolor{keywordflow}{else}
+00255     \{
+00256       QMessageBox::information( \textcolor{keyword}{this}, \textcolor{stringliteral}{"Success"}, \textcolor{stringliteral}{"Done!"} );
+00257     \}
+00258   \}
+00259 \}
+00260 
+00261 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00262 
+00263 \textcolor{keywordtype}{void} GCRemoveItemsForm::deleteAttribute()
+00264 \{
+00265   \textcolor{keywordflow}{if}( !\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->removeAttribute( m\_currentElement, 
+      m\_currentAttribute ) )
+00266   \{
+00267     \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()-
+      >lastError() );
+00268   \}
+00269   \textcolor{keywordflow}{else}
+00270   \{
+00271     \textcolor{comment}{/* Purely for cosmetic effect - updates the tree item to reflect the
+       correct node text when}
+00272 \textcolor{comment}{      in "verbose" mode. */}
+00273     ui->treeWidget->gcCurrentItem()->excludeAttribute( m\_currentAttribute );
+00274 
+00275     ui->comboBox->removeItem( ui->comboBox->findText( m\_currentAttribute ) );
+00276   \}
+00277 \}
+00278 
+00279 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00280 
+00281 \textcolor{keywordtype}{void} GCRemoveItemsForm::updateChildLists()
+00282 \{
+00283   QStringList knownElements = \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_a6c4eabd4f39a1c23ab320bb0dbc855d4}{knownElements}();
+00284 
+00285   \textcolor{keywordflow}{foreach}( QString element, knownElements )
+00286   \{
+00287     QStringList children = \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_aab5126783bc3acc7c718c8ffd8af62bc}{children}( element )
+      ;
+00288 
+00289     \textcolor{keywordflow}{if}( !children.isEmpty() )
+00290     \{
+00291       \textcolor{keywordflow}{foreach}( QString deletedElement, m\_deletedElements )
+00292       \{
+00293         \textcolor{keywordflow}{if}( children.contains( deletedElement ) )
+00294         \{
+00295           \textcolor{keywordflow}{if}( !\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_a657f2885b6741f8ac229939f77e7dd73}{removeChildElement}( element, 
+      deletedElement ) )
+00296           \{
+00297             \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, 
+      \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->lastError() );
+00298           \}
+00299         \}
+00300       \}
+00301     \}
+00302   \}
+00303 \}
+00304 
+00305 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00306 
+00307 \textcolor{keywordtype}{void} GCRemoveItemsForm::showElementHelp()
+00308 \{
+00309   QMessageBox::information( \textcolor{keyword}{this},
+00310                             \textcolor{stringliteral}{"How this works..."},
+00311                             \textcolor{stringliteral}{"\(\backslash\)"Remove Child\(\backslash\)" will remove the currently
+       highlighted element "}
+00312                             \textcolor{stringliteral}{"from its parent element's child list, i.e. it will
+       only "}
+00313                             \textcolor{stringliteral}{"affect the relationship between the two elements,
+       the element "}
+00314                             \textcolor{stringliteral}{"itself is not deleted in the process and will
+       remain in the profile. \(\backslash\)n\(\backslash\)n"}
+00315                             \textcolor{stringliteral}{"\(\backslash\)"Delete Element\(\backslash\)" will delete the element, the
+       element's children, "}
+00316                             \textcolor{stringliteral}{"the children's children (etc, etc), its associated
+       attributes, the "}
+00317                             \textcolor{stringliteral}{"associated attributes of its children (and their
+       children, etc, etc), all "}
+00318                             \textcolor{stringliteral}{"the known values for all the attributes thus
+       deleted and finally also "}
+00319                             \textcolor{stringliteral}{"remove the element (and its children and the
+       children's children, etc etc) "}
+00320                             \textcolor{stringliteral}{"from every single child list that contains it.\(\backslash\)n\(\backslash\)n
+      "}
+00321                             \textcolor{stringliteral}{"None of this can be undone. "} );
+00322 \}
+00323 
+00324 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00325 
+00326 \textcolor{keywordtype}{void} GCRemoveItemsForm::showAttributeHelp()
+00327 \{
+00328   QMessageBox::information( \textcolor{keyword}{this},
+00329                             \textcolor{stringliteral}{"How this works..."},
+00330                             \textcolor{stringliteral}{"\(\backslash\)"Delete Attribute\(\backslash\)" will also delete all its
+       known values.\(\backslash\)n\(\backslash\)n"}
+00331                             \textcolor{stringliteral}{"\(\backslash\)"Update Attribute Values\(\backslash\)" - Only those values
+       remaining in the text edit when "}
+00332                             \textcolor{stringliteral}{"\(\backslash\)"Update Attribute Values\(\backslash\)" is clicked will be
+       saved against the attribute shown "}
+00333                             \textcolor{stringliteral}{"in the drop down (this effectively means that you
+       could also add new values "}
+00334                             \textcolor{stringliteral}{"to the attribute if you wish).  Just make sure
+       that all the values you want to "}
+00335                             \textcolor{stringliteral}{"associate with the attribute when you're done
+       appear on separate lines."} );
+00336 \}
+00337 
+00338 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+\end{DoxyCode}

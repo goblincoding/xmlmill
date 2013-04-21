@@ -1,0 +1,316 @@
+\hypertarget{gcdbsessionmanager_8cpp_source}{\section{gcdbsessionmanager.\-cpp}
+}
+
+\begin{DoxyCode}
+00001 \textcolor{comment}{/* Copyright (c) 2012 - 2013 by William Hallatt.}
+00002 \textcolor{comment}{ *}
+00003 \textcolor{comment}{ * This file forms part of "XML Mill".}
+00004 \textcolor{comment}{ *}
+00005 \textcolor{comment}{ * The official website for this project is <http://www.goblincoding.com> and,}
+00006 \textcolor{comment}{ * although not compulsory, it would be appreciated if all works of whatever}
+00007 \textcolor{comment}{ * nature using this source code (in whole or in part) include a reference to}
+00008 \textcolor{comment}{ * this site.}
+00009 \textcolor{comment}{ *}
+00010 \textcolor{comment}{ * Should you wish to contact me for whatever reason, please do so via:}
+00011 \textcolor{comment}{ *}
+00012 \textcolor{comment}{ *                 <http://www.goblincoding.com/contact>}
+00013 \textcolor{comment}{ *}
+00014 \textcolor{comment}{ * This program is free software: you can redistribute it and/or modify it
+       under}
+00015 \textcolor{comment}{ * the terms of the GNU General Public License as published by the Free
+       Software}
+00016 \textcolor{comment}{ * Foundation, either version 3 of the License, or (at your option) any later}
+00017 \textcolor{comment}{ * version.}
+00018 \textcolor{comment}{ *}
+00019 \textcolor{comment}{ * This program is distributed in the hope that it will be useful, but WITHOUT}
+00020 \textcolor{comment}{ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+       FITNESS}
+00021 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+       details.}
+00022 \textcolor{comment}{ *}
+00023 \textcolor{comment}{ * You should have received a copy of the GNU General Public License along with}
+00024 \textcolor{comment}{ * this program (GNUGPL.txt).  If not, see}
+00025 \textcolor{comment}{ *}
+00026 \textcolor{comment}{ *                    <http://www.gnu.org/licenses/>}
+00027 \textcolor{comment}{ */}
+00028 
+00029 \textcolor{preprocessor}{#include "gcdbsessionmanager.h"}
+00030 \textcolor{preprocessor}{#include "ui\_gcdbsessionmanager.h"}
+00031 \textcolor{preprocessor}{#include "db/gcdatabaseinterface.h"}
+00032 \textcolor{preprocessor}{#include "utils/gcmessagespace.h"}
+00033 
+00034 \textcolor{preprocessor}{#include <QFileDialog>}
+00035 \textcolor{preprocessor}{#include <QMessageBox>}
+00036 
+00037 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00038 
+\hypertarget{gcdbsessionmanager_8cpp_source_l00039}{}\hyperlink{class_g_c_d_b_session_manager_ae9bbc80ab3d7235f804393ea1b4e9f36}{00039} \hyperlink{class_g_c_d_b_session_manager_ae9bbc80ab3d7235f804393ea1b4e9f36}{GCDBSessionManager::GCDBSessionManager}( QWidget *parent ) :
+00040   QDialog      ( parent ),
+00041   ui           ( new Ui::\hyperlink{class_g_c_d_b_session_manager}{GCDBSessionManager} ),
+00042   m\_currentRoot( \textcolor{stringliteral}{""} )
+00043 \{
+00044   ui->setupUi( \textcolor{keyword}{this} );
+00045 
+00046   setDatabaseList();
+00047   ui->showHelpButton->setVisible( \textcolor{keyword}{false} );
+00048 
+00049   connect( ui->addExistingButton, SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( 
+      \hyperlink{class_g_c_d_b_session_manager_a52f3407b7ad5cac7c8c422d2528b28fc}{addExistingDatabase}() ) );
+00050   connect( ui->addNewButton,      SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( 
+      \hyperlink{class_g_c_d_b_session_manager_ad029ca4ec8ffff788a281f1b3f3eee71}{addNewDatabase}() ) );
+00051   connect( ui->cancelButton,      SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( reject() ) )
+      ;
+00052   connect( ui->okButton,          SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( 
+      setActiveDatabase() ) );
+00053   connect( ui->okButton,          SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( accept() ) )
+      ;
+00054   connect( ui->showHelpButton,    SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( showHelp() )
+       );
+00055 \}
+00056 
+00057 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00058 
+\hypertarget{gcdbsessionmanager_8cpp_source_l00059}{}\hyperlink{class_g_c_d_b_session_manager_a95698026afd73f32557483f3fc19b419}{00059} \hyperlink{class_g_c_d_b_session_manager_a95698026afd73f32557483f3fc19b419}{GCDBSessionManager::~GCDBSessionManager}()
+00060 \{
+00061   \textcolor{keyword}{delete} ui;
+00062 \}
+00063 
+00064 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00065 
+\hypertarget{gcdbsessionmanager_8cpp_source_l00066}{}\hyperlink{class_g_c_d_b_session_manager_ac4e5a25619ee77bc9307d3428bfd345d}{00066} \textcolor{keywordtype}{void} \hyperlink{class_g_c_d_b_session_manager_ac4e5a25619ee77bc9307d3428bfd345d}{GCDBSessionManager::selectActiveDatabase}( \textcolor{keyword}{const} QString &currentRoot )
+00067 \{
+00068   \textcolor{comment}{/* Switching DB sessions while building an XML document could result in all
+       kinds of trouble}
+00069 \textcolor{comment}{    since the items known to the current session may not be known to the next. 
+      */}
+00070   m\_currentRoot = currentRoot;
+00071 
+00072   this->setWindowTitle( \textcolor{stringliteral}{"Select a profile for this session"} );
+00073   setDatabaseList();
+00074 
+00075   ui->addNewButton->setVisible( \textcolor{keyword}{true} );
+00076   ui->addExistingButton->setVisible( \textcolor{keyword}{true} );
+00077 
+00078   disconnect( ui->okButton, SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( 
+      removeDatabaseConnection() ) );
+00079   connect   ( ui->okButton, SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( setActiveDatabase(
+      ) ), Qt::UniqueConnection );
+00080 
+00081   this->exec();
+00082 \}
+00083 
+00084 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00085 
+\hypertarget{gcdbsessionmanager_8cpp_source_l00086}{}\hyperlink{class_g_c_d_b_session_manager_a0fc44e9d2efb407cc0964295920b2432}{00086} \textcolor{keywordtype}{void} \hyperlink{class_g_c_d_b_session_manager_a0fc44e9d2efb407cc0964295920b2432}{GCDBSessionManager::removeDatabase}( \textcolor{keyword}{const} QString &currentRoot )
+00087 \{
+00088   this->setWindowTitle( \textcolor{stringliteral}{"Remove profile"} );
+00089 
+00090   m\_currentRoot = currentRoot;
+00091   ui->addNewButton->setVisible( \textcolor{keyword}{false} );
+00092   ui->addExistingButton->setVisible( \textcolor{keyword}{false} );
+00093 
+00094   disconnect( ui->okButton, SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( setActiveDatabase(
+      ) ) );
+00095   connect   ( ui->okButton, SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( 
+      removeDatabaseConnection() ), Qt::UniqueConnection );
+00096 
+00097   this->exec();
+00098 \}
+00099 
+00100 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00101 
+\hypertarget{gcdbsessionmanager_8cpp_source_l00102}{}\hyperlink{class_g_c_d_b_session_manager_a52f3407b7ad5cac7c8c422d2528b28fc}{00102} \textcolor{keywordtype}{void} \hyperlink{class_g_c_d_b_session_manager_a52f3407b7ad5cac7c8c422d2528b28fc}{GCDBSessionManager::addExistingDatabase}( \textcolor{keyword}{const} QString &currentRoot )
+00103 \{
+00104   m\_currentRoot = currentRoot;
+00105 
+00106   QString file = QFileDialog::getOpenFileName( \textcolor{keyword}{this}, \textcolor{stringliteral}{"Add Existing Profile"}, 
+      QDir::homePath(), \textcolor{stringliteral}{"XML Profiles (*.db)"} );
+00107 
+00108   \textcolor{comment}{/* If the user clicked "OK". */}
+00109   \textcolor{keywordflow}{if}( !file.isEmpty() )
+00110   \{
+00111     addDatabaseConnection( file );
+00112   \}
+00113 \}
+00114 
+00115 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00116 
+\hypertarget{gcdbsessionmanager_8cpp_source_l00117}{}\hyperlink{class_g_c_d_b_session_manager_ad029ca4ec8ffff788a281f1b3f3eee71}{00117} \textcolor{keywordtype}{void} \hyperlink{class_g_c_d_b_session_manager_ad029ca4ec8ffff788a281f1b3f3eee71}{GCDBSessionManager::addNewDatabase}( \textcolor{keyword}{const} QString &currentRoot )
+00118 \{
+00119   m\_currentRoot = currentRoot;
+00120 
+00121   QString file = QFileDialog::getSaveFileName( \textcolor{keyword}{this}, \textcolor{stringliteral}{"Add New Profile"}, 
+      QDir::homePath(), \textcolor{stringliteral}{"XML Profiles (*.db)"} );
+00122 
+00123   \textcolor{comment}{/* If the user clicked "OK". */}
+00124   \textcolor{keywordflow}{if}( !file.isEmpty() )
+00125   \{
+00126     addDatabaseConnection( file );
+00127   \}
+00128 \}
+00129 
+00130 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00131 
+00132 \textcolor{keywordtype}{void} GCDBSessionManager::removeDatabaseConnection()
+00133 \{
+00134   QString dbName = ui->comboBox->currentText();
+00135 
+00136   \textcolor{keywordflow}{if}( !m\_currentRoot.isEmpty() &&
+00137       \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_a53aff43e5997c5f0180ba214205e5bc6}{activeSessionName}() == dbName )
+00138   \{
+00139     \textcolor{keywordtype}{bool} accepted = \hyperlink{namespace_g_c_message_space_ae6f97d25f38a6b35c49e6e67ce4afaca}{GCMessageSpace::userAccepted}( \textcolor{stringliteral}{"RemoveActiveSessionWarning"},
+00140                                                   \textcolor{stringliteral}{"Warning!"},
+00141                                                   \textcolor{stringliteral}{"Removing the active profile
+       will cause the current "}
+00142                                                   \textcolor{stringliteral}{"document to be reset and
+       your work will be lost! "},
+00143                                                   \hyperlink{namespace_g_c_message_space_ac1db082c29062fe6508ba03bf76bea44a7de67bd6b388b96a468fcf8246dfdece}{GCMessageSpace::OKCancel},
+00144                                                   GCMessageSpace::Cancel,
+00145                                                   \hyperlink{namespace_g_c_message_space_a67e94586e09cbc305257fbcdd7b686e2ab454bae3ed7cef63f273c303aea6c4c3}{GCMessageSpace::Warning} );
+00146 
+00147     \textcolor{keywordflow}{if}( !accepted )
+00148     \{
+00149       \textcolor{keywordflow}{return};
+00150     \}
+00151   \}
+00152 
+00153   \textcolor{keywordflow}{if}( !\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_d_b_session_manager_a0fc44e9d2efb407cc0964295920b2432}{removeDatabase}( dbName ) )
+00154   \{
+00155     QString error = QString( \textcolor{stringliteral}{"Failed to remove profile \(\backslash\)"%1\(\backslash\)": [%2]"} ).arg( 
+      dbName )
+00156                     .arg( \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->lastError() );
+00157     \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, error );
+00158   \}
+00159 \}
+00160 
+00161 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00162 
+00163 \textcolor{keywordtype}{void} GCDBSessionManager::setActiveDatabase()
+00164 \{
+00165   setActiveDatabase( ui->comboBox->currentText() );
+00166 \}
+00167 
+00168 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00169 
+00170 \textcolor{keywordtype}{void} GCDBSessionManager::showHelp()
+00171 \{
+00172   QMessageBox::information( \textcolor{keyword}{this},
+00173                             \textcolor{stringliteral}{"How this works..."},
+00174                             \textcolor{stringliteral}{"Profiles are used to store information about XML
+       files, so please: \(\backslash\)n\(\backslash\)n"}
+00175                             \textcolor{stringliteral}{"1. Create a new profile for the type of XML you
+       are going to work with (I suggest "}
+00176                             \textcolor{stringliteral}{"using a name that closely resembles the XML files
+       it will represent), or\(\backslash\)n"}
+00177                             \textcolor{stringliteral}{"2. Add an existing profile(s) if you have any."});
+00178 \}
+00179 
+00180 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00181 
+00182 \textcolor{keywordtype}{void} GCDBSessionManager::setActiveDatabase( \textcolor{keyword}{const} QString &dbName )
+00183 \{
+00184   \textcolor{comment}{/* If the current root element is not known to the new session, the user must}
+00185 \textcolor{comment}{    confirm whether or not he/she wants the active document to be reset. */}
+00186   \textcolor{keywordflow}{if}( !m\_currentRoot.isEmpty() &&
+00187       !\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_a91183c2d227bf90d0d26fccc1e4ae878}{containsKnownRootElement}( dbName, 
+      m\_currentRoot ) )
+00188   \{
+00189     QMessageBox::StandardButton accept = QMessageBox::question( \textcolor{keyword}{this},
+00190                                                                 \textcolor{stringliteral}{"Unsupported
+       document"},
+00191                                                                 \textcolor{stringliteral}{"The selected
+       profile doesn't support your current document. Your "}
+00192                                                                 \textcolor{stringliteral}{"document will
+       be reset if you continue."},
+00193                                                                 QMessageBox::Ok
+       | QMessageBox::Cancel,
+00194                                                                 
+      QMessageBox::Cancel );
+00195     \textcolor{keywordflow}{if}( accept != QMessageBox::Ok )
+00196     \{
+00197       \textcolor{keywordflow}{return};
+00198     \}
+00199 
+00200     emit \hyperlink{class_g_c_d_b_session_manager_add2dc0347405ffb60c4ba057009ead46}{reset}();
+00201     m\_currentRoot = \textcolor{stringliteral}{""};
+00202   \}
+00203 
+00204   \textcolor{keywordflow}{if}( !\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->setActiveDatabase( dbName ) )
+00205   \{
+00206     QString error = QString( \textcolor{stringliteral}{"Failed to set session \(\backslash\)"%1\(\backslash\)" as active - [%2]"} ).
+      arg( dbName )
+00207                     .arg( \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->lastError() );
+00208     \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, error );
+00209   \}
+00210   \textcolor{keywordflow}{else}
+00211   \{
+00212     this->hide();
+00213     this->accept();
+00214     emit \hyperlink{class_g_c_d_b_session_manager_a47338631e494645f867544a719825311}{activeDatabaseChanged}( dbName );
+00215   \}
+00216 \}
+00217 
+00218 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00219 
+00220 \textcolor{keywordtype}{void} GCDBSessionManager::addDatabaseConnection( \textcolor{keyword}{const} QString &dbName )
+00221 \{
+00222   \textcolor{keywordflow}{if}( !\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->addDatabase( dbName ) )
+00223   \{
+00224     \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()-
+      >lastError() );
+00225     \textcolor{keywordflow}{return};
+00226   \}
+00227 
+00228   \textcolor{keywordtype}{bool} accepted = \hyperlink{namespace_g_c_message_space_ae6f97d25f38a6b35c49e6e67ce4afaca}{GCMessageSpace::userAccepted}( \textcolor{stringliteral}{"SwitchActiveSession"},
+00229                                                 \textcolor{stringliteral}{"Switch Session"},
+00230                                                 \textcolor{stringliteral}{"Would you like to switch to
+       the new profile?"},
+00231                                                 \hyperlink{namespace_g_c_message_space_ac1db082c29062fe6508ba03bf76bea44ab2defe87f3e886edf34f537f4ac8c282}{GCMessageSpace::YesNo},
+00232                                                 GCMessageSpace::Yes,
+00233                                                 \hyperlink{namespace_g_c_message_space_a67e94586e09cbc305257fbcdd7b686e2ae66d6709c87ccb0832b1456e2b4ad895}{GCMessageSpace::Question} );
+00234 
+00235   \textcolor{keywordflow}{if}( accepted )
+00236   \{
+00237     setActiveDatabase( dbName );
+00238   \}
+00239 
+00240   setDatabaseList();
+00241 \}
+00242 
+00243 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00244 
+00245 \textcolor{keywordtype}{void} GCDBSessionManager::setDatabaseList()
+00246 \{
+00247   ui->comboBox->clear();
+00248 
+00249   QStringList dbList = \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_ab34f716b89ee96de9bf599f5d5d2c152}{connectionList}();
+00250 
+00251   \textcolor{keywordflow}{if}( dbList.empty() )
+00252   \{
+00253     ui->okButton->setVisible( \textcolor{keyword}{false} );
+00254     ui->comboBox->addItem( \textcolor{stringliteral}{"You don't have any known profiles..."} );
+00255     ui->showHelpButton->setVisible( \textcolor{keyword}{true} );
+00256   \}
+00257   \textcolor{keywordflow}{else}
+00258   \{
+00259     ui->okButton->setVisible( \textcolor{keyword}{true} );
+00260     ui->comboBox->addItems( dbList );
+00261     ui->showHelpButton->setVisible( \textcolor{keyword}{false} );
+00262   \}
+00263 \}
+00264 
+00265 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+\end{DoxyCode}

@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$class_g_c_dom_tree_widget.html#a3716c84a2a4fadc653cfac157caa215d" title="Clears and resets the tree as well as the underlying DOM document." alt="" coords="275,5,504,35"/>
+<area shape="rect" id="node5" href="$class_g_c_dom_tree_widget.html#a0ac81800aa6d507dd17cbffa6814a632" title="Rebuild the tree to conform to updated DOM content." alt="" coords="264,59,515,88"/>
+<area shape="rect" id="node7" href="$class_g_c_tree_widget_item.html#a584cad866bdbd94710d31eb77b804d84" title="Returns the associated element via QDomElement&#39;s default shallow copy constructor." alt="" coords="563,59,752,88"/>
+</map>

@@ -1,0 +1,63 @@
+\hypertarget{gchelpdialog_8cpp_source}{\section{gchelpdialog.\-cpp}
+}
+
+\begin{DoxyCode}
+00001 \textcolor{comment}{/* Copyright (c) 2012 - 2013 by William Hallatt.}
+00002 \textcolor{comment}{ *}
+00003 \textcolor{comment}{ * This file forms part of "XML Mill".}
+00004 \textcolor{comment}{ *}
+00005 \textcolor{comment}{ * The official website for this project is <http://www.goblincoding.com> and,}
+00006 \textcolor{comment}{ * although not compulsory, it would be appreciated if all works of whatever}
+00007 \textcolor{comment}{ * nature using this source code (in whole or in part) include a reference to}
+00008 \textcolor{comment}{ * this site.}
+00009 \textcolor{comment}{ *}
+00010 \textcolor{comment}{ * Should you wish to contact me for whatever reason, please do so via:}
+00011 \textcolor{comment}{ *}
+00012 \textcolor{comment}{ *                 <http://www.goblincoding.com/contact>}
+00013 \textcolor{comment}{ *}
+00014 \textcolor{comment}{ * This program is free software: you can redistribute it and/or modify it
+       under}
+00015 \textcolor{comment}{ * the terms of the GNU General Public License as published by the Free
+       Software}
+00016 \textcolor{comment}{ * Foundation, either version 3 of the License, or (at your option) any later}
+00017 \textcolor{comment}{ * version.}
+00018 \textcolor{comment}{ *}
+00019 \textcolor{comment}{ * This program is distributed in the hope that it will be useful, but WITHOUT}
+00020 \textcolor{comment}{ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+       FITNESS}
+00021 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+       details.}
+00022 \textcolor{comment}{ *}
+00023 \textcolor{comment}{ * You should have received a copy of the GNU General Public License along with}
+00024 \textcolor{comment}{ * this program (GNUGPL.txt).  If not, see}
+00025 \textcolor{comment}{ *}
+00026 \textcolor{comment}{ *                    <http://www.gnu.org/licenses/>}
+00027 \textcolor{comment}{ */}
+00028 
+00029 \textcolor{preprocessor}{#include "gchelpdialog.h"}
+00030 \textcolor{preprocessor}{#include "ui\_gchelpdialog.h"}
+00031 
+00032 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00033 
+\hypertarget{gchelpdialog_8cpp_source_l00034}{}\hyperlink{class_g_c_help_dialog_ab50a71cb98a1d9375288703bcd1e3be1}{00034} \hyperlink{class_g_c_help_dialog_ab50a71cb98a1d9375288703bcd1e3be1}{GCHelpDialog::GCHelpDialog}( \textcolor{keyword}{const} QString &text, QWidget *parent ) :
+00035   QDialog( parent ),
+00036   ui     ( new Ui::\hyperlink{class_g_c_help_dialog}{GCHelpDialog} )
+00037 \{
+00038   ui->setupUi( \textcolor{keyword}{this} );
+00039   ui->textBrowser->setHtml( text );
+00040   connect( ui->closeButton, SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( close() ) );
+00041   setAttribute( Qt::WA\_DeleteOnClose );
+00042 \}
+00043 
+00044 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00045 
+\hypertarget{gchelpdialog_8cpp_source_l00046}{}\hyperlink{class_g_c_help_dialog_ae8e5aa465ea3bd2fa4d922b0cc09cfdc}{00046} \hyperlink{class_g_c_help_dialog_ae8e5aa465ea3bd2fa4d922b0cc09cfdc}{GCHelpDialog::~GCHelpDialog}()
+00047 \{
+00048   \textcolor{keyword}{delete} ui;
+00049 \}
+00050 
+00051 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+\end{DoxyCode}

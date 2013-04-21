@@ -1,0 +1,85 @@
+\hypertarget{gcaddsnippetsform_8h_source}{\section{gcaddsnippetsform.\-h}
+}
+
+\begin{DoxyCode}
+00001 \textcolor{comment}{/* Copyright (c) 2012 - 2013 by William Hallatt.}
+00002 \textcolor{comment}{ *}
+00003 \textcolor{comment}{ * This file forms part of "XML Mill".}
+00004 \textcolor{comment}{ *}
+00005 \textcolor{comment}{ * The official website for this project is <http://www.goblincoding.com> and,}
+00006 \textcolor{comment}{ * although not compulsory, it would be appreciated if all works of whatever}
+00007 \textcolor{comment}{ * nature using this source code (in whole or in part) include a reference to}
+00008 \textcolor{comment}{ * this site.}
+00009 \textcolor{comment}{ *}
+00010 \textcolor{comment}{ * Should you wish to contact me for whatever reason, please do so via:}
+00011 \textcolor{comment}{ *}
+00012 \textcolor{comment}{ *                 <http://www.goblincoding.com/contact>}
+00013 \textcolor{comment}{ *}
+00014 \textcolor{comment}{ * This program is free software: you can redistribute it and/or modify it
+       under}
+00015 \textcolor{comment}{ * the terms of the GNU General Public License as published by the Free
+       Software}
+00016 \textcolor{comment}{ * Foundation, either version 3 of the License, or (at your option) any later}
+00017 \textcolor{comment}{ * version.}
+00018 \textcolor{comment}{ *}
+00019 \textcolor{comment}{ * This program is distributed in the hope that it will be useful, but WITHOUT}
+00020 \textcolor{comment}{ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+       FITNESS}
+00021 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+       details.}
+00022 \textcolor{comment}{ *}
+00023 \textcolor{comment}{ * You should have received a copy of the GNU General Public License along with}
+00024 \textcolor{comment}{ * this program (GNUGPL.txt).  If not, see}
+00025 \textcolor{comment}{ *}
+00026 \textcolor{comment}{ *                    <http://www.gnu.org/licenses/>}
+00027 \textcolor{comment}{ */}
+00028 
+00029 \textcolor{preprocessor}{#ifndef GCADDSNIPPETSFORM\_H}
+00030 \textcolor{preprocessor}{}\textcolor{preprocessor}{#define GCADDSNIPPETSFORM\_H}
+00031 \textcolor{preprocessor}{}
+00032 \textcolor{preprocessor}{#include <QDialog>}
+00033 \textcolor{preprocessor}{#include <QDomElement>}
+00034 
+00035 \textcolor{keyword}{namespace }Ui
+00036 \{
+00037   \textcolor{keyword}{class }\hyperlink{class_g_c_add_snippets_form}{GCAddSnippetsForm};
+00038 \}
+00039 
+00040 \textcolor{keyword}{class }\hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem};
+00041 \textcolor{keyword}{class }QTableWidgetItem;
+00042 
+00044 
+\hypertarget{gcaddsnippetsform_8h_source_l00060}{}\hyperlink{class_g_c_add_snippets_form}{00060} \textcolor{keyword}{class }\hyperlink{class_g_c_add_snippets_form}{GCAddSnippetsForm} : \textcolor{keyword}{public} QDialog
+00061 \{
+00062   Q\_OBJECT
+00063   
+00064 \textcolor{keyword}{public}:
+00070   \textcolor{keyword}{explicit} \hyperlink{class_g_c_add_snippets_form_af1cfc60ffd8ac6b25f1d1a2dc49e311b}{GCAddSnippetsForm}( \textcolor{keyword}{const} QString &elementName, \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem} *
+      parentItem, QWidget *parent = 0 );
+00071 
+00073   \hyperlink{class_g_c_add_snippets_form_a3a56853da9df0a69b7dfc0de3c762d9e}{~GCAddSnippetsForm}();
+00074 
+00075 signals:
+00080   \textcolor{keywordtype}{void} \hyperlink{class_g_c_add_snippets_form_ae911d230e14e1473223a6f2b087febef}{snippetAdded}( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem}*, QDomElement );
+00081 
+00082 \textcolor{keyword}{private} slots:
+00085   \textcolor{keywordtype}{void} elementSelected( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem} *item, \textcolor{keywordtype}{int} column );
+00086 
+00089   \textcolor{keywordtype}{void} attributeChanged( QTableWidgetItem *item ) \textcolor{keyword}{const};
+00090 
+00092   \textcolor{keywordtype}{void} attributeValueChanged() \textcolor{keyword}{const};
+00093 
+00097   \textcolor{keywordtype}{void} addSnippet();
+00098 
+00100   \textcolor{keywordtype}{void} showHelp();
+00101   
+00102 \textcolor{keyword}{private}:
+00107   \textcolor{keywordtype}{void} updateCheckStates( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem} *item ) \textcolor{keyword}{const};
+00108 
+00109   Ui::GCAddSnippetsForm *ui;
+00110   \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem}   *m\_parentItem;
+00111   \textcolor{keywordtype}{bool}                m\_treeItemActivated;
+00112 \};
+00113 
+00114 \textcolor{preprocessor}{#endif // GCADDSNIPPETSFORM\_H}
+\end{DoxyCode}

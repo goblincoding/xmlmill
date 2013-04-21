@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$class_g_c_data_base_interface.html#ae570c403f1b6b7f85e6a5c46829f42a8" title="Returns &quot;true&quot; if the active database is empty, &quot;false&quot; if not." alt="" coords="375,5,617,35"/>
+<area shape="rect" id="node5" href="$class_g_c_data_base_interface.html#a91183c2d227bf90d0d26fccc1e4ae878" title="Returns &quot;true&quot; if the database named &quot;dbName&quot; knows about &quot;root&quot;." alt="" coords="335,59,657,88"/>
+<area shape="rect" id="node7" href="$class_g_c_dom_tree_widget.html#a06ee56d0aa9348302dbb8d3f4e5bab44" title="This function starts the recursive process of populating the tree widget with items consisting of the..." alt="" coords="356,112,636,141"/>
+</map>

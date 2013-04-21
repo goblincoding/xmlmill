@@ -1,0 +1,90 @@
+\hypertarget{gcdbsessionmanager_8h_source}{\section{gcdbsessionmanager.\-h}
+}
+
+\begin{DoxyCode}
+00001 \textcolor{comment}{/* Copyright (c) 2012 - 2013 by William Hallatt.}
+00002 \textcolor{comment}{ *}
+00003 \textcolor{comment}{ * This file forms part of "XML Mill".}
+00004 \textcolor{comment}{ *}
+00005 \textcolor{comment}{ * The official website for this project is <http://www.goblincoding.com> and,}
+00006 \textcolor{comment}{ * although not compulsory, it would be appreciated if all works of whatever}
+00007 \textcolor{comment}{ * nature using this source code (in whole or in part) include a reference to}
+00008 \textcolor{comment}{ * this site.}
+00009 \textcolor{comment}{ *}
+00010 \textcolor{comment}{ * Should you wish to contact me for whatever reason, please do so via:}
+00011 \textcolor{comment}{ *}
+00012 \textcolor{comment}{ *                 <http://www.goblincoding.com/contact>}
+00013 \textcolor{comment}{ *}
+00014 \textcolor{comment}{ * This program is free software: you can redistribute it and/or modify it
+       under}
+00015 \textcolor{comment}{ * the terms of the GNU General Public License as published by the Free
+       Software}
+00016 \textcolor{comment}{ * Foundation, either version 3 of the License, or (at your option) any later}
+00017 \textcolor{comment}{ * version.}
+00018 \textcolor{comment}{ *}
+00019 \textcolor{comment}{ * This program is distributed in the hope that it will be useful, but WITHOUT}
+00020 \textcolor{comment}{ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+       FITNESS}
+00021 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+       details.}
+00022 \textcolor{comment}{ *}
+00023 \textcolor{comment}{ * You should have received a copy of the GNU General Public License along with}
+00024 \textcolor{comment}{ * this program (GNUGPL.txt).  If not, see}
+00025 \textcolor{comment}{ *}
+00026 \textcolor{comment}{ *                    <http://www.gnu.org/licenses/>}
+00027 \textcolor{comment}{ */}
+00028 
+00029 \textcolor{preprocessor}{#ifndef GCDBSESSIONMANAGER\_H}
+00030 \textcolor{preprocessor}{}\textcolor{preprocessor}{#define GCDBSESSIONMANAGER\_H}
+00031 \textcolor{preprocessor}{}
+00032 \textcolor{preprocessor}{#include <QDialog>}
+00033 
+00034 \textcolor{keyword}{namespace }Ui
+00035 \{
+00036   \textcolor{keyword}{class }\hyperlink{class_g_c_d_b_session_manager}{GCDBSessionManager};
+00037 \}
+00038 
+00040 
+\hypertarget{gcdbsessionmanager_8h_source_l00046}{}\hyperlink{class_g_c_d_b_session_manager}{00046} \textcolor{keyword}{class }\hyperlink{class_g_c_d_b_session_manager}{GCDBSessionManager} : \textcolor{keyword}{public} QDialog
+00047 \{
+00048   Q\_OBJECT
+00049   
+00050 \textcolor{keyword}{public}:
+00052   \textcolor{keyword}{explicit} \hyperlink{class_g_c_d_b_session_manager_ae9bbc80ab3d7235f804393ea1b4e9f36}{GCDBSessionManager}( QWidget *parent = 0 );
+00053 
+00055   \hyperlink{class_g_c_d_b_session_manager_a95698026afd73f32557483f3fc19b419}{~GCDBSessionManager}();
+00056 
+00060   \textcolor{keywordtype}{void} \hyperlink{class_g_c_d_b_session_manager_ac4e5a25619ee77bc9307d3428bfd345d}{selectActiveDatabase}(  \textcolor{keyword}{const} QString &currentRoot = QString() );
+00061 
+00065   \textcolor{keywordtype}{void} \hyperlink{class_g_c_d_b_session_manager_a0fc44e9d2efb407cc0964295920b2432}{removeDatabase}( \textcolor{keyword}{const} QString &currentRoot = QString() );
+00066 
+00067 \textcolor{keyword}{public} slots:
+00071   \textcolor{keywordtype}{void} \hyperlink{class_g_c_d_b_session_manager_a52f3407b7ad5cac7c8c422d2528b28fc}{addExistingDatabase}( \textcolor{keyword}{const} QString &currentRoot = QString() );
+00072 
+00076   \textcolor{keywordtype}{void} \hyperlink{class_g_c_d_b_session_manager_ad029ca4ec8ffff788a281f1b3f3eee71}{addNewDatabase}( \textcolor{keyword}{const} QString &currentRoot = QString() );
+00077 
+00078 signals:
+00080   \textcolor{keywordtype}{void} \hyperlink{class_g_c_d_b_session_manager_a47338631e494645f867544a719825311}{activeDatabaseChanged}( QString );
+00081 
+00084   \textcolor{keywordtype}{void} \hyperlink{class_g_c_d_b_session_manager_add2dc0347405ffb60c4ba057009ead46}{reset}();
+00085 
+00086 \textcolor{keyword}{private} slots:
+00089   \textcolor{keywordtype}{void} removeDatabaseConnection();
+00090 
+00093   \textcolor{keywordtype}{void} setActiveDatabase();
+00094 
+00096   \textcolor{keywordtype}{void} showHelp();
+00097 
+00098 \textcolor{keyword}{private}:
+00100   \textcolor{keywordtype}{void} setActiveDatabase( \textcolor{keyword}{const} QString &dbName );
+00101 
+00103   \textcolor{keywordtype}{void} addDatabaseConnection( \textcolor{keyword}{const} QString &dbName );
+00104 
+00106   \textcolor{keywordtype}{void} setDatabaseList();
+00107   
+00108   Ui::GCDBSessionManager *ui;
+00109   QString  m\_currentRoot;
+00110 \};
+00111 
+00112 \textcolor{preprocessor}{#endif // GCDBSESSIONMANAGER\_H}
+\end{DoxyCode}

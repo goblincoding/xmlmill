@@ -1,0 +1,454 @@
+\hypertarget{gcbatchprocessorhelper_8cpp_source}{\section{gcbatchprocessorhelper.\-cpp}
+}
+
+\begin{DoxyCode}
+00001 \textcolor{comment}{/* Copyright (c) 2012 - 2013 by William Hallatt.}
+00002 \textcolor{comment}{ *}
+00003 \textcolor{comment}{ * This file forms part of "XML Mill".}
+00004 \textcolor{comment}{ *}
+00005 \textcolor{comment}{ * The official website for this project is <http://www.goblincoding.com> and,}
+00006 \textcolor{comment}{ * although not compulsory, it would be appreciated if all works of whatever}
+00007 \textcolor{comment}{ * nature using this source code (in whole or in part) include a reference to}
+00008 \textcolor{comment}{ * this site.}
+00009 \textcolor{comment}{ *}
+00010 \textcolor{comment}{ * Should you wish to contact me for whatever reason, please do so via:}
+00011 \textcolor{comment}{ *}
+00012 \textcolor{comment}{ *                 <http://www.goblincoding.com/contact>}
+00013 \textcolor{comment}{ *}
+00014 \textcolor{comment}{ * This program is free software: you can redistribute it and/or modify it
+       under}
+00015 \textcolor{comment}{ * the terms of the GNU General Public License as published by the Free
+       Software}
+00016 \textcolor{comment}{ * Foundation, either version 3 of the License, or (at your option) any later}
+00017 \textcolor{comment}{ * version.}
+00018 \textcolor{comment}{ *}
+00019 \textcolor{comment}{ * This program is distributed in the hope that it will be useful, but WITHOUT}
+00020 \textcolor{comment}{ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+       FITNESS}
+00021 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+       details.}
+00022 \textcolor{comment}{ *}
+00023 \textcolor{comment}{ * You should have received a copy of the GNU General Public License along with}
+00024 \textcolor{comment}{ * this program (GNUGPL.txt).  If not, see}
+00025 \textcolor{comment}{ *}
+00026 \textcolor{comment}{ *                    <http://www.gnu.org/licenses/>}
+00027 \textcolor{comment}{ */}
+00028 
+00029 \textcolor{preprocessor}{#include "gcbatchprocessorhelper.h"}
+00030 
+00031 \textcolor{preprocessor}{#include <QDomDocument>}
+00032 
+00033 \textcolor{comment}{/*--------------------------------- MEMBER FUNCTIONS
+       ----------------------------------*/}
+00034 
+\hypertarget{gcbatchprocessorhelper_8cpp_source_l00035}{}\hyperlink{class_g_c_batch_processor_helper_a36b76739cc2d64ab72e9d9b68425a7f1}{00035} \hyperlink{class_g_c_batch_processor_helper_a36b76739cc2d64ab72e9d9b68425a7f1}{GCBatchProcessorHelper::GCBatchProcessorHelper}( \textcolor{keyword}{const} QDomDocument *domDoc,
+00036                                                 \textcolor{keyword}{const} QString &
+      stringListSeparator,
+00037                                                 \textcolor{keyword}{const} QStringList &
+      knownElements,
+00038                                                 \textcolor{keyword}{const} QStringList &
+      knownAttributes ) :
+00039   m\_stringListSeparator       ( stringListSeparator ),
+00040   m\_knownElements             ( knownElements ),
+00041   m\_knownAttributeKeys        ( knownAttributes ),
+00042   m\_newElementsToAdd          (),
+00043   m\_newElementChildrenToAdd   (),
+00044   m\_newElementAttributesToAdd (),
+00045   m\_elementsToUpdate          (),
+00046   m\_elementChildrenToUpdate   (),
+00047   m\_elementAttributesToUpdate (),
+00048   m\_newAttributeKeysToAdd     (),
+00049   m\_newAssociatedElementsToAdd(),
+00050   m\_newAttributeValuesToAdd   (),
+00051   m\_attributeKeysToUpdate     (),
+00052   m\_associatedElementsToUpdate(),
+00053   m\_attributeValuesToUpdate   (),
+00054   m\_unsorted                  (),
+00055   m\_records                   ()
+00056 \{
+00057   QDomElement root = domDoc->documentElement();
+00058   createRecord( root );
+00059   processElement( root );   \textcolor{comment}{// kicks off a chain of recursive DOM element
+       traversals}
+00060   sortRecords();
+00061   createVariantLists();
+00062 \}
+00063 
+00064 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00065 
+00066 \textcolor{keywordtype}{void} GCBatchProcessorHelper::processElement( \textcolor{keyword}{const} QDomElement &parentElement )
+00067 \{
+00068   QDomElement element = parentElement.firstChildElement();
+00069 
+00070   \textcolor{keywordflow}{while} ( !element.isNull() )
+00071   \{
+00072     createRecord( element );
+00073     processElement( element );
+00074     element = element.nextSiblingElement();
+00075   \}
+00076 \}
+00077 
+00078 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00079 
+00080 \textcolor{keywordtype}{void} GCBatchProcessorHelper::createRecord( \textcolor{keyword}{const} QDomElement &element )
+00081 \{
+00082   ElementRecord record;
+00083 
+00084   \textcolor{comment}{/* Stick the attributes and their corresponding values into the record map. 
+      */}
+00085   QDomNamedNodeMap attributeNodes = element.attributes();
+00086 
+00087   \textcolor{keywordflow}{for}( \textcolor{keywordtype}{int} i = 0; i < attributeNodes.size(); ++i )
+00088   \{
+00089     QDomAttr attribute = attributeNodes.item( i ).toAttr();
+00090 
+00091     \textcolor{keywordflow}{if}( !attribute.isNull() )
+00092     \{
+00093       record.attributes.insert( attribute.name(), QStringList( attribute.value(
+      ) ) );
+00094     \}
+00095   \}
+00096 
+00097   \textcolor{comment}{/* Collect all the first level (element) children associated with this
+       element. */}
+00098   QDomNodeList children = element.childNodes();
+00099 
+00100   \textcolor{keywordflow}{for}( \textcolor{keywordtype}{int} i = 0; i < children.size(); ++i )
+00101   \{
+00102     QDomNode child = children.at( i );
+00103 
+00104     \textcolor{keywordflow}{if}( child.isElement() )
+00105     \{
+00106       record.children.append( child.toElement().tagName() );
+00107     \}
+00108   \}
+00109 
+00110   \textcolor{comment}{/* We'll sort it all later, for now get the recursive calls out of the way. 
+      */}
+00111   m\_unsorted.insert( element.tagName(), record );
+00112 \}
+00113 
+00114 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00115 
+00116 \textcolor{keywordtype}{void} GCBatchProcessorHelper::sortRecords()
+00117 \{
+00118   \textcolor{comment}{/* We inserted every element in the DOM doc into the unsorted map and will
+       almost}
+00119 \textcolor{comment}{    definitely have duplicates.  Since the DB requires unique element entries
+       (elements}
+00120 \textcolor{comment}{    are the primary keys), we iterate through the unique keys and consolidate
+       the entries}
+00121 \textcolor{comment}{    per element. */}
+00122   \textcolor{keywordflow}{foreach}( QString element, m\_unsorted.uniqueKeys() )
+00123   \{
+00124     \textcolor{comment}{/* Retrieve all the records associated with this element. */}
+00125     QList< ElementRecord > duplicateRecords = m\_unsorted.values( element );
+00126 
+00127     \textcolor{comment}{/* If we have more than one record for the same element, then we need to
+       consolidate}
+00128 \textcolor{comment}{      all the attributes associated with this particular element. */}
+00129     \textcolor{keywordflow}{if}( duplicateRecords.size() > 1 )
+00130     \{
+00131       ElementRecord record;
+00132 
+00133       \textcolor{comment}{/* Just stick all the attributes and their values into a map for now}
+00134 \textcolor{comment}{        so that we don't have to run the consolidation functionality on}
+00135 \textcolor{comment}{        each iteration...that would just be silly... */}
+00136       QMultiMap< QString, QStringList > recordAttributes;
+00137 
+00138       \textcolor{keywordflow}{for}( \textcolor{keywordtype}{int} i = 0; i < duplicateRecords.size(); ++i )
+00139       \{
+00140         recordAttributes += duplicateRecords.at( i ).attributes;
+00141 
+00142         \textcolor{comment}{/* Don't consolidate the attribute values here (see above comment) but
+       since}
+00143 \textcolor{comment}{          we're already iterating through the list, we may as well consolidate
+       the}
+00144 \textcolor{comment}{          children while we're at it (they are relatively simple to handle
+       compared}
+00145 \textcolor{comment}{          to the attribute value maps). */}
+00146         record.children.append( duplicateRecords.at( i ).children );        
+00147       \}
+00148 
+00149       record.children.removeDuplicates();
+00150 
+00151       \textcolor{comment}{/* Now we can sort out the chaos. For each unique attribute, we will
+       obtain}
+00152 \textcolor{comment}{        the associated QStringList(s) of attribute values and consolidate the
+       lot. */}
+00153       \textcolor{keywordflow}{foreach}( QString attribute, recordAttributes.uniqueKeys() )
+00154       \{
+00155         QList< QStringList > attributeValues = recordAttributes.values( 
+      attribute );
+00156         QStringList finalListOfAttributeValues;
+00157 
+00158         \textcolor{keywordflow}{for}( \textcolor{keywordtype}{int} j = 0; j < attributeValues.size(); ++j )
+00159         \{
+00160           finalListOfAttributeValues.append( attributeValues.at( j ) );
+00161         \}
+00162 
+00163         finalListOfAttributeValues.removeDuplicates();
+00164         record.attributes.insert( attribute, finalListOfAttributeValues );
+00165       \}
+00166 
+00167       m\_records.insert( element, record );
+00168     \}
+00169     \textcolor{keywordflow}{else}
+00170     \{
+00171       \textcolor{comment}{/* If we only have one entry for this particular element name, we can}
+00172 \textcolor{comment}{        safely insert it into the sorted map. */}
+00173       ElementRecord record = duplicateRecords.at( 0 );
+00174       record.children.removeDuplicates();
+00175       m\_records.insert( element, record );
+00176     \}
+00177   \}
+00178 \}
+00179 
+00180 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00181 
+00182 \textcolor{keywordtype}{void} GCBatchProcessorHelper::createVariantLists()
+00183 \{
+00184   \textcolor{comment}{/* First see which of the records we created from the DOM doc are completely
+       new}
+00185 \textcolor{comment}{    and which ones we have prior knowledge of. */}
+00186   QList< QString > elementNames = m\_records.keys();
+00187 
+00188   \textcolor{keywordflow}{for}( \textcolor{keywordtype}{int} i = 0; i < elementNames.size(); ++i )
+00189   \{
+00190     \textcolor{keywordflow}{if}( !m\_knownElements.contains( elementNames.at( i ) ) )
+00191     \{
+00192       m\_newElementsToAdd << elementNames.at( i );
+00193     \}
+00194     \textcolor{keywordflow}{else}
+00195     \{
+00196       m\_elementsToUpdate << elementNames.at( i );
+00197     \}
+00198   \}
+00199 
+00200   \textcolor{comment}{/* Deal with all the new elements first. */}
+00201   \textcolor{keywordflow}{foreach}( QVariant var, m\_newElementsToAdd )
+00202   \{
+00203     QString element = var.toString();
+00204 
+00205     \textcolor{comment}{/* Do we have first level children? */}
+00206     \textcolor{keywordflow}{if}( !m\_records.value( element ).children.isEmpty() )
+00207     \{
+00208       m\_newElementChildrenToAdd << m\_records.value( element ).children.join( 
+      m\_stringListSeparator );
+00209     \}
+00210     \textcolor{keywordflow}{else}
+00211     \{
+00212       \textcolor{comment}{/* To keep the indices in sync, the following will result in a NULL value}
+00213 \textcolor{comment}{        being bound to the relevant prepared query on the DB side (we need to
+       have}
+00214 \textcolor{comment}{        exactly the same number of items in all lists associated with the "new
+       elements"}
+00215 \textcolor{comment}{        in order for the batch bind to succeed). The same argument holds for
+       the}
+00216 \textcolor{comment}{        "elements to update" and two types of attribute lists below. */}
+00217       m\_newElementChildrenToAdd << QVariant( QVariant::String );
+00218     \}
+00219 
+00220     \textcolor{comment}{/* Do we have associated attributes? */}
+00221     \textcolor{keywordflow}{if}( !m\_records.value( element ).attributes.keys().isEmpty() )
+00222     \{
+00223       QStringList attributeNames = m\_records.value( element ).attributes.keys()
+      ;
+00224       m\_newElementAttributesToAdd << attributeNames.join( m\_stringListSeparator
+       );
+00225     \}
+00226     \textcolor{keywordflow}{else}
+00227     \{
+00228       \textcolor{comment}{/* See comment for "m\_newElementChildrenToAdd" above.*/}
+00229       m\_newElementAttributesToAdd << QVariant( QVariant::String );
+00230     \}
+00231   \}
+00232 
+00233   \textcolor{comment}{/* Now we deal with all the elements that will have to be updated. */}
+00234   \textcolor{keywordflow}{foreach}( QVariant var, m\_elementsToUpdate )
+00235   \{
+00236     QString element = var.toString();
+00237 
+00238     \textcolor{comment}{/* Do we have first level children? */}
+00239     \textcolor{keywordflow}{if}( !m\_records.value( element ).children.isEmpty() )
+00240     \{
+00241       m\_elementChildrenToUpdate << m\_records.value( element ).children.join( 
+      m\_stringListSeparator );
+00242     \}
+00243     \textcolor{keywordflow}{else}
+00244     \{
+00245       \textcolor{comment}{/* See comment for "m\_newElementChildrenToAdd" above.*/}
+00246       m\_elementChildrenToUpdate << QVariant( QVariant::String );
+00247     \}
+00248 
+00249     \textcolor{comment}{/* Do we have associated attributes? */}
+00250     \textcolor{keywordflow}{if}( !m\_records.value( element ).attributes.keys().isEmpty() )
+00251     \{
+00252       QStringList attributeNames = m\_records.value( element ).attributes.keys()
+      ;
+00253       m\_elementAttributesToUpdate << attributeNames.join( m\_stringListSeparator
+       );
+00254     \}
+00255     \textcolor{keywordflow}{else}
+00256     \{
+00257       \textcolor{comment}{/* See comment for "m\_newElementChildrenToAdd" above.*/}
+00258       m\_elementAttributesToUpdate << QVariant( QVariant::String );
+00259     \}
+00260   \}
+00261 
+00262   \textcolor{comment}{/* Separate the new attribute keys and associated values from the existing
+       ones. */}
+00263   \textcolor{keywordflow}{foreach}( QString element, elementNames )
+00264   \{
+00265     QList< QString > attributeNames = m\_records.value( element ).attributes.
+      keys();
+00266 
+00267     \textcolor{keywordflow}{foreach}( QString attribute, attributeNames )
+00268     \{
+00269       QStringList attributeValues = m\_records.value( element ).attributes.value
+      ( attribute );
+00270       attributeValues.removeDuplicates();
+00271 
+00272       \textcolor{comment}{/* Do we know about this attribute? (by the way, the "!" is a separator}
+00273 \textcolor{comment}{        used to create a unique string name from the element and associated}
+00274 \textcolor{comment}{        attribute for ease of comparison with the attribute keys list we get}
+00275 \textcolor{comment}{        given...this is not ideal, but the only solution I have at the moment. 
+      */}
+00276       \textcolor{keywordflow}{if}( !m\_knownAttributeKeys.contains( attribute + \textcolor{stringliteral}{"!"} + element ) )
+00277       \{
+00278         m\_newAttributeKeysToAdd << attribute;
+00279         m\_newAssociatedElementsToAdd << element;
+00280 
+00281         \textcolor{keywordflow}{if}( !attributeValues.isEmpty() )
+00282         \{
+00283           m\_newAttributeValuesToAdd << attributeValues.join( 
+      m\_stringListSeparator );
+00284         \}
+00285         \textcolor{keywordflow}{else}
+00286         \{
+00287           \textcolor{comment}{/* See comment for "m\_newElementChildrenToAdd" above.*/}
+00288           m\_newAttributeValuesToAdd << QVariant( QVariant::String );
+00289         \}
+00290       \}
+00291       \textcolor{keywordflow}{else}
+00292       \{
+00293         m\_attributeKeysToUpdate << attribute;
+00294         m\_associatedElementsToUpdate << element;
+00295 
+00296         \textcolor{keywordflow}{if}( !attributeValues.isEmpty() )
+00297         \{
+00298           m\_attributeValuesToUpdate << attributeValues.join( 
+      m\_stringListSeparator );
+00299         \}
+00300         \textcolor{keywordflow}{else}
+00301         \{
+00302           \textcolor{comment}{/* See comment for "m\_newElementChildrenToAdd" above.*/}
+00303           m\_attributeValuesToUpdate << QVariant( QVariant::String );
+00304         \}
+00305       \}
+00306     \}
+00307   \}
+00308 \}
+00309 
+00310 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00311 
+\hypertarget{gcbatchprocessorhelper_8cpp_source_l00312}{}\hyperlink{class_g_c_batch_processor_helper_afdedbc674698c019ebd2a3938a239661}{00312} \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_afdedbc674698c019ebd2a3938a239661}{GCBatchProcessorHelper::newElementsToAdd}()\textcolor{keyword}{ const}
+00313 \textcolor{keyword}{}\{
+00314   \textcolor{keywordflow}{return} m\_newElementsToAdd;
+00315 \}
+00316 
+00317 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00318 
+\hypertarget{gcbatchprocessorhelper_8cpp_source_l00319}{}\hyperlink{class_g_c_batch_processor_helper_a89c14c3740c7cb57c937ef8db99b4af1}{00319} \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_a89c14c3740c7cb57c937ef8db99b4af1}{GCBatchProcessorHelper::newElementChildrenToAdd}()\textcolor{keyword}{ const}
+00320 \textcolor{keyword}{}\{
+00321   \textcolor{keywordflow}{return} m\_newElementChildrenToAdd;
+00322 \}
+00323 
+00324 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00325 
+\hypertarget{gcbatchprocessorhelper_8cpp_source_l00326}{}\hyperlink{class_g_c_batch_processor_helper_a640ca9bd78b7da0796fdfb82fefce8b6}{00326} \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_a640ca9bd78b7da0796fdfb82fefce8b6}{GCBatchProcessorHelper::newElementAttributesToAdd}()\textcolor{keyword}{ const}
+00327 \textcolor{keyword}{}\{
+00328   \textcolor{keywordflow}{return} m\_newElementAttributesToAdd;
+00329 \}
+00330 
+00331 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00332 
+\hypertarget{gcbatchprocessorhelper_8cpp_source_l00333}{}\hyperlink{class_g_c_batch_processor_helper_aca0a2d6bbfcb23907e917b5d2251fc6f}{00333} \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_aca0a2d6bbfcb23907e917b5d2251fc6f}{GCBatchProcessorHelper::elementsToUpdate}()\textcolor{keyword}{ const}
+00334 \textcolor{keyword}{}\{
+00335   \textcolor{keywordflow}{return} m\_elementsToUpdate;
+00336 \}
+00337 
+00338 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00339 
+\hypertarget{gcbatchprocessorhelper_8cpp_source_l00340}{}\hyperlink{class_g_c_batch_processor_helper_a8fd4cac8af9a54df52a98628d5ba6fbe}{00340} \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_a8fd4cac8af9a54df52a98628d5ba6fbe}{GCBatchProcessorHelper::elementChildrenToUpdate}()\textcolor{keyword}{ const}
+00341 \textcolor{keyword}{}\{
+00342   \textcolor{keywordflow}{return} m\_elementChildrenToUpdate;
+00343 \}
+00344 
+00345 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00346 
+\hypertarget{gcbatchprocessorhelper_8cpp_source_l00347}{}\hyperlink{class_g_c_batch_processor_helper_a3b0630e9e210b2b86e58cb43d3706b73}{00347} \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_a3b0630e9e210b2b86e58cb43d3706b73}{GCBatchProcessorHelper::elementAttributesToUpdate}()\textcolor{keyword}{ const}
+00348 \textcolor{keyword}{}\{
+00349   \textcolor{keywordflow}{return} m\_elementAttributesToUpdate;
+00350 \}
+00351 
+00352 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00353 
+\hypertarget{gcbatchprocessorhelper_8cpp_source_l00354}{}\hyperlink{class_g_c_batch_processor_helper_a605ca53123f28467df39cabeb3aa65cd}{00354} \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_a605ca53123f28467df39cabeb3aa65cd}{GCBatchProcessorHelper::newAttributeKeysToAdd}()\textcolor{keyword}{ const}
+00355 \textcolor{keyword}{}\{
+00356   \textcolor{keywordflow}{return} m\_newAttributeKeysToAdd;
+00357 \}
+00358 
+00359 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00360 
+\hypertarget{gcbatchprocessorhelper_8cpp_source_l00361}{}\hyperlink{class_g_c_batch_processor_helper_abf195046fd00e629b2ce5e3bd6bcf90d}{00361} \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_abf195046fd00e629b2ce5e3bd6bcf90d}{GCBatchProcessorHelper::newAssociatedElementsToAdd}()\textcolor{keyword}{ const}
+00362 \textcolor{keyword}{}\{
+00363   \textcolor{keywordflow}{return} m\_newAssociatedElementsToAdd;
+00364 \}
+00365 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00366 
+\hypertarget{gcbatchprocessorhelper_8cpp_source_l00367}{}\hyperlink{class_g_c_batch_processor_helper_af06d87d433f9402667f1cd654ad4b422}{00367} \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_af06d87d433f9402667f1cd654ad4b422}{GCBatchProcessorHelper::newAttributeValuesToAdd}()\textcolor{keyword}{ const}
+00368 \textcolor{keyword}{}\{
+00369   \textcolor{keywordflow}{return} m\_newAttributeValuesToAdd;
+00370 \}
+00371 
+00372 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00373 
+\hypertarget{gcbatchprocessorhelper_8cpp_source_l00374}{}\hyperlink{class_g_c_batch_processor_helper_a4cad81bffaa5af1531a72ccaeaedd600}{00374} \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_a4cad81bffaa5af1531a72ccaeaedd600}{GCBatchProcessorHelper::attributeKeysToUpdate}()\textcolor{keyword}{ const}
+00375 \textcolor{keyword}{}\{
+00376   \textcolor{keywordflow}{return} m\_attributeKeysToUpdate;
+00377 \}
+00378 
+00379 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00380 
+\hypertarget{gcbatchprocessorhelper_8cpp_source_l00381}{}\hyperlink{class_g_c_batch_processor_helper_a22c3d5f21c3dff029e89536c0a08daf4}{00381} \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_a22c3d5f21c3dff029e89536c0a08daf4}{GCBatchProcessorHelper::associatedElementsToUpdate}()\textcolor{keyword}{ const}
+00382 \textcolor{keyword}{}\{
+00383   \textcolor{keywordflow}{return} m\_associatedElementsToUpdate;
+00384 \}
+00385 
+00386 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00387 
+\hypertarget{gcbatchprocessorhelper_8cpp_source_l00388}{}\hyperlink{class_g_c_batch_processor_helper_a390cab72c76739bea0d98d5ba1ff7e21}{00388} \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_a390cab72c76739bea0d98d5ba1ff7e21}{GCBatchProcessorHelper::attributeValuesToUpdate}()\textcolor{keyword}{ const}
+00389 \textcolor{keyword}{}\{
+00390   \textcolor{keywordflow}{return} m\_attributeValuesToUpdate;
+00391 \}
+00392 
+00393 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+\end{DoxyCode}

@@ -1,0 +1,237 @@
+\hypertarget{gcadditemsform_8cpp_source}{\section{gcadditemsform.\-cpp}
+}
+
+\begin{DoxyCode}
+00001 \textcolor{comment}{/* Copyright (c) 2012 - 2013 by William Hallatt.}
+00002 \textcolor{comment}{ *}
+00003 \textcolor{comment}{ * This file forms part of "XML Mill".}
+00004 \textcolor{comment}{ *}
+00005 \textcolor{comment}{ * The official website for this project is <http://www.goblincoding.com> and,}
+00006 \textcolor{comment}{ * although not compulsory, it would be appreciated if all works of whatever}
+00007 \textcolor{comment}{ * nature using this source code (in whole or in part) include a reference to}
+00008 \textcolor{comment}{ * this site.}
+00009 \textcolor{comment}{ *}
+00010 \textcolor{comment}{ * Should you wish to contact me for whatever reason, please do so via:}
+00011 \textcolor{comment}{ *}
+00012 \textcolor{comment}{ *                 <http://www.goblincoding.com/contact>}
+00013 \textcolor{comment}{ *}
+00014 \textcolor{comment}{ * This program is free software: you can redistribute it and/or modify it
+       under}
+00015 \textcolor{comment}{ * the terms of the GNU General Public License as published by the Free
+       Software}
+00016 \textcolor{comment}{ * Foundation, either version 3 of the License, or (at your option) any later}
+00017 \textcolor{comment}{ * version.}
+00018 \textcolor{comment}{ *}
+00019 \textcolor{comment}{ * This program is distributed in the hope that it will be useful, but WITHOUT}
+00020 \textcolor{comment}{ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+       FITNESS}
+00021 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+       details.}
+00022 \textcolor{comment}{ *}
+00023 \textcolor{comment}{ * You should have received a copy of the GNU General Public License along with}
+00024 \textcolor{comment}{ * this program (GNUGPL.txt).  If not, see}
+00025 \textcolor{comment}{ *}
+00026 \textcolor{comment}{ *                    <http://www.gnu.org/licenses/>}
+00027 \textcolor{comment}{ */}
+00028 
+00029 \textcolor{preprocessor}{#include "gcadditemsform.h"}
+00030 \textcolor{preprocessor}{#include "ui\_gcadditemsform.h"}
+00031 \textcolor{preprocessor}{#include "db/gcdatabaseinterface.h"}
+00032 \textcolor{preprocessor}{#include "utils/gcmessagespace.h"}
+00033 \textcolor{preprocessor}{#include "utils/gcglobalspace.h"}
+00034 \textcolor{preprocessor}{#include "utils/gctreewidgetitem.h"}
+00035 
+00036 \textcolor{preprocessor}{#include <QMessageBox>}
+00037 
+00038 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00039 
+00040 \textcolor{keyword}{const} QString CREATE\_NEW = \textcolor{stringliteral}{"Create New Element"};
+00041 
+00042 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00043 
+\hypertarget{gcadditemsform_8cpp_source_l00044}{}\hyperlink{class_g_c_add_items_form_adfd8359e3e47a03741efee4e2be3d229}{00044} \hyperlink{class_g_c_add_items_form_adfd8359e3e47a03741efee4e2be3d229}{GCAddItemsForm::GCAddItemsForm}( QWidget *parent ) :
+00045   QDialog( parent ),
+00046   ui     ( new Ui::\hyperlink{class_g_c_add_items_form}{GCAddItemsForm} )
+00047 \{
+00048   ui->setupUi( \textcolor{keyword}{this} );
+00049   ui->showHelpButton->setVisible( \hyperlink{namespace_g_c_global_space_a981753e55f0f77f981f67ccb1ad4ecf1}{GCGlobalSpace::showHelpButtons}() );
+00050 
+00051   connect( ui->addNewButton,   SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( 
+      addElementAndAttributes() ) );
+00052   connect( ui->donePushButton, SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( close() ) );
+00053   connect( ui->showHelpButton, SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( showHelp() ) );
+00054   connect( ui->comboBox,       SIGNAL( activated( \textcolor{keyword}{const} QString& ) ), \textcolor{keyword}{this}, 
+      SLOT( comboValueChanged( \textcolor{keyword}{const} QString& ) ) );
+00055 
+00056   populateCombo();
+00057   ui->treeWidget->populateFromDatabase();
+00058 
+00059   \textcolor{keywordflow}{if}( ui->treeWidget->topLevelItemCount() != 0 )
+00060   \{
+00061     ui->treeWidget->setCurrentItem( ui->treeWidget->topLevelItem( 0 ) );
+00062   \}
+00063 
+00064   ui->lineEdit->setFocus();
+00065   setAttribute( Qt::WA\_DeleteOnClose );
+00066 \}
+00067 
+00068 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00069 
+\hypertarget{gcadditemsform_8cpp_source_l00070}{}\hyperlink{class_g_c_add_items_form_adbcd4fa77a2c1c345fd08e2333a45102}{00070} \hyperlink{class_g_c_add_items_form_adbcd4fa77a2c1c345fd08e2333a45102}{GCAddItemsForm::~GCAddItemsForm}()
+00071 \{
+00072   \textcolor{keyword}{delete} ui;
+00073 \}
+00074 
+00075 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00076 
+00077 \textcolor{keywordtype}{void} GCAddItemsForm::populateCombo()
+00078 \{
+00079   ui->comboBox->clear();
+00080 
+00081   \textcolor{comment}{/* It should not be possible to add the root element as a child to any other
+       element. */}
+00082   QStringList elements( \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->knownElements() );
+00083 
+00084   \textcolor{keywordflow}{foreach}( QString root, \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->knownRootElements() )
+00085   \{
+00086     elements.removeAll( root );
+00087   \}
+00088 
+00089   ui->comboBox->addItem( CREATE\_NEW );
+00090   ui->comboBox->addItems( elements );
+00091   comboValueChanged( CREATE\_NEW );
+00092 \}
+00093 
+00094 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00095 
+00096 \textcolor{keywordtype}{void} GCAddItemsForm::addElementAndAttributes()
+00097 \{
+00098   QString element = ui->lineEdit->text();
+00099 
+00100   \textcolor{keywordflow}{if}( !element.isEmpty() )
+00101   \{
+00102     QStringList attributes = ui->plainTextEdit->toPlainText().split( \textcolor{stringliteral}{"\(\backslash\)n"} );
+00103 
+00104     \textcolor{keywordflow}{if}( \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->knownElements().contains( element ) )
+00105     \{
+00106       \textcolor{keywordflow}{if}( !\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->updateElementAttributes( element, 
+      attributes ) )
+00107       \{
+00108         \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}
+      ()->lastError() );
+00109       \}
+00110     \}
+00111     \textcolor{keywordflow}{else}
+00112     \{
+00113       \textcolor{keywordflow}{if}( !\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->addElement( element, QStringList(),
+       attributes ) )
+00114       \{
+00115         \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}
+      ()->lastError() );
+00116       \}
+00117     \}
+00118 
+00119     \textcolor{comment}{/* If the profile is empty, add the new element as a root element by
+       default. */}
+00120     \textcolor{keywordflow}{if}( \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->isProfileEmpty() )
+00121     \{
+00122       \textcolor{keywordflow}{if}( !\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->addRootElement( element ) )
+00123       \{
+00124         \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}
+      ()->lastError() );
+00125       \}
+00126 
+00127       ui->treeWidget->addItem( element );
+00128     \}
+00129     \textcolor{keywordflow}{else}
+00130     \{
+00131       \textcolor{comment}{/* If the profile isn't empty, the user must specify a parent element. */}
+00132       \textcolor{keywordflow}{if}( ui->treeWidget->currentItem() )
+00133       \{
+00134         \textcolor{comment}{/* Also add it to the parent element's child list. */}
+00135         \textcolor{keywordflow}{if}( !\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_a91a60134bfb21a3f49d826340bebb852}{updateElementChildren}( ui->
+      treeWidget->gcCurrentItem()->name(),
+00136                                                                      
+      QStringList( element ) ) )
+00137         \{
+00138           \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, 
+      \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->lastError() );
+00139         \}
+00140 
+00141         ui->treeWidget->insertItem( element, 0 );
+00142       \}
+00143       \textcolor{keywordflow}{else}
+00144       \{
+00145         \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, \textcolor{stringliteral}{"Please select a parent
+       element in the tree."} );
+00146         \textcolor{keywordflow}{return};
+00147       \}
+00148     \}
+00149   \}
+00150 
+00151   populateCombo();
+00152   ui->lineEdit->clear();
+00153   ui->plainTextEdit->clear();
+00154   ui->treeWidget->expandAll();
+00155 \}
+00156 
+00157 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00158 
+00159 \textcolor{keywordtype}{void} GCAddItemsForm::comboValueChanged( \textcolor{keyword}{const} QString &element )
+00160 \{
+00161   \textcolor{keywordflow}{if}( element != CREATE\_NEW )
+00162   \{
+00163     ui->lineEdit->setText( element );
+00164     ui->lineEdit->setEnabled( \textcolor{keyword}{false} );
+00165 
+00166     QStringList attributes = \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_afb1e49e08f98ca453f9ac66340a35642}{attributes}( 
+      element );
+00167 
+00168     ui->plainTextEdit->clear();
+00169 
+00170     \textcolor{keywordflow}{foreach}( QString value, attributes )
+00171     \{
+00172       ui->plainTextEdit->insertPlainText( QString( \textcolor{stringliteral}{"%1\(\backslash\)n"} ).arg( value ) );
+00173     \}
+00174   \}
+00175   \textcolor{keywordflow}{else}
+00176   \{
+00177     ui->lineEdit->setEnabled( \textcolor{keyword}{true} );
+00178     ui->lineEdit->clear();
+00179     ui->plainTextEdit->clear();
+00180   \}
+00181 \}
+00182 
+00183 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00184 
+00185 \textcolor{keywordtype}{void} GCAddItemsForm::showHelp()
+00186 \{
+00187   QMessageBox::information( \textcolor{keyword}{this},
+00188                             \textcolor{stringliteral}{"How this works..."},
+00189                             \textcolor{stringliteral}{"The new (or existing) element will be added as a a
+       child of the element highlighted "}
+00190                             \textcolor{stringliteral}{"in the \(\backslash\)"Element Hierarchy\(\backslash\)" tree (if the active
+       profile is empty, the new element "}
+00191                             \textcolor{stringliteral}{"will become the root/main document element for the
+       current profile).\(\backslash\)n\(\backslash\)n"}
+00192                             \textcolor{stringliteral}{"Although you can only add one element at a time,
+       you can add all the "}
+00193                             \textcolor{stringliteral}{"element's attributes in one go: simply stick each
+       of them on a separate "}
+00194                             \textcolor{stringliteral}{"line in the text edit area and hit \(\backslash\)"Add\(\backslash\)" when
+       you're done.\(\backslash\)n\(\backslash\)n"}
+00195                             \textcolor{stringliteral}{"(If the element doesn't have associated
+       attributes, just "}
+00196                             \textcolor{stringliteral}{"leave the text edit area empty)"} );
+00197 \}
+00198 
+00199 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+\end{DoxyCode}

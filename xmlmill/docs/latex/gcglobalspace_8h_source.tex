@@ -1,0 +1,80 @@
+\hypertarget{gcglobalspace_8h_source}{\section{gcglobalspace.\-h}
+}
+
+\begin{DoxyCode}
+00001 \textcolor{comment}{/* Copyright (c) 2012 - 2013 by William Hallatt.}
+00002 \textcolor{comment}{ *}
+00003 \textcolor{comment}{ * This file forms part of "XML Mill".}
+00004 \textcolor{comment}{ *}
+00005 \textcolor{comment}{ * The official website for this project is <http://www.goblincoding.com> and,}
+00006 \textcolor{comment}{ * although not compulsory, it would be appreciated if all works of whatever}
+00007 \textcolor{comment}{ * nature using this source code (in whole or in part) include a reference to}
+00008 \textcolor{comment}{ * this site.}
+00009 \textcolor{comment}{ *}
+00010 \textcolor{comment}{ * Should you wish to contact me for whatever reason, please do so via:}
+00011 \textcolor{comment}{ *}
+00012 \textcolor{comment}{ *                 <http://www.goblincoding.com/contact>}
+00013 \textcolor{comment}{ *}
+00014 \textcolor{comment}{ * This program is free software: you can redistribute it and/or modify it
+       under}
+00015 \textcolor{comment}{ * the terms of the GNU General Public License as published by the Free
+       Software}
+00016 \textcolor{comment}{ * Foundation, either version 3 of the License, or (at your option) any later}
+00017 \textcolor{comment}{ * version.}
+00018 \textcolor{comment}{ *}
+00019 \textcolor{comment}{ * This program is distributed in the hope that it will be useful, but WITHOUT}
+00020 \textcolor{comment}{ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+       FITNESS}
+00021 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+       details.}
+00022 \textcolor{comment}{ *}
+00023 \textcolor{comment}{ * You should have received a copy of the GNU General Public License along with}
+00024 \textcolor{comment}{ * this program (GNUGPL.txt).  If not, see}
+00025 \textcolor{comment}{ *}
+00026 \textcolor{comment}{ *                    <http://www.gnu.org/licenses/>}
+00027 \textcolor{comment}{ */}
+00028 
+00029 \textcolor{preprocessor}{#ifndef GCGLOBALS\_H}
+00030 \textcolor{preprocessor}{}\textcolor{preprocessor}{#define GCGLOBALS\_H}
+00031 \textcolor{preprocessor}{}
+00032 \textcolor{preprocessor}{#include <QString>}
+00033 \textcolor{preprocessor}{#include <QFile>}
+00034 \textcolor{preprocessor}{#include <QTextStream>}
+00035 
+00037 
+00038 \textcolor{keyword}{namespace }GCGlobalSpace
+00039 \{
+00040   \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00041 
+00043   \textcolor{keywordtype}{bool} \hyperlink{namespace_g_c_global_space_a981753e55f0f77f981f67ccb1ad4ecf1}{showHelpButtons}();
+00044 
+00046   \textcolor{keywordtype}{void} \hyperlink{namespace_g_c_global_space_a6395acc08160e411395f96a88793eacc}{setShowHelpButtons}( \textcolor{keywordtype}{bool} show );
+00047 
+00048   \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00049 
+00051   \textcolor{keywordtype}{bool} \hyperlink{namespace_g_c_global_space_ad9a35f311bda4dd28f5cf155c5efc818}{showTreeItemsVerbose}();
+00052 
+00054   \textcolor{keywordtype}{void} \hyperlink{namespace_g_c_global_space_a58bc4fea7a061440f9ef2dd0aca8aba5}{setShowTreeItemsVerbose}( \textcolor{keywordtype}{bool} show );
+00055 
+00056   \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00057 
+\hypertarget{gcglobalspace_8h_source_l00059}{}\hyperlink{namespace_g_c_global_space_a97583835f9987b1c94ff05802ccfe42f}{00059}   \textcolor{keyword}{const} QString \hyperlink{namespace_g_c_global_space_a97583835f9987b1c94ff05802ccfe42f}{ORGANISATION} = \textcolor{stringliteral}{"William Hallatt"};
+00060 
+\hypertarget{gcglobalspace_8h_source_l00062}{}\hyperlink{namespace_g_c_global_space_ab53b9c3447f00f1cc45a1d3fdfbba564}{00062}   \textcolor{keyword}{const} QString \hyperlink{namespace_g_c_global_space_ab53b9c3447f00f1cc45a1d3fdfbba564}{APPLICATION}  = \textcolor{stringliteral}{"XML Mill"};
+00063 
+00064   \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00065 
+\hypertarget{gcglobalspace_8h_source_l00067}{}\hyperlink{namespace_g_c_global_space_a9d7158c8a1dfcc867d85ee6b9c5c4810}{00067}   \textcolor{keyword}{const} QString \hyperlink{namespace_g_c_global_space_a9d7158c8a1dfcc867d85ee6b9c5c4810}{FONT} = \textcolor{stringliteral}{"Courier New"};
+00068 
+\hypertarget{gcglobalspace_8h_source_l00070}{}\hyperlink{namespace_g_c_global_space_ab9fa2f10bab070a4f59b7e3ef9166c86}{00070}   \textcolor{keyword}{const} \textcolor{keywordtype}{int} \hyperlink{namespace_g_c_global_space_ab9fa2f10bab070a4f59b7e3ef9166c86}{FONTSIZE} = 10;
+00071 
+00072   \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00073 \}
+00074 
+00075 \textcolor{preprocessor}{#endif // GCGLOBALS\_H}
+\end{DoxyCode}

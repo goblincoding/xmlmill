@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$class_g_c_dom_tree_widget.html#a6da326993346229db9ba34fc13d7265e" title="Returns the position of &quot;itemIndex&quot; relative to that of ALL items matching &quot;nodeText&quot; (this is is not..." alt="" coords="231,5,572,35"/>
+<area shape="rect" id="node5" href="$class_g_c_dom_tree_widget.html#a0badfb9fc7250c5186fb9575019c335f" title="Removes the items with indices matching those in the parameter list from the tree as well as from the..." alt="" coords="249,59,553,88"/>
+<area shape="rect" id="node7" href="$class_g_c_tree_widget_item.html#af1f6be4d3badc00db1f92de2e7deb71f" title="Sets the item&#39;s index to &quot;index&quot;." alt="" coords="305,112,497,141"/>
+</map>

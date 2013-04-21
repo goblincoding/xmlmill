@@ -1,0 +1,854 @@
+\hypertarget{class_g_c_dom_tree_widget}{\section{\-G\-C\-Dom\-Tree\-Widget \-Class \-Reference}
+\label{class_g_c_dom_tree_widget}\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}}
+}
+
+
+\-Specialist tree widget class consiting of \-G\-C\-Tree\-Widget\-Items.  
+
+
+
+
+{\ttfamily \#include $<$gcdomtreewidget.\-h$>$}
+
+\subsection*{\-Public \-Slots}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{class_g_c_dom_tree_widget_ab9178aca10757ba7b7cef489171fb725}{set\-Current\-Item\-With\-Index\-Matching} (int index)
+\begin{DoxyCompactList}\small\item\em \-Finds the item with index matching \char`\"{}index\char`\"{} and sets it as the current tree item. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{\-Signals}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{class_g_c_dom_tree_widget_aa4aaa06b56ebf5500fd41253144bd6fd}{gc\-Current\-Item\-Selected} (\hyperlink{class_g_c_tree_widget_item}{\-G\-C\-Tree\-Widget\-Item} $\ast$, int, bool)
+\begin{DoxyCompactList}\small\item\em \-Emitted when the current active item changes. \end{DoxyCompactList}\item 
+void \hyperlink{class_g_c_dom_tree_widget_a20238112d91ad7a05e9a762ce2a51589}{gc\-Current\-Item\-Changed} (\hyperlink{class_g_c_tree_widget_item}{\-G\-C\-Tree\-Widget\-Item} $\ast$, int)
+\begin{DoxyCompactList}\small\item\em \-Emitted when the current item's content changes. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{\-Public \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_g_c_dom_tree_widget_a915a336d44b042d8a134abef8805bed4}{\-G\-C\-Dom\-Tree\-Widget} (\-Q\-Widget $\ast$parent=0)
+\begin{DoxyCompactList}\small\item\em \-Constructor. \end{DoxyCompactList}\item 
+\hyperlink{class_g_c_dom_tree_widget_aca9ba75d3798606da3f4e86c2a4b7113}{$\sim$\-G\-C\-Dom\-Tree\-Widget} ()
+\begin{DoxyCompactList}\small\item\em \-Destructor. \end{DoxyCompactList}\item 
+\hyperlink{class_g_c_tree_widget_item}{\-G\-C\-Tree\-Widget\-Item} $\ast$ \hyperlink{class_g_c_dom_tree_widget_a70d6a155777d375f3923c2d66e702d15}{gc\-Current\-Item} () const 
+\begin{DoxyCompactList}\small\item\em \-Returns the current item as a \hyperlink{class_g_c_tree_widget_item}{\-G\-C\-Tree\-Widget\-Item}. \end{DoxyCompactList}\item 
+void \hyperlink{class_g_c_dom_tree_widget_ad26a2880721b62182091ead365799d57}{get\-Included\-Tree\-Widget\-Items} (\-Q\-List$<$ \hyperlink{class_g_c_tree_widget_item}{\-G\-C\-Tree\-Widget\-Item} $\ast$ $>$ \&included\-Items) const 
+\begin{DoxyCompactList}\small\item\em \-Populates \char`\"{}included\-Items\char`\"{} with all the \-G\-C\-Tree\-Widget\-Items in the tree that have their \char`\"{}include\char`\"{} flags set. \end{DoxyCompactList}\item 
+const \-Q\-List$<$ \hyperlink{class_g_c_tree_widget_item}{\-G\-C\-Tree\-Widget\-Item} $\ast$ $>$ \& \hyperlink{class_g_c_dom_tree_widget_a913ceee0af8eefd3ec41115b64008b55}{all\-Tree\-Widget\-Items} () const 
+\begin{DoxyCompactList}\small\item\em \-Returns a list of \-A\-L\-L the \-G\-C\-Tree\-Widget\-Items currently in the tree. \end{DoxyCompactList}\item 
+int \hyperlink{class_g_c_dom_tree_widget_a6da326993346229db9ba34fc13d7265e}{find\-Item\-Position\-Among\-Duplicates} (const \-Q\-String \&node\-Text, int item\-Index) const 
+\begin{DoxyCompactList}\small\item\em \-Returns the position of \char`\"{}item\-Index\char`\"{} relative to that of \-A\-L\-L items matching \char`\"{}node\-Text\char`\"{} (this is is not as odd as it sounds, it is possible that a \-D\-O\-M document may have multiple elements of the same name with matching attributes and attribute values). \end{DoxyCompactList}\item 
+\-Q\-Dom\-Node \hyperlink{class_g_c_dom_tree_widget_a25d3fcc908e06b83eba4f7d1c0e0df89}{clone\-Document} () const 
+\begin{DoxyCompactList}\small\item\em \-Returns a deep copy of the underlying \-D\-O\-M document. \end{DoxyCompactList}\item 
+\-Q\-String \hyperlink{class_g_c_dom_tree_widget_a6cd086334f363b2d0038c815e54c2b69}{to\-String} () const 
+\begin{DoxyCompactList}\small\item\em \-Returns the \-D\-O\-M content as string. \end{DoxyCompactList}\item 
+\-Q\-String \hyperlink{class_g_c_dom_tree_widget_af70ce22ef830a0a546262ff8566cd731}{root\-Name} () const 
+\begin{DoxyCompactList}\small\item\em \-Returns the name of the \-D\-O\-M document's root. \end{DoxyCompactList}\item 
+\-Q\-String \hyperlink{class_g_c_dom_tree_widget_aa633c35eca5e015becede2518e031042}{active\-Comment\-Value} () const 
+\begin{DoxyCompactList}\small\item\em \-Returns the comment associated with the current element (if any). \end{DoxyCompactList}\item 
+void \hyperlink{class_g_c_dom_tree_widget_a29bd5591054036ef5d6073a606716df3}{set\-Active\-Comment\-Value} (const \-Q\-String \&value)
+\begin{DoxyCompactList}\small\item\em \-Sets the value of the active comment node to \char`\"{}value\char`\"{}. \end{DoxyCompactList}\item 
+bool \hyperlink{class_g_c_dom_tree_widget_a7bcd409950b7e72202426ac0c42c9476}{set\-Content} (const \-Q\-String \&text, \-Q\-String $\ast$error\-Msg=0, int $\ast$error\-Line=0, int $\ast$error\-Column=0)
+\begin{DoxyCompactList}\small\item\em \-Sets the underlying \-D\-O\-M document's content. \end{DoxyCompactList}\item 
+bool \hyperlink{class_g_c_dom_tree_widget_a98fe9b2e23ec44757fc4bcc6be7270c0}{is\-Empty} () const 
+\begin{DoxyCompactList}\small\item\em \-Returns true if the widget and \-D\-O\-M is currently empty. \end{DoxyCompactList}\item 
+bool \hyperlink{class_g_c_dom_tree_widget_a928f82ae2f670600f10cbde52e9188fc}{is\-Current\-Item\-Root} () const 
+\begin{DoxyCompactList}\small\item\em \-Returns true if the current item is the one corresponding to the \-D\-O\-M document's root element. \end{DoxyCompactList}\item 
+bool \hyperlink{class_g_c_dom_tree_widget_a7bcb145540df569caeca3119cfebc23c}{matches\-Root\-Name} (const \-Q\-String \&element\-Name) const 
+\begin{DoxyCompactList}\small\item\em \-Returns true if \char`\"{}element\-Name\char`\"{} matches that of the \-D\-O\-M document's root. \end{DoxyCompactList}\item 
+bool \hyperlink{class_g_c_dom_tree_widget_a123f18a1174ae99e567f6a2335ce1824}{is\-Document\-Compatible} () const 
+\begin{DoxyCompactList}\small\item\em \-Returns true if the underlying \-D\-O\-M document is compatible with the active \-D\-B session. \end{DoxyCompactList}\item 
+bool \hyperlink{class_g_c_dom_tree_widget_ac8a71d6111a3615a5a7eecea457a3a34}{is\-Batch\-Process\-Success} () const 
+\begin{DoxyCompactList}\small\item\em \-Returns true if batch processing of \-D\-O\-M content to the active \-D\-B was successful. \end{DoxyCompactList}\item 
+void \hyperlink{class_g_c_dom_tree_widget_a0ac81800aa6d507dd17cbffa6814a632}{rebuild\-Tree\-Widget} ()
+\begin{DoxyCompactList}\small\item\em \-Rebuild the tree to conform to updated \-D\-O\-M content. \end{DoxyCompactList}\item 
+void \hyperlink{class_g_c_dom_tree_widget_afdf29124d6e6cc6061f5e9978c6a7f81}{append\-Snippet} (\hyperlink{class_g_c_tree_widget_item}{\-G\-C\-Tree\-Widget\-Item} $\ast$parent\-Item, \-Q\-Dom\-Element child\-Element)
+\begin{DoxyCompactList}\small\item\em \-Creates and adds tree widget items for each element in the parameter element hierarchy. \end{DoxyCompactList}\item 
+void \hyperlink{class_g_c_dom_tree_widget_a0badfb9fc7250c5186fb9575019c335f}{replace\-Items\-With\-Comment} (const \-Q\-List$<$ int $>$ \&indices, const \-Q\-String \&comment)
+\begin{DoxyCompactList}\small\item\em \-Removes the items with indices matching those in the parameter list from the tree as well as from the \-D\-O\-M document. \end{DoxyCompactList}\item 
+\hypertarget{class_g_c_dom_tree_widget_a1ec3ed3851e25adf1fac93fb42a4a8a7}{void \hyperlink{class_g_c_dom_tree_widget_a1ec3ed3851e25adf1fac93fb42a4a8a7}{update\-Item\-Names} (const \-Q\-String \&old\-Name, const \-Q\-String \&new\-Name)}\label{class_g_c_dom_tree_widget_a1ec3ed3851e25adf1fac93fb42a4a8a7}
+
+\begin{DoxyCompactList}\small\item\em \-Update all the tree widget items with text \char`\"{}old\-Name\char`\"{} to text \char`\"{}new\-Name\char`\"{}. \end{DoxyCompactList}\item 
+void \hyperlink{class_g_c_dom_tree_widget_a06ee56d0aa9348302dbb8d3f4e5bab44}{populate\-From\-Database} (const \-Q\-String \&base\-Element\-Name=\-Q\-String())
+\begin{DoxyCompactList}\small\item\em \-This function starts the recursive process of populating the tree widget with items consisting of the element hierarchy starting at \char`\"{}base\-Element\-Name\char`\"{}. \end{DoxyCompactList}\item 
+void \hyperlink{class_g_c_dom_tree_widget_adbbe1eeb6dc9a2d6c84a7133106a7f77}{add\-Item} (const \-Q\-String \&element, bool to\-Parent=false)
+\begin{DoxyCompactList}\small\item\em \-Adds a new item and corresponding \-D\-O\-M element node named \char`\"{}element\char`\"{}. \end{DoxyCompactList}\item 
+void \hyperlink{class_g_c_dom_tree_widget_a5e4117a9b47ac0bd520d32fc54d5f1ed}{insert\-Item} (const \-Q\-String \&element\-Name, int index, bool to\-Parent=false)
+\begin{DoxyCompactList}\small\item\em \-Adds a new item and corresponding \-D\-O\-M element node named \char`\"{}element\-Name\char`\"{} and inserts the new tree widget item into position \char`\"{}index\char`\"{} of the current item. \end{DoxyCompactList}\item 
+void \hyperlink{class_g_c_dom_tree_widget_ae61a0ae85b5d250c49ebc8cfc6c24d09}{set\-All\-Check\-States} (\-Qt\-::\-Check\-State state)
+\begin{DoxyCompactList}\small\item\em \-Iterates through the tree and sets all items' check states to \char`\"{}state\char`\"{}. \end{DoxyCompactList}\item 
+void \hyperlink{class_g_c_dom_tree_widget_a821fc62f1e29b67b3f6b00cd50de3bc8}{set\-Show\-Tree\-Items\-Verbose} (bool verbose)
+\begin{DoxyCompactList}\small\item\em \-Iterates through the tree and set all items' \char`\"{}verbose\char`\"{} flags to \char`\"{}show\char`\"{}. \end{DoxyCompactList}\item 
+void \hyperlink{class_g_c_dom_tree_widget_a3716c84a2a4fadc653cfac157caa215d}{clear\-And\-Reset} ()
+\begin{DoxyCompactList}\small\item\em \-Clears and resets the tree as well as the underlying \-D\-O\-M document. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{\-Protected \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{class_g_c_dom_tree_widget_ac4ccf569a0c538e3c1c72e887f78f5b6}{drop\-Event} (\-Q\-Drop\-Event $\ast$event)
+\begin{DoxyCompactList}\small\item\em \-Re-\/implemented from \-Q\-Tree\-Widget. \end{DoxyCompactList}\item 
+void \hyperlink{class_g_c_dom_tree_widget_ae79022f5265210c71c2a80eb662e3a81}{key\-Press\-Event} (\-Q\-Key\-Event $\ast$event)
+\begin{DoxyCompactList}\small\item\em \-Re-\/implemented from \-Q\-Tree\-Widget. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\-Specialist tree widget class consiting of \-G\-C\-Tree\-Widget\-Items. 
+
+\-This class wraps an underlying \-D\-O\-M document and manages its items (\-G\-C\-Tree\-Widget\-Items) based on changes to the \-D\-O\-M, but also manages the \-D\-O\-M based on changes made to its items. \-Perhaps a better way of describing this relationship is to say that this class is, in effect, a non-\/textual visual representation of a \-D\-O\-M document. 
+
+\-Definition at line \hyperlink{gcdomtreewidget_8h_source_l00049}{49} of file \hyperlink{gcdomtreewidget_8h_source}{gcdomtreewidget.\-h}.
+
+
+
+\subsection{\-Constructor \& \-Destructor \-Documentation}
+\hypertarget{class_g_c_dom_tree_widget_a915a336d44b042d8a134abef8805bed4}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}}
+\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{\-G\-C\-Dom\-Tree\-Widget}]{\setlength{\rightskip}{0pt plus 5cm}{\bf \-G\-C\-Dom\-Tree\-Widget\-::\-G\-C\-Dom\-Tree\-Widget} (
+\begin{DoxyParamCaption}
+\item[{\-Q\-Widget $\ast$}]{parent = {\ttfamily 0}}
+\end{DoxyParamCaption}
+)}}\label{class_g_c_dom_tree_widget_a915a336d44b042d8a134abef8805bed4}
+
+
+\-Constructor. 
+
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00044}{44} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+\hypertarget{class_g_c_dom_tree_widget_aca9ba75d3798606da3f4e86c2a4b7113}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!$\sim$\-G\-C\-Dom\-Tree\-Widget@{$\sim$\-G\-C\-Dom\-Tree\-Widget}}
+\index{$\sim$\-G\-C\-Dom\-Tree\-Widget@{$\sim$\-G\-C\-Dom\-Tree\-Widget}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{$\sim$\-G\-C\-Dom\-Tree\-Widget}]{\setlength{\rightskip}{0pt plus 5cm}{\bf \-G\-C\-Dom\-Tree\-Widget\-::$\sim$\-G\-C\-Dom\-Tree\-Widget} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{class_g_c_dom_tree_widget_aca9ba75d3798606da3f4e86c2a4b7113}
+
+
+\-Destructor. 
+
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00085}{85} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+
+
+\subsection{\-Member \-Function \-Documentation}
+\hypertarget{class_g_c_dom_tree_widget_aa633c35eca5e015becede2518e031042}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!active\-Comment\-Value@{active\-Comment\-Value}}
+\index{active\-Comment\-Value@{active\-Comment\-Value}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{active\-Comment\-Value}]{\setlength{\rightskip}{0pt plus 5cm}\-Q\-String {\bf \-G\-C\-Dom\-Tree\-Widget\-::active\-Comment\-Value} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const}}\label{class_g_c_dom_tree_widget_aa633c35eca5e015becede2518e031042}
+
+
+\-Returns the comment associated with the current element (if any). 
+
+\-If no comment precedes the current element, an empty string is returned. \begin{DoxySeeAlso}{\-See also}
+\hyperlink{class_g_c_dom_tree_widget_a29bd5591054036ef5d6073a606716df3}{set\-Active\-Comment\-Value} 
+\end{DoxySeeAlso}
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00120}{120} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+\hypertarget{class_g_c_dom_tree_widget_adbbe1eeb6dc9a2d6c84a7133106a7f77}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!add\-Item@{add\-Item}}
+\index{add\-Item@{add\-Item}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{add\-Item}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-G\-C\-Dom\-Tree\-Widget\-::add\-Item} (
+\begin{DoxyParamCaption}
+\item[{const \-Q\-String \&}]{element, }
+\item[{bool}]{to\-Parent = {\ttfamily false}}
+\end{DoxyParamCaption}
+)}}\label{class_g_c_dom_tree_widget_adbbe1eeb6dc9a2d6c84a7133106a7f77}
+
+
+\-Adds a new item and corresponding \-D\-O\-M element node named \char`\"{}element\char`\"{}. 
+
+\-If the tree is empty, the new item will be added to the invisible root (i.\-e. as header item), otherwise it will be added as a child of the current item. \-The new item is also set as the current item. \-If \char`\"{}to\-Parent\char`\"{} is true, the new item will be added as a child to the current item's parent (i.\-e. as a sibling to the current item). \begin{DoxySeeAlso}{\-See also}
+\hyperlink{class_g_c_dom_tree_widget_a5e4117a9b47ac0bd520d32fc54d5f1ed}{insert\-Item} 
+\end{DoxySeeAlso}
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00495}{495} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+
+
+\-Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_g_c_dom_tree_widget_adbbe1eeb6dc9a2d6c84a7133106a7f77_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+\-Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_g_c_dom_tree_widget_adbbe1eeb6dc9a2d6c84a7133106a7f77_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{class_g_c_dom_tree_widget_a913ceee0af8eefd3ec41115b64008b55}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!all\-Tree\-Widget\-Items@{all\-Tree\-Widget\-Items}}
+\index{all\-Tree\-Widget\-Items@{all\-Tree\-Widget\-Items}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{all\-Tree\-Widget\-Items}]{\setlength{\rightskip}{0pt plus 5cm}const \-Q\-List$<$ {\bf \-G\-C\-Tree\-Widget\-Item} $\ast$ $>$ \& {\bf \-G\-C\-Dom\-Tree\-Widget\-::all\-Tree\-Widget\-Items} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const}}\label{class_g_c_dom_tree_widget_a913ceee0af8eefd3ec41115b64008b55}
+
+
+\-Returns a list of \-A\-L\-L the \-G\-C\-Tree\-Widget\-Items currently in the tree. 
+
+\begin{DoxySeeAlso}{\-See also}
+\hyperlink{class_g_c_dom_tree_widget_ad26a2880721b62182091ead365799d57}{get\-Included\-Tree\-Widget\-Items} 
+\end{DoxySeeAlso}
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00186}{186} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+\hypertarget{class_g_c_dom_tree_widget_afdf29124d6e6cc6061f5e9978c6a7f81}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!append\-Snippet@{append\-Snippet}}
+\index{append\-Snippet@{append\-Snippet}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{append\-Snippet}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-G\-C\-Dom\-Tree\-Widget\-::append\-Snippet} (
+\begin{DoxyParamCaption}
+\item[{{\bf \-G\-C\-Tree\-Widget\-Item} $\ast$}]{parent\-Item, }
+\item[{\-Q\-Dom\-Element}]{child\-Element}
+\end{DoxyParamCaption}
+)}}\label{class_g_c_dom_tree_widget_afdf29124d6e6cc6061f5e9978c6a7f81}
+
+
+\-Creates and adds tree widget items for each element in the parameter element hierarchy. 
+
+\-The process starts by appending \char`\"{}child\-Element\char`\"{} to \char`\"{}parent\-Item's\char`\"{} corresponding element and then recursively creates and adds items with associated elements corresponding to \char`\"{}child\-Element's\char`\"{} element hierarchy. \begin{DoxySeeAlso}{\-See also}
+process\-Next\-Element 
+\end{DoxySeeAlso}
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00317}{317} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+
+
+\-Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_g_c_dom_tree_widget_afdf29124d6e6cc6061f5e9978c6a7f81_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{class_g_c_dom_tree_widget_a3716c84a2a4fadc653cfac157caa215d}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!clear\-And\-Reset@{clear\-And\-Reset}}
+\index{clear\-And\-Reset@{clear\-And\-Reset}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{clear\-And\-Reset}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-G\-C\-Dom\-Tree\-Widget\-::clear\-And\-Reset} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{class_g_c_dom_tree_widget_a3716c84a2a4fadc653cfac157caa215d}
+
+
+\-Clears and resets the tree as well as the underlying \-D\-O\-M document. 
+
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00987}{987} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+
+
+\-Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_g_c_dom_tree_widget_a3716c84a2a4fadc653cfac157caa215d_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{class_g_c_dom_tree_widget_a25d3fcc908e06b83eba4f7d1c0e0df89}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!clone\-Document@{clone\-Document}}
+\index{clone\-Document@{clone\-Document}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{clone\-Document}]{\setlength{\rightskip}{0pt plus 5cm}\-Q\-Dom\-Node {\bf \-G\-C\-Dom\-Tree\-Widget\-::clone\-Document} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const}}\label{class_g_c_dom_tree_widget_a25d3fcc908e06b83eba4f7d1c0e0df89}
+
+
+\-Returns a deep copy of the underlying \-D\-O\-M document. 
+
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00099}{99} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+\hypertarget{class_g_c_dom_tree_widget_ac4ccf569a0c538e3c1c72e887f78f5b6}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!drop\-Event@{drop\-Event}}
+\index{drop\-Event@{drop\-Event}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{drop\-Event}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-G\-C\-Dom\-Tree\-Widget\-::drop\-Event} (
+\begin{DoxyParamCaption}
+\item[{\-Q\-Drop\-Event $\ast$}]{event}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}protected\mbox{]}}}}\label{class_g_c_dom_tree_widget_ac4ccf569a0c538e3c1c72e887f78f5b6}
+
+
+\-Re-\/implemented from \-Q\-Tree\-Widget. 
+
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00683}{683} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+
+
+\-Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_g_c_dom_tree_widget_ac4ccf569a0c538e3c1c72e887f78f5b6_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{class_g_c_dom_tree_widget_a6da326993346229db9ba34fc13d7265e}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!find\-Item\-Position\-Among\-Duplicates@{find\-Item\-Position\-Among\-Duplicates}}
+\index{find\-Item\-Position\-Among\-Duplicates@{find\-Item\-Position\-Among\-Duplicates}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{find\-Item\-Position\-Among\-Duplicates}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf \-G\-C\-Dom\-Tree\-Widget\-::find\-Item\-Position\-Among\-Duplicates} (
+\begin{DoxyParamCaption}
+\item[{const \-Q\-String \&}]{node\-Text, }
+\item[{int}]{item\-Index}
+\end{DoxyParamCaption}
+) const}}\label{class_g_c_dom_tree_widget_a6da326993346229db9ba34fc13d7265e}
+
+
+\-Returns the position of \char`\"{}item\-Index\char`\"{} relative to that of \-A\-L\-L items matching \char`\"{}node\-Text\char`\"{} (this is is not as odd as it sounds, it is possible that a \-D\-O\-M document may have multiple elements of the same name with matching attributes and attribute values). 
+
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00193}{193} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+
+
+\-Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_g_c_dom_tree_widget_a6da326993346229db9ba34fc13d7265e_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{class_g_c_dom_tree_widget_a70d6a155777d375f3923c2d66e702d15}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!gc\-Current\-Item@{gc\-Current\-Item}}
+\index{gc\-Current\-Item@{gc\-Current\-Item}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{gc\-Current\-Item}]{\setlength{\rightskip}{0pt plus 5cm}{\bf \-G\-C\-Tree\-Widget\-Item} $\ast$ {\bf \-G\-C\-Dom\-Tree\-Widget\-::gc\-Current\-Item} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const}}\label{class_g_c_dom_tree_widget_a70d6a155777d375f3923c2d66e702d15}
+
+
+\-Returns the current item as a \hyperlink{class_g_c_tree_widget_item}{\-G\-C\-Tree\-Widget\-Item}. 
+
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00092}{92} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+
+
+\-Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_g_c_dom_tree_widget_a70d6a155777d375f3923c2d66e702d15_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{class_g_c_dom_tree_widget_a20238112d91ad7a05e9a762ce2a51589}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!gc\-Current\-Item\-Changed@{gc\-Current\-Item\-Changed}}
+\index{gc\-Current\-Item\-Changed@{gc\-Current\-Item\-Changed}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{gc\-Current\-Item\-Changed}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-G\-C\-Dom\-Tree\-Widget\-::gc\-Current\-Item\-Changed} (
+\begin{DoxyParamCaption}
+\item[{{\bf \-G\-C\-Tree\-Widget\-Item} $\ast$}]{, }
+\item[{int}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}signal\mbox{]}}}}\label{class_g_c_dom_tree_widget_a20238112d91ad7a05e9a762ce2a51589}
+
+
+\-Emitted when the current item's content changes. 
+
+\begin{DoxySeeAlso}{\-See also}
+emit\-Gc\-Current\-Item\-Changed 
+
+\hyperlink{class_g_c_dom_tree_widget_aa4aaa06b56ebf5500fd41253144bd6fd}{gc\-Current\-Item\-Selected} 
+\end{DoxySeeAlso}
+\hypertarget{class_g_c_dom_tree_widget_aa4aaa06b56ebf5500fd41253144bd6fd}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!gc\-Current\-Item\-Selected@{gc\-Current\-Item\-Selected}}
+\index{gc\-Current\-Item\-Selected@{gc\-Current\-Item\-Selected}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{gc\-Current\-Item\-Selected}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-G\-C\-Dom\-Tree\-Widget\-::gc\-Current\-Item\-Selected} (
+\begin{DoxyParamCaption}
+\item[{{\bf \-G\-C\-Tree\-Widget\-Item} $\ast$}]{, }
+\item[{int}]{, }
+\item[{bool}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}signal\mbox{]}}}}\label{class_g_c_dom_tree_widget_aa4aaa06b56ebf5500fd41253144bd6fd}
+
+
+\-Emitted when the current active item changes. 
+
+\begin{DoxySeeAlso}{\-See also}
+emit\-Gc\-Current\-Item\-Selected 
+
+\hyperlink{class_g_c_dom_tree_widget_a20238112d91ad7a05e9a762ce2a51589}{gc\-Current\-Item\-Changed} 
+\end{DoxySeeAlso}
+\hypertarget{class_g_c_dom_tree_widget_ad26a2880721b62182091ead365799d57}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!get\-Included\-Tree\-Widget\-Items@{get\-Included\-Tree\-Widget\-Items}}
+\index{get\-Included\-Tree\-Widget\-Items@{get\-Included\-Tree\-Widget\-Items}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{get\-Included\-Tree\-Widget\-Items}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-G\-C\-Dom\-Tree\-Widget\-::get\-Included\-Tree\-Widget\-Items} (
+\begin{DoxyParamCaption}
+\item[{\-Q\-List$<$ {\bf \-G\-C\-Tree\-Widget\-Item} $\ast$ $>$ \&}]{included\-Items}
+\end{DoxyParamCaption}
+) const}}\label{class_g_c_dom_tree_widget_ad26a2880721b62182091ead365799d57}
+
+
+\-Populates \char`\"{}included\-Items\char`\"{} with all the \-G\-C\-Tree\-Widget\-Items in the tree that have their \char`\"{}include\char`\"{} flags set. 
+
+\begin{DoxySeeAlso}{\-See also}
+\hyperlink{class_g_c_dom_tree_widget_a913ceee0af8eefd3ec41115b64008b55}{all\-Tree\-Widget\-Items} 
+\end{DoxySeeAlso}
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00171}{171} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+
+
+\-Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_g_c_dom_tree_widget_ad26a2880721b62182091ead365799d57_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{class_g_c_dom_tree_widget_a5e4117a9b47ac0bd520d32fc54d5f1ed}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!insert\-Item@{insert\-Item}}
+\index{insert\-Item@{insert\-Item}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{insert\-Item}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-G\-C\-Dom\-Tree\-Widget\-::insert\-Item} (
+\begin{DoxyParamCaption}
+\item[{const \-Q\-String \&}]{element\-Name, }
+\item[{int}]{index, }
+\item[{bool}]{to\-Parent = {\ttfamily false}}
+\end{DoxyParamCaption}
+)}}\label{class_g_c_dom_tree_widget_a5e4117a9b47ac0bd520d32fc54d5f1ed}
+
+
+\-Adds a new item and corresponding \-D\-O\-M element node named \char`\"{}element\-Name\char`\"{} and inserts the new tree widget item into position \char`\"{}index\char`\"{} of the current item. 
+
+\-If the tree is empty, the new item will be added to the invisible root. \-The new item is also set as the current item. \-If \char`\"{}to\-Parent\char`\"{} is true, the new item will be added as a child to the current item's parent (i.\-e. as a sibling to the current item). \begin{DoxySeeAlso}{\-See also}
+\hyperlink{class_g_c_dom_tree_widget_adbbe1eeb6dc9a2d6c84a7133106a7f77}{add\-Item} 
+\end{DoxySeeAlso}
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00516}{516} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+
+
+\-Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_g_c_dom_tree_widget_a5e4117a9b47ac0bd520d32fc54d5f1ed_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+\-Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_g_c_dom_tree_widget_a5e4117a9b47ac0bd520d32fc54d5f1ed_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{class_g_c_dom_tree_widget_ac8a71d6111a3615a5a7eecea457a3a34}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!is\-Batch\-Process\-Success@{is\-Batch\-Process\-Success}}
+\index{is\-Batch\-Process\-Success@{is\-Batch\-Process\-Success}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{is\-Batch\-Process\-Success}]{\setlength{\rightskip}{0pt plus 5cm}bool {\bf \-G\-C\-Dom\-Tree\-Widget\-::is\-Batch\-Process\-Success} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const}}\label{class_g_c_dom_tree_widget_ac8a71d6111a3615a5a7eecea457a3a34}
+
+
+\-Returns true if batch processing of \-D\-O\-M content to the active \-D\-B was successful. 
+
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00275}{275} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+
+
+\-Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_g_c_dom_tree_widget_ac8a71d6111a3615a5a7eecea457a3a34_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{class_g_c_dom_tree_widget_a928f82ae2f670600f10cbde52e9188fc}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!is\-Current\-Item\-Root@{is\-Current\-Item\-Root}}
+\index{is\-Current\-Item\-Root@{is\-Current\-Item\-Root}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{is\-Current\-Item\-Root}]{\setlength{\rightskip}{0pt plus 5cm}bool {\bf \-G\-C\-Dom\-Tree\-Widget\-::is\-Current\-Item\-Root} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const}}\label{class_g_c_dom_tree_widget_a928f82ae2f670600f10cbde52e9188fc}
+
+
+\-Returns true if the current item is the one corresponding to the \-D\-O\-M document's root element. 
+
+\begin{DoxySeeAlso}{\-See also}
+\hyperlink{class_g_c_dom_tree_widget_a7bcb145540df569caeca3119cfebc23c}{matches\-Root\-Name} 
+
+\hyperlink{class_g_c_dom_tree_widget_af70ce22ef830a0a546262ff8566cd731}{root\-Name} 
+\end{DoxySeeAlso}
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00249}{249} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+
+
+\-Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_g_c_dom_tree_widget_a928f82ae2f670600f10cbde52e9188fc_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{class_g_c_dom_tree_widget_a123f18a1174ae99e567f6a2335ce1824}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!is\-Document\-Compatible@{is\-Document\-Compatible}}
+\index{is\-Document\-Compatible@{is\-Document\-Compatible}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{is\-Document\-Compatible}]{\setlength{\rightskip}{0pt plus 5cm}bool {\bf \-G\-C\-Dom\-Tree\-Widget\-::is\-Document\-Compatible} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const}}\label{class_g_c_dom_tree_widget_a123f18a1174ae99e567f6a2335ce1824}
+
+
+\-Returns true if the underlying \-D\-O\-M document is compatible with the active \-D\-B session. 
+
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00268}{268} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+
+
+\-Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_g_c_dom_tree_widget_a123f18a1174ae99e567f6a2335ce1824_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{class_g_c_dom_tree_widget_a98fe9b2e23ec44757fc4bcc6be7270c0}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!is\-Empty@{is\-Empty}}
+\index{is\-Empty@{is\-Empty}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{is\-Empty}]{\setlength{\rightskip}{0pt plus 5cm}bool {\bf \-G\-C\-Dom\-Tree\-Widget\-::is\-Empty} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const}}\label{class_g_c_dom_tree_widget_a98fe9b2e23ec44757fc4bcc6be7270c0}
+
+
+\-Returns true if the widget and \-D\-O\-M is currently empty. 
+
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00242}{242} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+\hypertarget{class_g_c_dom_tree_widget_ae79022f5265210c71c2a80eb662e3a81}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!key\-Press\-Event@{key\-Press\-Event}}
+\index{key\-Press\-Event@{key\-Press\-Event}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{key\-Press\-Event}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-G\-C\-Dom\-Tree\-Widget\-::key\-Press\-Event} (
+\begin{DoxyParamCaption}
+\item[{\-Q\-Key\-Event $\ast$}]{event}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}protected\mbox{]}}}}\label{class_g_c_dom_tree_widget_ae79022f5265210c71c2a80eb662e3a81}
+
+
+\-Re-\/implemented from \-Q\-Tree\-Widget. 
+
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00762}{762} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+\hypertarget{class_g_c_dom_tree_widget_a7bcb145540df569caeca3119cfebc23c}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!matches\-Root\-Name@{matches\-Root\-Name}}
+\index{matches\-Root\-Name@{matches\-Root\-Name}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{matches\-Root\-Name}]{\setlength{\rightskip}{0pt plus 5cm}bool {\bf \-G\-C\-Dom\-Tree\-Widget\-::matches\-Root\-Name} (
+\begin{DoxyParamCaption}
+\item[{const \-Q\-String \&}]{element\-Name}
+\end{DoxyParamCaption}
+) const}}\label{class_g_c_dom_tree_widget_a7bcb145540df569caeca3119cfebc23c}
+
+
+\-Returns true if \char`\"{}element\-Name\char`\"{} matches that of the \-D\-O\-M document's root. 
+
+\begin{DoxySeeAlso}{\-See also}
+\hyperlink{class_g_c_dom_tree_widget_a928f82ae2f670600f10cbde52e9188fc}{is\-Current\-Item\-Root} 
+
+\hyperlink{class_g_c_dom_tree_widget_af70ce22ef830a0a546262ff8566cd731}{root\-Name} 
+\end{DoxySeeAlso}
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00261}{261} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+\hypertarget{class_g_c_dom_tree_widget_a06ee56d0aa9348302dbb8d3f4e5bab44}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!populate\-From\-Database@{populate\-From\-Database}}
+\index{populate\-From\-Database@{populate\-From\-Database}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{populate\-From\-Database}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-G\-C\-Dom\-Tree\-Widget\-::populate\-From\-Database} (
+\begin{DoxyParamCaption}
+\item[{const \-Q\-String \&}]{base\-Element\-Name = {\ttfamily \-Q\-String()}}
+\end{DoxyParamCaption}
+)}}\label{class_g_c_dom_tree_widget_a06ee56d0aa9348302dbb8d3f4e5bab44}
+
+
+\-This function starts the recursive process of populating the tree widget with items consisting of the element hierarchy starting at \char`\"{}base\-Element\-Name\char`\"{}. 
+
+\-If \char`\"{}base\-Element\-Name\char`\"{} is empty, a complete hierarchy of the current active profile will be constructed. \-This method also automatically clears and resets \hyperlink{class_g_c_dom_tree_widget}{\-G\-C\-Dom\-Tree\-Widget}'s state, expands the entire tree, sets the first top level item as current and emits the \char`\"{}gc\-Current\-Item\-Selected\char`\"{} signal. \begin{DoxySeeAlso}{\-See also}
+process\-Next\-Element 
+\end{DoxySeeAlso}
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00422}{422} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+
+
+\-Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_g_c_dom_tree_widget_a06ee56d0aa9348302dbb8d3f4e5bab44_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{class_g_c_dom_tree_widget_a0ac81800aa6d507dd17cbffa6814a632}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!rebuild\-Tree\-Widget@{rebuild\-Tree\-Widget}}
+\index{rebuild\-Tree\-Widget@{rebuild\-Tree\-Widget}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{rebuild\-Tree\-Widget}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-G\-C\-Dom\-Tree\-Widget\-::rebuild\-Tree\-Widget} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{class_g_c_dom_tree_widget_a0ac81800aa6d507dd17cbffa6814a632}
+
+
+\-Rebuild the tree to conform to updated \-D\-O\-M content. 
+
+\begin{DoxySeeAlso}{\-See also}
+process\-Next\-Element 
+\end{DoxySeeAlso}
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00296}{296} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+
+
+\-Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_g_c_dom_tree_widget_a0ac81800aa6d507dd17cbffa6814a632_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+\-Here is the caller graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_g_c_dom_tree_widget_a0ac81800aa6d507dd17cbffa6814a632_icgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{class_g_c_dom_tree_widget_a0badfb9fc7250c5186fb9575019c335f}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!replace\-Items\-With\-Comment@{replace\-Items\-With\-Comment}}
+\index{replace\-Items\-With\-Comment@{replace\-Items\-With\-Comment}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{replace\-Items\-With\-Comment}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-G\-C\-Dom\-Tree\-Widget\-::replace\-Items\-With\-Comment} (
+\begin{DoxyParamCaption}
+\item[{const \-Q\-List$<$ int $>$ \&}]{indices, }
+\item[{const \-Q\-String \&}]{comment}
+\end{DoxyParamCaption}
+)}}\label{class_g_c_dom_tree_widget_a0badfb9fc7250c5186fb9575019c335f}
+
+
+\-Removes the items with indices matching those in the parameter list from the tree as well as from the \-D\-O\-M document. 
+
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00328}{328} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+
+
+\-Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_g_c_dom_tree_widget_a0badfb9fc7250c5186fb9575019c335f_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{class_g_c_dom_tree_widget_af70ce22ef830a0a546262ff8566cd731}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!root\-Name@{root\-Name}}
+\index{root\-Name@{root\-Name}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{root\-Name}]{\setlength{\rightskip}{0pt plus 5cm}\-Q\-String {\bf \-G\-C\-Dom\-Tree\-Widget\-::root\-Name} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const}}\label{class_g_c_dom_tree_widget_af70ce22ef830a0a546262ff8566cd731}
+
+
+\-Returns the name of the \-D\-O\-M document's root. 
+
+\begin{DoxySeeAlso}{\-See also}
+current\-Item\-Is\-Root 
+
+\hyperlink{class_g_c_dom_tree_widget_a7bcb145540df569caeca3119cfebc23c}{matches\-Root\-Name} 
+\end{DoxySeeAlso}
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00113}{113} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+\hypertarget{class_g_c_dom_tree_widget_a29bd5591054036ef5d6073a606716df3}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!set\-Active\-Comment\-Value@{set\-Active\-Comment\-Value}}
+\index{set\-Active\-Comment\-Value@{set\-Active\-Comment\-Value}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{set\-Active\-Comment\-Value}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-G\-C\-Dom\-Tree\-Widget\-::set\-Active\-Comment\-Value} (
+\begin{DoxyParamCaption}
+\item[{const \-Q\-String \&}]{value}
+\end{DoxyParamCaption}
+)}}\label{class_g_c_dom_tree_widget_a29bd5591054036ef5d6073a606716df3}
+
+
+\-Sets the value of the active comment node to \char`\"{}value\char`\"{}. 
+
+\-If the active element doesn't have an associated comment, a comment node is created. \begin{DoxySeeAlso}{\-See also}
+\hyperlink{class_g_c_dom_tree_widget_aa633c35eca5e015becede2518e031042}{active\-Comment\-Value} 
+\end{DoxySeeAlso}
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00139}{139} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+
+
+\-Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_g_c_dom_tree_widget_a29bd5591054036ef5d6073a606716df3_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{class_g_c_dom_tree_widget_ae61a0ae85b5d250c49ebc8cfc6c24d09}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!set\-All\-Check\-States@{set\-All\-Check\-States}}
+\index{set\-All\-Check\-States@{set\-All\-Check\-States}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{set\-All\-Check\-States}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-G\-C\-Dom\-Tree\-Widget\-::set\-All\-Check\-States} (
+\begin{DoxyParamCaption}
+\item[{\-Qt\-::\-Check\-State}]{state}
+\end{DoxyParamCaption}
+)}}\label{class_g_c_dom_tree_widget_ae61a0ae85b5d250c49ebc8cfc6c24d09}
+
+
+\-Iterates through the tree and sets all items' check states to \char`\"{}state\char`\"{}. 
+
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00576}{576} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+\hypertarget{class_g_c_dom_tree_widget_a7bcd409950b7e72202426ac0c42c9476}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!set\-Content@{set\-Content}}
+\index{set\-Content@{set\-Content}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{set\-Content}]{\setlength{\rightskip}{0pt plus 5cm}bool {\bf \-G\-C\-Dom\-Tree\-Widget\-::set\-Content} (
+\begin{DoxyParamCaption}
+\item[{const \-Q\-String \&}]{text, }
+\item[{\-Q\-String $\ast$}]{error\-Msg = {\ttfamily 0}, }
+\item[{int $\ast$}]{error\-Line = {\ttfamily 0}, }
+\item[{int $\ast$}]{error\-Column = {\ttfamily 0}}
+\end{DoxyParamCaption}
+)}}\label{class_g_c_dom_tree_widget_a7bcd409950b7e72202426ac0c42c9476}
+
+
+\-Sets the underlying \-D\-O\-M document's content. 
+
+\-If successful, a recursive \-D\-O\-M tree traversal is kicked off in order to populate the tree widget with the information contained in the active \-D\-O\-M document. \begin{DoxySeeAlso}{\-See also}
+process\-Next\-Element 
+\end{DoxySeeAlso}
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00223}{223} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+
+
+\-Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_g_c_dom_tree_widget_a7bcd409950b7e72202426ac0c42c9476_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{class_g_c_dom_tree_widget_ab9178aca10757ba7b7cef489171fb725}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!set\-Current\-Item\-With\-Index\-Matching@{set\-Current\-Item\-With\-Index\-Matching}}
+\index{set\-Current\-Item\-With\-Index\-Matching@{set\-Current\-Item\-With\-Index\-Matching}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{set\-Current\-Item\-With\-Index\-Matching}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-G\-C\-Dom\-Tree\-Widget\-::set\-Current\-Item\-With\-Index\-Matching} (
+\begin{DoxyParamCaption}
+\item[{int}]{index}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}slot\mbox{]}}}}\label{class_g_c_dom_tree_widget_ab9178aca10757ba7b7cef489171fb725}
+
+
+\-Finds the item with index matching \char`\"{}index\char`\"{} and sets it as the current tree item. 
+
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00560}{560} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+\hypertarget{class_g_c_dom_tree_widget_a821fc62f1e29b67b3f6b00cd50de3bc8}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!set\-Show\-Tree\-Items\-Verbose@{set\-Show\-Tree\-Items\-Verbose}}
+\index{set\-Show\-Tree\-Items\-Verbose@{set\-Show\-Tree\-Items\-Verbose}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{set\-Show\-Tree\-Items\-Verbose}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-G\-C\-Dom\-Tree\-Widget\-::set\-Show\-Tree\-Items\-Verbose} (
+\begin{DoxyParamCaption}
+\item[{bool}]{verbose}
+\end{DoxyParamCaption}
+)}}\label{class_g_c_dom_tree_widget_a821fc62f1e29b67b3f6b00cd50de3bc8}
+
+
+\-Iterates through the tree and set all items' \char`\"{}verbose\char`\"{} flags to \char`\"{}show\char`\"{}. 
+
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00593}{593} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+
+
+\-Here is the call graph for this function\-:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_g_c_dom_tree_widget_a821fc62f1e29b67b3f6b00cd50de3bc8_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{class_g_c_dom_tree_widget_a6cd086334f363b2d0038c815e54c2b69}{\index{\-G\-C\-Dom\-Tree\-Widget@{\-G\-C\-Dom\-Tree\-Widget}!to\-String@{to\-String}}
+\index{to\-String@{to\-String}!GCDomTreeWidget@{\-G\-C\-Dom\-Tree\-Widget}}
+\subsubsection[{to\-String}]{\setlength{\rightskip}{0pt plus 5cm}\-Q\-String {\bf \-G\-C\-Dom\-Tree\-Widget\-::to\-String} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const}}\label{class_g_c_dom_tree_widget_a6cd086334f363b2d0038c815e54c2b69}
+
+
+\-Returns the \-D\-O\-M content as string. 
+
+
+
+\-Definition at line \hyperlink{gcdomtreewidget_8cpp_source_l00106}{106} of file \hyperlink{gcdomtreewidget_8cpp_source}{gcdomtreewidget.\-cpp}.
+
+
+
+\-The documentation for this class was generated from the following files\-:\begin{DoxyCompactItemize}
+\item 
+gcdomtreewidget.\-h\item 
+gcdomtreewidget.\-cpp\end{DoxyCompactItemize}

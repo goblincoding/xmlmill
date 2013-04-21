@@ -1,0 +1,1869 @@
+\hypertarget{gcmainwindow_8cpp_source}{\section{gcmainwindow.\-cpp}
+}
+
+\begin{DoxyCode}
+00001 \textcolor{comment}{/* Copyright (c) 2012 - 2013 by William Hallatt.}
+00002 \textcolor{comment}{ *}
+00003 \textcolor{comment}{ * This file forms part of "XML Mill".}
+00004 \textcolor{comment}{ *}
+00005 \textcolor{comment}{ * The official website for this project is <http://www.goblincoding.com> and,}
+00006 \textcolor{comment}{ * although not compulsory, it would be appreciated if all works of whatever}
+00007 \textcolor{comment}{ * nature using this source code (in whole or in part) include a reference to}
+00008 \textcolor{comment}{ * this site.}
+00009 \textcolor{comment}{ *}
+00010 \textcolor{comment}{ * Should you wish to contact me for whatever reason, please do so via:}
+00011 \textcolor{comment}{ *}
+00012 \textcolor{comment}{ *                 <http://www.goblincoding.com/contact>}
+00013 \textcolor{comment}{ *}
+00014 \textcolor{comment}{ * This program is free software: you can redistribute it and/or modify it
+       under}
+00015 \textcolor{comment}{ * the terms of the GNU General Public License as published by the Free
+       Software}
+00016 \textcolor{comment}{ * Foundation, either version 3 of the License, or (at your option) any later}
+00017 \textcolor{comment}{ * version.}
+00018 \textcolor{comment}{ *}
+00019 \textcolor{comment}{ * This program is distributed in the hope that it will be useful, but WITHOUT}
+00020 \textcolor{comment}{ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+       FITNESS}
+00021 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+       details.}
+00022 \textcolor{comment}{ *}
+00023 \textcolor{comment}{ * You should have received a copy of the GNU General Public License along with}
+00024 \textcolor{comment}{ * this program (GNUGPL.txt).  If not, see}
+00025 \textcolor{comment}{ *}
+00026 \textcolor{comment}{ *                    <http://www.gnu.org/licenses/>}
+00027 \textcolor{comment}{ */}
+00028 
+00029 \textcolor{preprocessor}{#include "gcmainwindow.h"}
+00030 \textcolor{preprocessor}{#include "ui\_gcmainwindow.h"}
+00031 \textcolor{preprocessor}{#include "db/gcdatabaseinterface.h"}
+00032 \textcolor{preprocessor}{#include "db/gcdbsessionmanager.h"}
+00033 \textcolor{preprocessor}{#include "forms/gcadditemsform.h"}
+00034 \textcolor{preprocessor}{#include "forms/gcremoveitemsform.h"}
+00035 \textcolor{preprocessor}{#include "forms/gchelpdialog.h"}
+00036 \textcolor{preprocessor}{#include "forms/gcsearchform.h"}
+00037 \textcolor{preprocessor}{#include "forms/gcaddsnippetsform.h"}
+00038 \textcolor{preprocessor}{#include "forms/gcrestorefilesform.h"}
+00039 \textcolor{preprocessor}{#include "utils/gctreewidgetitem.h"}
+00040 \textcolor{preprocessor}{#include "utils/gccombobox.h"}
+00041 \textcolor{preprocessor}{#include "utils/gcmessagespace.h"}
+00042 \textcolor{preprocessor}{#include "utils/gcglobalspace.h"}
+00043 
+00044 \textcolor{preprocessor}{#include <QDesktopServices>}
+00045 \textcolor{preprocessor}{#include <QSignalMapper>}
+00046 \textcolor{preprocessor}{#include <QDomDocument>}
+00047 \textcolor{preprocessor}{#include <QTextBlock>}
+00048 \textcolor{preprocessor}{#include <QMessageBox>}
+00049 \textcolor{preprocessor}{#include <QFileDialog>}
+00050 \textcolor{preprocessor}{#include <QTextStream>}
+00051 \textcolor{preprocessor}{#include <QTextCursor>}
+00052 \textcolor{preprocessor}{#include <QComboBox>}
+00053 \textcolor{preprocessor}{#include <QTimer>}
+00054 \textcolor{preprocessor}{#include <QLabel>}
+00055 \textcolor{preprocessor}{#include <QUrl>}
+00056 \textcolor{preprocessor}{#include <QCloseEvent>}
+00057 \textcolor{preprocessor}{#include <QFont>}
+00058 \textcolor{preprocessor}{#include <QScrollBar>}
+00059 \textcolor{preprocessor}{#include <QMovie>}
+00060 \textcolor{preprocessor}{#include <QSettings>}
+00061 
+00062 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00063 
+00064 \textcolor{keyword}{const} QString EMPTY( \textcolor{stringliteral}{"---"} );
+00065 \textcolor{keyword}{const} QString LEFTRIGHTBRACKETS( \textcolor{stringliteral}{"\(\backslash\)\(\backslash\)[|\(\backslash\)\(\backslash\)]"} );
+00066 
+00067 \textcolor{keyword}{const} qint64  DOMWARNING( 262144 );  \textcolor{comment}{// 0.25MB or ~7 500 lines}
+00068 \textcolor{keyword}{const} qint64  DOMLIMIT  ( 524288 );  \textcolor{comment}{// 0.5MB  or ~15 000 lines}
+00069 
+00070 \textcolor{keyword}{const} \textcolor{keywordtype}{int} ATTRIBUTECOLUMN = 0;
+00071 \textcolor{keyword}{const} \textcolor{keywordtype}{int} VALUESCOLUMN    = 1;
+00072 
+00073 \textcolor{comment}{/*--------------------------------- MEMBER FUNCTIONS
+       ----------------------------------*/}
+00074 
+\hypertarget{gcmainwindow_8cpp_source_l00075}{}\hyperlink{class_g_c_main_window_ab20de5f22439fbb8baf7d6b4be2ef63e}{00075} \hyperlink{class_g_c_main_window_ab20de5f22439fbb8baf7d6b4be2ef63e}{GCMainWindow::GCMainWindow}( QWidget *parent ) :
+00076   QMainWindow               ( parent ),
+00077   ui                        ( new Ui::\hyperlink{class_g_c_main_window}{GCMainWindow} ),
+00078   m\_signalMapper            ( new QSignalMapper( this ) ),
+00079   m\_activeAttribute         ( NULL ),
+00080   m\_currentCombo            ( NULL ),
+00081   m\_saveTimer               ( NULL ),
+00082   m\_activeProfileLabel      ( NULL ),
+00083   m\_progressLabel           ( NULL ),
+00084   m\_spinner                 ( NULL ),
+00085   m\_currentXMLFileName      ( \textcolor{stringliteral}{""} ),
+00086   m\_activeAttributeName     ( \textcolor{stringliteral}{""} ),
+00087   m\_wasTreeItemActivated    ( false ),
+00088   m\_newAttributeAdded       ( false ),
+00089   m\_busyImporting           ( false ),
+00090   m\_fileContentsChanged     ( false ),
+00091   m\_comboBoxes              ()
+00092 \{
+00093   ui->setupUi( \textcolor{keyword}{this} );
+00094   ui->showEmptyProfileHelpButton->setVisible( \textcolor{keyword}{false} );
+00095   ui->tableWidget->setFont( QFont( \hyperlink{namespace_g_c_global_space_a9d7158c8a1dfcc867d85ee6b9c5c4810}{GCGlobalSpace::FONT}, \hyperlink{namespace_g_c_global_space_ab9fa2f10bab070a4f59b7e3ef9166c86}{GCGlobalSpace::FONTSIZE}
+       ) );
+00096   ui->tableWidget->horizontalHeader()->setFont( QFont( \hyperlink{namespace_g_c_global_space_a9d7158c8a1dfcc867d85ee6b9c5c4810}{GCGlobalSpace::FONT}, 
+      \hyperlink{namespace_g_c_global_space_ab9fa2f10bab070a4f59b7e3ef9166c86}{GCGlobalSpace::FONTSIZE} ) );
+00097 
+00098   \textcolor{comment}{/* XML File related. */}
+00099   connect( ui->actionNew, SIGNAL( triggered() ), \textcolor{keyword}{this}, SLOT( newXMLFile() ) );
+00100   connect( ui->actionOpen, SIGNAL( triggered() ), \textcolor{keyword}{this}, SLOT( openXMLFile() ) )
+      ;
+00101   connect( ui->actionSave, SIGNAL( triggered() ), \textcolor{keyword}{this}, SLOT( saveXMLFile() ) )
+      ;
+00102   connect( ui->actionSaveAs, SIGNAL( triggered() ), \textcolor{keyword}{this}, SLOT( saveXMLFileAs()
+       ) );
+00103   connect( ui->actionCloseFile, SIGNAL( triggered() ), \textcolor{keyword}{this}, SLOT( closeXMLFile
+      () ) );
+00104 
+00105   \textcolor{comment}{/* Build/Edit XML. */}
+00106   connect( ui->addChildElementButton, SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( 
+      addElementToDocument() ) );
+00107   connect( ui->addSnippetButton, SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( 
+      addSnippetToDocument() ) );
+00108 
+00109   \textcolor{comment}{/* Various other actions. */}
+00110   connect( ui->actionExit, SIGNAL( triggered() ), \textcolor{keyword}{this}, SLOT( close() ) );
+00111   connect( ui->actionFind, SIGNAL( triggered() ), \textcolor{keyword}{this}, SLOT( searchDocument() 
+      ) );
+00112   connect( ui->actionForgetPreferences, SIGNAL( triggered() ), \textcolor{keyword}{this}, SLOT( 
+      forgetMessagePreferences() ) );
+00113   connect( ui->actionHelpContents, SIGNAL( triggered() ), \textcolor{keyword}{this}, SLOT( 
+      showMainHelp() ) );
+00114   connect( ui->actionVisitOfficialSite, SIGNAL( triggered() ), \textcolor{keyword}{this}, SLOT( 
+      goToSite() ) );
+00115   connect( ui->expandAllCheckBox, SIGNAL( clicked( \textcolor{keywordtype}{bool} ) ), \textcolor{keyword}{this}, SLOT( 
+      collapseOrExpandTreeWidget( \textcolor{keywordtype}{bool} ) ) );
+00116   connect( ui->commentLineEdit, SIGNAL( textEdited( QString ) ), \textcolor{keyword}{this}, SLOT( 
+      updateComment( QString ) ) );
+00117   connect( ui->actionUseDarkTheme, SIGNAL( triggered( \textcolor{keywordtype}{bool} ) ), \textcolor{keyword}{this}, SLOT( 
+      useDarkTheme( \textcolor{keywordtype}{bool} ) ) );
+00118 
+00119   connect( ui->wrapTextCheckBox, SIGNAL( clicked( \textcolor{keywordtype}{bool} ) ), ui->
+      dockWidgetTextEdit, SLOT( wrapText( \textcolor{keywordtype}{bool} ) ) );
+00120   connect( ui->dockWidgetTextEdit, SIGNAL( selectedIndex( \textcolor{keywordtype}{int} ) ), ui->
+      treeWidget, SLOT( setCurrentItemToMatchIndex( \textcolor{keywordtype}{int} ) ) );
+00121   connect( ui->dockWidgetTextEdit, SIGNAL( commentOut( \textcolor{keyword}{const} QList< int >&, \textcolor{keyword}{
+      const} QString& ) ), \textcolor{keyword}{this}, SLOT( commentOut( \textcolor{keyword}{const} QList< int >&, \textcolor{keyword}{const} QString& ) )
+       );
+00122   connect( ui->dockWidgetTextEdit, SIGNAL( manualEditAccepted() ), \textcolor{keyword}{this}, SLOT( 
+      rebuild() ) );
+00123 
+00124   \textcolor{comment}{/* Help related. */}
+00125   connect( ui->actionShowHelpButtons, SIGNAL( triggered( \textcolor{keywordtype}{bool} ) ), \textcolor{keyword}{this}, SLOT( 
+      setShowHelpButtons( \textcolor{keywordtype}{bool} ) ) );
+00126   connect( ui->showEmptyProfileHelpButton, SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( 
+      showEmptyProfileHelp() ) );
+00127   connect( ui->showAddElementHelpButton, SIGNAL( clicked() ), \textcolor{keyword}{this}, SLOT( 
+      showElementHelp() ) );
+00128 
+00129   \textcolor{comment}{/* Everything tree widget related. */}
+00130   connect( ui->treeWidget, SIGNAL( gcCurrentItemSelected( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem}*,\textcolor{keywordtype}{int}
+      ,\textcolor{keywordtype}{bool} ) ), \textcolor{keyword}{this}, SLOT( elementSelected( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem}*, \textcolor{keywordtype}{int}, \textcolor{keywordtype}{bool} ) ) );
+00131   connect( ui->treeWidget, SIGNAL( gcCurrentItemChanged( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem}*,\textcolor{keywordtype}{int} 
+      ) ), \textcolor{keyword}{this}, SLOT( elementChanged( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem}*, \textcolor{keywordtype}{int} ) ) );
+00132   connect( ui->treeWidget, SIGNAL( collapsed( QModelIndex ) ), \textcolor{keyword}{this}, SLOT( 
+      uncheckExpandAll() ) );
+00133   connect( ui->actionShowTreeElementsVerbose, SIGNAL( triggered( \textcolor{keywordtype}{bool} ) ), \textcolor{keyword}{this}
+      , SLOT( setShowTreeItemsVerbose( \textcolor{keywordtype}{bool} ) ) );
+00134 
+00135   \textcolor{comment}{/* Everything table widget related. */}
+00136   connect( ui->tableWidget, SIGNAL( itemClicked( QTableWidgetItem* ) ), \textcolor{keyword}{this}, 
+      SLOT( attributeSelected( QTableWidgetItem* ) ) );
+00137   connect( ui->tableWidget, SIGNAL( itemChanged( QTableWidgetItem* ) ), \textcolor{keyword}{this}, 
+      SLOT( attributeChanged( QTableWidgetItem* ) ) );
+00138 
+00139   \textcolor{comment}{/* Database related. */}
+00140   connect( ui->actionAddItems, SIGNAL( triggered() ), \textcolor{keyword}{this}, SLOT( addItemsToDB(
+      ) ) );
+00141   connect( ui->actionRemoveItems, SIGNAL( triggered() ), \textcolor{keyword}{this}, SLOT( 
+      removeItemsFromDB() ) );
+00142   connect( ui->actionImportXMLToDatabase, SIGNAL( triggered() ), \textcolor{keyword}{this}, SLOT( 
+      importXMLFromFile() ) );
+00143   connect( ui->actionSwitchSessionDatabase, SIGNAL( triggered() ), \textcolor{keyword}{this}, SLOT( 
+      switchActiveDatabase() ) );
+00144   connect( ui->actionAddNewDatabase, SIGNAL( triggered() ), \textcolor{keyword}{this}, SLOT( 
+      addNewDatabase() ) );
+00145   connect( ui->actionAddExistingDatabase, SIGNAL( triggered() ), \textcolor{keyword}{this}, SLOT( 
+      addExistingDatabase() ) );
+00146   connect( ui->actionRemoveDatabase, SIGNAL( triggered() ), \textcolor{keyword}{this}, SLOT( 
+      removeDatabase() ) );
+00147 
+00148   connect( m\_signalMapper, SIGNAL( mapped( QWidget* ) ), \textcolor{keyword}{this}, SLOT( 
+      setCurrentComboBox( QWidget* ) ) );
+00149 
+00150   readSettings();
+00151 
+00152   \textcolor{comment}{/* Wait for the event loop to be initialised before calling this function. */}
+00153   QTimer::singleShot( 0, \textcolor{keyword}{this}, SLOT( initialise() ) );
+00154 \}
+00155 
+00156 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00157 
+\hypertarget{gcmainwindow_8cpp_source_l00158}{}\hyperlink{class_g_c_main_window_a1b9394727a4790a926fae15973f9e629}{00158} \hyperlink{class_g_c_main_window_a1b9394727a4790a926fae15973f9e629}{GCMainWindow::~GCMainWindow}()
+00159 \{
+00160   \textcolor{keyword}{delete} ui;
+00161 \}
+00162 
+00163 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00164 
+\hypertarget{gcmainwindow_8cpp_source_l00165}{}\hyperlink{class_g_c_main_window_a08995f775bad0ea2ff98965ede9c2967}{00165} \textcolor{keywordtype}{void} \hyperlink{class_g_c_main_window_a08995f775bad0ea2ff98965ede9c2967}{GCMainWindow::closeEvent}( QCloseEvent *event )
+00166 \{
+00167   \textcolor{keywordflow}{if}( m\_fileContentsChanged )
+00168   \{
+00169     QMessageBox::StandardButtons accept = QMessageBox::question( \textcolor{keyword}{this},
+00170                                                                  \textcolor{stringliteral}{"Save File?"},
+00171                                                                  \textcolor{stringliteral}{"Save changes
+       before closing?"},
+00172                                                                  
+      QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+00173                                                                  
+      QMessageBox::Yes );
+00174 
+00175     \textcolor{keywordflow}{if}( accept == QMessageBox::Yes )
+00176     \{
+00177       saveXMLFile();
+00178     \}
+00179     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( accept == QMessageBox::Cancel )
+00180     \{
+00181       \textcolor{keyword}{event}->ignore();
+00182       \textcolor{keywordflow}{return};
+00183     \}
+00184   \}
+00185 
+00186   deleteTempFile();
+00187   saveSettings();
+00188   \hyperlink{class_g_c_main_window_a08995f775bad0ea2ff98965ede9c2967}{QMainWindow::closeEvent}( event );
+00189 \}
+00190 
+00191 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00192 
+00193 \textcolor{keywordtype}{void} GCMainWindow::initialise()
+00194 \{
+00195   \textcolor{comment}{/* Initialise the database interface and retrieve the list of database names
+       (this will}
+00196 \textcolor{comment}{    include the path references to the ".db" files). */}
+00197   \textcolor{keywordflow}{if}( !\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->isInitialised() )
+00198   \{
+00199     \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()-
+      >lastError() );
+00200     this->close();
+00201   \}
+00202 
+00203   \textcolor{comment}{/* If the interface was successfully initialised, prompt the user to choose a
+       database}
+00204 \textcolor{comment}{    connection for this session. */}
+00205   \hyperlink{class_g_c_d_b_session_manager}{GCDBSessionManager} *manager = createDBSessionManager();
+00206   manager->\hyperlink{class_g_c_d_b_session_manager_ac4e5a25619ee77bc9307d3428bfd345d}{selectActiveDatabase}();
+00207   QDialog::DialogCode result = \textcolor{keyword}{static\_cast<} QDialog::DialogCode \textcolor{keyword}{>}( manager->
+      result() );
+00208 
+00209   \textcolor{keywordflow}{if}( result == QDialog::Rejected )
+00210   \{
+00211     this->close();    \textcolor{comment}{// also deletes manager ("this" is parent)}
+00212   \}
+00213 
+00214   queryRestoreFiles();
+00215 \}
+00216 
+00217 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00218 
+00219 \textcolor{keywordtype}{void} GCMainWindow::elementChanged( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem} *item, \textcolor{keywordtype}{int} column )
+00220 \{
+00221   \textcolor{keywordflow}{if}( !ui->treeWidget->isEmpty() )
+00222   \{
+00223     \textcolor{comment}{/* No need to highlight the element in "elementSelected" as
+       "setTextEditContent"}
+00224 \textcolor{comment}{      will take care of it. */}
+00225     elementSelected( item, column, \textcolor{keyword}{false} );
+00226     setTextEditContent( item );
+00227   \}
+00228   \textcolor{keywordflow}{else}
+00229   \{
+00230     resetDOM();
+00231   \}
+00232 \}
+00233 
+00234 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00235 
+00236 \textcolor{keywordtype}{void} GCMainWindow::elementSelected( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem} *item, \textcolor{keywordtype}{int} column, \textcolor{keywordtype}{bool} 
+      highlightElement )
+00237 \{
+00238   Q\_UNUSED( column );
+00239 
+00240   \textcolor{keywordflow}{if}( item )
+00241   \{
+00242     \textcolor{comment}{/* This flag is set to prevent the functionality in "attributeChanged"
+       (which is triggered}
+00243 \textcolor{comment}{    by the population of the table widget) from being executed until this
+       function exits. */}
+00244     m\_wasTreeItemActivated = \textcolor{keyword}{true};
+00245 
+00246     resetTableWidget();
+00247 
+00248     QDomElement element = item->\hyperlink{class_g_c_tree_widget_item_a584cad866bdbd94710d31eb77b804d84}{element}();      \textcolor{comment}{// shallow copy}
+00249     QString elementName = item->\hyperlink{class_g_c_tree_widget_item_a3af8c66a690cd55986a38b996a375ba4}{name}();
+00250     QStringList attributeNames = \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_afb1e49e08f98ca453f9ac66340a35642}{attributes}( 
+      elementName );
+00251 
+00252     \textcolor{comment}{/* Add all the associated attribute names to the first column of the table
+       widget,}
+00253 \textcolor{comment}{    create and populate combo boxes with the attributes' known values and
+       insert the}
+00254 \textcolor{comment}{    combo boxes into the second column of the table widget. Finally, insert an
+       "empty"}
+00255 \textcolor{comment}{    row so that the user may add additional attributes and values to the
+       current element. */}
+00256     \textcolor{keywordflow}{for}( \textcolor{keywordtype}{int} i = 0; i < attributeNames.count(); ++i )
+00257     \{
+00258       \hyperlink{class_g_c_combo_box}{GCComboBox} *attributeCombo = \textcolor{keyword}{new} \hyperlink{class_g_c_combo_box}{GCComboBox};
+00259       QTableWidgetItem *label = \textcolor{keyword}{new} QTableWidgetItem( attributeNames.at( i ) );
+00260       label->setFlags( label->flags() | Qt::ItemIsUserCheckable );
+00261 
+00262       \textcolor{keywordflow}{if}( item->\hyperlink{class_g_c_tree_widget_item_a91d71330acb400242d45b6d74c7e0f87}{attributeIncluded}( attributeNames.at( i ) ) )
+00263       \{
+00264         label->setCheckState( Qt::Checked );
+00265         attributeCombo->setEnabled( \textcolor{keyword}{true} );
+00266       \}
+00267       \textcolor{keywordflow}{else}
+00268       \{
+00269         label->setCheckState( Qt::Unchecked );
+00270         attributeCombo->setEnabled( \textcolor{keyword}{false} );
+00271       \}
+00272 
+00273       ui->tableWidget->setRowCount( i + 1 );
+00274       ui->tableWidget->setItem( i, 0, label );
+00275 
+00276       attributeCombo->addItems( \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->
+      attributeValues( elementName, attributeNames.at( i ) ) );
+00277       attributeCombo->setEditable( \textcolor{keyword}{true} );
+00278 
+00279       \textcolor{comment}{/* If we are still in the process of building the document, the attribute
+       value will}
+00280 \textcolor{comment}{      be empty since it has never been set before.  For this particular case,
+       calling}
+00281 \textcolor{comment}{      "findText" will result in a null pointer exception being thrown so we
+       need to}
+00282 \textcolor{comment}{      cater for this possibility here. */}
+00283       QString attributeValue = element.attribute( attributeNames.at( i ) );
+00284 
+00285       \textcolor{keywordflow}{if}( !attributeValue.isEmpty() )
+00286       \{
+00287         attributeCombo->setCurrentIndex( attributeCombo->findText( 
+      attributeValue ) );
+00288       \}
+00289       \textcolor{keywordflow}{else}
+00290       \{
+00291         attributeCombo->setCurrentIndex( -1 );
+00292       \}
+00293 
+00294       \textcolor{comment}{/* Attempting the connection before we've set the current index above
+       causes the}
+00295 \textcolor{comment}{      "attributeValueChanged" slot to be called prematurely, resulting in a
+       segmentation}
+00296 \textcolor{comment}{      fault due to value conflicts/missing values (in short, we can't do the
+       connect}
+00297 \textcolor{comment}{      before we set the current index above). */}
+00298       connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), \textcolor{keyword}{this}, 
+      SLOT( attributeValueChanged( QString ) ) );
+00299 
+00300       ui->tableWidget->setCellWidget( i, 1, attributeCombo );
+00301       m\_comboBoxes.insert( attributeCombo, i );
+00302 
+00303       \textcolor{comment}{/* This will point the current combo box member to the combo that's been
+       activated}
+00304 \textcolor{comment}{      in the table widget (used in "attributeValueChanged" to obtain the row
+       number the}
+00305 \textcolor{comment}{      combo box appears in in the table widget, etc, etc). */}
+00306       connect( attributeCombo, SIGNAL( activated( \textcolor{keywordtype}{int} ) ), m\_signalMapper, SLOT
+      ( map() ) );
+00307       m\_signalMapper->setMapping( attributeCombo, attributeCombo );
+00308     \}
+00309 
+00310     \textcolor{comment}{/* Add the "empty" row as described above. */}
+00311     insertEmptyTableRow();
+00312 
+00313     \textcolor{comment}{/* Populate the "add child element" combo box with the known first level
+       children of the}
+00314 \textcolor{comment}{    current highlighted element (highlighted in the tree widget, of course). */}
+00315     ui->addElementComboBox->clear();
+00316     ui->addElementComboBox->addItems( \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->children
+      ( elementName ) );
+00317 
+00318     \textcolor{comment}{/* The following will be used to allow the user to add an element of the
+       current type to}
+00319 \textcolor{comment}{    its parent (this should improve the user experience as they do not have to
+       explicitly}
+00320 \textcolor{comment}{    navigate back up to a parent when adding multiple items of the same type). 
+       We also don't}
+00321 \textcolor{comment}{    want the user to add a document root element to itself by accident. */}
+00322     \textcolor{keywordflow}{if}( !ui->treeWidget->matchesRootName( elementName ) )
+00323     \{
+00324       ui->addElementComboBox->addItem( QString( \textcolor{stringliteral}{"[%1]"} ).arg( elementName) );
+00325     \}
+00326 
+00327     toggleAddElementWidgets();
+00328 
+00329     \textcolor{keywordflow}{if}( highlightElement )
+00330     \{
+00331       highlightTextElement( item );
+00332     \}
+00333 
+00334     \textcolor{comment}{/* The user must not be allowed to add an entire document as a "snippet". 
+      */}
+00335     \textcolor{keywordflow}{if}( ui->treeWidget->matchesRootName( ui->addElementComboBox->currentText() 
+      ) )
+00336     \{
+00337       ui->addSnippetButton->setEnabled( \textcolor{keyword}{false} );
+00338       ui->addChildElementButton->setText( \textcolor{stringliteral}{"Add Root"} );
+00339     \}
+00340     \textcolor{keywordflow}{else}
+00341     \{
+00342       ui->addSnippetButton->setEnabled( \textcolor{keyword}{true} );
+00343       ui->addChildElementButton->setText( \textcolor{stringliteral}{"Add Child"} );
+00344     \}
+00345 
+00346     ui->commentLineEdit->setText( ui->treeWidget->activeCommentValue() );
+00347 
+00348     \textcolor{comment}{/* Unset flag. */}
+00349     m\_wasTreeItemActivated = \textcolor{keyword}{false};
+00350   \}
+00351   \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( ui->treeWidget->isEmpty() )
+00352   \{
+00353     resetDOM();
+00354   \}
+00355 \}
+00356 
+00357 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00358 
+00359 \textcolor{keywordtype}{void} GCMainWindow::attributeChanged( QTableWidgetItem *tableItem )
+00360 \{
+00361   \textcolor{comment}{/* Don't execute the logic if a tree widget item's activation is triggering}
+00362 \textcolor{comment}{    a re-population of the table widget (which results in this slot being
+       called). */}
+00363   \textcolor{keywordflow}{if}( !m\_wasTreeItemActivated && !m\_newAttributeAdded )
+00364   \{
+00365     \textcolor{comment}{/* Also don't allow for empty attribute names. */}
+00366     \textcolor{keywordflow}{if}( tableItem->text().isEmpty() )
+00367     \{
+00368       tableItem->setText( m\_activeAttributeName );
+00369       \textcolor{keywordflow}{return};
+00370     \}
+00371 
+00372     \textcolor{comment}{/* When the check state of a table widget item changes, the "itemChanged"
+       signal is emitted}
+00373 \textcolor{comment}{      before the "itemClicked" one and this messes up the logic that follows
+       completely.  Since}
+00374 \textcolor{comment}{      I depend on knowing which attribute is currently active, I needed to
+       insert the following}
+00375 \textcolor{comment}{      odd little check (the other alternative is probably to subclass
+       QTableWidgetItem but I'm}
+00376 \textcolor{comment}{      worried about the added complications). */}
+00377     \textcolor{keywordflow}{if}( m\_activeAttribute != tableItem )
+00378     \{
+00379       m\_activeAttributeName = tableItem->text();
+00380     \}
+00381 
+00382     \textcolor{comment}{/* All attribute name changes will be assumed to be additions, removing an
+       attribute}
+00383 \textcolor{comment}{      with a specific name has to be done explicitly. */}
+00384     \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem} *treeItem = ui->treeWidget->gcCurrentItem();
+00385 
+00386     \textcolor{comment}{/* See if an existing attribute's name changed or if a new attribute was
+       added. */}
+00387     \textcolor{keywordflow}{if}( tableItem->text() != m\_activeAttributeName )
+00388     \{
+00389       \textcolor{comment}{/* Add the new attribute's name to the current element's list of
+       associated attributes. */}
+00390       \textcolor{keywordflow}{if}( \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_abc13d0cb75b233fd83575bfef575ff19}{updateElementAttributes}( treeItem->
+      \hyperlink{class_g_c_tree_widget_item_a3af8c66a690cd55986a38b996a375ba4}{name}(), QStringList( tableItem->text() ) ) )
+00391       \{
+00392         \textcolor{comment}{/* Is this a name change? */}
+00393         \textcolor{keywordflow}{if}( m\_activeAttributeName != EMPTY )
+00394         \{
+00395           treeItem->\hyperlink{class_g_c_tree_widget_item_a76e60292eec635fd2e6df27a3e162e16}{excludeAttribute}( m\_activeAttributeName );
+00396 
+00397           \textcolor{comment}{/* Retrieve the list of values associated with the previous name and
+       insert it against the new name. */}
+00398           QStringList attributeValues = \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->
+      \hyperlink{class_g_c_data_base_interface_a329e17f6c02c62fd554884f2b5a7e2df}{attributeValues}( treeItem->\hyperlink{class_g_c_tree_widget_item_a3af8c66a690cd55986a38b996a375ba4}{name}(),
+00399                                                                                
+                 m\_activeAttributeName );
+00400 
+00401           \textcolor{keywordflow}{if}( !\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_ae4f158875b5a8a109d301f19ce5d21ae}{updateAttributeValues}( treeItem
+      ->\hyperlink{class_g_c_tree_widget_item_a3af8c66a690cd55986a38b996a375ba4}{name}(), tableItem->text(), attributeValues ) )
+00402           \{
+00403             \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, 
+      \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->lastError() );
+00404           \}
+00405         \}
+00406         \textcolor{keywordflow}{else}
+00407         \{
+00408           \textcolor{comment}{/* If this is an entirely new attribute, insert an "empty" row so
+       that the user may add}
+00409 \textcolor{comment}{            even more attributes if he/she wishes to do so. */}
+00410           m\_newAttributeAdded = \textcolor{keyword}{true};
+00411           tableItem->setFlags( tableItem->flags() | Qt::ItemIsUserCheckable );
+00412           tableItem->setCheckState( Qt::Checked );
+00413           insertEmptyTableRow();
+00414           m\_newAttributeAdded = \textcolor{keyword}{false};
+00415         \}
+00416       \}
+00417       \textcolor{keywordflow}{else}
+00418       \{
+00419         \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}
+      ()->lastError() );
+00420       \}
+00421     \}
+00422 
+00423     m\_activeAttributeName = tableItem->text();
+00424 
+00425     \textcolor{comment}{/* Is this attribute included or excluded? */}
+00426     \hyperlink{class_g_c_combo_box}{GCComboBox} *attributeValueCombo = \textcolor{keyword}{dynamic\_cast<} \hyperlink{class_g_c_combo_box}{GCComboBox}* \textcolor{keyword}{>}( ui->
+      tableWidget->cellWidget( tableItem->row(), VALUESCOLUMN ) );
+00427 
+00428     \textcolor{keywordflow}{if}( tableItem->checkState() == Qt::Checked )
+00429     \{
+00430       attributeValueCombo->setEnabled( \textcolor{keyword}{true} );
+00431       treeItem->\hyperlink{class_g_c_tree_widget_item_a3f1c09758031e2a8fc1ac9336697b3d9}{includeAttribute}( m\_activeAttributeName, attributeValueCombo->
+      currentText() );
+00432     \}
+00433     \textcolor{keywordflow}{else}
+00434     \{
+00435       attributeValueCombo->setEnabled( \textcolor{keyword}{false} );
+00436       treeItem->\hyperlink{class_g_c_tree_widget_item_a76e60292eec635fd2e6df27a3e162e16}{excludeAttribute}( m\_activeAttributeName );
+00437     \}
+00438 
+00439     setTextEditContent( treeItem );
+00440   \}
+00441 \}
+00442 
+00443 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00444 
+00445 \textcolor{keywordtype}{void} GCMainWindow::attributeSelected( QTableWidgetItem *tableItem )
+00446 \{
+00447   m\_activeAttribute = tableItem;
+00448   m\_activeAttributeName = tableItem->text();
+00449 \}
+00450 
+00451 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00452 
+00453 \textcolor{keywordtype}{void} GCMainWindow::attributeValueChanged( \textcolor{keyword}{const} QString &value )
+00454 \{
+00455   \textcolor{comment}{/* Don't execute the logic if a tree widget item's activation is triggering}
+00456 \textcolor{comment}{    a re-population of the table widget (which results in this slot being
+       called). */}
+00457   \textcolor{keywordflow}{if}( !m\_wasTreeItemActivated && !value.isEmpty() )
+00458   \{
+00459     \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem} *treeItem = ui->treeWidget->gcCurrentItem();
+00460     QString currentAttributeName = ui->tableWidget->item( m\_comboBoxes.value( 
+      m\_currentCombo ), ATTRIBUTECOLUMN )->text();
+00461 
+00462     \textcolor{comment}{/* If we don't know about this value, we need to add it to the DB. */}
+00463     QStringList attributeValues = \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->
+      \hyperlink{class_g_c_data_base_interface_a329e17f6c02c62fd554884f2b5a7e2df}{attributeValues}( treeItem->\hyperlink{class_g_c_tree_widget_item_a3af8c66a690cd55986a38b996a375ba4}{name}(), currentAttributeName );
+00464 
+00465     \textcolor{keywordflow}{if}( !attributeValues.contains( value ) )
+00466     \{
+00467       \textcolor{keywordflow}{if}( !\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_ae4f158875b5a8a109d301f19ce5d21ae}{updateAttributeValues}( treeItem->
+      \hyperlink{class_g_c_tree_widget_item_a3af8c66a690cd55986a38b996a375ba4}{name}(),
+00468                                                                    
+      currentAttributeName,
+00469                                                                    QStringList(
+       value ) ) )
+00470       \{
+00471         \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}
+      ()->lastError() );
+00472       \}
+00473     \}
+00474 
+00475     treeItem->\hyperlink{class_g_c_tree_widget_item_a3f1c09758031e2a8fc1ac9336697b3d9}{includeAttribute}( currentAttributeName, value );
+00476     setTextEditContent( treeItem );
+00477   \}
+00478 \}
+00479 
+00480 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00481 
+00482 \textcolor{keywordtype}{void} GCMainWindow::setCurrentComboBox( QWidget *combo )
+00483 \{
+00484   m\_currentCombo = combo;
+00485 \}
+00486 
+00487 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00488 
+00489 \textcolor{keywordtype}{bool} GCMainWindow::openXMLFile()
+00490 \{
+00491   \textcolor{comment}{/* Can't open a file if there is no DB profile to describe it. */}
+00492   querySetActiveSession( QString( \textcolor{stringliteral}{"No active profile set, please set one for
+       this session."} ) );
+00493 
+00494   \textcolor{keywordflow}{if}( !queryResetDOM( \textcolor{stringliteral}{"Save document before continuing?"} ) )
+00495   \{
+00496     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00497   \}
+00498 
+00499   QString fileName = QFileDialog::getOpenFileName( \textcolor{keyword}{this}, \textcolor{stringliteral}{"Open File"}, 
+      QDir::homePath(), \textcolor{stringliteral}{"XML Files (*.*)"} );
+00500 
+00501   \textcolor{comment}{/* If the user cancelled, we don't want to continue. */}
+00502   \textcolor{keywordflow}{if}( fileName.isEmpty() )
+00503   \{
+00504     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00505   \}
+00506 
+00507   \textcolor{comment}{/* Note to future self: although the user would have explicitly saved (or not
+       saved) the file}
+00508 \textcolor{comment}{    by the time this functionality is encountered, we only reset the document
+       once we have a new,}
+00509 \textcolor{comment}{    active file to work with since users are fickle and may still change their
+       minds.  In other}
+00510 \textcolor{comment}{    words, do NOT move this code to before "getOpenFileName" as previously
+       considered! */}
+00511   resetDOM();
+00512   m\_currentXMLFileName = \textcolor{stringliteral}{""};
+00513 
+00514   QFile file( fileName );
+00515 
+00516   \textcolor{keywordflow}{if}( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
+00517   \{
+00518     QString errorMsg = QString( \textcolor{stringliteral}{"Failed to open file \(\backslash\)"%1\(\backslash\)": [%2]"} )
+00519                        .arg( fileName )
+00520                        .arg( file.errorString() );
+00521     \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, errorMsg );
+00522     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00523   \}
+00524 
+00525   QTextStream inStream( &file );
+00526   QString fileContent( inStream.readAll() );
+00527   qint64 fileSize = file.size();
+00528   file.close();
+00529 
+00530   \textcolor{comment}{/* This application isn't optimised for dealing with very large XML files
+       (the entire point is that}
+00531 \textcolor{comment}{    this suite should provide the functionality necessary for the manual
+       manipulation of, e.g. XML config}
+00532 \textcolor{comment}{    files normally set up by hand via copy and paste exercises), if this file
+       is too large to be handled}
+00533 \textcolor{comment}{    comfortably, we need to let the user know and also make sure that we don't
+       try to set the DOM content}
+00534 \textcolor{comment}{    as text in the QTextEdit (QTextEdit is optimised for paragraphs). */}
+00535   \textcolor{keywordflow}{if}( fileSize > DOMWARNING &&
+00536       fileSize < DOMLIMIT )
+00537   \{
+00538     QMessageBox::warning( \textcolor{keyword}{this},
+00539                           \textcolor{stringliteral}{"Large file!"},
+00540                           \textcolor{stringliteral}{"The file you just opened is pretty large. Response
+       times may be slow."} );
+00541   \}
+00542   \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( fileSize > DOMLIMIT )
+00543   \{
+00544     QMessageBox::critical( \textcolor{keyword}{this},
+00545                            \textcolor{stringliteral}{"Very large file!"},
+00546                            \textcolor{stringliteral}{"This file is too large to edit manually!"} );
+00547 
+00548     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00549   \}
+00550 
+00551   QString xmlErr( \textcolor{stringliteral}{""} );
+00552   \textcolor{keywordtype}{int}     line  ( -1 );
+00553   \textcolor{keywordtype}{int}     col   ( -1 );
+00554 
+00555   \textcolor{keywordflow}{if}( !ui->treeWidget->setContent( fileContent, &xmlErr, &line, &col ) )
+00556   \{
+00557     QString errorMsg = QString( \textcolor{stringliteral}{"XML is broken - Error [%1], line [%2], column
+       [%3]"} )
+00558                        .arg( xmlErr )
+00559                        .arg( line )
+00560                        .arg( col );
+00561     \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, errorMsg );
+00562     resetDOM();
+00563     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00564   \}
+00565 
+00566   m\_currentXMLFileName = fileName;
+00567   m\_fileContentsChanged = \textcolor{keyword}{false};    \textcolor{comment}{// at first load, nothing has changed}
+00568 
+00569   \textcolor{keywordflow}{if}( !m\_busyImporting )
+00570   \{
+00571     \textcolor{comment}{/* If the user is opening an XML file of a kind that isn't supported by the
+       current active DB,}
+00572 \textcolor{comment}{        we need to warn him/her of this fact and provide them with a couple of
+       options. */}
+00573     \textcolor{keywordflow}{if}( !ui->treeWidget->isDocumentCompatible() )
+00574     \{
+00575       \textcolor{keywordtype}{bool} accepted = \hyperlink{namespace_g_c_message_space_ae6f97d25f38a6b35c49e6e67ce4afaca}{GCMessageSpace::userAccepted}( \textcolor{stringliteral}{"QueryImportXML"},
+00576                                                     \textcolor{stringliteral}{"Import document?"},
+00577                                                     \textcolor{stringliteral}{"Encountered unknown
+       relationships - import differences to active profile?"},
+00578                                                     \hyperlink{namespace_g_c_message_space_ac1db082c29062fe6508ba03bf76bea44ab2defe87f3e886edf34f537f4ac8c282}{GCMessageSpace::YesNo},
+00579                                                     GCMessageSpace::No,
+00580                                                     \hyperlink{namespace_g_c_message_space_a67e94586e09cbc305257fbcdd7b686e2ae66d6709c87ccb0832b1456e2b4ad895}{GCMessageSpace::Question} );
+00581 
+00582       \textcolor{keywordflow}{if}( accepted )
+00583       \{
+00584         QTimer timer;
+00585         timer.singleShot( 1000, \textcolor{keyword}{this}, SLOT( createSpinner() ) );
+00586         qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+00587 
+00588         \textcolor{keywordflow}{if}( !ui->treeWidget->isBatchProcessSuccess() )
+00589         \{
+00590           \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, 
+      \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->lastError() );
+00591         \}
+00592         \textcolor{keywordflow}{else}
+00593         \{
+00594           qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+00595           processDOMDoc();
+00596         \}
+00597 
+00598         deleteSpinner();
+00599       \}
+00600       \textcolor{keywordflow}{else}
+00601       \{
+00602         \textcolor{comment}{/* If the user decided to rather abort the import, reset everything. */}
+00603         resetDOM();
+00604         m\_currentXMLFileName = \textcolor{stringliteral}{""};
+00605       \}
+00606     \}
+00607     \textcolor{keywordflow}{else}
+00608     \{
+00609       \textcolor{comment}{/* If the user selected a database that knows of this particular XML
+       profile,}
+00610 \textcolor{comment}{          simply process the document. */}
+00611       processDOMDoc();
+00612     \}
+00613   \}
+00614 
+00615   \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+00616 \}
+00617 
+00618 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00619 
+00620 \textcolor{keywordtype}{void} GCMainWindow::newXMLFile()
+00621 \{
+00622   \textcolor{keywordflow}{if}( queryResetDOM( \textcolor{stringliteral}{"Save document before continuing?"} ) )
+00623   \{
+00624     resetDOM();
+00625     m\_currentXMLFileName = \textcolor{stringliteral}{""};
+00626     ui->actionCloseFile->setEnabled( \textcolor{keyword}{true} );
+00627     ui->actionSaveAs->setEnabled( \textcolor{keyword}{true} );
+00628     ui->actionSave->setEnabled( \textcolor{keyword}{true} );
+00629   \}
+00630 \}
+00631 
+00632 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00633 
+00634 \textcolor{keywordtype}{bool} GCMainWindow::saveXMLFile()
+00635 \{
+00636   \textcolor{keywordflow}{if}( m\_currentXMLFileName.isEmpty() )
+00637   \{
+00638     \textcolor{keywordflow}{return} saveXMLFileAs();
+00639   \}
+00640   \textcolor{keywordflow}{else}
+00641   \{
+00642     QFile file( m\_currentXMLFileName );
+00643 
+00644     \textcolor{keywordflow}{if}( !file.open( QIODevice::ReadWrite | QIODevice::Truncate | 
+      QIODevice::Text ) )
+00645     \{
+00646       QString errMsg = QString( \textcolor{stringliteral}{"Failed to save file \(\backslash\)"%1\(\backslash\)": [%2]."} )
+00647                        .arg( m\_currentXMLFileName )
+00648                        .arg( file.errorString() );
+00649       \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, errMsg );
+00650       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00651     \}
+00652     \textcolor{keywordflow}{else}
+00653     \{
+00654       QTextStream outStream( &file );
+00655       outStream << ui->treeWidget->toString();
+00656       file.close();
+00657 
+00658       m\_fileContentsChanged = \textcolor{keyword}{false};
+00659       deleteTempFile();
+00660       startSaveTimer();
+00661     \}
+00662   \}
+00663 
+00664   \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+00665 \}
+00666 
+00667 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00668 
+00669 \textcolor{keywordtype}{bool} GCMainWindow::saveXMLFileAs()
+00670 \{
+00671   QString file = QFileDialog::getSaveFileName( \textcolor{keyword}{this}, \textcolor{stringliteral}{"Save As"}, QDir::homePath(
+      ), \textcolor{stringliteral}{"XML Files (*.*)"} );
+00672 
+00673   \textcolor{comment}{/* If the user clicked "OK". */}
+00674   \textcolor{keywordflow}{if}( !file.isEmpty() )
+00675   \{
+00676     m\_currentXMLFileName = file;
+00677     \textcolor{keywordflow}{return} saveXMLFile();
+00678   \}
+00679   \textcolor{keywordflow}{else}
+00680   \{
+00681     \textcolor{comment}{/* Return false when the file save operation is cancelled so that
+       "queryResetDom" does}
+00682 \textcolor{comment}{      not inadvertently caused a file to be reset by accident when the user
+       changes his/her mind. */}
+00683     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00684   \}
+00685 \}
+00686 
+00687 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00688 
+00689 \textcolor{keywordtype}{void} GCMainWindow::closeXMLFile()
+00690 \{
+00691   \textcolor{keywordflow}{if}( queryResetDOM( \textcolor{stringliteral}{"Save document before continuing?"} ) )
+00692   \{
+00693     resetDOM();
+00694   \}
+00695 \}
+00696 
+00697 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00698 
+00699 \textcolor{keywordtype}{void} GCMainWindow::importXMLFromFile()
+00700 \{
+00701   \textcolor{comment}{/* This flag is used in "openXMLFile" to distinguish between an explicit
+       import}
+00702 \textcolor{comment}{    and a simple file opening operation. */}
+00703   m\_busyImporting = \textcolor{keyword}{true};
+00704   ui->treeWidget->setVisible( \textcolor{keyword}{false} );
+00705 
+00706   \textcolor{keywordflow}{if}( openXMLFile() )
+00707   \{
+00708     \textcolor{keywordflow}{if}( importXMLToDatabase() )
+00709     \{
+00710       \textcolor{keywordflow}{if}( m\_progressLabel )
+00711       \{
+00712         m\_progressLabel->hide();
+00713       \}
+00714 
+00715       QMessageBox::StandardButtons accept = QMessageBox::question( \textcolor{keyword}{this},
+00716                                                                    \textcolor{stringliteral}{"Edit file"},
+00717                                                                    \textcolor{stringliteral}{"Also open
+       file for editing?"},
+00718                                                                    
+      QMessageBox::Yes | QMessageBox::No,
+00719                                                                    
+      QMessageBox::Yes );
+00720 
+00721       \textcolor{keywordflow}{if}( accept == QMessageBox::Yes )
+00722       \{
+00723         QTimer timer;
+00724 
+00725         \textcolor{keywordflow}{if}( m\_progressLabel )
+00726         \{
+00727           timer.singleShot( 1000, m\_progressLabel, SLOT( show() ) );
+00728         \}
+00729 
+00730         qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+00731         processDOMDoc();
+00732       \}
+00733       \textcolor{keywordflow}{else}
+00734       \{
+00735         \textcolor{comment}{/* DOM was set in the process of opening the XML file and loading its
+       content.  If the user}
+00736 \textcolor{comment}{            doesn't want to work with the file that was imported, we need to
+       reset it here. */}
+00737         resetDOM();
+00738         m\_currentXMLFileName = \textcolor{stringliteral}{""};
+00739       \}
+00740     \}
+00741   \}
+00742 
+00743   ui->treeWidget->setVisible( \textcolor{keyword}{true} );
+00744   m\_busyImporting = \textcolor{keyword}{false};
+00745 \}
+00746 
+00747 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00748 
+00749 \textcolor{keywordtype}{bool} GCMainWindow::importXMLToDatabase()
+00750 \{
+00751   createSpinner();
+00752   qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
+00753 
+00754   \textcolor{keywordflow}{if}( !ui->treeWidget->isBatchProcessSuccess() )
+00755   \{
+00756     \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()-
+      >lastError() );
+00757     deleteSpinner();
+00758     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00759   \}
+00760 
+00761   deleteSpinner();
+00762   \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+00763 \}
+00764 
+00765 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00766 
+00767 \textcolor{keywordtype}{void} GCMainWindow::addNewDatabase()
+00768 \{
+00769   \hyperlink{class_g_c_d_b_session_manager}{GCDBSessionManager} *manager = createDBSessionManager();
+00770 
+00771   \textcolor{comment}{/* If we have an active DOM document, we need to pass the name of the root}
+00772 \textcolor{comment}{    element through to the DB session manager which uses it to determine
+       whether}
+00773 \textcolor{comment}{    or not a user is on the verge of messing something up... */}
+00774   \textcolor{keywordflow}{if}( ui->treeWidget->isEmpty() )
+00775   \{
+00776     manager->\hyperlink{class_g_c_d_b_session_manager_ad029ca4ec8ffff788a281f1b3f3eee71}{addNewDatabase}();
+00777   \}
+00778   \textcolor{keywordflow}{else}
+00779   \{
+00780     manager->\hyperlink{class_g_c_d_b_session_manager_ad029ca4ec8ffff788a281f1b3f3eee71}{addNewDatabase}( ui->treeWidget->rootName() );
+00781   \}
+00782 
+00783   \textcolor{keyword}{delete} manager;
+00784 
+00785   \textcolor{comment}{/* Ensure that the user sets a database as active for this session. */}
+00786   querySetActiveSession( QString( \textcolor{stringliteral}{"No active profile set, please set one for
+       this session."} ) );
+00787 \}
+00788 
+00789 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00790 
+00791 \textcolor{keywordtype}{void} GCMainWindow::addExistingDatabase()
+00792 \{
+00793   \hyperlink{class_g_c_d_b_session_manager}{GCDBSessionManager} *manager = createDBSessionManager();
+00794 
+00795   \textcolor{comment}{/* If we have an active DOM document, we need to pass the name of the root}
+00796 \textcolor{comment}{    element through to the DB session manager which uses it to determine
+       whether}
+00797 \textcolor{comment}{    or not a user is on the verge of messing something up... */}
+00798   \textcolor{keywordflow}{if}( ui->treeWidget->isEmpty() )
+00799   \{
+00800     manager->\hyperlink{class_g_c_d_b_session_manager_a52f3407b7ad5cac7c8c422d2528b28fc}{addExistingDatabase}();
+00801   \}
+00802   \textcolor{keywordflow}{else}
+00803   \{
+00804     manager->\hyperlink{class_g_c_d_b_session_manager_a52f3407b7ad5cac7c8c422d2528b28fc}{addExistingDatabase}( ui->treeWidget->rootName() );
+00805   \}
+00806 
+00807   \textcolor{keyword}{delete} manager;
+00808 
+00809   \textcolor{comment}{/* Ensure that the user sets a database as active for this session. */}
+00810   querySetActiveSession( QString( \textcolor{stringliteral}{"No active profile set, please set one for
+       this session."} ) );
+00811 \}
+00812 
+00813 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00814 
+00815 \textcolor{keywordtype}{void} GCMainWindow::removeDatabase()
+00816 \{
+00817   \hyperlink{class_g_c_d_b_session_manager}{GCDBSessionManager} *manager = createDBSessionManager();
+00818 
+00819   \textcolor{comment}{/* If we have an active DOM document, we need to pass the name of the root}
+00820 \textcolor{comment}{    element through to the DB session manager which uses it to determine
+       whether}
+00821 \textcolor{comment}{    or not a user is on the verge of messing something up... */}
+00822   \textcolor{keywordflow}{if}( ui->treeWidget->isEmpty() )
+00823   \{
+00824     manager->\hyperlink{class_g_c_d_b_session_manager_a0fc44e9d2efb407cc0964295920b2432}{removeDatabase}();
+00825   \}
+00826   \textcolor{keywordflow}{else}
+00827   \{
+00828     manager->\hyperlink{class_g_c_d_b_session_manager_a0fc44e9d2efb407cc0964295920b2432}{removeDatabase}( ui->treeWidget->rootName() );
+00829   \}
+00830 
+00831   \textcolor{keyword}{delete} manager;
+00832 
+00833   \textcolor{comment}{/* If the user removed the active DB for this session, we need to know}
+00834 \textcolor{comment}{    what he/she intends to replace it with. */}
+00835   querySetActiveSession( QString( \textcolor{stringliteral}{"The active profile has been removed, please
+       select another."} ) );
+00836 \}
+00837 
+00838 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00839 
+00840 \textcolor{keywordtype}{void} GCMainWindow::switchActiveDatabase()
+00841 \{
+00842   \hyperlink{class_g_c_d_b_session_manager}{GCDBSessionManager} *manager = createDBSessionManager();
+00843 
+00844   \textcolor{comment}{/* If we have an active DOM document, we need to pass the name of the root}
+00845 \textcolor{comment}{    element through to the DB session manager which uses it to determine
+       whether}
+00846 \textcolor{comment}{    or not a user is on the verge of messing something up... */}
+00847   \textcolor{keywordflow}{if}( ui->treeWidget->isEmpty() )
+00848   \{
+00849     manager->\hyperlink{class_g_c_d_b_session_manager_ac4e5a25619ee77bc9307d3428bfd345d}{selectActiveDatabase}();
+00850   \}
+00851   \textcolor{keywordflow}{else}
+00852   \{
+00853     manager->\hyperlink{class_g_c_d_b_session_manager_ac4e5a25619ee77bc9307d3428bfd345d}{selectActiveDatabase}( ui->treeWidget->rootName() );
+00854   \}
+00855 
+00856   \textcolor{keyword}{delete} manager;
+00857 \}
+00858 
+00859 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00860 
+00861 \textcolor{keywordtype}{void} GCMainWindow::activeDatabaseChanged( QString dbName )
+00862 \{
+00863   \textcolor{keywordflow}{if}( ui->treeWidget->isEmpty() )
+00864   \{
+00865     resetDOM();
+00866   \}
+00867 
+00868   \textcolor{comment}{/* If the user set an empty database, prompt to populate it.  This message
+       must}
+00869 \textcolor{comment}{    always be shown (i.e. we don't have to show the custom dialog box that
+       provides}
+00870 \textcolor{comment}{    the \(\backslash\)"Don't show this again\(\backslash\)" option). */}
+00871   \textcolor{keywordflow}{if}( \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->isProfileEmpty() )
+00872   \{
+00873     QMessageBox::StandardButton accepted = QMessageBox::warning( \textcolor{keyword}{this},
+00874                                                                  \textcolor{stringliteral}{"Empty Profile
+      "},
+00875                                                                  \textcolor{stringliteral}{"Empty profile
+       selected. Import XML from file?"},
+00876                                                                  
+      QMessageBox::Yes | QMessageBox::No,
+00877                                                                  
+      QMessageBox::Yes );
+00878 
+00879     \textcolor{keywordflow}{if}( accepted == QMessageBox::Yes )
+00880     \{
+00881       importXMLFromFile();
+00882     \}
+00883     \textcolor{keywordflow}{else}
+00884     \{
+00885       addItemsToDB();
+00886     \}
+00887   \}
+00888 
+00889   \textcolor{keywordflow}{if}( !m\_activeProfileLabel )
+00890   \{
+00891     m\_activeProfileLabel = \textcolor{keyword}{new} QLabel( QString( \textcolor{stringliteral}{"Active Profile: %1"} ).arg( 
+      dbName ) );
+00892     statusBar()->addWidget( m\_activeProfileLabel );
+00893   \}
+00894   \textcolor{keywordflow}{else}
+00895   \{
+00896     m\_activeProfileLabel->setText( QString( \textcolor{stringliteral}{"Active Profile: %1"} ).arg( dbName 
+      ) );
+00897   \}
+00898 \}
+00899 
+00900 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00901 
+00902 \textcolor{keywordtype}{void} GCMainWindow::addElementToDocument()
+00903 \{
+00904   QString elementName = ui->addElementComboBox->currentText();
+00905   \textcolor{keywordtype}{bool} treeWasEmpty = ui->treeWidget->isEmpty();
+00906   \textcolor{keywordtype}{bool} addToParent = \textcolor{keyword}{false};
+00907 
+00908   \textcolor{comment}{/* If the user selected the <element> option, we add a new sibling element}
+00909 \textcolor{comment}{    of the same name as the current element to the current element's parent. */}
+00910   \textcolor{keywordflow}{if}( elementName.contains( QRegExp( LEFTRIGHTBRACKETS ) ) )
+00911   \{
+00912     elementName = elementName.remove( QRegExp( LEFTRIGHTBRACKETS ) );
+00913     addToParent = \textcolor{keyword}{true};
+00914   \}
+00915 
+00916   \textcolor{comment}{/* There is probably no chance of this ever happening, but defensive
+       programming FTW! */}
+00917   \textcolor{keywordflow}{if}( !elementName.isEmpty() )
+00918   \{
+00919     \textcolor{comment}{/* Update the tree widget. */}
+00920     ui->treeWidget->addItem( elementName, addToParent );
+00921 
+00922     \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem} *treeItem = ui->treeWidget->gcCurrentItem();
+00923     treeItem->setFlags( treeItem->flags() | Qt::ItemIsEditable );
+00924 
+00925     \textcolor{comment}{/* If the user starts creating a DOM document without having explicitly
+       asked for}
+00926 \textcolor{comment}{    a new file to be created, do it automatically (we can't call "newXMLFile
+       here" since}
+00927 \textcolor{comment}{    it resets the DOM document). */}
+00928     \textcolor{keywordflow}{if}( treeWasEmpty )
+00929     \{      
+00930       m\_currentXMLFileName = \textcolor{stringliteral}{""};
+00931       ui->actionCloseFile->setEnabled( \textcolor{keyword}{true} );
+00932       ui->actionSave->setEnabled( \textcolor{keyword}{true} );
+00933       ui->actionSaveAs->setEnabled( \textcolor{keyword}{true} );
+00934       ui->addSnippetButton->setEnabled( \textcolor{keyword}{true} );
+00935       ui->addChildElementButton->setText( \textcolor{stringliteral}{"Add Child"} );
+00936     \}
+00937 
+00938     \textcolor{comment}{/* Add all the known attributes associated with this element name to the
+       new element. */}
+00939     QStringList attributes = \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_afb1e49e08f98ca453f9ac66340a35642}{attributes}( 
+      elementName );
+00940 
+00941     \textcolor{keywordflow}{for}( \textcolor{keywordtype}{int} i = 0; i < attributes.size(); ++i )
+00942     \{
+00943       treeItem->\hyperlink{class_g_c_tree_widget_item_a584cad866bdbd94710d31eb77b804d84}{element}().setAttribute( attributes.at( i ), QString( \textcolor{stringliteral}{""} ) );
+00944     \}
+00945 
+00946     setTextEditContent( treeItem );
+00947     elementSelected( treeItem, 0 );
+00948   \}
+00949 \}
+00950 
+00951 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00952 
+00953 \textcolor{keywordtype}{void} GCMainWindow::addSnippetToDocument()
+00954 \{
+00955   QString elementName = ui->addElementComboBox->currentText();
+00956 
+00957   \textcolor{comment}{/* Check if we're inserting snippets as children, or as siblings. */}
+00958   \textcolor{keywordflow}{if}( elementName.contains( QRegExp( LEFTRIGHTBRACKETS ) ) )
+00959   \{
+00960     \textcolor{comment}{/* Qt::WA\_DeleteOnClose flag set. */}
+00961     \hyperlink{class_g_c_add_snippets_form}{GCAddSnippetsForm} *dialog = \textcolor{keyword}{new} \hyperlink{class_g_c_add_snippets_form}{GCAddSnippetsForm}( elementName.remove( 
+      QRegExp( LEFTRIGHTBRACKETS ) ),
+00962                                                  ui->treeWidget->gcCurrentItem(
+      )->gcParent(),
+00963                                                  this );
+00964     connect( dialog, SIGNAL( snippetAdded( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem}*, QDomElement ) ), \textcolor{keyword}{
+      this}, SLOT( insertSnippet( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem}*, QDomElement ) ) );
+00965     dialog->exec();
+00966   \}
+00967   \textcolor{keywordflow}{else}
+00968   \{
+00969     \textcolor{comment}{/* Qt::WA\_DeleteOnClose flag set. */}
+00970     \hyperlink{class_g_c_add_snippets_form}{GCAddSnippetsForm} *dialog = \textcolor{keyword}{new} \hyperlink{class_g_c_add_snippets_form}{GCAddSnippetsForm}( elementName,
+00971                                                  ui->treeWidget->gcCurrentItem(
+      ),
+00972                                                  this );
+00973     connect( dialog, SIGNAL( snippetAdded( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem}*, QDomElement ) ), \textcolor{keyword}{
+      this}, SLOT( insertSnippet( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem}*, QDomElement ) ) );
+00974     dialog->exec();
+00975   \}
+00976 \}
+00977 
+00978 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00979 
+00980 \textcolor{keywordtype}{void} GCMainWindow::insertSnippet( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem} *treeItem, QDomElement 
+      element )
+00981 \{
+00982   ui->treeWidget->appendSnippet( treeItem, element );
+00983   ui->treeWidget->expandAll();
+00984   setTextEditContent();
+00985   itemFound( treeItem->\hyperlink{class_g_c_tree_widget_item_af44c0d2c5eaa1c5bb3a6a1aace3e8c78}{gcChild}( treeItem->childCount() - 1 ) );
+00986   m\_fileContentsChanged = \textcolor{keyword}{true};
+00987 \}
+00988 
+00989 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00990 
+00991 \textcolor{keywordtype}{void} GCMainWindow::removeItemsFromDB()
+00992 \{
+00993   \textcolor{keywordflow}{if}( !\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->hasActiveSession() )
+00994   \{
+00995     \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, \textcolor{stringliteral}{"No active profile."} );
+00996     \textcolor{keywordflow}{return};
+00997   \}
+00998 
+00999   \textcolor{keywordflow}{if}( \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->isProfileEmpty() )
+01000   \{
+01001     QMessageBox::warning( \textcolor{keyword}{this},
+01002                           \textcolor{stringliteral}{"Profile Empty"},
+01003                           \textcolor{stringliteral}{"Active profile empty, nothing to remove."} );
+01004     \textcolor{keywordflow}{return};
+01005   \}
+01006 
+01007   \textcolor{keywordflow}{if}( !ui->treeWidget->isEmpty() )
+01008   \{
+01009     \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, \textcolor{stringliteral}{"For practical reasons, items
+       cannot be removed when documents are open.\(\backslash\)n"}
+01010                                                \textcolor{stringliteral}{"Please \(\backslash\)"Save\(\backslash\)" and/or \(\backslash\)"Close
+      \(\backslash\)" the current document before returning back here."});
+01011     \textcolor{keywordflow}{return};
+01012   \}
+01013 
+01014   \textcolor{comment}{/* Delete on close flag set (no clean-up needed). */}
+01015   \hyperlink{class_g_c_remove_items_form}{GCRemoveItemsForm} *dialog = \textcolor{keyword}{new} \hyperlink{class_g_c_remove_items_form}{GCRemoveItemsForm}( \textcolor{keyword}{this} );
+01016   dialog->exec();
+01017 \}
+01018 
+01019 
+01020 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01021 
+01022 \textcolor{keywordtype}{void} GCMainWindow::addItemsToDB()
+01023 \{
+01024   \textcolor{keywordflow}{if}( !\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->hasActiveSession() )
+01025   \{
+01026     \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, \textcolor{stringliteral}{"No active profile, please set
+       one (Edit->Switch Profile)."} );
+01027     \textcolor{keywordflow}{return};
+01028   \}
+01029 
+01030   \textcolor{keywordtype}{bool} profileWasEmpty = \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_ae570c403f1b6b7f85e6a5c46829f42a8}{isProfileEmpty}();
+01031 
+01032   \textcolor{comment}{/* Delete on close flag set (no clean-up needed). */}
+01033   \hyperlink{class_g_c_add_items_form}{GCAddItemsForm} *form = \textcolor{keyword}{new} \hyperlink{class_g_c_add_items_form}{GCAddItemsForm}( \textcolor{keyword}{this} );
+01034   form->exec();
+01035 
+01036   \textcolor{comment}{/* If the active profile has just been populated with elements for the first
+       time,}
+01037 \textcolor{comment}{    make sure that we set the newly added root elements to the dropdown. */}
+01038   \textcolor{keywordflow}{if}( profileWasEmpty )
+01039   \{
+01040     ui->addElementComboBox->addItems( \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->
+      knownRootElements() );
+01041     toggleAddElementWidgets();
+01042   \}
+01043 \}
+01044 
+01045 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01046 
+01047 \textcolor{keywordtype}{void} GCMainWindow::searchDocument()
+01048 \{
+01049   \textcolor{comment}{/* Delete on close flag set (no clean-up needed). */}
+01050   \hyperlink{class_g_c_search_form}{GCSearchForm} *form = \textcolor{keyword}{new} \hyperlink{class_g_c_search_form}{GCSearchForm}( ui->treeWidget->allTreeWidgetItems(), 
+      ui->treeWidget->toString(), this );
+01051   connect( form, SIGNAL( foundItem( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem}* ) ), \textcolor{keyword}{this}, SLOT( 
+      itemFound( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem}* ) ) );
+01052   form->exec();
+01053 \}
+01054 
+01055 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01056 
+01057 \textcolor{keywordtype}{void} GCMainWindow::itemFound( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem} *item )
+01058 \{
+01059   ui->treeWidget->expandAll();
+01060   ui->treeWidget->setCurrentItem( item );
+01061   elementSelected( item, 0 );
+01062 \}
+01063 
+01064 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01065 
+01066 \textcolor{keywordtype}{void} GCMainWindow::commentOut( \textcolor{keyword}{const} QList< int > &indices, \textcolor{keyword}{const} QString &
+      comment )
+01067 \{
+01068   m\_fileContentsChanged = \textcolor{keyword}{true};
+01069   ui->treeWidget->replaceItemsWithComment( indices, comment );
+01070 \}
+01071 
+01072 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01073 
+01074 \textcolor{keywordtype}{void} GCMainWindow::rebuild()
+01075 \{
+01076   \textcolor{comment}{/* Capture the parent item's text content and position before we reset the
+       doc content. */}
+01077   QString stringToMatch = ui->treeWidget->gcCurrentItem()->toString();
+01078 
+01079   \textcolor{comment}{/* The -1 is due to a preference to highlight the parent rather than the
+       child. */}
+01080   \textcolor{keywordtype}{int} pos = ui->treeWidget->findItemPositionAmongDuplicates( stringToMatch, ui
+      ->treeWidget->gcCurrentItem()->index() ) - 1;
+01081 
+01082   \textcolor{comment}{/* No need to check if setContent is a success.  If this function gets
+       called, the document}
+01083 \textcolor{comment}{    content is already valid XML. */}
+01084   ui->treeWidget->setContent( ui->dockWidgetTextEdit->toPlainText() );
+01085   ui->dockWidgetTextEdit->findTextRelativeToDuplicates( stringToMatch, pos );
+01086 
+01087   ui->treeWidget->expandAll();
+01088   m\_fileContentsChanged = \textcolor{keyword}{true};
+01089 \}
+01090 
+01091 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01092 
+01093 \textcolor{keywordtype}{void} GCMainWindow::updateComment( \textcolor{keyword}{const} QString &comment )
+01094 \{
+01095   ui->treeWidget->setActiveCommentValue( comment );
+01096 \}
+01097 
+01098 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01099 
+01100 \textcolor{keywordtype}{void} GCMainWindow::collapseOrExpandTreeWidget( \textcolor{keywordtype}{bool} checked )
+01101 \{
+01102   \textcolor{keywordflow}{if}( checked )
+01103   \{
+01104     ui->treeWidget->expandAll();
+01105   \}
+01106   \textcolor{keywordflow}{else}
+01107   \{
+01108     ui->treeWidget->collapseAll();
+01109   \}
+01110 \}
+01111 
+01112 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01113 
+01114 \textcolor{keywordtype}{void} GCMainWindow::uncheckExpandAll()
+01115 \{
+01116   ui->expandAllCheckBox->setChecked( \textcolor{keyword}{false} );
+01117 \}
+01118 
+01119 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01120 
+01121 \textcolor{keywordtype}{void} GCMainWindow::forgetMessagePreferences()
+01122 \{
+01123   \hyperlink{namespace_g_c_message_space_ad9b01668af8368ac7e2c69065d45bf19}{GCMessageSpace::forgetAllPreferences}();
+01124 \}
+01125 
+01126 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01127 
+01128 \textcolor{keywordtype}{void} GCMainWindow::createSpinner()
+01129 \{
+01130   \textcolor{comment}{/* Clean-up must be handled in the calling function, but just in case. */}
+01131   \textcolor{keywordflow}{if}( m\_spinner || m\_progressLabel )
+01132   \{
+01133     deleteSpinner();
+01134   \}
+01135 
+01136   m\_progressLabel = \textcolor{keyword}{new} QLabel( \textcolor{keyword}{this}, Qt::Popup );
+01137   m\_progressLabel->move( window()->frameGeometry().topLeft() + window()->rect()
+      .center() - m\_progressLabel->rect().center() );
+01138 
+01139   m\_spinner = \textcolor{keyword}{new} QMovie( \textcolor{stringliteral}{":/resources/spinner.gif"} );
+01140   m\_spinner->start();
+01141 
+01142   m\_progressLabel->setMovie( m\_spinner );
+01143   m\_progressLabel->show();
+01144 \}
+01145 
+01146 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01147 
+01148 \textcolor{keywordtype}{void} GCMainWindow::deleteSpinner()
+01149 \{
+01150   \textcolor{keywordflow}{if}( m\_spinner )
+01151   \{
+01152     \textcolor{keyword}{delete} m\_spinner;
+01153     m\_spinner = NULL;
+01154   \}
+01155 
+01156   \textcolor{keywordflow}{if}( m\_progressLabel )
+01157   \{
+01158     \textcolor{keyword}{delete} m\_progressLabel;
+01159     m\_progressLabel = NULL;
+01160   \}
+01161 \}
+01162 
+01163 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01164 
+01165 \textcolor{keywordtype}{void} GCMainWindow::resetDOM()
+01166 \{
+01167   ui->treeWidget->clearAndReset();
+01168   ui->dockWidgetTextEdit->clearAndReset();
+01169 
+01170   resetTableWidget();
+01171 
+01172   ui->addElementComboBox->clear();
+01173   ui->addElementComboBox->addItems( \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->
+      knownRootElements() );
+01174   toggleAddElementWidgets();
+01175 
+01176   ui->addSnippetButton->setEnabled( \textcolor{keyword}{false} );
+01177   ui->addChildElementButton->setText( \textcolor{stringliteral}{"Add Root"} );
+01178 
+01179   m\_currentCombo = NULL;
+01180   m\_activeAttributeName = \textcolor{stringliteral}{""};
+01181   m\_fileContentsChanged = \textcolor{keyword}{false};
+01182 
+01183   \textcolor{comment}{/* The timer will be reactivated as soon as work starts again on a legitimate}
+01184 \textcolor{comment}{    document and the user saves it for the first time. */}
+01185   \textcolor{keywordflow}{if}( m\_saveTimer )
+01186   \{
+01187     m\_saveTimer->stop();
+01188   \}
+01189 \}
+01190 
+01191 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01192 
+01193 \textcolor{keywordtype}{bool} GCMainWindow::queryResetDOM( \textcolor{keyword}{const} QString &resetReason )
+01194 \{
+01195   \textcolor{comment}{/* There are a number of places and opportunities for "resetDOM" to be
+       called,}
+01196 \textcolor{comment}{    if there is an active document, check if it's content has changed since the}
+01197 \textcolor{comment}{    last time it had changed and make sure we don't accidentally delete
+       anything. */}
+01198   \textcolor{keywordflow}{if}( m\_fileContentsChanged )
+01199   \{
+01200     QMessageBox::StandardButtons accept = QMessageBox::question( \textcolor{keyword}{this},
+01201                                                                  \textcolor{stringliteral}{"Save file?"},
+01202                                                                  resetReason,
+01203                                                                  
+      QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+01204                                                                  
+      QMessageBox::Yes );
+01205 
+01206     \textcolor{keywordflow}{if}( accept == QMessageBox::Yes )
+01207     \{
+01208       \textcolor{keywordflow}{return} saveXMLFile();
+01209     \}
+01210     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( accept == QMessageBox::No )
+01211     \{
+01212       m\_fileContentsChanged = \textcolor{keyword}{false};
+01213     \}
+01214     \textcolor{keywordflow}{else}
+01215     \{
+01216       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+01217     \}
+01218   \}
+01219 
+01220   \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+01221 \}
+01222 
+01223 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01224 
+01225 \textcolor{keywordtype}{void} GCMainWindow::showEmptyProfileHelp()
+01226 \{
+01227   QMessageBox::information( \textcolor{keyword}{this},
+01228                             \textcolor{stringliteral}{"Empty Profile"},
+01229                             \textcolor{stringliteral}{"The active profile is empty.  You can either
+       import XML from file "}
+01230                             \textcolor{stringliteral}{"via \(\backslash\)"Edit -> Import XML to Profile\(\backslash\)" or you can
+       populate the "}
+01231                             \textcolor{stringliteral}{"profile from scratch via \(\backslash\)"Edit -> Edit Profile ->
+       Add Items\(\backslash\)"."} );
+01232 \}
+01233 
+01234 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01235 
+01236 \textcolor{keywordtype}{void} GCMainWindow::showElementHelp()
+01237 \{
+01238   QMessageBox::information( \textcolor{keyword}{this},
+01239                             \textcolor{stringliteral}{"Adding Elements and Snippets"},
+01240                             \textcolor{stringliteral}{"If the document is still empty, your first element
+       will be the root element.\(\backslash\)n\(\backslash\)n"}
+01241                             \textcolor{stringliteral}{"New elements are added as children of the element
+       selected in the element tree.\(\backslash\)n\(\backslash\)n"}
+01242                             \textcolor{stringliteral}{"\(\backslash\)"Empty\(\backslash\)" duplicate siblings are added by
+       selecting the element name in the drop down "}
+01243                             \textcolor{stringliteral}{"that matches that of the element selected in the
+       element tree (these names will be "}
+01244                             \textcolor{stringliteral}{"bracketed by \(\backslash\)"[]\(\backslash\)").\(\backslash\)n\(\backslash\)n"}
+01245                             \textcolor{stringliteral}{"\(\backslash\)"Snippets\(\backslash\)" are fully formed XML segments
+       consisting of the entire element hierarchy "}
+01246                             \textcolor{stringliteral}{"with the element selected in the drop down combo
+       box as base. Selecting this option will "}
+01247                             \textcolor{stringliteral}{"provide you with the opportunity to provide
+       default values for the snippet's attributes."} );
+01248 \}
+01249 
+01250 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01251 
+01252 \textcolor{keywordtype}{void} GCMainWindow::showMainHelp()
+01253 \{
+01254   QFile file( \textcolor{stringliteral}{":/resources/help/Help.txt"} );
+01255 
+01256   \textcolor{keywordflow}{if}( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
+01257   \{
+01258     \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, QString( \textcolor{stringliteral}{"Failed to open \(\backslash\)"Help
+      \(\backslash\)" file: [%1]"} ).arg( file.errorString() ) );
+01259   \}
+01260   \textcolor{keywordflow}{else}
+01261   \{
+01262     QTextStream stream( &file );
+01263     QString fileContent = stream.readAll();
+01264     file.close();
+01265 
+01266     \textcolor{comment}{/* Qt::WA\_DeleteOnClose flag set...no cleanup required. */}
+01267     \hyperlink{class_g_c_help_dialog}{GCHelpDialog} *dialog = \textcolor{keyword}{new} \hyperlink{class_g_c_help_dialog}{GCHelpDialog}( fileContent, \textcolor{keyword}{this} );
+01268     dialog->show();
+01269   \}
+01270 \}
+01271 
+01272 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01273 
+01274 \textcolor{keywordtype}{void} GCMainWindow::goToSite()
+01275 \{
+01276   QDesktopServices::openUrl( QUrl( \textcolor{stringliteral}{"http://goblincoding.com"} ) );
+01277 \}
+01278 
+01279 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01280 
+01281 \textcolor{keywordtype}{void} GCMainWindow::useDarkTheme( \textcolor{keywordtype}{bool} dark )
+01282 \{
+01283   \textcolor{keywordflow}{if}( dark )
+01284   \{
+01285     QFile file( \textcolor{stringliteral}{":resources/StyleSheet.txt"} );
+01286     file.open( QIODevice::ReadOnly | QIODevice::Text );
+01287     QTextStream stream( &file );
+01288 
+01289     qApp->setStyleSheet( stream.readAll() );
+01290     file.close();
+01291   \}
+01292   \textcolor{keywordflow}{else}
+01293   \{
+01294     qApp->setStyleSheet( QString() );
+01295   \}
+01296 \}
+01297 
+01298 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01299 
+01300 \textcolor{keywordtype}{void} GCMainWindow::setShowHelpButtons( \textcolor{keywordtype}{bool} show )
+01301 \{
+01302   \hyperlink{namespace_g_c_global_space_a6395acc08160e411395f96a88793eacc}{GCGlobalSpace::setShowHelpButtons}( show );
+01303   ui->showAddElementHelpButton->setVisible( show );
+01304 \}
+01305 
+01306 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01307 
+01308 \textcolor{keywordtype}{void} GCMainWindow::setShowTreeItemsVerbose( \textcolor{keywordtype}{bool} verbose )
+01309 \{
+01310   \hyperlink{namespace_g_c_global_space_a58bc4fea7a061440f9ef2dd0aca8aba5}{GCGlobalSpace::setShowTreeItemsVerbose}( verbose );
+01311   ui->treeWidget->setShowTreeItemsVerbose( verbose );
+01312 \}
+01313 
+01314 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01315 
+01316 \hyperlink{class_g_c_d_b_session_manager}{GCDBSessionManager} *GCMainWindow::createDBSessionManager()
+01317 \{
+01318   \textcolor{comment}{/* Clean-up is the responsibility of the calling function. */}
+01319   \hyperlink{class_g_c_d_b_session_manager}{GCDBSessionManager} *manager = \textcolor{keyword}{new} \hyperlink{class_g_c_d_b_session_manager}{GCDBSessionManager}( \textcolor{keyword}{this} );
+01320   connect( manager, SIGNAL( reset() ), \textcolor{keyword}{this}, SLOT( resetDOM() ) );
+01321   connect( manager, SIGNAL( activeDatabaseChanged( QString ) ), \textcolor{keyword}{this}, SLOT( 
+      activeDatabaseChanged( QString ) ) );
+01322   \textcolor{keywordflow}{return} manager;
+01323 \}
+01324 
+01325 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01326 
+01327 \textcolor{keywordtype}{void} GCMainWindow::processDOMDoc()
+01328 \{
+01329   ui->treeWidget->rebuildTreeWidget(); \textcolor{comment}{// also deletes current items}
+01330   resetTableWidget();
+01331 
+01332   ui->addSnippetButton->setEnabled( \textcolor{keyword}{true} );
+01333   ui->addChildElementButton->setText( \textcolor{stringliteral}{"Add Child"} );
+01334 
+01335   \textcolor{comment}{/* Enable file save options. */}
+01336   ui->actionCloseFile->setEnabled( \textcolor{keyword}{true} );
+01337   ui->actionSave->setEnabled( \textcolor{keyword}{true} );
+01338   ui->actionSaveAs->setEnabled( \textcolor{keyword}{true} );
+01339 
+01340   \textcolor{comment}{/* Display the DOM content in the text edit. */}
+01341   setTextEditContent();
+01342 
+01343   \textcolor{comment}{/* Generally-speaking, we want the file contents changed flag to be set
+       whenever}
+01344 \textcolor{comment}{    the text edit content is set (this is done, not surprisingly, in
+       "setTextEditContent"}
+01345 \textcolor{comment}{    above).  However, whenever a DOM document is processed for the first time,
+       nothing}
+01346 \textcolor{comment}{    is changed in it, so to avoid the annoying "Save File" queries when nothing
+       has}
+01347 \textcolor{comment}{    been done yet, we unset the flag here. */}
+01348   m\_fileContentsChanged = \textcolor{keyword}{false};
+01349 
+01350   collapseOrExpandTreeWidget( ui->expandAllCheckBox->isChecked() );
+01351 \}
+01352 
+01353 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01354 
+01355 \textcolor{keywordtype}{void} GCMainWindow::setStatusBarMessage( \textcolor{keyword}{const} QString &message )
+01356 \{
+01357     Q\_UNUSED( message );
+01358   \textcolor{comment}{// TODO.}
+01359 \}
+01360 
+01361 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01362 
+01363 \textcolor{keywordtype}{void} GCMainWindow::setTextEditContent( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem} *item )
+01364 \{
+01365   m\_fileContentsChanged = \textcolor{keyword}{true};
+01366   ui->dockWidgetTextEdit->setContent( ui->treeWidget->toString() );
+01367   highlightTextElement( item );
+01368 \}
+01369 
+01370 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01371 
+01372 \textcolor{keywordtype}{void} GCMainWindow::highlightTextElement( \hyperlink{class_g_c_tree_widget_item}{GCTreeWidgetItem} *item )
+01373 \{
+01374   \textcolor{keywordflow}{if}( item )
+01375   \{
+01376     QString stringToMatch = item->\hyperlink{class_g_c_tree_widget_item_acbd4573d56cc5c6d9bd58c461b797115}{toString}();
+01377     \textcolor{keywordtype}{int} pos = ui->treeWidget->findItemPositionAmongDuplicates( stringToMatch, 
+      item->\hyperlink{class_g_c_tree_widget_item_af6b48ae274cc4989811ef44944c8ad76}{index}() );
+01378     ui->dockWidgetTextEdit->findTextRelativeToDuplicates( stringToMatch, pos );
+01379   \}
+01380 \}
+01381 
+01382 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01383 
+01384 \textcolor{keywordtype}{void} GCMainWindow::insertEmptyTableRow()
+01385 \{
+01386   QTableWidgetItem *label = \textcolor{keyword}{new} QTableWidgetItem( EMPTY );
+01387 
+01388   \textcolor{keywordtype}{int} lastRow = ui->tableWidget->rowCount();
+01389   ui->tableWidget->setRowCount( lastRow + 1 );
+01390   ui->tableWidget->setItem( lastRow, 0, label );
+01391 
+01392   \textcolor{comment}{/* Create the combo box, but deactivate it until we have an associated
+       attribute name. */}
+01393   \hyperlink{class_g_c_combo_box}{GCComboBox} *attributeCombo = \textcolor{keyword}{new} \hyperlink{class_g_c_combo_box}{GCComboBox};
+01394   attributeCombo->setEditable( \textcolor{keyword}{true} );
+01395   attributeCombo->setEnabled( \textcolor{keyword}{false} );
+01396 
+01397   \textcolor{comment}{/* Only connect after inserting items or bad things will happen! */}
+01398   connect( attributeCombo, SIGNAL( currentIndexChanged( QString ) ), \textcolor{keyword}{this}, SLOT
+      ( attributeValueChanged( QString ) ) );
+01399 
+01400   ui->tableWidget->setCellWidget( lastRow, 1, attributeCombo );
+01401   m\_comboBoxes.insert( attributeCombo, lastRow );
+01402 
+01403   \textcolor{comment}{/* This will point the current combo box member to the combo that's been
+       activated}
+01404 \textcolor{comment}{    in the table widget (used in "attributeValueChanged" to obtain the row
+       number the}
+01405 \textcolor{comment}{    combo box appears in in the table widget, etc, etc). */}
+01406   connect( attributeCombo, SIGNAL( activated( \textcolor{keywordtype}{int} ) ), m\_signalMapper, SLOT( 
+      map() ) );
+01407   m\_signalMapper->setMapping( attributeCombo, attributeCombo );
+01408 \}
+01409 
+01410 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01411 
+01412 \textcolor{keywordtype}{void} GCMainWindow::resetTableWidget()
+01413 \{
+01414   \textcolor{comment}{/* Remove the currently visible/live combo boxes from the signal mapper's}
+01415 \textcolor{comment}{    mappings and the combo box map before we whack them all. */}
+01416   \textcolor{keywordflow}{for}( \textcolor{keywordtype}{int} i = 0; i < m\_comboBoxes.keys().size(); ++i )
+01417   \{
+01418     m\_signalMapper->removeMappings( m\_comboBoxes.keys().at( i ) );
+01419   \}
+01420 
+01421   m\_comboBoxes.clear();
+01422 
+01423   ui->tableWidget->clearContents();   \textcolor{comment}{// also deletes current items}
+01424   ui->tableWidget->setRowCount( 0 );
+01425 \}
+01426 
+01427 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01428 
+01429 \textcolor{keywordtype}{void} GCMainWindow::startSaveTimer()
+01430 \{
+01431   \textcolor{comment}{/* Automatically save the file at five minute intervals. */}
+01432   \textcolor{keywordflow}{if}( !m\_saveTimer )
+01433   \{
+01434     m\_saveTimer = \textcolor{keyword}{new} QTimer( \textcolor{keyword}{this} );
+01435     connect( m\_saveTimer, SIGNAL( timeout() ), \textcolor{keyword}{this}, SLOT( saveTempFile() ) );
+01436     m\_saveTimer->start( 300000 );
+01437   \}
+01438   \textcolor{keywordflow}{else}
+01439   \{
+01440     \textcolor{comment}{/* If the timer was stopped due to a DOM reset, start it again. */}
+01441     m\_saveTimer->start( 300000 );
+01442   \}
+01443 \}
+01444 
+01445 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01446 
+01447 \textcolor{keywordtype}{void} GCMainWindow::toggleAddElementWidgets()
+01448 \{
+01449   \textcolor{comment}{/* Make sure we don't inadvertently create "empty" elements. */}
+01450   \textcolor{keywordflow}{if}( ui->addElementComboBox->count() < 1 )
+01451   \{
+01452     ui->addElementComboBox->setEnabled( \textcolor{keyword}{false} );
+01453     ui->addChildElementButton->setEnabled( \textcolor{keyword}{false} );
+01454     ui->commentLineEdit->setEnabled( \textcolor{keyword}{false} );
+01455 
+01456     \textcolor{comment}{/* Check if the element combo box is empty due to an empty profile}
+01457 \textcolor{comment}{      being active. */}
+01458     \textcolor{keywordflow}{if}( \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->isProfileEmpty() )
+01459     \{
+01460       ui->showEmptyProfileHelpButton->setVisible( \textcolor{keyword}{true} );
+01461     \}
+01462     \textcolor{keywordflow}{else}
+01463     \{
+01464       ui->showEmptyProfileHelpButton->setVisible( \textcolor{keyword}{false} );
+01465     \}
+01466   \}
+01467   \textcolor{keywordflow}{else}
+01468   \{
+01469     ui->addElementComboBox->setEnabled( \textcolor{keyword}{true} );
+01470     ui->addChildElementButton->setEnabled( \textcolor{keyword}{true} );
+01471     ui->commentLineEdit->setEnabled( \textcolor{keyword}{true} );
+01472     ui->showEmptyProfileHelpButton->setVisible( \textcolor{keyword}{false} );
+01473   \}
+01474 \}
+01475 
+01476 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01477 
+01478 \textcolor{keywordtype}{void} GCMainWindow::querySetActiveSession( QString reason )
+01479 \{
+01480   \textcolor{keywordflow}{while}( !\hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->hasActiveSession() )
+01481   \{
+01482     \hyperlink{namespace_g_c_message_space_ab118b3a133686167617eb955029fd44e}{GCMessageSpace::showErrorMessageBox}( \textcolor{keyword}{this}, reason );
+01483     \hyperlink{class_g_c_d_b_session_manager}{GCDBSessionManager} *manager = createDBSessionManager();
+01484     manager->\hyperlink{class_g_c_d_b_session_manager_ac4e5a25619ee77bc9307d3428bfd345d}{selectActiveDatabase}();
+01485     \textcolor{keyword}{delete} manager;
+01486   \}
+01487 \}
+01488 
+01489 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01490 
+01491 \textcolor{keywordtype}{void} GCMainWindow::readSettings()
+01492 \{
+01493   QSettings settings( \hyperlink{namespace_g_c_global_space_a97583835f9987b1c94ff05802ccfe42f}{GCGlobalSpace::ORGANISATION}, \hyperlink{namespace_g_c_global_space_ab53b9c3447f00f1cc45a1d3fdfbba564}{GCGlobalSpace::APPLICATION} )
+      ;
+01494   restoreGeometry( settings.value( \textcolor{stringliteral}{"geometry"} ).toByteArray() );
+01495   restoreState( settings.value( \textcolor{stringliteral}{"windowState"} ).toByteArray() );
+01496 
+01497   setShowHelpButtons( \hyperlink{namespace_g_c_global_space_a981753e55f0f77f981f67ccb1ad4ecf1}{GCGlobalSpace::showHelpButtons}() );
+01498   setShowTreeItemsVerbose( \hyperlink{namespace_g_c_global_space_ad9a35f311bda4dd28f5cf155c5efc818}{GCGlobalSpace::showTreeItemsVerbose}() );
+01499 
+01500   ui->actionRememberWindowGeometry->setChecked( settings.value( \textcolor{stringliteral}{"
+      saveWindowInformation"}, \textcolor{keyword}{true} ).toBool() );
+01501   ui->actionUseDarkTheme->setChecked( settings.value( \textcolor{stringliteral}{"useDarkTheme"}, \textcolor{keyword}{false} ).
+      toBool() );
+01502   ui->actionShowHelpButtons->setChecked( \hyperlink{namespace_g_c_global_space_a981753e55f0f77f981f67ccb1ad4ecf1}{GCGlobalSpace::showHelpButtons}() );
+01503 \}
+01504 
+01505 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01506 
+01507 \textcolor{keywordtype}{void} GCMainWindow::saveSettings()
+01508 \{
+01509   QSettings settings( \hyperlink{namespace_g_c_global_space_a97583835f9987b1c94ff05802ccfe42f}{GCGlobalSpace::ORGANISATION}, \hyperlink{namespace_g_c_global_space_ab53b9c3447f00f1cc45a1d3fdfbba564}{GCGlobalSpace::APPLICATION} )
+      ;
+01510 
+01511   \textcolor{keywordflow}{if}( ui->actionRememberWindowGeometry->isChecked() )
+01512   \{
+01513     settings.setValue( \textcolor{stringliteral}{"geometry"}, saveGeometry() );
+01514     settings.setValue( \textcolor{stringliteral}{"windowState"}, saveState() );
+01515   \}
+01516   \textcolor{keywordflow}{else}
+01517   \{
+01518     \textcolor{keywordflow}{if}( settings.contains( \textcolor{stringliteral}{"geometry"} ) )
+01519     \{
+01520       settings.remove( \textcolor{stringliteral}{"geometry"} );
+01521     \}
+01522 
+01523     \textcolor{keywordflow}{if}( settings.contains( \textcolor{stringliteral}{"windowState"} ) )
+01524     \{
+01525       settings.remove( \textcolor{stringliteral}{"windowState"} );
+01526     \}
+01527   \}
+01528 
+01529   settings.setValue( \textcolor{stringliteral}{"saveWindowInformation"}, ui->actionRememberWindowGeometry
+      ->isChecked() );
+01530   settings.setValue( \textcolor{stringliteral}{"useDarkTheme"}, ui->actionUseDarkTheme->isChecked() );
+01531 \}
+01532 
+01533 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01534 
+01535 \textcolor{keywordtype}{void} GCMainWindow::queryRestoreFiles()
+01536 \{
+01537   QDir dir = QDir::current();
+01538   QStringList tempFiles = QDir::current()
+01539                           .entryList( QDir::Files )
+01540                           .filter( QString( \textcolor{stringliteral}{"%1\_temp"} )
+01541                                    .arg( \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->
+      activeSessionName().\textcolor{keyword}{remove}( \textcolor{stringliteral}{".db"} ) ) );
+01542 
+01543   \textcolor{keywordflow}{if}( !tempFiles.isEmpty() )
+01544   \{
+01545     QMessageBox::StandardButton accept = QMessageBox::information( \textcolor{keyword}{this},
+01546                                                                    \textcolor{stringliteral}{"Found
+       recovery files"},
+01547                                                                    \textcolor{stringliteral}{"Found
+       auto-recover files related to this profile. Would you like to view and save?"},
+01548                                                                    
+      QMessageBox::Ok | QMessageBox::Cancel,
+01549                                                                    
+      QMessageBox::Ok );
+01550 
+01551     \textcolor{keywordflow}{if}( accept == QMessageBox::Ok )
+01552     \{
+01553       \textcolor{comment}{/* "Delete on close" flag set. */}
+01554       \hyperlink{class_g_c_restore_files_form}{GCRestoreFilesForm} *restore = \textcolor{keyword}{new} \hyperlink{class_g_c_restore_files_form}{GCRestoreFilesForm}( tempFiles, \textcolor{keyword}{this} );
+01555       restore->exec();
+01556     \}
+01557   \}
+01558 \}
+01559 
+01560 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01561 
+01562 \textcolor{keywordtype}{void} GCMainWindow::saveTempFile()
+01563 \{
+01564   QFile file( QDir::currentPath() +
+01565               QString( \textcolor{stringliteral}{"/%1\_%2\_temp"} )
+01566               .arg( m\_currentXMLFileName.split( \textcolor{stringliteral}{"/"} ).last() )
+01567               .arg( \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_a53aff43e5997c5f0180ba214205e5bc6}{activeSessionName}().remove
+      ( \textcolor{stringliteral}{".db"} ) ) );
+01568 
+01569   \textcolor{comment}{/* Since this is an attempt at auto-saving, we aim for a "best case" scenario
+       and don't display}
+01570 \textcolor{comment}{    error messages if encountered. */}
+01571   \textcolor{keywordflow}{if}( file.open( QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text )
+       )
+01572   \{
+01573     QTextStream outStream( &file );
+01574     outStream << ui->treeWidget->toString();
+01575     file.close();
+01576     startSaveTimer();
+01577   \}
+01578 \}
+01579 
+01580 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+01581 
+01582 \textcolor{keywordtype}{void} GCMainWindow::deleteTempFile()
+01583 \{
+01584   QFile file( QDir::currentPath() +
+01585               QString( \textcolor{stringliteral}{"/%1\_%2\_temp"} )
+01586               .arg( m\_currentXMLFileName.split( \textcolor{stringliteral}{"/"} ).last() )
+01587               .arg( \hyperlink{class_g_c_data_base_interface_a1baea9c0667aa8b610ec30076fcab84c}{GCDataBaseInterface::instance}()->\hyperlink{class_g_c_data_base_interface_a53aff43e5997c5f0180ba214205e5bc6}{activeSessionName}().remove
+      ( \textcolor{stringliteral}{".db"} ) ) );
+01588 
+01589   file.remove();
+01590 \}
+01591 
+01592 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+\end{DoxyCode}

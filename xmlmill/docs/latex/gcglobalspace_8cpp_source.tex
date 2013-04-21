@@ -1,0 +1,82 @@
+\hypertarget{gcglobalspace_8cpp_source}{\section{gcglobalspace.\-cpp}
+}
+
+\begin{DoxyCode}
+00001 \textcolor{comment}{/* Copyright (c) 2012 - 2013 by William Hallatt.}
+00002 \textcolor{comment}{ *}
+00003 \textcolor{comment}{ * This file forms part of "XML Mill".}
+00004 \textcolor{comment}{ *}
+00005 \textcolor{comment}{ * The official website for this project is <http://www.goblincoding.com> and,}
+00006 \textcolor{comment}{ * although not compulsory, it would be appreciated if all works of whatever}
+00007 \textcolor{comment}{ * nature using this source code (in whole or in part) include a reference to}
+00008 \textcolor{comment}{ * this site.}
+00009 \textcolor{comment}{ *}
+00010 \textcolor{comment}{ * Should you wish to contact me for whatever reason, please do so via:}
+00011 \textcolor{comment}{ *}
+00012 \textcolor{comment}{ *                 <http://www.goblincoding.com/contact>}
+00013 \textcolor{comment}{ *}
+00014 \textcolor{comment}{ * This program is free software: you can redistribute it and/or modify it
+       under}
+00015 \textcolor{comment}{ * the terms of the GNU General Public License as published by the Free
+       Software}
+00016 \textcolor{comment}{ * Foundation, either version 3 of the License, or (at your option) any later}
+00017 \textcolor{comment}{ * version.}
+00018 \textcolor{comment}{ *}
+00019 \textcolor{comment}{ * This program is distributed in the hope that it will be useful, but WITHOUT}
+00020 \textcolor{comment}{ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+       FITNESS}
+00021 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+       details.}
+00022 \textcolor{comment}{ *}
+00023 \textcolor{comment}{ * You should have received a copy of the GNU General Public License along with}
+00024 \textcolor{comment}{ * this program (GNUGPL.txt).  If not, see}
+00025 \textcolor{comment}{ *}
+00026 \textcolor{comment}{ *                    <http://www.gnu.org/licenses/>}
+00027 \textcolor{comment}{ */}
+00028 
+00029 \textcolor{preprocessor}{#include "utils/gcglobalspace.h"}
+00030 \textcolor{preprocessor}{#include <QSettings>}
+00031 
+00032 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+00033 
+\hypertarget{gcglobalspace_8cpp_source_l00034}{}\hyperlink{namespace_g_c_global_space}{00034} \textcolor{keyword}{namespace }GCGlobalSpace
+00035 \{
+00036   \textcolor{keyword}{namespace}
+00037   \{
+00038     \textcolor{keyword}{const} QString HELP = \textcolor{stringliteral}{"showHelpButtons"};
+00039     \textcolor{keyword}{const} QString VERBOSE = \textcolor{stringliteral}{"showTreeItemsVerbose"};
+00040   \}
+00041 
+\hypertarget{gcglobalspace_8cpp_source_l00042}{}\hyperlink{namespace_g_c_global_space_a981753e55f0f77f981f67ccb1ad4ecf1}{00042}   \textcolor{keywordtype}{bool} \hyperlink{namespace_g_c_global_space_a981753e55f0f77f981f67ccb1ad4ecf1}{showHelpButtons}()
+00043   \{
+00044     QSettings settings( \hyperlink{namespace_g_c_global_space_a97583835f9987b1c94ff05802ccfe42f}{GCGlobalSpace::ORGANISATION}, \hyperlink{namespace_g_c_global_space_ab53b9c3447f00f1cc45a1d3fdfbba564}{GCGlobalSpace::APPLICATION}
+       );
+00045     \textcolor{keywordflow}{return} settings.value( HELP, \textcolor{keyword}{true} ).toBool();
+00046   \}
+00047 
+\hypertarget{gcglobalspace_8cpp_source_l00048}{}\hyperlink{namespace_g_c_global_space_a6395acc08160e411395f96a88793eacc}{00048}   \textcolor{keywordtype}{void} \hyperlink{namespace_g_c_global_space_a6395acc08160e411395f96a88793eacc}{setShowHelpButtons}( \textcolor{keywordtype}{bool} show )
+00049   \{
+00050     QSettings settings( \hyperlink{namespace_g_c_global_space_a97583835f9987b1c94ff05802ccfe42f}{GCGlobalSpace::ORGANISATION}, \hyperlink{namespace_g_c_global_space_ab53b9c3447f00f1cc45a1d3fdfbba564}{GCGlobalSpace::APPLICATION}
+       );
+00051     settings.setValue( HELP, show );
+00052   \}
+00053 
+\hypertarget{gcglobalspace_8cpp_source_l00054}{}\hyperlink{namespace_g_c_global_space_ad9a35f311bda4dd28f5cf155c5efc818}{00054}   \textcolor{keywordtype}{bool} \hyperlink{namespace_g_c_global_space_ad9a35f311bda4dd28f5cf155c5efc818}{showTreeItemsVerbose}()
+00055   \{
+00056     QSettings settings( \hyperlink{namespace_g_c_global_space_a97583835f9987b1c94ff05802ccfe42f}{GCGlobalSpace::ORGANISATION}, \hyperlink{namespace_g_c_global_space_ab53b9c3447f00f1cc45a1d3fdfbba564}{GCGlobalSpace::APPLICATION}
+       );
+00057     \textcolor{keywordflow}{return} settings.value( VERBOSE, \textcolor{keyword}{true} ).toBool();
+00058   \}
+00059 
+\hypertarget{gcglobalspace_8cpp_source_l00060}{}\hyperlink{namespace_g_c_global_space_a58bc4fea7a061440f9ef2dd0aca8aba5}{00060}   \textcolor{keywordtype}{void} \hyperlink{namespace_g_c_global_space_a58bc4fea7a061440f9ef2dd0aca8aba5}{setShowTreeItemsVerbose}( \textcolor{keywordtype}{bool} show )
+00061   \{
+00062     QSettings settings( \hyperlink{namespace_g_c_global_space_a97583835f9987b1c94ff05802ccfe42f}{GCGlobalSpace::ORGANISATION}, \hyperlink{namespace_g_c_global_space_ab53b9c3447f00f1cc45a1d3fdfbba564}{GCGlobalSpace::APPLICATION}
+       );
+00063     settings.setValue( VERBOSE, show );
+00064   \}
+00065 \}
+00066 
+00067 \textcolor{comment}{/*
+      --------------------------------------------------------------------------------------*/}
+\end{DoxyCode}

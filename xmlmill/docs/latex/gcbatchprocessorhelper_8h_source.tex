@@ -1,0 +1,128 @@
+\hypertarget{gcbatchprocessorhelper_8h_source}{\section{gcbatchprocessorhelper.\-h}
+}
+
+\begin{DoxyCode}
+00001 \textcolor{comment}{/* Copyright (c) 2012 - 2013 by William Hallatt.}
+00002 \textcolor{comment}{ *}
+00003 \textcolor{comment}{ * This file forms part of "XML Mill".}
+00004 \textcolor{comment}{ *}
+00005 \textcolor{comment}{ * The official website for this project is <http://www.goblincoding.com> and,}
+00006 \textcolor{comment}{ * although not compulsory, it would be appreciated if all works of whatever}
+00007 \textcolor{comment}{ * nature using this source code (in whole or in part) include a reference to}
+00008 \textcolor{comment}{ * this site.}
+00009 \textcolor{comment}{ *}
+00010 \textcolor{comment}{ * Should you wish to contact me for whatever reason, please do so via:}
+00011 \textcolor{comment}{ *}
+00012 \textcolor{comment}{ *                 <http://www.goblincoding.com/contact>}
+00013 \textcolor{comment}{ *}
+00014 \textcolor{comment}{ * This program is free software: you can redistribute it and/or modify it
+       under}
+00015 \textcolor{comment}{ * the terms of the GNU General Public License as published by the Free
+       Software}
+00016 \textcolor{comment}{ * Foundation, either version 3 of the License, or (at your option) any later}
+00017 \textcolor{comment}{ * version.}
+00018 \textcolor{comment}{ *}
+00019 \textcolor{comment}{ * This program is distributed in the hope that it will be useful, but WITHOUT}
+00020 \textcolor{comment}{ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+       FITNESS}
+00021 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+       details.}
+00022 \textcolor{comment}{ *}
+00023 \textcolor{comment}{ * You should have received a copy of the GNU General Public License along with}
+00024 \textcolor{comment}{ * this program (GNUGPL.txt).  If not, see}
+00025 \textcolor{comment}{ *}
+00026 \textcolor{comment}{ *                    <http://www.gnu.org/licenses/>}
+00027 \textcolor{comment}{ */}
+00028 
+00029 \textcolor{preprocessor}{#ifndef GCBATCHPROCESSORHELPER\_H}
+00030 \textcolor{preprocessor}{}\textcolor{preprocessor}{#define GCBATCHPROCESSORHELPER\_H}
+00031 \textcolor{preprocessor}{}
+00032 \textcolor{preprocessor}{#include <QMap>}
+00033 \textcolor{preprocessor}{#include <QMultiHash>}
+00034 \textcolor{preprocessor}{#include <QStringList>}
+00035 \textcolor{preprocessor}{#include <QVariantList>}
+00036 
+00037 \textcolor{keyword}{class }QDomDocument;
+00038 \textcolor{keyword}{class }QDomElement;
+00039 
+00041 
+\hypertarget{gcbatchprocessorhelper_8h_source_l00057}{}\hyperlink{class_g_c_batch_processor_helper}{00057} \textcolor{keyword}{class }\hyperlink{class_g_c_batch_processor_helper}{GCBatchProcessorHelper}
+00058 \{
+00059 \textcolor{keyword}{public}:
+00076   \hyperlink{class_g_c_batch_processor_helper_a36b76739cc2d64ab72e9d9b68425a7f1}{GCBatchProcessorHelper}( \textcolor{keyword}{const} QDomDocument *domDoc,
+00077                           \textcolor{keyword}{const} QString &stringSeparator,
+00078                           \textcolor{keyword}{const} QStringList &knownElements,
+00079                           \textcolor{keyword}{const} QStringList &knownAttributes );
+00080 
+00084   \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_afdedbc674698c019ebd2a3938a239661}{newElementsToAdd}() \textcolor{keyword}{const};
+00085 
+00097   \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_a89c14c3740c7cb57c937ef8db99b4af1}{newElementChildrenToAdd}() \textcolor{keyword}{const};
+00098 
+00110   \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_a640ca9bd78b7da0796fdfb82fefce8b6}{newElementAttributesToAdd}() \textcolor{keyword}{const};
+00111 
+00115   \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_aca0a2d6bbfcb23907e917b5d2251fc6f}{elementsToUpdate}() \textcolor{keyword}{const};
+00116 
+00128   \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_a8fd4cac8af9a54df52a98628d5ba6fbe}{elementChildrenToUpdate}() \textcolor{keyword}{const};
+00129 
+00141   \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_a3b0630e9e210b2b86e58cb43d3706b73}{elementAttributesToUpdate}() \textcolor{keyword}{const};
+00142 
+00146   \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_a605ca53123f28467df39cabeb3aa65cd}{newAttributeKeysToAdd}() \textcolor{keyword}{const};
+00147 
+00155   \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_abf195046fd00e629b2ce5e3bd6bcf90d}{newAssociatedElementsToAdd}() \textcolor{keyword}{const};
+00156 
+00166   \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_af06d87d433f9402667f1cd654ad4b422}{newAttributeValuesToAdd}() \textcolor{keyword}{const};
+00167 
+00171   \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_a4cad81bffaa5af1531a72ccaeaedd600}{attributeKeysToUpdate}() \textcolor{keyword}{const};
+00172 
+00180   \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_a22c3d5f21c3dff029e89536c0a08daf4}{associatedElementsToUpdate}() \textcolor{keyword}{const};
+00181 
+00191   \textcolor{keyword}{const} QVariantList &\hyperlink{class_g_c_batch_processor_helper_a390cab72c76739bea0d98d5ba1ff7e21}{attributeValuesToUpdate}() \textcolor{keyword}{const};
+00192 
+00193 \textcolor{keyword}{private}:
+00197   \textcolor{keywordtype}{void} processElement( \textcolor{keyword}{const} QDomElement &parentElement );
+00198 
+00202   \textcolor{keywordtype}{void} createRecord( \textcolor{keyword}{const} QDomElement &element );
+00203 
+00207   \textcolor{keywordtype}{void} sortRecords();
+00208 
+00210   \textcolor{keywordtype}{void} createVariantLists();
+00211 
+00212   QString m\_stringListSeparator;
+00213 
+00214   QStringList  m\_knownElements;
+00215   QStringList  m\_knownAttributeKeys;
+00216 
+00217   QVariantList m\_newElementsToAdd;
+00218   QVariantList m\_newElementChildrenToAdd;
+00219   QVariantList m\_newElementAttributesToAdd;
+00220 
+00221   QVariantList m\_elementsToUpdate;
+00222   QVariantList m\_elementChildrenToUpdate;
+00223   QVariantList m\_elementAttributesToUpdate;
+00224 
+00225   QVariantList m\_newAttributeKeysToAdd;
+00226   QVariantList m\_newAssociatedElementsToAdd;
+00227   QVariantList m\_newAttributeValuesToAdd;
+00228 
+00229   QVariantList m\_attributeKeysToUpdate;
+00230   QVariantList m\_associatedElementsToUpdate;
+00231   QVariantList m\_attributeValuesToUpdate;
+00232 
+00235   \textcolor{keyword}{struct }ElementRecord
+00236   \{
+00237     QStringList children;
+00238     QMap< QString \textcolor{comment}{/*name*/}, QStringList \textcolor{comment}{/*values*/} > attributes;
+00239 
+00240     ElementRecord()
+00241       :
+00242         children  (),
+00243         attributes()
+00244     \{\}
+00245   \};
+00246 
+00247   QMultiHash< QString \textcolor{comment}{/*element*/}, ElementRecord > m\_unsorted;
+00248   QMap      < QString \textcolor{comment}{/*element*/}, ElementRecord > m\_records;
+00249 \};
+00250 
+00251 \textcolor{preprocessor}{#endif // GCBATCHPROCESSORHELPER\_H}
+\end{DoxyCode}

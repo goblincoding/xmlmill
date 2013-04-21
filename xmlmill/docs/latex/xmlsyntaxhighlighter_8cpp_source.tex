@@ -1,0 +1,111 @@
+\hypertarget{xmlsyntaxhighlighter_8cpp_source}{\section{xmlsyntaxhighlighter.\-cpp}
+}
+
+\begin{DoxyCode}
+00001 \textcolor{comment}{/****************************************************************************}
+00002 \textcolor{comment}{**}
+00003 \textcolor{comment}{** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).}
+00004 \textcolor{comment}{** All rights reserved.}
+00005 \textcolor{comment}{** Contact: Nokia Corporation (qt-info@nokia.com)}
+00006 \textcolor{comment}{**}
+00007 \textcolor{comment}{** This file is part of the examples of the Qt Toolkit.}
+00008 \textcolor{comment}{**}
+00009 \textcolor{comment}{** $QT\_BEGIN\_LICENSE:BSD$}
+00010 \textcolor{comment}{** You may use this file under the terms of the BSD license as follows:}
+00011 \textcolor{comment}{**}
+00012 \textcolor{comment}{** "Redistribution and use in source and binary forms, with or without}
+00013 \textcolor{comment}{** modification, are permitted provided that the following conditions are}
+00014 \textcolor{comment}{** met:}
+00015 \textcolor{comment}{**   * Redistributions of source code must retain the above copyright}
+00016 \textcolor{comment}{**     notice, this list of conditions and the following disclaimer.}
+00017 \textcolor{comment}{**   * Redistributions in binary form must reproduce the above copyright}
+00018 \textcolor{comment}{**     notice, this list of conditions and the following disclaimer in}
+00019 \textcolor{comment}{**     the documentation and/or other materials provided with the}
+00020 \textcolor{comment}{**     distribution.}
+00021 \textcolor{comment}{**   * Neither the name of Nokia Corporation and its Subsidiary(-ies) nor}
+00022 \textcolor{comment}{**     the names of its contributors may be used to endorse or promote}
+00023 \textcolor{comment}{**     products derived from this software without specific prior written}
+00024 \textcolor{comment}{**     permission.}
+00025 \textcolor{comment}{**}
+00026 \textcolor{comment}{** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS}
+00027 \textcolor{comment}{** "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT}
+00028 \textcolor{comment}{** LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR}
+00029 \textcolor{comment}{** A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT}
+00030 \textcolor{comment}{** OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,}
+00031 \textcolor{comment}{** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT}
+00032 \textcolor{comment}{** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,}
+00033 \textcolor{comment}{** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY}
+00034 \textcolor{comment}{** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT}
+00035 \textcolor{comment}{** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE}
+00036 \textcolor{comment}{** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."}
+00037 \textcolor{comment}{** $QT\_END\_LICENSE$}
+00038 \textcolor{comment}{**}
+00039 \textcolor{comment}{****************************************************************************/}
+00040 
+00041 \textcolor{preprocessor}{#include "xmlsyntaxhighlighter.h"}
+00042 
+00043 XmlSyntaxHighlighter::XmlSyntaxHighlighter(QTextDocument *parent)
+00044     : QSyntaxHighlighter(parent)
+00045 \{
+00046     HighlightingRule rule;
+00047 
+00048     \textcolor{comment}{// tag format}
+00049     tagFormat.setForeground(QColor(70,70,110));
+00050     \textcolor{comment}{//tagFormat.setFontWeight(QFont::Bold);}
+00051     rule.pattern = QRegExp(\textcolor{stringliteral}{"(<[a-zA-Z0-9\_:]+\(\backslash\)\(\backslash\)b|<\(\backslash\)\(\backslash\)?[a-zA-Z0-9\_:]+\(\backslash\)\(\backslash\)b|\(\backslash\)\(\backslash\)
+      ?>|>|/>|</[a-zA-Z0-9\_:]+>)"});
+00052     rule.format = tagFormat;
+00053     highlightingRules.append(rule);
+00054 
+00055     \textcolor{comment}{// attribute format}
+00056     attributeFormat.setForeground(QColor(160,10,10));
+00057     rule.pattern = QRegExp(\textcolor{stringliteral}{"[a-zA-Z0-9\_:]+="});
+00058     rule.format = attributeFormat;
+00059     highlightingRules.append(rule);
+00060 
+00061     \textcolor{comment}{// attribute content format}
+00062     attributeContentFormat.setForeground(QColor(160,10,130));
+00063     rule.pattern = QRegExp(\textcolor{stringliteral}{"(\(\backslash\)"[^\(\backslash\)"]*\(\backslash\)"|'[^']*')"});
+00064     rule.format = attributeContentFormat;
+00065     highlightingRules.append(rule);
+00066 
+00067     commentFormat.setForeground(QColor(30,130,0));
+00068     commentFormat.setFontItalic(\textcolor{keyword}{true});
+00069 
+00070     commentStartExpression = QRegExp(\textcolor{stringliteral}{"<!--"});
+00071     commentEndExpression = QRegExp(\textcolor{stringliteral}{"-->"});
+00072 \}
+00073 
+00074 \textcolor{keywordtype}{void} XmlSyntaxHighlighter::highlightBlock(\textcolor{keyword}{const} QString &text)
+00075 \{
+00076      \textcolor{keywordflow}{foreach} (\textcolor{keyword}{const} HighlightingRule &rule, highlightingRules) \{
+00077          QRegExp expression(rule.pattern);
+00078          \textcolor{keywordtype}{int} index = text.indexOf(expression);
+00079          \textcolor{keywordflow}{while} (index >= 0) \{
+00080              \textcolor{keywordtype}{int} length = expression.matchedLength();
+00081              setFormat(index, length, rule.format);
+00082              index = text.indexOf(expression, index + length);
+00083          \}
+00084      \}
+00085      setCurrentBlockState(0);
+00086 
+00087      \textcolor{keywordtype}{int} startIndex = 0;
+00088      \textcolor{keywordflow}{if} (previousBlockState() != 1)
+00089          startIndex = text.indexOf(commentStartExpression);
+00090 
+00091      \textcolor{keywordflow}{while} (startIndex >= 0) \{
+00092          \textcolor{keywordtype}{int} endIndex = text.indexOf(commentEndExpression, startIndex);
+00093          \textcolor{keywordtype}{int} commentLength;
+00094          \textcolor{keywordflow}{if} (endIndex == -1) \{
+00095              setCurrentBlockState(1);
+00096              commentLength = text.length() - startIndex;
+00097          \} \textcolor{keywordflow}{else} \{
+00098              commentLength = endIndex - startIndex
+00099                              + commentEndExpression.matchedLength();
+00100          \}
+00101          setFormat(startIndex, commentLength, commentFormat);
+00102          startIndex = text.indexOf(commentStartExpression,
+00103                                                  startIndex + commentLength);
+00104      \}
+00105 \}
+\end{DoxyCode}
