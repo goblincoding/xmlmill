@@ -1,4 +1,0 @@
-<map id="G" name="G">
-<area shape="rect" id="node3" href="$class_g_c_data_base_interface.html#afb1e49e08f98ca453f9ac66340a35642" title="Returns an UNSORTED list of all the attribute names associated with &quot;element&quot; in the active database ..." alt="" coords="349,5,563,35"/>
-<area shape="rect" id="node5" href="$class_g_c_data_base_interface.html#abc13d0cb75b233fd83575bfef575ff19" title="Updates the list of known attributes associated with &quot;element&quot; by appending the new attributes to the..." alt="" coords="305,59,607,88"/>
-</map>

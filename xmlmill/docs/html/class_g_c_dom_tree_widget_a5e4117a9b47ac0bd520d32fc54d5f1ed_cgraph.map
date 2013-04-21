@@ -1,7 +1,0 @@
-<map id="G" name="G">
-<area shape="rect" id="node3" href="$class_g_c_data_base_interface.html#a1baea9c0667aa8b610ec30076fcab84c" title="Singleton accessor." alt="" coords="264,5,472,35"/>
-<area shape="rect" id="node5" href="$class_g_c_data_base_interface.html#afb1e49e08f98ca453f9ac66340a35642" title="Returns an UNSORTED list of all the attribute names associated with &quot;element&quot; in the active database ..." alt="" coords="261,59,475,88"/>
-<area shape="rect" id="node7" href="$class_g_c_tree_widget_item.html#a197806cd712ae04b129acd1699674df5" title="Inserts &quot;item&quot; at &quot;index&quot; and ensures that the corresponding DOM element is also inserted in the ..." alt="" coords="257,112,479,141"/>
-<area shape="rect" id="node11" href="$class_g_c_tree_widget_item.html#a1125dbc55a8ba3e50662b8258cb35fdf" title="Returns the parent item as a GCTreeWidgetItem." alt="" coords="271,165,465,195"/>
-<area shape="rect" id="node9" href="$class_g_c_tree_widget_item.html#a584cad866bdbd94710d31eb77b804d84" title="Returns the associated element via QDomElement&#39;s default shallow copy constructor." alt="" coords="528,112,717,141"/>
-</map>

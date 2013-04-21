@@ -1,8 +1,0 @@
-<map id="G" name="G">
-<area shape="rect" id="node3" href="$class_g_c_data_base_interface.html#a6fbf551a825c0fca13926449be4a5215" title="Removes &quot;attribute&quot; from the list of attributes associated with &quot;element&quot; in the active database..." alt="" coords="289,5,540,35"/>
-<area shape="rect" id="node5" href="$class_g_c_data_base_interface.html#ae16d516cbefe58ccf9ef0e8ece4a394f" title="Recursively scans the &quot;doc&quot;&#39;s element hierarchy to ensure that all the document&#39;s elements..." alt="" coords="268,59,561,88"/>
-<area shape="rect" id="node9" href="$class_g_c_dom_tree_widget.html#a5e4117a9b47ac0bd520d32fc54d5f1ed" title="Adds a new item and corresponding DOM element node named &quot;elementName&quot; and inserts the new tree widge..." alt="" coords="313,112,516,141"/>
-<area shape="rect" id="node7" href="$class_g_c_dom_tree_widget.html#a123f18a1174ae99e567f6a2335ce1824" title="Returns true if the underlying DOM document is compatible with the active DB session." alt="" coords="612,59,892,88"/>
-<area shape="rect" id="node11" href="$class_g_c_dom_tree_widget.html#adbbe1eeb6dc9a2d6c84a7133106a7f77" title="Adds a new item and corresponding DOM element node named &quot;element&quot;." alt="" coords="656,112,848,141"/>
-<area shape="rect" id="node13" href="$class_g_c_dom_tree_widget.html#a06ee56d0aa9348302dbb8d3f4e5bab44" title="This function starts the recursive process of populating the tree widget with items consisting of the..." alt="" coords="941,112,1221,141"/>
-</map>

@@ -1,8 +1,0 @@
-<map id="G" name="G">
-<area shape="rect" id="node3" href="$class_g_c_dom_tree_widget.html#a123f18a1174ae99e567f6a2335ce1824" title="Returns true if the underlying DOM document is compatible with the active DB session." alt="" coords="265,5,545,35"/>
-<area shape="rect" id="node5" href="$class_g_c_dom_tree_widget.html#ac8a71d6111a3615a5a7eecea457a3a34" title="Returns true if batch processing of DOM content to the active DB was successful." alt="" coords="261,59,549,88"/>
-<area shape="rect" id="node7" href="$class_g_c_dom_tree_widget.html#a06ee56d0aa9348302dbb8d3f4e5bab44" title="This function starts the recursive process of populating the tree widget with items consisting of the..." alt="" coords="837,137,1117,167"/>
-<area shape="rect" id="node9" href="$class_g_c_dom_tree_widget.html#a5e4117a9b47ac0bd520d32fc54d5f1ed" title="Adds a new item and corresponding DOM element node named &quot;elementName&quot; and inserts the new tree widge..." alt="" coords="304,163,507,192"/>
-<area shape="rect" id="node14" href="$class_g_c_dom_tree_widget.html#ac4ccf569a0c538e3c1c72e887f78f5b6" title="Re&#45;implemented from QTreeWidget." alt="" coords="304,216,507,245"/>
-<area shape="rect" id="node11" href="$class_g_c_dom_tree_widget.html#adbbe1eeb6dc9a2d6c84a7133106a7f77" title="Adds a new item and corresponding DOM element node named &quot;element&quot;." alt="" coords="597,163,789,192"/>
-</map>

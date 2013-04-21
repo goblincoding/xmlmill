@@ -1,4 +1,0 @@
-<map id="G" name="G">
-<area shape="rect" id="node3" href="$class_g_c_data_base_interface.html#a2c20ff88464664aef988c9c0417e19be" title="Batch process an entire DOM document." alt="" coords="380,5,705,35"/>
-<area shape="rect" id="node5" href="$class_g_c_dom_tree_widget.html#ac8a71d6111a3615a5a7eecea457a3a34" title="Returns true if batch processing of DOM content to the active DB was successful." alt="" coords="755,5,1043,35"/>
-</map>

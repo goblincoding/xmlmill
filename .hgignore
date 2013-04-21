@@ -964,8 +964,8 @@ GCXMLGenerator_MinGW_Debug/debug
 GCXMLGenerator_MinGW_Debug
 GCXMLGenerator_MinGW_Release
 GCXMLGeneratorMinGW/release
-GCXMLGenerator/docs/latex
-GCXMLGenerator/docs/html
-GCXMLGenerator/docs/Doxyfile.bak
-GCXMLGenerator/docs/UbuntuDoxyfile.bak
-GCXMLGenerator/docs/XMLMillSourceDoc.pdf
+xmlmill/docs/latex
+xmlmill/docs/html
+xmlmill/docs/Doxyfile.bak
+xmlmill/docs/UbuntuDoxyfile.bak
+xmlmill/docs/XMLMillSourceDoc.pdf

@@ -1,8 +1,0 @@
-<map id="G" name="G">
-<area shape="rect" id="node3" href="$class_g_c_tree_widget_item.html#a584cad866bdbd94710d31eb77b804d84" title="Returns the associated element via QDomElement&#39;s default shallow copy constructor." alt="" coords="312,5,501,35"/>
-<area shape="rect" id="node5" href="$class_g_c_tree_widget_item.html#a1125dbc55a8ba3e50662b8258cb35fdf" title="Returns the parent item as a GCTreeWidgetItem." alt="" coords="309,59,504,88"/>
-<area shape="rect" id="node7" href="$class_g_c_tree_widget_item.html#af44c0d2c5eaa1c5bb3a6a1aace3e8c78" title="Returns the child item at &quot;index&quot; as a GCTreeWidgetItem." alt="" coords="313,112,500,141"/>
-<area shape="rect" id="node9" href="$class_g_c_data_base_interface.html#a1baea9c0667aa8b610ec30076fcab84c" title="Singleton accessor." alt="" coords="303,165,511,195"/>
-<area shape="rect" id="node11" href="$class_g_c_data_base_interface.html#a91a60134bfb21a3f49d826340bebb852" title="Updates the list of known first level children associated with &quot;element&quot; by appending the new childre..." alt="" coords="260,219,553,248"/>
-<area shape="rect" id="node13" href="$class_g_c_tree_widget_item.html#a3af8c66a690cd55986a38b996a375ba4" title="Returns the element name." alt="" coords="320,272,493,301"/>
-</map>
