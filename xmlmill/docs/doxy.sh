@@ -3,5 +3,5 @@
 cd latex
 make
 cd ../
-cp latex/refman.pdf ./XMLMillSourceDoc.pdf
+cp latex/refman.pdf ./xmlmill.pdf
 
