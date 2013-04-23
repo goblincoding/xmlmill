@@ -33,16 +33,15 @@
 
 class QWidget;
 
-/// Responsible for the display of error messages and messages requiring user input with the
-/// option to remember the user's preference.
+/*! Responsible for the display of error messages and messages requiring user input with the
+    option to remember the user's preference.
 
-/**
-  Some message prompts displayed via this namespace contain the option to remember the user's
-  preference.  In cases where a user preference can be saved, GCMessageSpace will persist the changes
-  to whatever medium exists on the platform it's running on (Windows registry, Mac XML, Unix ini).
+    Some message prompts displayed via this namespace contain the option to remember the user's
+    preference.  In cases where a user preference can be saved, GCMessageSpace will persist the changes
+    to whatever medium exists on the platform it's running on (Windows registry, Mac XML, Unix ini).
 
-  This space is furthermore responsible for the display of all error messages, but not ALL messages
-  (some messages always need to be shown and make more sense implemented in their respective classes)
+    This space is furthermore responsible for the display of all error messages, but not ALL messages
+    (some messages always need to be shown and make more sense implemented in their respective classes)
 */
 namespace GCMessageSpace
 {  
