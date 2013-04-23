@@ -1,8 +1,8 @@
 @echo off
 
-doxygen WindowsDoxyfile
+START /WAIT doxygen WindowsDoxyfile
 cd latex
-make.bat
+START /WAIT make.bat
 cd ..\
 copy .\latex\refman.pdf xmlmill.pdf
 copy .\html\xmlmill.chm .
