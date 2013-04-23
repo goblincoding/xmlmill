@@ -4,10 +4,9 @@ Add reg exp validation to user input.
 
 Remember to name page "xmlmill" as in http://www.goblincoding.com/xmlmill
 
-Still have to write main page (documentation).
-
 Make everything dockable.
 Hover in plain text edit?
 Line numbers?
 Collapse XML?
 Metal scrollbar type highlighting?
+Search bug - XML that's commented out gets searched, but doesn't show progress (i.e. need to exclude comments from the search functionality, OR highlight text in plain text edit).

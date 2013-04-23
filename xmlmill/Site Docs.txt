@@ -1,0 +1,31 @@
+XML Mill is a GUI based XML editor with a memory.
+
+When I started writing this application, my goal was to:
+
+1. Create a GUI based XML editor that would eliminate the need to manually edit and build XML files and
+2. To do this in such a way that previous values and relationships were remembered.
+
+The reason for this was that I constantly found myself fixing errors introduced by copying and pasting XML configuration files and then manually tweaking the values for each new use case.  The silly thing about this approach was that (1) the XML structure never really changed for any specific "style" and (2) that most of the values were recycled in one form or another from use case to use case, yet I could never remember which attributes went with which values (especially when the attributes were all called "value", but associated with different element names).
+
+In short, what I needed was an application that could remember relationships between the elements, element attributes and attribute values for specific "styles" of XML, and that would also speed up the process of building XML files for any specific style through an easy-to-use GUI interface.  Before I continue, I should probably explain what I mean with a specific "style" of XML:  the style of an XML document is simply the way the XML document is always built.  Imagine an XML data packet for service "x", a configuration file for process "y", etc etc, each of these XML files represent a specific "style" in that they are intended for a specific purpose, it's as simple as that.
+
+XML Mill achieves this with the use of "profiles".  Profiles are used to define the relationships between elements, associated attributes and all the known attribute values for a specific XML style.  As the user, you will be required to provide the names of the profiles you require and to populate the profiles either through importing existing XML documents or through manually adding elements and attributes to the active profile.  The profile will remember the relationships between the imported elements themselves as well as between elements and their associated attributes (in other words, if "yourElement" is generally associated with attributes "yourFirstAttribute", "yourSecondAttribute" etc, then the profile will remember these relationships) as well as all known values that has ever been assigned to any particular attribute.
+
+What this means is that, the next time you build your XML config document, you can do it via a graphical user interface without the need to remember which elements are children of which other elements, which attributes go with these elements or which possible values (or value types) the various attributes can and cannot have.  You will furthermore be restricted to working within the bounds of the known relationships (similar to what an XML schema does) so that you do not accidentally mess up parent/child relationships or assign the wrong attributes to elements.
+
+A word of advice, however: Do not mix XML styles that are vastly different from each other.  Rather create a profile for each style (or closely related style) of XML document you generally work with, i.e. a "MyXmlProfile" for "MyXmlConfig" (and even maybe "MyXmlConfigSlightlyDifferent") is recommended.  Of course, you can do what you want, but this application was designed to work best under these conditions.
+
+Unique Element Names
+
+Profiles rely on unique element names to keep track of everything (pay attention, this is very important).  What this means is that, in order for everything to work as you would expect, you will have to make sure that you do not re-use element names in your XML in conflicting ways.  This of course does not mean that you cannot use an element name more than once in a document (that would just be daft) but rather that all elements of the same name should "do the same thing".  If you don't adhere to this advice, things will most probably not work out as well as it could.
+
+All Changes Are Additive
+
+All changes made indirectly to an XML profile via an XML document are <i>additive</i> in nature.  What this means is that elements are added and relationships updated as you change names, re-order items via the tree view, etc etc, but that no change will ever remove anything from a profile.  In order to make <i>subtractive</i> changes to a profile, you have to explicitly remove items via <i>Edit->Edit Profile->Remove Items</i>
+
+
+If you just want to get on with it, then this should get you started:
+
+1.	Create a profile (at first run via the provided form or via <i>Edit -> Create New Profile</i>)
+2.	Populate the profile by importing existing XML files of the type you wish to build (<i>Edit -> Import XML to Profile</i>), or manually (<i>Edit -> Edit Profile -> Add Items</i>)
+3.	Create a new document (<i>File -> New File</i>) and start building your new document.
