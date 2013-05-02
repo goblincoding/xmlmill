@@ -10,3 +10,5 @@ Line numbers?
 Collapse XML?
 Metal scrollbar type highlighting?
 Search bug - XML that's commented out gets searched, but doesn't show progress (i.e. need to exclude comments from the search functionality, OR highlight text in plain text edit).
+
+Make attribute value unique for some cases (allow option to set a flag or something).
