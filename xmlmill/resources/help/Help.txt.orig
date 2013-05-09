@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+h1 {font-size:20pt}
+h2 {font-size:18pt}
+h3 {font-size:16pt}
+p  {font-size:11pt} 
+li {font-size:11pt} 
+</style>
+</head>
+
+<body>
+<h1>Overview</h1>
+
+<ol>
+<li><a href="#QuickStart">Quick Start</a></li>
+<li><a href="#ProfilesLink">Profiles</a></li>
+<li><a href="#ElementNames">Unique Element Names</a></li>
+<li><a href="#AdditiveChanges">All Changes Are Additive</a></li>
+</ol>
+
+Show html text \\<Some HTML text \\/>
+
+
+<h2><a name="QuickStart">Quick Start</a></h2>
+<p>
+<ol>
+<li>Create a profile (at first run via the provided form or via <i>Edit -> Create New Profile</i>)</li>
+<li>Populate the profile by importing existing XML files of the type you wish to build (<i>Edit -> Import XML to Profile</i>), or manually (<i>Edit -> Edit Profile -> Add Items</i>)</li>
+<li>Create a new document (<i>File -> New File</i>) and start building your new document.</li>
+</ol>
+</p>
+
+<h2><a name="ProfilesLink">Profiles</a></h2>
+<p>Profiles are used to define the relationships between elements, associated attributes and known attribute values for a specific XML "style" (the way a specific type of XML document is always built).  This idea is best explained with the help of an example: let's say that you have an XML config file that you are forever copying and pasting and tweaking for a new project/system/data packet, etc.  Not only is this a tedious and rather silly way of doing things, it is also a sure way to introduce errors into your XML.</p>
+
+<p>Alternatively, you could import XML (<i>Edit->Import XML to Profile</i>) into a new or existing profile and use that profile to build similar documents in the future.  The profile will remember the relationships between the imported elements themselves as well as between elements and their associated attributes (in other words, if "yourElement" is generally associated with attributes "yourFirstAttribute", "yourSecondAttribute" etc, then the profile will remember these relationships) as well as all known values that has ever been assigned to any particular attribute.</p>
+
+<p>What this means is that, the next time you build your XML config document, you can do it via a graphical user interface without the need to remember which elements are children of which other elements, which attributes go with these elements or which possible values (or value types) the various attributes can and cannot have.  You will furthermore be restricted to working within the bounds of the known relationships (similar to what an XML schema does) so that you do not accidentally mess up parent/child relationships or assign the wrong attributes to elements.</p>
+
+<p>A word of advice, however: Do not mix XML styles that are vastly different from each other.  Rather create a profile for each type (or closely related type) of XML document you generally work with, i.e. a "MyXmlProfile" for "MyXmlConfig" (and even maybe "MyXmlConfigSlightlyDifferent") is recommended.  Of course, you can do what you want, but this application was designed to work best under these conditions.</p>
+
+<h3><a name="ElementNames">Unique Element Names</a></h3>
+<p>Profiles rely on unique element names to keep track of everything (pay attention, this is very important).  What this means is that, in order for everything to work as you would expect, you will have to make sure that you do not re-use element names in your XML in conflicting ways.  This of course does not mean that you cannot use an element name more than once in a document (that would just be daft) but rather that all elements of the same name should "do the same thing".  If you don't adhere to this advice, things will most probably not work out as well as it could.</p>
+
+<h3><a name="AdditiveChanges">All Changes Are Additive</a></h3>
+<p>All changes made indirectly to an XML profile via an XML document are <i>additive</i> in nature.  What this means is that elements are added and relationships updated as you change names, re-order items via the tree view, etc etc, but that no change will ever remove anything from a profile.  In order to make <i>subtractive</i> changes to a profile, you have to explicitly remove items via <i>Edit->Edit Profile->Remove Items</i>.
+</p>
+
+</body>
+</html>

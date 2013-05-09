@@ -1,0 +1,7 @@
+Due to the complexities involved in distributing applications to different *nix flavours and versions, please run XMLMill via the "runme.sh" script provided (make sure you have permission to execute - "chmod u+x runme.sh").
+
+If you're interested in the "why", please see this page:
+
+http://qt-project.org/doc/qt-5.0/qtdoc/deployment-x11.html#application-dependencies
+
+
