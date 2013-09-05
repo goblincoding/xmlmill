@@ -56,6 +56,18 @@ GCDomTreeWidget::GCDomTreeWidget( QWidget* parent )
   setSelectionMode( QAbstractItemView::SingleSelection );
   setDragDropMode( QAbstractItemView::InternalMove );
 
+  QAction* expand = new QAction( "Expand", this );
+  addAction( expand );
+  connect( expand, SIGNAL( triggered() ), this, SLOT( expand() ) );
+
+  QAction* collapse = new QAction( "Collapse", this );
+  addAction( collapse );
+  connect( collapse, SIGNAL( triggered() ), this, SLOT( collapse() ) );
+
+  QAction* separator = new QAction( this );
+  separator->setSeparator( true );
+  addAction( separator );
+
   QAction* rename = new QAction( "Rename element", this );
   addAction( rename );
   connect( rename, SIGNAL( triggered() ), this, SLOT( renameItem() ) );
@@ -63,6 +75,10 @@ GCDomTreeWidget::GCDomTreeWidget( QWidget* parent )
   QAction* remove = new QAction( "Remove element", this );
   addAction( remove );
   connect( remove, SIGNAL( triggered() ), this, SLOT( removeItem() ) );
+
+  separator = new QAction( this );
+  separator->setSeparator( true );
+  addAction( separator );
 
   QAction* stepUp = new QAction( "Move up one level", this );
   addAction( stepUp );
@@ -981,6 +997,20 @@ void GCDomTreeWidget::stepDown()
 
     m_itemBeingManipulated = false;
   }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDomTreeWidget::expand()
+{
+  expandItem( m_activeItem );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCDomTreeWidget::collapse()
+{
+  collapseItem( m_activeItem );
 }
 
 /*--------------------------------------------------------------------------------------*/

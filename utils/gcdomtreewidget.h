@@ -193,7 +193,7 @@ protected:
   /*! Re-implemented from QTreeWidget. */
   void keyPressEvent( QKeyEvent* event );
 
-  private slots:
+private slots:
   /*! Connected to QTreeWidget::currentItemChanged(), sets the active item. */
   void currentGcItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous );
 
@@ -225,6 +225,14 @@ protected:
   /*! Connected to a context menu action.  Moves the selected item to the level of its children.
       \sa stepUp */
   void stepDown();
+
+  /*! Connected to a context menu action.  Expands selected item.
+      \sa collapse */
+  void expand();
+
+  /*! Connected to a context menu action.  Collapses the selected item.
+      \sa expand */
+  void collapse();
 
 private:
   /*! Creates a new GCTreeWidgetItem item with corresponding "element" and adds it
