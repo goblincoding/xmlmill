@@ -41,8 +41,8 @@
 
 /*--------------------------------------------------------------------------------------*/
 
-GCDomTreeWidget::GCDomTreeWidget( QWidget *parent ) :
-  QTreeWidget           ( parent ),
+GCDomTreeWidget::GCDomTreeWidget( QWidget* parent )
+: QTreeWidget           ( parent ),
   m_activeItem          ( NULL ),
   m_domDoc              ( new QDomDocument ),
   m_commentNode         (),
@@ -56,19 +56,19 @@ GCDomTreeWidget::GCDomTreeWidget( QWidget *parent ) :
   setSelectionMode( QAbstractItemView::SingleSelection );
   setDragDropMode( QAbstractItemView::InternalMove );
 
-  QAction *rename = new QAction( "Rename element", this );
+  QAction* rename = new QAction( "Rename element", this );
   addAction( rename );
   connect( rename, SIGNAL( triggered() ), this, SLOT( renameItem() ) );
 
-  QAction *remove = new QAction( "Remove element", this );
+  QAction* remove = new QAction( "Remove element", this );
   addAction( remove );
   connect( remove, SIGNAL( triggered() ), this, SLOT( removeItem() ) );
 
-  QAction *stepUp = new QAction( "Move up one level", this );
+  QAction* stepUp = new QAction( "Move up one level", this );
   addAction( stepUp );
   connect( stepUp, SIGNAL( triggered() ), this, SLOT( stepUp() ) );
 
-  QAction *stepDown = new QAction( "Move down one level", this );
+  QAction* stepDown = new QAction( "Move down one level", this );
   addAction( stepDown );
   connect( stepDown, SIGNAL( triggered() ), this, SLOT( stepDown() ) );
 
@@ -136,7 +136,7 @@ QString GCDomTreeWidget::activeCommentValue() const
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::setActiveCommentValue( const QString &value )
+void GCDomTreeWidget::setActiveCommentValue( const QString& value )
 {
   /* Check if we're editing an existing comment, or if we should add a new one. */
   if( !m_commentNode.isNull() )
@@ -168,7 +168,7 @@ void GCDomTreeWidget::setActiveCommentValue( const QString &value )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::getIncludedTreeWidgetItems( QList< GCTreeWidgetItem* > &includedItems ) const
+void GCDomTreeWidget::getIncludedTreeWidgetItems( QList< GCTreeWidgetItem* >& includedItems ) const
 {
   for( int i = 0; i < m_items.size(); ++i )
   {
@@ -183,14 +183,14 @@ void GCDomTreeWidget::getIncludedTreeWidgetItems( QList< GCTreeWidgetItem* > &in
 
 /*--------------------------------------------------------------------------------------*/
 
-const QList< GCTreeWidgetItem* > &GCDomTreeWidget::allTreeWidgetItems() const
+const QList< GCTreeWidgetItem* >& GCDomTreeWidget::allTreeWidgetItems() const
 {
   return m_items;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-int GCDomTreeWidget::findItemPositionAmongDuplicates( const QString &nodeText, int itemIndex ) const
+int GCDomTreeWidget::findItemPositionAmongDuplicates( const QString& nodeText, int itemIndex ) const
 {
   QList< int > indices;
 
@@ -200,7 +200,7 @@ int GCDomTreeWidget::findItemPositionAmongDuplicates( const QString &nodeText, i
     of these nodes are exact duplicates with regards to attributes, values, etc. */
     for( int i = 0; i < m_items.size(); ++i )
     {
-      GCTreeWidgetItem *treeItem = m_items.at( i );
+      GCTreeWidgetItem* treeItem = m_items.at( i );
 
       if( treeItem->toString() == nodeText )
       {
@@ -220,7 +220,7 @@ int GCDomTreeWidget::findItemPositionAmongDuplicates( const QString &nodeText, i
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDomTreeWidget::setContent( const QString &text, QString *errorMsg, int *errorLine, int *errorColumn )
+bool GCDomTreeWidget::setContent( const QString& text, QString* errorMsg, int* errorLine, int* errorColumn )
 {
   clearAndReset();
 
@@ -258,7 +258,7 @@ bool GCDomTreeWidget::isCurrentItemRoot() const
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDomTreeWidget::matchesRootName( const QString &elementName ) const
+bool GCDomTreeWidget::matchesRootName( const QString& elementName ) const
 {
   return ( elementName == m_domDoc->documentElement().tagName() );
 }
@@ -279,7 +279,7 @@ bool GCDomTreeWidget::isBatchProcessSuccess() const
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::updateItemNames( const QString &oldName, const QString &newName )
+void GCDomTreeWidget::updateItemNames( const QString& oldName, const QString& newName )
 {
   for( int i = 0; i < m_items.size(); ++i )
   {
@@ -299,7 +299,7 @@ void GCDomTreeWidget::rebuildTreeWidget()
   m_items.clear();
 
   /* Set the document root as the first item in the tree. */
-  GCTreeWidgetItem *item = new GCTreeWidgetItem( m_domDoc->documentElement(), m_items.size() );
+  GCTreeWidgetItem* item = new GCTreeWidgetItem( m_domDoc->documentElement(), m_items.size() );
   invisibleRootItem()->addChild( item );  // takes ownership
   m_items.append( item );
   m_isEmpty = false;
@@ -314,7 +314,7 @@ void GCDomTreeWidget::rebuildTreeWidget()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::appendSnippet( GCTreeWidgetItem *parentItem, QDomElement childElement )
+void GCDomTreeWidget::appendSnippet( GCTreeWidgetItem* parentItem, QDomElement childElement )
 {
   parentItem->element().appendChild( childElement );
   processNextElement( parentItem, childElement );
@@ -325,14 +325,14 @@ void GCDomTreeWidget::appendSnippet( GCTreeWidgetItem *parentItem, QDomElement c
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::replaceItemsWithComment( const QList< int > &indices, const QString &comment )
-{  
+void GCDomTreeWidget::replaceItemsWithComment( const QList< int >& indices, const QString& comment )
+{
   QList< GCTreeWidgetItem* > itemsToDelete;
-  GCTreeWidgetItem *commentParentItem = NULL;
+  GCTreeWidgetItem* commentParentItem = NULL;
 
   for( int i = 0; i < m_items.size(); ++i )
   {
-    GCTreeWidgetItem *item = m_items.at( i );
+    GCTreeWidgetItem* item = m_items.at( i );
 
     for( int j = 0; j < indices.size(); ++j )
     {
@@ -353,7 +353,7 @@ void GCDomTreeWidget::replaceItemsWithComment( const QList< int > &indices, cons
         /* Now whack it. */
         if( item->gcParent() )
         {
-          GCTreeWidgetItem *parentItem = item->gcParent();
+          GCTreeWidgetItem* parentItem = item->gcParent();
           parentItem->removeChild( item );
         }
         else
@@ -373,7 +373,7 @@ void GCDomTreeWidget::replaceItemsWithComment( const QList< int > &indices, cons
     the process). */
   for( int i = 0; i < itemsToDelete.size(); ++ i )
   {
-    GCTreeWidgetItem *item = itemsToDelete.at( i );
+    GCTreeWidgetItem* item = itemsToDelete.at( i );
     removeFromList( item );
     delete item;
     item = NULL;
@@ -399,13 +399,13 @@ void GCDomTreeWidget::replaceItemsWithComment( const QList< int > &indices, cons
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::processNextElement( GCTreeWidgetItem *parentItem, QDomElement element )
+void GCDomTreeWidget::processNextElement( GCTreeWidgetItem* parentItem, QDomElement element )
 {
   if( parentItem )
   {
     while( !element.isNull() )
     {
-      GCTreeWidgetItem *item = new GCTreeWidgetItem( element, m_items.size() );
+      GCTreeWidgetItem* item = new GCTreeWidgetItem( element, m_items.size() );
       parentItem->addChild( item );  // takes ownership
       m_items.append( item );
 
@@ -419,7 +419,7 @@ void GCDomTreeWidget::processNextElement( GCTreeWidgetItem *parentItem, QDomElem
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::populateFromDatabase( const QString &baseElementName )
+void GCDomTreeWidget::populateFromDatabase( const QString& baseElementName )
 {
   clearAndReset();
 
@@ -427,11 +427,11 @@ void GCDomTreeWidget::populateFromDatabase( const QString &baseElementName )
   {
     /* It is possible that there may be multiple document types saved to this profile. */
     foreach( QString element, GCDataBaseInterface::instance()->knownRootElements() )
-    {
-      m_isEmpty = true;   // forces the new item to be added to the invisible root
-      addItem( element );
-      processNextElementFromDatabase( element );
-    }
+                                                                                    {
+                                                                                      m_isEmpty = true;   // forces the new item to be added to the invisible root
+                                                                                      addItem( element );
+                                                                                      processNextElementFromDatabase( element );
+                                                                                    }
   }
   else
   {
@@ -445,36 +445,36 @@ void GCDomTreeWidget::populateFromDatabase( const QString &baseElementName )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::processNextElementFromDatabase( const QString &element )
+void GCDomTreeWidget::processNextElementFromDatabase( const QString& element )
 {
   QStringList children = GCDataBaseInterface::instance()->children( element );
 
   foreach( QString child, children )
-  {
-    addItem( child );
+                                    {
+                                      addItem( child );
 
-    /* Since it isn't illegal to have elements with children of the same name, we cannot
-      block it in the DB, however, if we DO have elements with children of the same name,
-      this recursive call enters an infinite loop, so we need to make sure that doesn't
-      happen. */
-    GCTreeWidgetItem *newItem = gcCurrentItem();
+                                      /* Since it isn't illegal to have elements with children of the same name, we cannot
+                                        block it in the DB, however, if we DO have elements with children of the same name,
+                                        this recursive call enters an infinite loop, so we need to make sure that doesn't
+                                        happen. */
+                                      GCTreeWidgetItem* newItem = gcCurrentItem();
 
-    if( !parentTreeAlreadyContainsElement( newItem, child ) )
-    {
-      processNextElementFromDatabase( child );
-    }
-    else
-    {
-      setCurrentItem( m_activeItem->parent() );  // required to enforce sibling relationships
-    }
-  }
+                                      if( !parentTreeAlreadyContainsElement( newItem, child ) )
+                                      {
+                                        processNextElementFromDatabase( child );
+                                      }
+                                      else
+                                      {
+                                        setCurrentItem( m_activeItem->parent() );  // required to enforce sibling relationships
+                                      }
+                                    }
 
   setCurrentItem( m_activeItem->parent() );  // required to enforce sibling relationships
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDomTreeWidget::parentTreeAlreadyContainsElement( const GCTreeWidgetItem* item, const QString &element )
+bool GCDomTreeWidget::parentTreeAlreadyContainsElement( const GCTreeWidgetItem* item, const QString& element )
 {
   while( item->gcParent() )
   {
@@ -492,7 +492,7 @@ bool GCDomTreeWidget::parentTreeAlreadyContainsElement( const GCTreeWidgetItem* 
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::addItem( const QString &element, bool toParent )
+void GCDomTreeWidget::addItem( const QString& element, bool toParent )
 {
   if( m_activeItem )
   {
@@ -513,7 +513,7 @@ void GCDomTreeWidget::addItem( const QString &element, bool toParent )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::insertItem( const QString &elementName, int index, bool toParent )
+void GCDomTreeWidget::insertItem( const QString& elementName, int index, bool toParent )
 {
   QDomElement element = m_domDoc->createElement( elementName );
 
@@ -526,7 +526,7 @@ void GCDomTreeWidget::insertItem( const QString &elementName, int index, bool to
     element.setAttribute( attributeNames.at( i ), "" );
   }
 
-  GCTreeWidgetItem *item = new GCTreeWidgetItem( element, m_items.size() );
+  GCTreeWidgetItem* item = new GCTreeWidgetItem( element, m_items.size() );
   m_items.append( item );
 
   if( m_isEmpty )
@@ -628,9 +628,9 @@ void GCDomTreeWidget::updateIndices()
 
 /*--------------------------------------------------------------------------------------*/
 
-GCTreeWidgetItem *GCDomTreeWidget::gcItemFromNode( QDomNode element )
+GCTreeWidgetItem* GCDomTreeWidget::gcItemFromNode( QDomNode element )
 {
-  GCTreeWidgetItem *parentItem = NULL;
+  GCTreeWidgetItem* parentItem = NULL;
 
   if( !element.isNull() )
   {
@@ -649,11 +649,11 @@ GCTreeWidgetItem *GCDomTreeWidget::gcItemFromNode( QDomNode element )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::removeFromList( GCTreeWidgetItem *item )
+void GCDomTreeWidget::removeFromList( GCTreeWidgetItem* item )
 {
   for( int i = 0; i < item->childCount(); ++i )
   {
-    GCTreeWidgetItem *childItem = item->gcChild( i );
+    GCTreeWidgetItem* childItem = item->gcChild( i );
     removeFromList( childItem );
   }
 
@@ -680,7 +680,7 @@ void GCDomTreeWidget::populateCommentList( QDomNode node )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::dropEvent( QDropEvent *event )
+void GCDomTreeWidget::dropEvent( QDropEvent* event )
 {
   m_itemBeingManipulated = true;
 
@@ -700,7 +700,7 @@ void GCDomTreeWidget::dropEvent( QDropEvent *event )
     QDomElement previousParent = m_activeItem->element().parentNode().toElement();
     previousParent.removeChild( m_activeItem->element() );
 
-    GCTreeWidgetItem *parent = m_activeItem->gcParent();
+    GCTreeWidgetItem* parent = m_activeItem->gcParent();
 
     if( parent )
     {
@@ -711,7 +711,7 @@ void GCDomTreeWidget::dropEvent( QDropEvent *event )
       else if( indicatorPos == QAbstractItemView::AboveItem ||
                indicatorPos == QAbstractItemView::BelowItem )
       {
-        GCTreeWidgetItem *sibling = NULL;
+        GCTreeWidgetItem* sibling = NULL;
         int pos = parent->indexOfChild( m_activeItem );
 
         if( pos > 0 )
@@ -759,7 +759,7 @@ void GCDomTreeWidget::dropEvent( QDropEvent *event )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::keyPressEvent( QKeyEvent *event )
+void GCDomTreeWidget::keyPressEvent( QKeyEvent* event )
 {
   if( event->key() == Qt::Key_Delete )
   {
@@ -778,9 +778,10 @@ void GCDomTreeWidget::keyPressEvent( QKeyEvent *event )
 }
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::currentGcItemChanged( QTreeWidgetItem *current, QTreeWidgetItem *previous )
+void GCDomTreeWidget::currentGcItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous )
 {
-  Q_UNUSED( previous );
+  Q_UNUSED( previous )
+  ;
 
   if( !m_itemBeingManipulated )
   {
@@ -790,7 +791,7 @@ void GCDomTreeWidget::currentGcItemChanged( QTreeWidgetItem *current, QTreeWidge
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::emitGcCurrentItemSelected( QTreeWidgetItem *item, int column, bool highlightElement )
+void GCDomTreeWidget::emitGcCurrentItemSelected( QTreeWidgetItem* item, int column, bool highlightElement )
 {
   if( !m_busyIterating )
   {
@@ -808,7 +809,7 @@ void GCDomTreeWidget::emitGcCurrentItemSelected( QTreeWidgetItem *item, int colu
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::emitGcCurrentItemChanged( QTreeWidgetItem *item, int column )
+void GCDomTreeWidget::emitGcCurrentItemChanged( QTreeWidgetItem* item, int column )
 {
   if( !m_busyIterating )
   {
@@ -851,14 +852,14 @@ void GCDomTreeWidget::renameItem()
     /* If we are, in fact, dealing with a new element, we also want the "new" element's associated attributes
       to be updated with the known values of these attributes. */
     foreach( QString attribute, attributes )
-    {
-      QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( oldName, attribute );
+                                            {
+                                              QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( oldName, attribute );
 
-      if( !GCDataBaseInterface::instance()->updateAttributeValues( newName, attribute, attributeValues ) )
-      {
-        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
-      }
-    }
+                                              if( !GCDataBaseInterface::instance()->updateAttributeValues( newName, attribute, attributeValues ) )
+                                              {
+                                                GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
+                                              }
+                                            }
 
     emitGcCurrentItemChanged( m_activeItem, 0 );
   }
@@ -896,7 +897,7 @@ void GCDomTreeWidget::removeItem()
     /* Now whack it. */
     if( m_activeItem->gcParent() )
     {
-      GCTreeWidgetItem *parentItem = m_activeItem->gcParent();
+      GCTreeWidgetItem* parentItem = m_activeItem->gcParent();
       parentItem->removeChild( m_activeItem );
     }
     else
@@ -962,7 +963,7 @@ void GCDomTreeWidget::stepDown()
     /* Try again in the opposite direction. */
     if( !siblingItem )
     {
-      siblingItem = gcItemFromNode( m_activeItem->element().nextSiblingElement( ) );
+      siblingItem = gcItemFromNode( m_activeItem->element().nextSiblingElement() );
     }
 
     if( siblingItem && parentItem )

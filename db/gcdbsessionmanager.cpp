@@ -36,8 +36,8 @@
 
 /*--------------------------------------------------------------------------------------*/
 
-GCDBSessionManager::GCDBSessionManager( QWidget *parent ) :
-  QDialog      ( parent ),
+GCDBSessionManager::GCDBSessionManager( QWidget* parent )
+: QDialog      ( parent ),
   ui           ( new Ui::GCDBSessionManager ),
   m_currentRoot( "" )
 {
@@ -47,11 +47,11 @@ GCDBSessionManager::GCDBSessionManager( QWidget *parent ) :
   ui->showHelpButton->setVisible( false );
 
   connect( ui->addExistingButton, SIGNAL( clicked() ), this, SLOT( addExistingDatabase() ) );
-  connect( ui->addNewButton,      SIGNAL( clicked() ), this, SLOT( addNewDatabase() ) );
-  connect( ui->cancelButton,      SIGNAL( clicked() ), this, SLOT( reject() ) );
-  connect( ui->okButton,          SIGNAL( clicked() ), this, SLOT( setActiveDatabase() ) );
-  connect( ui->okButton,          SIGNAL( clicked() ), this, SLOT( accept() ) );
-  connect( ui->showHelpButton,    SIGNAL( clicked() ), this, SLOT( showHelp() ) );
+  connect( ui->addNewButton, SIGNAL( clicked() ), this, SLOT( addNewDatabase() ) );
+  connect( ui->cancelButton, SIGNAL( clicked() ), this, SLOT( reject() ) );
+  connect( ui->okButton, SIGNAL( clicked() ), this, SLOT( setActiveDatabase() ) );
+  connect( ui->okButton, SIGNAL( clicked() ), this, SLOT( accept() ) );
+  connect( ui->showHelpButton, SIGNAL( clicked() ), this, SLOT( showHelp() ) );
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -63,7 +63,7 @@ GCDBSessionManager::~GCDBSessionManager()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::selectActiveDatabase( const QString &currentRoot )
+void GCDBSessionManager::selectActiveDatabase( const QString& currentRoot )
 {
   /* Switching DB sessions while building an XML document could result in all kinds of trouble
     since the items known to the current session may not be known to the next. */
@@ -76,14 +76,14 @@ void GCDBSessionManager::selectActiveDatabase( const QString &currentRoot )
   ui->addExistingButton->setVisible( true );
 
   disconnect( ui->okButton, SIGNAL( clicked() ), this, SLOT( removeDatabaseConnection() ) );
-  connect   ( ui->okButton, SIGNAL( clicked() ), this, SLOT( setActiveDatabase() ), Qt::UniqueConnection );
+  connect( ui->okButton, SIGNAL( clicked() ), this, SLOT( setActiveDatabase() ), Qt::UniqueConnection );
 
   this->exec();
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::removeDatabase( const QString &currentRoot )
+void GCDBSessionManager::removeDatabase( const QString& currentRoot )
 {
   this->setWindowTitle( "Remove profile" );
 
@@ -92,14 +92,14 @@ void GCDBSessionManager::removeDatabase( const QString &currentRoot )
   ui->addExistingButton->setVisible( false );
 
   disconnect( ui->okButton, SIGNAL( clicked() ), this, SLOT( setActiveDatabase() ) );
-  connect   ( ui->okButton, SIGNAL( clicked() ), this, SLOT( removeDatabaseConnection() ), Qt::UniqueConnection );
+  connect( ui->okButton, SIGNAL( clicked() ), this, SLOT( removeDatabaseConnection() ), Qt::UniqueConnection );
 
   this->exec();
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::addExistingDatabase( const QString &currentRoot )
+void GCDBSessionManager::addExistingDatabase( const QString& currentRoot )
 {
   m_currentRoot = currentRoot;
 
@@ -114,7 +114,7 @@ void GCDBSessionManager::addExistingDatabase( const QString &currentRoot )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::addNewDatabase( const QString &currentRoot )
+void GCDBSessionManager::addNewDatabase( const QString& currentRoot )
 {
   m_currentRoot = currentRoot;
 
@@ -153,7 +153,7 @@ void GCDBSessionManager::removeDatabaseConnection()
   if( !GCDataBaseInterface::instance()->removeDatabase( dbName ) )
   {
     QString error = QString( "Failed to remove profile \"%1\": [%2]" ).arg( dbName )
-                    .arg( GCDataBaseInterface::instance()->lastError() );
+      .arg( GCDataBaseInterface::instance()->lastError() );
     GCMessageSpace::showErrorMessageBox( this, error );
   }
 }
@@ -174,12 +174,12 @@ void GCDBSessionManager::showHelp()
                             "Profiles are used to store information about XML files, so please: \n\n"
                             "1. Create a new profile for the type of XML you are going to work with (I suggest "
                             "using a name that closely resembles the XML files it will represent), or\n"
-                            "2. Add an existing profile(s) if you have any.");
+                            "2. Add an existing profile(s) if you have any." );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::setActiveDatabase( const QString &dbName )
+void GCDBSessionManager::setActiveDatabase( const QString& dbName )
 {
   /* If the current root element is not known to the new session, the user must
     confirm whether or not he/she wants the active document to be reset. */
@@ -204,7 +204,7 @@ void GCDBSessionManager::setActiveDatabase( const QString &dbName )
   if( !GCDataBaseInterface::instance()->setActiveDatabase( dbName ) )
   {
     QString error = QString( "Failed to set session \"%1\" as active - [%2]" ).arg( dbName )
-                    .arg( GCDataBaseInterface::instance()->lastError() );
+      .arg( GCDataBaseInterface::instance()->lastError() );
     GCMessageSpace::showErrorMessageBox( this, error );
   }
   else
@@ -217,7 +217,7 @@ void GCDBSessionManager::setActiveDatabase( const QString &dbName )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDBSessionManager::addDatabaseConnection( const QString &dbName )
+void GCDBSessionManager::addDatabaseConnection( const QString& dbName )
 {
   if( !GCDataBaseInterface::instance()->addDatabase( dbName ) )
   {

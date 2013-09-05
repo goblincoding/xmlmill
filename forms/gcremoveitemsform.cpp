@@ -37,8 +37,8 @@
 
 /*--------------------------------------------------------------------------------------*/
 
-GCRemoveItemsForm::GCRemoveItemsForm( QWidget *parent ) :
-  QDialog               ( parent ),
+GCRemoveItemsForm::GCRemoveItemsForm( QWidget* parent )
+: QDialog               ( parent ),
   ui                    ( new Ui::GCRemoveItemsForm ),
   m_currentElement      ( "" ),
   m_currentElementParent( "" ),
@@ -49,12 +49,12 @@ GCRemoveItemsForm::GCRemoveItemsForm( QWidget *parent ) :
   ui->showAttributeHelpButton->setVisible( GCGlobalSpace::showHelpButtons() );
   ui->showElementHelpButton->setVisible( GCGlobalSpace::showHelpButtons() );
 
-  connect( ui->showElementHelpButton,   SIGNAL( clicked() ), this, SLOT( showElementHelp() ) );
+  connect( ui->showElementHelpButton, SIGNAL( clicked() ), this, SLOT( showElementHelp() ) );
   connect( ui->showAttributeHelpButton, SIGNAL( clicked() ), this, SLOT( showAttributeHelp() ) );
-  connect( ui->updateValuesButton,      SIGNAL( clicked() ), this, SLOT( updateAttributeValues() ) );
-  connect( ui->deleteAttributeButton,   SIGNAL( clicked() ), this, SLOT( deleteAttribute() ) );
-  connect( ui->deleteElementButton,     SIGNAL( clicked() ), this, SLOT( deleteElement() ) );
-  connect( ui->removeFromParentButton,  SIGNAL( clicked() ), this, SLOT( removeChildElement() ) );
+  connect( ui->updateValuesButton, SIGNAL( clicked() ), this, SLOT( updateAttributeValues() ) );
+  connect( ui->deleteAttributeButton, SIGNAL( clicked() ), this, SLOT( deleteAttribute() ) );
+  connect( ui->deleteElementButton, SIGNAL( clicked() ), this, SLOT( deleteElement() ) );
+  connect( ui->removeFromParentButton, SIGNAL( clicked() ), this, SLOT( removeChildElement() ) );
 
   connect( ui->treeWidget, SIGNAL( gcCurrentItemSelected( GCTreeWidgetItem*,int,bool ) ), this, SLOT( elementSelected( GCTreeWidgetItem*,int ) ) );
   connect( ui->comboBox, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeActivated( QString ) ) );
@@ -73,9 +73,10 @@ GCRemoveItemsForm::~GCRemoveItemsForm()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCRemoveItemsForm::elementSelected( GCTreeWidgetItem *item, int column )
+void GCRemoveItemsForm::elementSelected( GCTreeWidgetItem* item, int column )
 {
-  Q_UNUSED( column );
+  Q_UNUSED( column )
+  ;
 
   if( item )
   {
@@ -107,7 +108,7 @@ void GCRemoveItemsForm::elementSelected( GCTreeWidgetItem *item, int column )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCRemoveItemsForm::attributeActivated( const QString &attribute )
+void GCRemoveItemsForm::attributeActivated( const QString& attribute )
 {
   m_currentAttribute = attribute;
   QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( m_currentElement, m_currentAttribute );
@@ -115,14 +116,14 @@ void GCRemoveItemsForm::attributeActivated( const QString &attribute )
   ui->plainTextEdit->clear();
 
   foreach( QString value, attributeValues )
-  {
-    ui->plainTextEdit->insertPlainText( QString( "%1\n" ).arg( value ) );
-  }
+                                           {
+                                            ui->plainTextEdit->insertPlainText( QString( "%1\n" ).arg( value ) );
+                                           }
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCRemoveItemsForm::deleteElement( const QString &element )
+void GCRemoveItemsForm::deleteElement( const QString& element )
 {
   /* If the element name is empty, then this function was called directly by the user
     clicking on "delete" (as opposed to this function being called further down below
@@ -139,24 +140,24 @@ void GCRemoveItemsForm::deleteElement( const QString &element )
   if( !children.isEmpty() )
   {
     foreach( QString child, children )
-    {
-      if( GCDataBaseInterface::instance()->isUniqueChildElement( currentElement, child ) )
-      {
-        deleteElement( child );
-      }
-    }
+                                      {
+                                        if( GCDataBaseInterface::instance()->isUniqueChildElement( currentElement, child ) )
+                                        {
+                                          deleteElement( child );
+                                        }
+                                      }
   }
 
   /* Remove all the attributes (and their known values) associated with this element. */
   QStringList attributes = GCDataBaseInterface::instance()->attributes( currentElement );
 
   foreach( QString attribute, attributes )
-  {
-    if( !GCDataBaseInterface::instance()->removeAttribute( currentElement, attribute ) )
-    {
-      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
-    }
-  }
+                                          {
+                                            if( !GCDataBaseInterface::instance()->removeAttribute( currentElement, attribute ) )
+                                            {
+                                              GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
+                                            }
+                                          }
 
   /* Now we can remove the element itself. */
   if( !GCDataBaseInterface::instance()->removeElement( currentElement ) )
@@ -283,23 +284,23 @@ void GCRemoveItemsForm::updateChildLists()
   QStringList knownElements = GCDataBaseInterface::instance()->knownElements();
 
   foreach( QString element, knownElements )
-  {
-    QStringList children = GCDataBaseInterface::instance()->children( element );
+                                           {
+                                            QStringList children = GCDataBaseInterface::instance()->children( element );
 
-    if( !children.isEmpty() )
-    {
-      foreach( QString deletedElement, m_deletedElements )
-      {
-        if( children.contains( deletedElement ) )
-        {
-          if( !GCDataBaseInterface::instance()->removeChildElement( element, deletedElement ) )
-          {
-            GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
-          }
-        }
-      }
-    }
-  }
+                                            if( !children.isEmpty() )
+                                            {
+                                              foreach( QString deletedElement, m_deletedElements )
+                                                                                                  {
+                                                                                                    if( children.contains( deletedElement ) )
+                                                                                                    {
+                                                                                                      if( !GCDataBaseInterface::instance()->removeChildElement( element, deletedElement ) )
+                                                                                                      {
+                                                                                                        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                            }
+                                           }
 }
 
 /*--------------------------------------------------------------------------------------*/

@@ -51,26 +51,26 @@ class GCTreeWidgetItem;
 */
 class GCRemoveItemsForm : public QDialog
 {
-  Q_OBJECT
-  
+Q_OBJECT
+
 public:
   /*! Constructor. */
-  explicit GCRemoveItemsForm( QWidget *parent = 0 );
+  explicit GCRemoveItemsForm( QWidget* parent = 0 );
 
   /*! Destructor. */
   ~GCRemoveItemsForm();
 
-private slots:
-  /*! Triggered when an item in the tree widget is clicked.  The element name corresponding to 
+  private slots:
+  /*! Triggered when an item in the tree widget is clicked.  The element name corresponding to
       the tree widget item is flagged as currently active and the attribute combo box is
       populated with the element's known associated attributes. */
-  void elementSelected( GCTreeWidgetItem *item, int column );
+  void elementSelected( GCTreeWidgetItem* item, int column );
 
   /*! Triggered when the user clicks the "Delete Element" button. A complete clean-up of everything
       (first level children, attributes, attribute values, etc) is executed recursively for the
       deleted element (in other words, everything related to the element is removed, including
       the entire hierarchy of elements below it). */
-  void deleteElement( const QString &element = QString() );
+  void deleteElement( const QString& element = QString() );
 
   /*! Triggered when the "Remove Child" button is clicked. The currently active element
       (corresponding to the selected tree widget item) is removed as a first level child
@@ -80,7 +80,7 @@ private slots:
   /*! Triggered when the current attribute in the attribute combo box changes.  Activation of
       an attribute results in the plain text edit being populated with all the attribute's
       known values. */
-  void attributeActivated( const QString &attribute );
+  void attributeActivated( const QString& attribute );
 
   /*! Triggered when the "Update Values" button is clicked.  The attribute values remaining
       in the plain text edit after editing is saved against the selected attribute.  This action
@@ -98,12 +98,12 @@ private slots:
   /*! Triggered by the "show attribute help" button.  Displays help information related to actions
       executed against attributes. */
   void showAttributeHelp();
-  
+
 private:
   /*! Removes a deleted element from all elements that may have it in their first level child lists. */
   void updateChildLists();
 
-  Ui::GCRemoveItemsForm *ui;
+  Ui::GCRemoveItemsForm* ui;
   QString m_currentElement;
   QString m_currentElementParent;
   QString m_currentAttribute;

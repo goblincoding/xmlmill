@@ -30,14 +30,12 @@
 
 /*--------------------------------------------------------------------------------------*/
 
-GCComboBox::GCComboBox( QWidget *parent ) :
-  QComboBox( parent )
-{
-}
+GCComboBox::GCComboBox( QWidget* parent )
+: QComboBox( parent ) {}
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCComboBox::mousePressEvent( QMouseEvent *e )
+void GCComboBox::mousePressEvent( QMouseEvent* e )
 {
   QComboBox::mousePressEvent( e );
   emit activated( currentIndex() );
@@ -45,7 +43,7 @@ void GCComboBox::mousePressEvent( QMouseEvent *e )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCComboBox::focusInEvent( QFocusEvent *e )
+void GCComboBox::focusInEvent( QFocusEvent* e )
 {
   QComboBox::focusInEvent( e );
   emit activated( currentIndex() );
@@ -53,7 +51,7 @@ void GCComboBox::focusInEvent( QFocusEvent *e )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCComboBox::focusOutEvent( QFocusEvent *e )
+void GCComboBox::focusOutEvent( QFocusEvent* e )
 {
   /* So that the user does not have to press "Enter" when manually changing or
     adding an attribute value. */

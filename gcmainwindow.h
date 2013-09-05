@@ -60,13 +60,13 @@ class QMovie;
 
     Please also feel free to <a href="http://goblincoding.com/contact">contact me</a> for any
     reason whatsoever.
- 
+
     \section download Download
 
     If you haven't yet, please see the <a href="http://goblincoding.com/xmlmilldownload">download page</a>
     for a list of possible download options.
 
-    If you find any bugs or errors in the code, or typo's in the documentation, please 
+    If you find any bugs or errors in the code, or typo's in the documentation, please
     use the <a href="http://goblincoding.com/contact">contact form</a> to let me know.
 */
 
@@ -81,11 +81,11 @@ class QMovie;
 */
 class GCMainWindow : public QMainWindow
 {
-  Q_OBJECT
-  
+Q_OBJECT
+
 public:
   /*! Constructor. */
-  explicit GCMainWindow( QWidget *parent = 0 );
+  explicit GCMainWindow( QWidget* parent = 0 );
 
   /*! Destructor. */
   ~GCMainWindow();
@@ -93,9 +93,9 @@ public:
 protected:
   /*! Re-implemented from QMainWindow.  Queries user to save before closing and
       saves the user's "Options" preferences to settings. */
-  void closeEvent( QCloseEvent * event );
+  void closeEvent( QCloseEvent* event );
 
-private slots:
+  private slots:
   /*! Triggered as soon as the main event loop is entered (via a connection to a single shot
       timer in the constructor). This function ensures that GCDataBaseInterface is successfully
       initialised and prompts the user to select a database for the current session. */
@@ -103,7 +103,7 @@ private slots:
 
   /*! Connected to the UI tree widget's "gcCurrentItemChanged( GCTreeWidgetItem*, int )" signal.
       \sa elementSelected */
-  void elementChanged( GCTreeWidgetItem *item, int column );
+  void elementChanged( GCTreeWidgetItem* item, int column );
 
   /*! Connected to the UI tree widget's "gcCurrentItemSelected( GCTreeWidgetItem*, int )" signal.
       The trigger will populate the table widget with the names of the attributes associated with the
@@ -111,7 +111,7 @@ private slots:
       will also create "empty" cells and combo boxes so that the user may add new attribute names. The
       addition of new attributes and values will automatically be persisted to the active database.
       \sa elementChanged */
-  void elementSelected( GCTreeWidgetItem *item, int column, bool highlightElement = true );
+  void elementSelected( GCTreeWidgetItem* item, int column, bool highlightElement = true );
 
   /*! Connected to the UI table widget's "itemChanged( QTableWidgetItem* )" signal.
       This function is called when the user changes the name of an existing attribute
@@ -122,7 +122,7 @@ private slots:
       \sa attributeSelected
       \sa attributeValueChanged
       \sa setCurrentComboBox */
-  void attributeChanged( QTableWidgetItem *tableItem );
+  void attributeChanged( QTableWidgetItem* tableItem );
 
   /*! Connected to the UI table widget's "itemClicked( QTableWidgetItem* )" signal.
       This function is called whenever the user selects an attribute in the table widget and
@@ -130,7 +130,7 @@ private slots:
       \sa attributeChanged
       \sa attributeValueChanged
       \sa setCurrentComboBox */
-  void attributeSelected( QTableWidgetItem *tableItem );
+  void attributeSelected( QTableWidgetItem* tableItem );
 
   /*! Connected to GCComboBox's "currentIndexChanged( QString )" signal.
       Triggered whenever the current value of a combo box changes or when the user edits
@@ -141,7 +141,7 @@ private slots:
       \sa attributeSelected
       \sa attributeChanged
       \sa setCurrentComboBox */
-  void attributeValueChanged( const QString &value );
+  void attributeValueChanged( const QString& value );
 
   /*! Connected to the signal mapper's "mapped( QWidget* )" signal which is emitted every
       time a GCComboBox is activated (whenever the user enters or otherwise activates a combo box).
@@ -151,7 +151,7 @@ private slots:
       \sa attributeSelected
       \sa attributeValueChanged
       \sa attributeChanged */
-  void setCurrentComboBox( QWidget *combo );
+  void setCurrentComboBox( QWidget* combo );
 
   /*! Triggered whenever the user decides to open an XML file.
       \sa newXMLFile
@@ -265,7 +265,7 @@ private slots:
       new snippets are added to the active document.
       \sa addElementToDocument
       \sa addSnippetToDocument */
-  void insertSnippet( GCTreeWidgetItem *treeItem, QDomElement element );
+  void insertSnippet( GCTreeWidgetItem* treeItem, QDomElement element );
 
   /*! Triggered by the "Remove Items" UI action. This function creates and displays an instance of
       GCRemoveItemsForm to allow the user to remove elements and/or attributes from the active database.
@@ -284,12 +284,12 @@ private slots:
 
   /*! Connected to GCSearchForm's "foundItem" signal.  This slot sets the found item as active.
       \sa searchDocument */
-  void itemFound( GCTreeWidgetItem *item );
+  void itemFound( GCTreeWidgetItem* item );
 
   /*! Connected to GCPlainTextEdit's "commentOut" signal. Removes the items with indices matching those
       in the parameter list from the tree as well as from the DOM document and replaces their XML with
       that of a comment node containing the (well-formed) "comment" string. */
-  void commentOut( const QList< int > &indices, const QString &comment );
+  void commentOut( const QList< int >& indices, const QString& comment );
 
   /*! Connected to GCPlainTextEdit's "manualEditAccepted()" signal. Rebuilds the XML hierarchy for
       the special occasions where a manual user edit is allowed. */
@@ -297,7 +297,7 @@ private slots:
 
   /*! Connected to the comment line edit's "textEdited" signal, this updates the active comment node's
       value to "comment".  This function will not execute when new comments or elements are added. */
-  void updateComment( const QString &comment );
+  void updateComment( const QString& comment );
 
   /*! Connectd to the "Expand All" checkbox's "clicked( bool )" signal.  This slot toggles the expansion
       and collapse of the UI tree widget. */
@@ -340,26 +340,26 @@ private slots:
 
   /*! Sets the "dark theme" style sheet on the application. */
   void useDarkTheme( bool dark );
-  
+
 private:
   /*! Creates a new GCDBSessionManager and connects its signals to the relevant slots.
       \warning The calling function is responsible for clean-up! */
-  GCDBSessionManager *createDBSessionManager();
+  GCDBSessionManager* createDBSessionManager();
 
   /*! Kicks off a recursive DOM tree traversal to populate the tree widget and element maps
       with the information contained in the active DOM document. */
   void processDOMDoc();
 
   /*! Displays a message in the status bar. */
-  void setStatusBarMessage( const QString &message );
+  void setStatusBarMessage( const QString& message );
 
   /*! Displays the DOM document's content in the text edit area.
       \sa highlightTextElement */
-  void setTextEditContent( GCTreeWidgetItem *item = 0 );
+  void setTextEditContent( GCTreeWidgetItem* item = 0 );
 
   /*! Highlights the currently active DOM element in the text edit area.
       \sa setTextEditContent */
-  void highlightTextElement( GCTreeWidgetItem *item );
+  void highlightTextElement( GCTreeWidgetItem* item );
 
   /*! Creates an additional empty table row each time the table widget is populated so
       that the user may add new attributes to the active element. */
@@ -391,7 +391,7 @@ private:
   /*! Called whenever an action may or will reset the DOM document and prompts the user
       to confirm that it's OK to do so (if not, the action won't be completed).
       \sa resetDOM */
-  bool queryResetDOM( const QString &resetReason );
+  bool queryResetDOM( const QString& resetReason );
 
   /*! Imports the DOM content to the active database.
       \sa importXMLFromFile */
@@ -413,23 +413,22 @@ private:
       \sa queryRestorefiles */
   void deleteTempFile();
 
-  Ui::GCMainWindow *ui;
-  QSignalMapper    *m_signalMapper;
-  QTableWidgetItem *m_activeAttribute;
-  QWidget          *m_currentCombo;
-  QTimer           *m_saveTimer;
-  QLabel           *m_activeProfileLabel;
-  QLabel           *m_progressLabel;
-  QMovie           *m_spinner;
-  QString           m_currentXMLFileName;
-  QString           m_activeAttributeName;
-  bool              m_wasTreeItemActivated;
-  bool              m_newAttributeAdded;
-  bool              m_busyImporting;
-  bool              m_fileContentsChanged;
+  Ui::GCMainWindow* ui;
+  QSignalMapper* m_signalMapper;
+  QTableWidgetItem* m_activeAttribute;
+  QWidget* m_currentCombo;
+  QTimer* m_saveTimer;
+  QLabel* m_activeProfileLabel;
+  QLabel* m_progressLabel;
+  QMovie* m_spinner;
+  QString m_currentXMLFileName;
+  QString m_activeAttributeName;
+  bool m_wasTreeItemActivated;
+  bool m_newAttributeAdded;
+  bool m_busyImporting;
+  bool m_fileContentsChanged;
 
-  QHash< QWidget*, int/* table row*/ > m_comboBoxes;
-
+  QHash< QWidget*, int /* table row*/ > m_comboBoxes;
 };
 
 #endif // GCMAINWINDOW_H

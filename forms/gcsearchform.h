@@ -49,13 +49,13 @@ class GCTreeWidgetItem;
 */
 class GCSearchForm : public QDialog
 {
-  Q_OBJECT
-  
+Q_OBJECT
+
 public:
   /*! Constructor.
       @param elements - a list of all the elements in the active document.
       @param docContents - the string representation of the active document's DOM content. */
-  explicit GCSearchForm( const QList< GCTreeWidgetItem* > &items, const QString &docContents, QWidget *parent = 0 );
+  explicit GCSearchForm( const QList< GCTreeWidgetItem* >& items, const QString& docContents, QWidget* parent = 0 );
 
   /*! Destructor. */
   ~GCSearchForm();
@@ -66,9 +66,9 @@ signals:
       or the name of an associated attribute or attribute value. */
   void foundItem( GCTreeWidgetItem* );
 
-private slots:
+  private slots:
   /*! Triggered when the user clicks the search button. If a match has already been found,
-      this function will search for the next occurrence of the search string (if any). 
+      this function will search for the next occurrence of the search string (if any).
       Repeatedly triggering this slot will cause the search to cycle through all the
       matches in the user-specified direction. */
   void search();
@@ -90,22 +90,21 @@ private slots:
   /*! Triggered when the user ticks the "Whole Words Only" checkbox. If checked, the search
       string's content will be matched exactly. */
   void wholeWords();
-  
+
 private:
   /*! Called from within the search function when a match is found and emits the foundItem
       signal. */
-  void foundMatch( GCTreeWidgetItem *treeItem );
+  void foundMatch( GCTreeWidgetItem* treeItem );
 
-  Ui::GCSearchForm *ui;
-  QTextEdit         m_text;
-  bool              m_wasFound;
-  bool              m_searchUp;
-  bool              m_firstRun;
-  int               m_previousIndex;
+  Ui::GCSearchForm* ui;
+  QTextEdit m_text;
+  bool m_wasFound;
+  bool m_searchUp;
+  bool m_firstRun;
+  int m_previousIndex;
 
   QTextDocument::FindFlags m_searchFlags;
   QList< GCTreeWidgetItem* > m_items;
-
 };
 
 #endif // GCSEARCHFORM_H

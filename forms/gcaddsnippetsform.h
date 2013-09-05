@@ -59,15 +59,15 @@ class QTableWidgetItem;
 */
 class GCAddSnippetsForm : public QDialog
 {
-  Q_OBJECT
-  
+Q_OBJECT
+
 public:
   /*! Constructor.
       @param elementName - the name of the element that will form the basis of the snippet, i.e. this
                            element will be at the top of the snippet's DOM hierarchy.
       @param parentItem - the tree item and corresponding element in the active document to which the
                           snippet will be added. */
-  explicit GCAddSnippetsForm( const QString &elementName, GCTreeWidgetItem *parentItem, QWidget *parent = 0 );
+  explicit GCAddSnippetsForm( const QString& elementName, GCTreeWidgetItem* parentItem, QWidget* parent = 0 );
 
   /*! Destructor. */
   ~GCAddSnippetsForm();
@@ -79,14 +79,14 @@ signals:
       thus emitted is not owned by this class. */
   void snippetAdded( GCTreeWidgetItem*, QDomElement );
 
-private slots:
+  private slots:
   /*! Triggered when an element is selected in the tree widget.  This function populates the attributes
       table with the known attributes and values associated with the selected element. */
-  void elementSelected( GCTreeWidgetItem *item, int column );
+  void elementSelected( GCTreeWidgetItem* item, int column );
 
   /*! Triggered whenever a user clicks on an attribute in the attribute table, or changes an attribute's
       "include" state. */
-  void attributeChanged( QTableWidgetItem *item ) const;
+  void attributeChanged( QTableWidgetItem* item ) const;
 
   /*! Triggered whenever an attribute's value changes. */
   void attributeValueChanged() const;
@@ -98,17 +98,17 @@ private slots:
 
   /*! Displays help information for this form. */
   void showHelp();
-  
+
 private:
   /*! Whenever a user checks or unchecks an element to include or exclude it from the snippet being built,
-      the element's parent(s) and children need to be updated accordingly.  I.e. including/excluding an 
+      the element's parent(s) and children need to be updated accordingly.  I.e. including/excluding an
       element must also include/exclude all of its children (and their children, etc) as well as its parent
       (and its parent's parent, etc), for a smooth and intuitive user experience. */
-  void updateCheckStates( GCTreeWidgetItem *item ) const;
+  void updateCheckStates( GCTreeWidgetItem* item ) const;
 
-  Ui::GCAddSnippetsForm *ui;
-  GCTreeWidgetItem   *m_parentItem;
-  bool                m_treeItemActivated;
+  Ui::GCAddSnippetsForm* ui;
+  GCTreeWidgetItem* m_parentItem;
+  bool m_treeItemActivated;
 };
 
 #endif // GCADDSNIPPETSFORM_H

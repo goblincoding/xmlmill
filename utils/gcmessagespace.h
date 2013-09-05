@@ -44,7 +44,7 @@ class QWidget;
     (some messages always need to be shown and make more sense implemented in their respective classes)
 */
 namespace GCMessageSpace
-{  
+{
   /*! Determines the type of icon that will be set on the message dialog. */
   enum Icon
   {
@@ -73,8 +73,8 @@ namespace GCMessageSpace
   };
 
   /*! This function will return the saved user preference (if there is one),
-      or prompt the user for a decision and return the user's choice. 
-      @param uniqueMessageKey - a unique name representing a specific message, this name is saved to 
+      or prompt the user for a decision and return the user's choice.
+      @param uniqueMessageKey - a unique name representing a specific message, this name is saved to
                                 the registry/xml/ini file
       @param heading - the message box header
       @param text - the actual message text
@@ -84,9 +84,9 @@ namespace GCMessageSpace
       @param saveCancel - if this value is set to "false", "Cancel"-ed user preferences
                           will not be saved, irrespective of whether or not the user
                           ticked the relevant box. */
-  bool userAccepted( const QString &uniqueMessageKey,
-                     const QString &heading,
-                     const QString &text,
+  bool userAccepted( const QString& uniqueMessageKey,
+                     const QString& heading,
+                     const QString& text,
                      ButtonCombo buttons,
                      Buttons defaultButton,
                      Icon icon = NoIcon,
@@ -96,7 +96,7 @@ namespace GCMessageSpace
   void forgetAllPreferences();
 
   /*! Displays a modal error message box with "message". */
-  void showErrorMessageBox( QWidget *parent, const QString &message );
+  void showErrorMessageBox( QWidget* parent, const QString& message );
 }
 
 #endif // GCMESSAGESPACE_H

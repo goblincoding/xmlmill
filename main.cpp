@@ -49,9 +49,9 @@ QString styleSheet()
 
 /*--------------------------------------------------------------------------------------*/
 
-int main(int argc, char *argv[])
+int main( int argc, char* argv[] )
 {
-  QApplication a(argc, argv);
+  QApplication a( argc, argv );
 
   QSettings settings( GCGlobalSpace::ORGANISATION, GCGlobalSpace::APPLICATION );
   QVariant useDark = settings.value( "useDarkTheme", false );
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 
   GCMainWindow w;
   w.show();
-  
+
   return a.exec();
 }
 

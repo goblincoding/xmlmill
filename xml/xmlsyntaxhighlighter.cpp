@@ -40,66 +40,72 @@
 
 #include "xmlsyntaxhighlighter.h"
 
-XmlSyntaxHighlighter::XmlSyntaxHighlighter(QTextDocument *parent)
-    : QSyntaxHighlighter(parent)
+XmlSyntaxHighlighter::XmlSyntaxHighlighter( QTextDocument* parent )
+: QSyntaxHighlighter( parent )
 {
-    HighlightingRule rule;
+  HighlightingRule rule;
 
-    // tag format
-    tagFormat.setForeground(QColor(70,70,110));
-    //tagFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("(<[a-zA-Z0-9_:]+\\b|<\\?[a-zA-Z0-9_:]+\\b|\\?>|>|/>|</[a-zA-Z0-9_:]+>)");
-    rule.format = tagFormat;
-    highlightingRules.append(rule);
+  // tag format
+  tagFormat.setForeground( QColor( 70, 70, 110 ) );
+  //tagFormat.setFontWeight(QFont::Bold);
+  rule.pattern = QRegExp( "(<[a-zA-Z0-9_:]+\\b|<\\?[a-zA-Z0-9_:]+\\b|\\?>|>|/>|</[a-zA-Z0-9_:]+>)" );
+  rule.format = tagFormat;
+  highlightingRules.append( rule );
 
-    // attribute format
-    attributeFormat.setForeground(QColor(160,10,10));
-    rule.pattern = QRegExp("[a-zA-Z0-9_:]+=");
-    rule.format = attributeFormat;
-    highlightingRules.append(rule);
+  // attribute format
+  attributeFormat.setForeground( QColor( 160, 10, 10 ) );
+  rule.pattern = QRegExp( "[a-zA-Z0-9_:]+=" );
+  rule.format = attributeFormat;
+  highlightingRules.append( rule );
 
-    // attribute content format
-    attributeContentFormat.setForeground(QColor(160,10,130));
-    rule.pattern = QRegExp("(\"[^\"]*\"|'[^']*')");
-    rule.format = attributeContentFormat;
-    highlightingRules.append(rule);
+  // attribute content format
+  attributeContentFormat.setForeground( QColor( 160, 10, 130 ) );
+  rule.pattern = QRegExp( "(\"[^\"]*\"|'[^']*')" );
+  rule.format = attributeContentFormat;
+  highlightingRules.append( rule );
 
-    commentFormat.setForeground(QColor(30,130,0));
-    commentFormat.setFontItalic(true);
+  commentFormat.setForeground( QColor( 30, 130, 0 ) );
+  commentFormat.setFontItalic( true );
 
-    commentStartExpression = QRegExp("<!--");
-    commentEndExpression = QRegExp("-->");
+  commentStartExpression = QRegExp( "<!--" );
+  commentEndExpression = QRegExp( "-->" );
 }
 
-void XmlSyntaxHighlighter::highlightBlock(const QString &text)
+void XmlSyntaxHighlighter::highlightBlock( const QString& text )
 {
-     foreach (const HighlightingRule &rule, highlightingRules) {
-         QRegExp expression(rule.pattern);
-         int index = text.indexOf(expression);
-         while (index >= 0) {
-             int length = expression.matchedLength();
-             setFormat(index, length, rule.format);
-             index = text.indexOf(expression, index + length);
-         }
-     }
-     setCurrentBlockState(0);
+  foreach (const HighlightingRule &rule, highlightingRules)
+                                                           {
+                                                            QRegExp expression( rule.pattern );
+                                                            int index = text.indexOf( expression );
+                                                            while( index >= 0 )
+                                                            {
+                                                              int length = expression.matchedLength();
+                                                              setFormat( index, length, rule.format );
+                                                              index = text.indexOf( expression, index + length );
+                                                            }
+                                                           }
+  setCurrentBlockState( 0 );
 
-     int startIndex = 0;
-     if (previousBlockState() != 1)
-         startIndex = text.indexOf(commentStartExpression);
+  int startIndex = 0;
+  if( previousBlockState() != 1 )
+    startIndex = text.indexOf( commentStartExpression );
 
-     while (startIndex >= 0) {
-         int endIndex = text.indexOf(commentEndExpression, startIndex);
-         int commentLength;
-         if (endIndex == -1) {
-             setCurrentBlockState(1);
-             commentLength = text.length() - startIndex;
-         } else {
-             commentLength = endIndex - startIndex
-                             + commentEndExpression.matchedLength();
-         }
-         setFormat(startIndex, commentLength, commentFormat);
-         startIndex = text.indexOf(commentStartExpression,
-                                                 startIndex + commentLength);
-     }
+  while( startIndex >= 0 )
+  {
+    int endIndex = text.indexOf( commentEndExpression, startIndex );
+    int commentLength;
+    if( endIndex == -1 )
+    {
+      setCurrentBlockState( 1 );
+      commentLength = text.length() - startIndex;
+    }
+    else
+    {
+      commentLength = endIndex - startIndex
+        + commentEndExpression.matchedLength();
+    }
+    setFormat( startIndex, commentLength, commentFormat );
+    startIndex = text.indexOf( commentStartExpression,
+                               startIndex + commentLength );
+  }
 }

@@ -41,12 +41,12 @@
 
 const int LABELCOLUMN = 0;
 const int COMBOCOLUMN = 1;
-const int INCRCOLUMN  = 2;
+const int INCRCOLUMN = 2;
 
 /*--------------------------------------------------------------------------------------*/
 
-GCAddSnippetsForm::GCAddSnippetsForm( const QString &elementName, GCTreeWidgetItem *parentItem, QWidget *parent ) :
-  QDialog            ( parent ),
+GCAddSnippetsForm::GCAddSnippetsForm( const QString& elementName, GCTreeWidgetItem* parentItem, QWidget* parent )
+: QDialog            ( parent ),
   ui                 ( new Ui::GCAddSnippetsForm ),
   m_parentItem       ( parentItem ),
   m_treeItemActivated( false )
@@ -56,18 +56,18 @@ GCAddSnippetsForm::GCAddSnippetsForm( const QString &elementName, GCTreeWidgetIt
   ui->tableWidget->horizontalHeader()->setFont( QFont( GCGlobalSpace::FONT, GCGlobalSpace::FONTSIZE ) );
 
   ui->tableWidget->setColumnWidth( INCRCOLUMN, 40 );  // restricted for checkbox
-  ui->treeWidget->setColumnWidth ( 0, 50 );           // restricted for checkbox
+  ui->treeWidget->setColumnWidth( 0, 50 );           // restricted for checkbox
   ui->showHelpButton->setVisible( GCGlobalSpace::showHelpButtons() );
 
   ui->treeWidget->populateFromDatabase( elementName );
   ui->treeWidget->setAllCheckStates( Qt::Checked );
   elementSelected( ui->treeWidget->gcCurrentItem(), 0 );
 
-  connect( ui->closeButton,    SIGNAL( clicked() ), this, SLOT( close() ) );
-  connect( ui->addButton,      SIGNAL( clicked() ), this, SLOT( addSnippet() ) );
+  connect( ui->closeButton, SIGNAL( clicked() ), this, SLOT( close() ) );
+  connect( ui->addButton, SIGNAL( clicked() ), this, SLOT( addSnippet() ) );
   connect( ui->showHelpButton, SIGNAL( clicked() ), this, SLOT( showHelp() ) );
-  connect( ui->tableWidget,    SIGNAL( itemChanged( QTableWidgetItem* ) ), this, SLOT( attributeChanged( QTableWidgetItem* ) ) );
-  connect( ui->treeWidget,     SIGNAL( gcCurrentItemSelected( GCTreeWidgetItem*,int,bool ) ), this, SLOT( elementSelected( GCTreeWidgetItem*, int ) ) );
+  connect( ui->tableWidget, SIGNAL( itemChanged( QTableWidgetItem* ) ), this, SLOT( attributeChanged( QTableWidgetItem* ) ) );
+  connect( ui->treeWidget, SIGNAL( gcCurrentItemSelected( GCTreeWidgetItem*,int,bool ) ), this, SLOT( elementSelected( GCTreeWidgetItem*, int ) ) );
 
   setAttribute( Qt::WA_DeleteOnClose );
 }
@@ -81,9 +81,10 @@ GCAddSnippetsForm::~GCAddSnippetsForm()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCAddSnippetsForm::elementSelected( GCTreeWidgetItem *item, int column )
+void GCAddSnippetsForm::elementSelected( GCTreeWidgetItem* item, int column )
 {
-  Q_UNUSED( column );
+  Q_UNUSED( column )
+  ;
 
   if( item )
   {
@@ -104,7 +105,7 @@ void GCAddSnippetsForm::elementSelected( GCTreeWidgetItem *item, int column )
     {
       ui->tableWidget->setRowCount( i + 1 );
 
-      QCheckBox *checkBox = new QCheckBox;
+      QCheckBox* checkBox = new QCheckBox;
 
       /* Overrides main style sheet. */
       checkBox->setStyleSheet( "QCheckBox{ padding-right: 1px; }"
@@ -117,11 +118,11 @@ void GCAddSnippetsForm::elementSelected( GCTreeWidgetItem *item, int column )
       checkBox->setChecked( item->incrementAttribute( attribute.name() ) );
 
       /* Items are editable by default, disable this option. */
-      QTableWidgetItem *label = new QTableWidgetItem( attributeNames.at( i ) );
+      QTableWidgetItem* label = new QTableWidgetItem( attributeNames.at( i ) );
       label->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable );
       ui->tableWidget->setItem( i, LABELCOLUMN, label );
 
-      GCComboBox *attributeCombo = new GCComboBox;
+      GCComboBox* attributeCombo = new GCComboBox;
       attributeCombo->addItems( GCDataBaseInterface::instance()->attributeValues( elementName, attributeNames.at( i ) ) );
       attributeCombo->setEditable( true );
       attributeCombo->setCurrentIndex( attributeCombo->findText( item->element().attribute( attributeNames.at( i ) ) ) );
@@ -155,7 +156,7 @@ void GCAddSnippetsForm::elementSelected( GCTreeWidgetItem *item, int column )
 
     ui->tableWidget->horizontalHeader()->setSectionResizeMode( LABELCOLUMN, QHeaderView::Stretch );
     ui->tableWidget->horizontalHeader()->setSectionResizeMode( COMBOCOLUMN, QHeaderView::Stretch );
-    ui->tableWidget->horizontalHeader()->setSectionResizeMode( INCRCOLUMN,  QHeaderView::Fixed );
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode( INCRCOLUMN, QHeaderView::Fixed );
 
     m_treeItemActivated = false;
   }
@@ -163,13 +164,13 @@ void GCAddSnippetsForm::elementSelected( GCTreeWidgetItem *item, int column )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCAddSnippetsForm::attributeChanged( QTableWidgetItem *item ) const
+void GCAddSnippetsForm::attributeChanged( QTableWidgetItem* item ) const
 {
   if( !m_treeItemActivated )
   {
-    GCTreeWidgetItem *treeItem = ui->treeWidget->gcCurrentItem();
-    GCComboBox *attributeValueCombo = dynamic_cast< GCComboBox* >( ui->tableWidget->cellWidget( item->row(), COMBOCOLUMN ) );
-    QCheckBox *checkBox = dynamic_cast< QCheckBox* >( ui->tableWidget->cellWidget( item->row(), INCRCOLUMN ) );
+    GCTreeWidgetItem* treeItem = ui->treeWidget->gcCurrentItem();
+    GCComboBox* attributeValueCombo = dynamic_cast< GCComboBox* >( ui->tableWidget->cellWidget( item->row(), COMBOCOLUMN ) );
+    QCheckBox* checkBox = dynamic_cast< QCheckBox* >( ui->tableWidget->cellWidget( item->row(), INCRCOLUMN ) );
 
     if( item->checkState() == Qt::Checked )
     {
@@ -191,7 +192,7 @@ void GCAddSnippetsForm::attributeChanged( QTableWidgetItem *item ) const
 void GCAddSnippetsForm::attributeValueChanged() const
 {
   /* Update the element's attribute inclusions, values and value increment flags. */
-  GCTreeWidgetItem *treeItem = ui->treeWidget->gcCurrentItem();
+  GCTreeWidgetItem* treeItem = ui->treeWidget->gcCurrentItem();
   QDomNamedNodeMap attributes = treeItem->element().attributes();
 
   /* The table doesn't know which attributes are included or excluded and contains
@@ -205,8 +206,8 @@ void GCAddSnippetsForm::attributeValueChanged() const
 
       if( attributeName == attributes.item( i ).nodeName() )
       {
-        QCheckBox *checkBox = dynamic_cast< QCheckBox* >( ui->tableWidget->cellWidget( j, INCRCOLUMN ) );
-        GCComboBox *comboBox = dynamic_cast< GCComboBox* >( ui->tableWidget->cellWidget( j, COMBOCOLUMN ) );
+        QCheckBox* checkBox = dynamic_cast< QCheckBox* >( ui->tableWidget->cellWidget( j, INCRCOLUMN ) );
+        GCComboBox* comboBox = dynamic_cast< GCComboBox* >( ui->tableWidget->cellWidget( j, COMBOCOLUMN ) );
         QString attributeValue = comboBox->currentText();
 
         if( treeItem->attributeIncluded( attributeName ) )
@@ -274,7 +275,7 @@ void GCAddSnippetsForm::addSnippet()
 
         /* This call does nothing if the attribute value already exists. */
         GCDataBaseInterface::instance()->updateAttributeValues( elementName, attr.name(), QStringList( attributeValue ) );
-      }      
+      }
     }
 
     emit snippetAdded( m_parentItem, ui->treeWidget->cloneDocument().toElement() );
@@ -289,7 +290,7 @@ void GCAddSnippetsForm::addSnippet()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCAddSnippetsForm::updateCheckStates( GCTreeWidgetItem *item ) const
+void GCAddSnippetsForm::updateCheckStates( GCTreeWidgetItem* item ) const
 {
   /* Checking or unchecking an item must recursively update its children as well. */
   if( item->checkState( 0 ) == Qt::Checked )
@@ -299,7 +300,7 @@ void GCAddSnippetsForm::updateCheckStates( GCTreeWidgetItem *item ) const
     /* When a low-level child is activated, we need to also update its parent tree all the way
       up to the root element since including a child automatically implies that the parent
       element is included. */
-    GCTreeWidgetItem *parent = item->gcParent();
+    GCTreeWidgetItem* parent = item->gcParent();
 
     while( parent && ( parent->checkState( 0 ) != Qt::Checked ) )
     {

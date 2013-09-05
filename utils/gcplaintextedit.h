@@ -42,24 +42,24 @@
 
 class GCPlainTextEdit : public QPlainTextEdit
 {
-  Q_OBJECT
+Q_OBJECT
 public:
-  explicit GCPlainTextEdit( QWidget *parent = 0 );
+  explicit GCPlainTextEdit( QWidget* parent = 0 );
 
   /*! Use instead of "setPlainText" as it improves performance significantly (especially
       for larger documents). */
-  void setContent( const QString &text );
+  void setContent( const QString& text );
 
   /*! Finds the "relativePos"'s occurrence of "text" within the active document. */
-  void findTextRelativeToDuplicates( const QString &text, int relativePos );
+  void findTextRelativeToDuplicates( const QString& text, int relativePos );
 
   /*! Resets the internal state of GCPlainTextEdit. */
   void clearAndReset();
 
-public slots:
+  public slots:
   /*! Sets the necessary flags on the text edit to wrap or unwrap text as per user preference. */
   void wrapText( bool wrap );
-  
+
 signals:
   /*! Emitted when the user clicks or otherwise moves within the text edit.
       \sa emitSelectedIndex */
@@ -74,9 +74,9 @@ signals:
 
 protected:
   /*! Re-implemented from QPlainTextEdit. */
-  void keyPressEvent( QKeyEvent *e );
+  void keyPressEvent( QKeyEvent* e );
 
-private slots:
+  private slots:
   /*! Activated when the cursor in the plain text edit changes.
       \sa selectedIndex */
   void emitSelectedIndex();
@@ -87,7 +87,7 @@ private slots:
       \sa commentOutSelection
       \sa uncommentSelection
       \sa manualEditAccepted */
-  void showContextMenu( const QPoint &point );
+  void showContextMenu( const QPoint& point );
 
   /*! Comments out the selected text.  If successful, the text is commented out and the "commentOut"
       signal is emitted.
@@ -118,12 +118,12 @@ private slots:
   int findIndexMatchingBlockNumber( QTextBlock block );
 
 private:
-  QBrush   m_savedPalette;
-  QAction *m_comment;
-  QAction *m_uncomment;
-  QAction *m_deleteSelection;
-  QAction *m_deleteEmptyRow;
-  QAction *m_insertEmptyRow;
+  QBrush m_savedPalette;
+  QAction* m_comment;
+  QAction* m_uncomment;
+  QAction* m_deleteSelection;
+  QAction* m_deleteEmptyRow;
+  QAction* m_insertEmptyRow;
   bool m_cursorPositionChanging;
 };
 

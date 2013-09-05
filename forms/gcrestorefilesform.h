@@ -39,16 +39,16 @@ namespace Ui
 /// Displays recovered files so that the user may decide whether or not he/she wants to save them.
 class GCRestoreFilesForm : public QDialog
 {
-  Q_OBJECT
-  
+Q_OBJECT
+
 public:
   /*! Constructor. */
-  explicit GCRestoreFilesForm( const QStringList &tempFiles, QWidget *parent = 0 );
+  explicit GCRestoreFilesForm( const QStringList& tempFiles, QWidget* parent = 0 );
 
   /*! Destructor. */
   ~GCRestoreFilesForm();
-  
-private slots:
+
+  private slots:
   /*! Connected to the "Save" button's "clicked()" signal.  Opens a file dialog to "Save As". */
   void saveFile();
 
@@ -63,9 +63,9 @@ private:
   /*! Loads and displays the current temp file in the text edit. */
   void loadFile( const QString& fileName );
 
-  Ui::GCRestoreFilesForm *ui;
+  Ui::GCRestoreFilesForm* ui;
   QStringList m_tempFiles;
-  QString     m_fileName;
+  QString m_fileName;
 };
 
 #endif // GCRESTOREFILESFORM_H

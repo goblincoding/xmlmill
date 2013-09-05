@@ -31,8 +31,8 @@
 
 /*--------------------------------------------------------------------------------------*/
 
-GCHelpDialog::GCHelpDialog( const QString &text, QWidget *parent ) :
-  QDialog( parent ),
+GCHelpDialog::GCHelpDialog( const QString& text, QWidget* parent )
+: QDialog( parent ),
   ui     ( new Ui::GCHelpDialog )
 {
   ui->setupUi( this );

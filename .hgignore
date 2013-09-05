@@ -976,3 +976,9 @@ xmlmill/docs/xmlmill.pdf
 build-xmlmill-Desktop_Qt_5_0_2_GCC_32bit-Debug
 build-xmlmill-Desktop_Qt_5_0_2_GCC_32bit-Release
 xmlmill.pro.user
+debug
+xmlmill.vcproj.THOROUGHTEC.williamh.user
+xmlmill.vcproj.vspscc
+xmlmill.suo
+xmlmill.ncb
+Win32

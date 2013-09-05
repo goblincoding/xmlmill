@@ -42,7 +42,7 @@ const QString CLOSECOMMENT( "-->" );
 
 /*-------------------------------- NON MEMBER FUNCTIONS --------------------------------*/
 
-void removeDuplicates( QList< int > &indices )
+void removeDuplicates( QList< int >& indices )
 {
   for( int i = 0; i < indices.size(); ++i )
   {
@@ -61,8 +61,8 @@ void removeDuplicates( QList< int > &indices )
 
 /*---------------------------------- MEMBER FUNCTIONS ----------------------------------*/
 
-GCPlainTextEdit::GCPlainTextEdit( QWidget *parent ) :
-  QPlainTextEdit   ( parent ),
+GCPlainTextEdit::GCPlainTextEdit( QWidget* parent )
+: QPlainTextEdit   ( parent ),
   m_savedPalette   (),
   m_comment        ( NULL ),
   m_uncomment      ( NULL ),
@@ -96,13 +96,14 @@ GCPlainTextEdit::GCPlainTextEdit( QWidget *parent ) :
   connect( this, SIGNAL( cursorPositionChanged() ), this, SLOT( emitSelectedIndex() ) );
 
   /* Everything happens automagically and the text edit takes ownership. */
-  XmlSyntaxHighlighter *highLighter = new XmlSyntaxHighlighter( document() );
-  Q_UNUSED( highLighter );
+  XmlSyntaxHighlighter* highLighter = new XmlSyntaxHighlighter( document() );
+  Q_UNUSED( highLighter )
+  ;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCPlainTextEdit::setContent( const QString &text )
+void GCPlainTextEdit::setContent( const QString& text )
 {
   m_cursorPositionChanging = true;
 
@@ -117,7 +118,7 @@ void GCPlainTextEdit::setContent( const QString &text )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCPlainTextEdit::findTextRelativeToDuplicates( const QString &text, int relativePos )
+void GCPlainTextEdit::findTextRelativeToDuplicates( const QString& text, int relativePos )
 {
   m_cursorPositionChanging = true;
 
@@ -152,13 +153,13 @@ void GCPlainTextEdit::emitSelectedIndex()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCPlainTextEdit::showContextMenu( const QPoint &point )
+void GCPlainTextEdit::showContextMenu( const QPoint& point )
 {
   m_comment->setEnabled( textCursor().hasSelection() );
   m_uncomment->setEnabled( textCursor().hasSelection() );
   m_deleteSelection->setEnabled( textCursor().hasSelection() );
 
-  QMenu *menu = createStandardContextMenu();
+  QMenu* menu = createStandardContextMenu();
   menu->addSeparator();
   menu->addAction( m_comment );
   menu->addAction( m_uncomment );
@@ -239,7 +240,7 @@ void GCPlainTextEdit::uncommentSelection()
   cursor.movePosition( QTextCursor::StartOfBlock );
 
   cursor.setPosition( selectionEnd, QTextCursor::KeepAnchor );
-  cursor.movePosition( QTextCursor::EndOfBlock, QTextCursor::KeepAnchor  );
+  cursor.movePosition( QTextCursor::EndOfBlock, QTextCursor::KeepAnchor );
 
   /* We need to capture this text way in the beginning before we start
     messing with cursor positions, etc. */
@@ -313,8 +314,8 @@ void GCPlainTextEdit::deleteEmptyRow()
 bool GCPlainTextEdit::confirmDomNotBroken( int undoCount )
 {
   QString xmlErr( "" );
-  int     line  ( -1 );
-  int     col   ( -1 );
+  int line  ( -1 );
+  int col   ( -1 );
 
   /* Create a temporary document so that we do not mess with the contents
     of the tree item node map and current DOM if the new XML is broken. */
@@ -336,7 +337,7 @@ bool GCPlainTextEdit::confirmDomNotBroken( int undoCount )
     QTextEdit::ExtraSelection highlight;
     highlight.cursor = cursor;
     highlight.format.setBackground( QColor( 220, 150, 220 ) );
-    highlight.format.setProperty  ( QTextFormat::FullWidthSelection, true );
+    highlight.format.setProperty( QTextFormat::FullWidthSelection, true );
 
     QList< QTextEdit::ExtraSelection > extras;
     extras << highlight;
@@ -345,9 +346,9 @@ bool GCPlainTextEdit::confirmDomNotBroken( int undoCount )
 
     QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3].\n\n"
                                 "Your action will be reverted." )
-                       .arg( xmlErr )
-                       .arg( line )
-                       .arg( col );
+      .arg( xmlErr )
+      .arg( line )
+      .arg( col );
     GCMessageSpace::showErrorMessageBox( this, errorMsg );
 
     for( int i = 0; i < undoCount; ++i )
@@ -357,7 +358,7 @@ bool GCPlainTextEdit::confirmDomNotBroken( int undoCount )
 
     highlight.cursor = textCursor();
     highlight.format.setBackground( m_savedPalette );
-    highlight.format.setProperty  ( QTextFormat::FullWidthSelection, true );
+    highlight.format.setProperty( QTextFormat::FullWidthSelection, true );
 
     extras.clear();
     extras << highlight;
@@ -432,20 +433,19 @@ void GCPlainTextEdit::wrapText( bool wrap )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCPlainTextEdit::keyPressEvent(QKeyEvent *e)
+void GCPlainTextEdit::keyPressEvent( QKeyEvent* e )
 {
   switch( e->key() )
   {
-  case Qt::Key_Return:
-        insertEmptyRow();
-    break;
-  case Qt::Key_Delete:
-        deleteEmptyRow();
-    break;
-  default:
-    QPlainTextEdit::keyPressEvent( e );
+    case Qt::Key_Return:
+      insertEmptyRow();
+      break;
+    case Qt::Key_Delete:
+      deleteEmptyRow();
+      break;
+    default:
+      QPlainTextEdit::keyPressEvent( e );
   }
 }
 
 /*--------------------------------------------------------------------------------------*/
-

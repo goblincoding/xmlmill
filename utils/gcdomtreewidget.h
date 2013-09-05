@@ -48,10 +48,10 @@ class QDomNode;
 
 class GCDomTreeWidget : public QTreeWidget
 {
-  Q_OBJECT
+Q_OBJECT
 public:
   /*! Constructor. */
-  GCDomTreeWidget( QWidget *parent = 0 );
+  GCDomTreeWidget( QWidget* parent = 0 );
 
   /*! Destructor. */
   ~GCDomTreeWidget();
@@ -62,16 +62,16 @@ public:
   /*! Populates "includedItems" with all the GCTreeWidgetItems in the tree that have their
       "include" flags set.
       \sa allTreeWidgetItems */
-  void getIncludedTreeWidgetItems( QList< GCTreeWidgetItem * > &includedItems ) const;
+  void getIncludedTreeWidgetItems( QList< GCTreeWidgetItem* >& includedItems ) const;
 
   /*! Returns a list of ALL the GCTreeWidgetItems currently in the tree.
       \sa getIncludedTreeWidgetItems */
-  const QList< GCTreeWidgetItem* > &allTreeWidgetItems() const;
+  const QList< GCTreeWidgetItem* >& allTreeWidgetItems() const;
 
   /*! Returns the position of "itemIndex" relative to that of ALL items matching "nodeText"
       (this is is not as odd as it sounds, it is possible that a DOM document may have
       multiple elements of the same name with matching attributes and attribute values). */
-  int findItemPositionAmongDuplicates( const QString &nodeText, int itemIndex ) const;
+  int findItemPositionAmongDuplicates( const QString& nodeText, int itemIndex ) const;
 
   /*! Returns a deep copy of the underlying DOM document. */
   QDomNode cloneDocument() const;
@@ -92,13 +92,13 @@ public:
   /*! Sets the value of the active comment node to "value".  If the active element doesn't have
       an associated comment, a comment node is created.
       \sa activeCommentValue */
-  void setActiveCommentValue( const QString &value );
+  void setActiveCommentValue( const QString& value );
 
   /*! Sets the underlying DOM document's content.  If successful, a recursive DOM tree traversal
       is kicked off in order to populate the tree widget with the information contained in the
       active DOM document.
       \sa processNextElement */
-  bool setContent( const QString & text, QString * errorMsg = 0, int * errorLine = 0, int * errorColumn = 0 );
+  bool setContent( const QString& text, QString* errorMsg = 0, int* errorLine = 0, int* errorColumn = 0 );
 
   /*! Returns true if the widget and DOM is currently empty. */
   bool isEmpty() const;
@@ -111,7 +111,7 @@ public:
   /*! Returns true if "elementName" matches that of the DOM document's root.
       \sa isCurrentItemRoot
       \sa rootName */
-  bool matchesRootName( const QString &elementName ) const;
+  bool matchesRootName( const QString& elementName ) const;
 
   /*! Returns true if the underlying DOM document is compatible with the active DB session. */
   bool isDocumentCompatible() const;
@@ -128,14 +128,14 @@ public:
       and then recursively creates and adds items with associated elements corresponding to
       "childElement's" element hierarchy.
       \sa processNextElement */
-  void appendSnippet( GCTreeWidgetItem *parentItem, QDomElement childElement );
+  void appendSnippet( GCTreeWidgetItem* parentItem, QDomElement childElement );
 
   /*! Removes the items with indices matching those in the parameter list from the tree
       as well as from the DOM document. */
-  void replaceItemsWithComment( const QList< int > &indices, const QString &comment );
+  void replaceItemsWithComment( const QList< int >& indices, const QString& comment );
 
   /*! Update all the tree widget items with text "oldName" to text "newName" */
-  void updateItemNames( const QString &oldName, const QString &newName );
+  void updateItemNames( const QString& oldName, const QString& newName );
 
   /*! This function starts the recursive process of populating the tree widget with items
       consisting of the element hierarchy starting at "baseElementName". If "baseElementName"
@@ -144,7 +144,7 @@ public:
       entire tree, sets the first top level item as current and emits the "gcCurrentItemSelected"
       signal.
       \sa processNextElement */
-  void populateFromDatabase( const QString &baseElementName = QString() );
+  void populateFromDatabase( const QString& baseElementName = QString() );
 
   /*! Adds a new item and corresponding DOM element node named "element". If the tree
       is empty, the new item will be added to the invisible root (i.e. as header item),
@@ -152,7 +152,7 @@ public:
       set as the current item. If "toParent" is true, the new item will be added as a
       child to the current item's parent (i.e. as a sibling to the current item).
       \sa insertItem */
-  void addItem( const QString &element, bool toParent = false );
+  void addItem( const QString& element, bool toParent = false );
 
   /*! Adds a new item and corresponding DOM element node named "elementName" and inserts
       the new tree widget item into position "index" of the current item. If the tree
@@ -160,7 +160,7 @@ public:
       as the current item. If "toParent" is true, the new item will be added as a child to
       the current item's parent (i.e. as a sibling to the current item).
       \sa addItem */
-  void insertItem( const QString &elementName, int index, bool toParent = false );
+  void insertItem( const QString& elementName, int index, bool toParent = false );
 
   /*! Iterates through the tree and sets all items' check states to "state". */
   void setAllCheckStates( Qt::CheckState state );
@@ -171,7 +171,7 @@ public:
   /*! Clears and resets the tree as well as the underlying DOM document. */
   void clearAndReset();
 
-public slots:
+  public slots:
   /*! Finds the item with index matching "index" and sets it as the current tree item. */
   void setCurrentItemWithIndexMatching( int index );
 
@@ -179,7 +179,7 @@ signals:
   /*! Emitted when the current active item changes.
       \sa emitGcCurrentItemSelected
       \sa gcCurrentItemChanged */
-  void gcCurrentItemSelected( GCTreeWidgetItem*,int,bool );
+  void gcCurrentItemSelected( GCTreeWidgetItem*, int, bool );
 
   /*! Emitted when the current item's content changes
       \sa emitGcCurrentItemChanged
@@ -188,12 +188,12 @@ signals:
 
 protected:
   /*! Re-implemented from QTreeWidget. */
-  void dropEvent( QDropEvent *event );
+  void dropEvent( QDropEvent* event );
 
   /*! Re-implemented from QTreeWidget. */
-  void keyPressEvent( QKeyEvent *event );
+  void keyPressEvent( QKeyEvent* event );
 
-private slots:
+  private slots:
   /*! Connected to QTreeWidget::currentItemChanged(), sets the active item. */
   void currentGcItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous );
 
@@ -232,18 +232,18 @@ private:
       \sa setContent
       \sa appendSnippet
       \sa rebuildTreeWidget */
-  void processNextElement( GCTreeWidgetItem *parentItem, QDomElement element );
+  void processNextElement( GCTreeWidgetItem* parentItem, QDomElement element );
 
   /*! Processes individual elements.  This function is called recursively from within
       "populateFromDatabase", creating a representative tree widget item (and corresponding
       DOM element) named "element" and adding it (the item) to the correct parent.
       @param element - the name of the element for which a tree widget item must be created.
       \sa populateFromDatabase */
-  void processNextElementFromDatabase( const QString &element );
+  void processNextElementFromDatabase( const QString& element );
 
   /*! Used in "processnextElementFromDatabase" to prevent infinite recursion. Returns true when
       an element is part of a hierarchy containing itself (oddly allowed in XML). */
-  bool parentTreeAlreadyContainsElement( const GCTreeWidgetItem *item, const QString &element );
+  bool parentTreeAlreadyContainsElement( const GCTreeWidgetItem* item, const QString& element );
 
   /*! Populates the comments list with all the comment nodes in the document. */
   void populateCommentList( QDomNode node );
@@ -254,17 +254,17 @@ private:
   void updateIndices();
 
   /*! Finds and returns the GCTreeWidget item that is linked to "element". */
-  GCTreeWidgetItem *gcItemFromNode( QDomNode element );
+  GCTreeWidgetItem* gcItemFromNode( QDomNode element );
 
   /*! Recursively removes item and its children from the list. */
-  void removeFromList( GCTreeWidgetItem *item );
+  void removeFromList( GCTreeWidgetItem* item );
 
-  GCTreeWidgetItem *m_activeItem;
-  QDomDocument     *m_domDoc;
-  QDomComment       m_commentNode;
-  bool              m_isEmpty;
-  bool              m_busyIterating;
-  bool              m_itemBeingManipulated;
+  GCTreeWidgetItem* m_activeItem;
+  QDomDocument* m_domDoc;
+  QDomComment m_commentNode;
+  bool m_isEmpty;
+  bool m_busyIterating;
+  bool m_itemBeingManipulated;
 
   QList< GCTreeWidgetItem* > m_items;
   QList< QDomComment > m_comments;

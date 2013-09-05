@@ -41,17 +41,17 @@ const QString CREATE_NEW = "Create New Element";
 
 /*--------------------------------------------------------------------------------------*/
 
-GCAddItemsForm::GCAddItemsForm( QWidget *parent ) :
-  QDialog( parent ),
+GCAddItemsForm::GCAddItemsForm( QWidget* parent )
+: QDialog( parent ),
   ui     ( new Ui::GCAddItemsForm )
 {
   ui->setupUi( this );
   ui->showHelpButton->setVisible( GCGlobalSpace::showHelpButtons() );
 
-  connect( ui->addNewButton,   SIGNAL( clicked() ), this, SLOT( addElementAndAttributes() ) );
+  connect( ui->addNewButton, SIGNAL( clicked() ), this, SLOT( addElementAndAttributes() ) );
   connect( ui->donePushButton, SIGNAL( clicked() ), this, SLOT( close() ) );
   connect( ui->showHelpButton, SIGNAL( clicked() ), this, SLOT( showHelp() ) );
-  connect( ui->comboBox,       SIGNAL( activated( const QString& ) ), this, SLOT( comboValueChanged( const QString& ) ) );
+  connect( ui->comboBox, SIGNAL( activated( const QString& ) ), this, SLOT( comboValueChanged( const QString& ) ) );
 
   populateCombo();
   ui->treeWidget->populateFromDatabase();
@@ -82,9 +82,9 @@ void GCAddItemsForm::populateCombo()
   QStringList elements( GCDataBaseInterface::instance()->knownElements() );
 
   foreach( QString root, GCDataBaseInterface::instance()->knownRootElements() )
-  {
-    elements.removeAll( root );
-  }
+                                                                               {
+                                                                                elements.removeAll( root );
+                                                                               }
 
   ui->comboBox->addItem( CREATE_NEW );
   ui->comboBox->addItems( elements );
@@ -156,7 +156,7 @@ void GCAddItemsForm::addElementAndAttributes()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCAddItemsForm::comboValueChanged( const QString &element )
+void GCAddItemsForm::comboValueChanged( const QString& element )
 {
   if( element != CREATE_NEW )
   {
@@ -168,9 +168,9 @@ void GCAddItemsForm::comboValueChanged( const QString &element )
     ui->plainTextEdit->clear();
 
     foreach( QString value, attributes )
-    {
-      ui->plainTextEdit->insertPlainText( QString( "%1\n" ).arg( value ) );
-    }
+                                        {
+                                          ui->plainTextEdit->insertPlainText( QString( "%1\n" ).arg( value ) );
+                                        }
   }
   else
   {

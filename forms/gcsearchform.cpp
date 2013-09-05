@@ -34,22 +34,22 @@
 
 /*-------------------------------- NON MEMBER FUNCTIONS --------------------------------*/
 
-bool lessThan( GCTreeWidgetItem *lhs, GCTreeWidgetItem *rhs )
+bool lessThan( GCTreeWidgetItem* lhs, GCTreeWidgetItem* rhs )
 {
   return ( lhs->index() < rhs->index() );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-bool greaterThan( GCTreeWidgetItem *lhs, GCTreeWidgetItem *rhs )
+bool greaterThan( GCTreeWidgetItem* lhs, GCTreeWidgetItem* rhs )
 {
   return ( lhs->index() > rhs->index() );
 }
 
 /*---------------------------------- MEMBER FUNCTIONS ----------------------------------*/
 
-GCSearchForm::GCSearchForm( const QList< GCTreeWidgetItem * > &items, const QString &docContents, QWidget *parent ) :
-  QDialog        ( parent ),
+GCSearchForm::GCSearchForm( const QList< GCTreeWidgetItem* >& items, const QString& docContents, QWidget* parent )
+: QDialog        ( parent ),
   ui             ( new Ui::GCSearchForm ),
   m_text         (),
   m_wasFound     ( false ),
@@ -64,11 +64,11 @@ GCSearchForm::GCSearchForm( const QList< GCTreeWidgetItem * > &items, const QStr
   m_text.setText( docContents );
 
   connect( ui->searchButton, SIGNAL( clicked() ), this, SLOT( search() ) );
-  connect( ui->closeButton,  SIGNAL( clicked() ), this, SLOT( close() ) );
+  connect( ui->closeButton, SIGNAL( clicked() ), this, SLOT( close() ) );
 
   connect( ui->caseSensitiveCheckBox, SIGNAL( clicked() ), this, SLOT( caseSensitive() ) );
-  connect( ui->wholeWordsCheckBox,    SIGNAL( clicked() ), this, SLOT( wholeWords() ) );
-  connect( ui->searchUpCheckBox,      SIGNAL( clicked() ), this, SLOT( searchUp() ) );
+  connect( ui->wholeWordsCheckBox, SIGNAL( clicked() ), this, SLOT( wholeWords() ) );
+  connect( ui->searchUpCheckBox, SIGNAL( clicked() ), this, SLOT( searchUp() ) );
 
   setAttribute( Qt::WA_DeleteOnClose );
 }
@@ -106,7 +106,7 @@ void GCSearchForm::search()
   {
     m_wasFound = true;
 
-    /* Highlight the entire node (element, attributes and attribute values) 
+    /* Highlight the entire node (element, attributes and attribute values)
       in which the match was found. */
     m_text.moveCursor( QTextCursor::StartOfLine );
     m_text.moveCursor( QTextCursor::EndOfLine, QTextCursor::KeepAnchor );
@@ -133,7 +133,7 @@ void GCSearchForm::search()
 
       for( int i = 0; i < matchingItems.size(); ++i )
       {
-        GCTreeWidgetItem *treeItem = matchingItems.at( i );
+        GCTreeWidgetItem* treeItem = matchingItems.at( i );
 
         /* Make sure we find the next occurrence of the match ("down" from the
           previous match). */
@@ -152,7 +152,7 @@ void GCSearchForm::search()
 
       for( int i = 0; i < matchingItems.size(); ++i )
       {
-        GCTreeWidgetItem *treeItem = matchingItems.at( i );
+        GCTreeWidgetItem* treeItem = matchingItems.at( i );
 
         /* Make sure we find the next occurrence of the match ("up" from the
           previous match). */
@@ -249,7 +249,7 @@ void GCSearchForm::wholeWords()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCSearchForm::foundMatch( GCTreeWidgetItem *treeItem )
+void GCSearchForm::foundMatch( GCTreeWidgetItem* treeItem )
 {
   emit foundItem( treeItem );
 

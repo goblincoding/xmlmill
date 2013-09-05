@@ -64,16 +64,16 @@
 const QString EMPTY( "---" );
 const QString LEFTRIGHTBRACKETS( "\\[|\\]" );
 
-const qint64  DOMWARNING( 262144 );  // 0.25MB or ~7 500 lines
-const qint64  DOMLIMIT  ( 524288 );  // 0.5MB  or ~15 000 lines
+const qint64 DOMWARNING( 262144 );  // 0.25MB or ~7 500 lines
+const qint64 DOMLIMIT  ( 524288 );  // 0.5MB  or ~15 000 lines
 
 const int ATTRIBUTECOLUMN = 0;
-const int VALUESCOLUMN    = 1;
+const int VALUESCOLUMN = 1;
 
 /*--------------------------------- MEMBER FUNCTIONS ----------------------------------*/
 
-GCMainWindow::GCMainWindow( QWidget *parent ) :
-  QMainWindow               ( parent ),
+GCMainWindow::GCMainWindow( QWidget* parent )
+: QMainWindow               ( parent ),
   ui                        ( new Ui::GCMainWindow ),
   m_signalMapper            ( new QSignalMapper( this ) ),
   m_activeAttribute         ( NULL ),
@@ -162,7 +162,7 @@ GCMainWindow::~GCMainWindow()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::closeEvent( QCloseEvent *event )
+void GCMainWindow::closeEvent( QCloseEvent* event )
 {
   if( m_fileContentsChanged )
   {
@@ -202,7 +202,7 @@ void GCMainWindow::initialise()
 
   /* If the interface was successfully initialised, prompt the user to choose a database
     connection for this session. */
-  GCDBSessionManager *manager = createDBSessionManager();
+  GCDBSessionManager* manager = createDBSessionManager();
   manager->selectActiveDatabase();
   QDialog::DialogCode result = static_cast< QDialog::DialogCode >( manager->result() );
 
@@ -216,7 +216,7 @@ void GCMainWindow::initialise()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::elementChanged( GCTreeWidgetItem *item, int column )
+void GCMainWindow::elementChanged( GCTreeWidgetItem* item, int column )
 {
   if( !ui->treeWidget->isEmpty() )
   {
@@ -233,9 +233,10 @@ void GCMainWindow::elementChanged( GCTreeWidgetItem *item, int column )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::elementSelected( GCTreeWidgetItem *item, int column, bool highlightElement )
+void GCMainWindow::elementSelected( GCTreeWidgetItem* item, int column, bool highlightElement )
 {
-  Q_UNUSED( column );
+  Q_UNUSED( column )
+  ;
 
   if( item )
   {
@@ -255,8 +256,8 @@ void GCMainWindow::elementSelected( GCTreeWidgetItem *item, int column, bool hig
     row so that the user may add additional attributes and values to the current element. */
     for( int i = 0; i < attributeNames.count(); ++i )
     {
-      GCComboBox *attributeCombo = new GCComboBox;
-      QTableWidgetItem *label = new QTableWidgetItem( attributeNames.at( i ) );
+      GCComboBox* attributeCombo = new GCComboBox;
+      QTableWidgetItem* label = new QTableWidgetItem( attributeNames.at( i ) );
       label->setFlags( label->flags() | Qt::ItemIsUserCheckable );
 
       if( item->attributeIncluded( attributeNames.at( i ) ) )
@@ -321,7 +322,7 @@ void GCMainWindow::elementSelected( GCTreeWidgetItem *item, int column, bool hig
     want the user to add a document root element to itself by accident. */
     if( !ui->treeWidget->matchesRootName( elementName ) )
     {
-      ui->addElementComboBox->addItem( QString( "[%1]" ).arg( elementName) );
+      ui->addElementComboBox->addItem( QString( "[%1]" ).arg( elementName ) );
     }
 
     toggleAddElementWidgets();
@@ -356,7 +357,7 @@ void GCMainWindow::elementSelected( GCTreeWidgetItem *item, int column, bool hig
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::attributeChanged( QTableWidgetItem *tableItem )
+void GCMainWindow::attributeChanged( QTableWidgetItem* tableItem )
 {
   /* Don't execute the logic if a tree widget item's activation is triggering
     a re-population of the table widget (which results in this slot being called). */
@@ -381,7 +382,7 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *tableItem )
 
     /* All attribute name changes will be assumed to be additions, removing an attribute
       with a specific name has to be done explicitly. */
-    GCTreeWidgetItem *treeItem = ui->treeWidget->gcCurrentItem();
+    GCTreeWidgetItem* treeItem = ui->treeWidget->gcCurrentItem();
 
     /* See if an existing attribute's name changed or if a new attribute was added. */
     if( tableItem->text() != m_activeAttributeName )
@@ -423,7 +424,7 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *tableItem )
     m_activeAttributeName = tableItem->text();
 
     /* Is this attribute included or excluded? */
-    GCComboBox *attributeValueCombo = dynamic_cast< GCComboBox* >( ui->tableWidget->cellWidget( tableItem->row(), VALUESCOLUMN ) );
+    GCComboBox* attributeValueCombo = dynamic_cast< GCComboBox* >( ui->tableWidget->cellWidget( tableItem->row(), VALUESCOLUMN ) );
 
     if( tableItem->checkState() == Qt::Checked )
     {
@@ -442,7 +443,7 @@ void GCMainWindow::attributeChanged( QTableWidgetItem *tableItem )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::attributeSelected( QTableWidgetItem *tableItem )
+void GCMainWindow::attributeSelected( QTableWidgetItem* tableItem )
 {
   m_activeAttribute = tableItem;
   m_activeAttributeName = tableItem->text();
@@ -450,13 +451,13 @@ void GCMainWindow::attributeSelected( QTableWidgetItem *tableItem )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::attributeValueChanged( const QString &value )
+void GCMainWindow::attributeValueChanged( const QString& value )
 {
   /* Don't execute the logic if a tree widget item's activation is triggering
     a re-population of the table widget (which results in this slot being called). */
   if( !m_wasTreeItemActivated && !value.isEmpty() )
   {
-    GCTreeWidgetItem *treeItem = ui->treeWidget->gcCurrentItem();
+    GCTreeWidgetItem* treeItem = ui->treeWidget->gcCurrentItem();
     QString currentAttributeName = ui->tableWidget->item( m_comboBoxes.value( m_currentCombo ), ATTRIBUTECOLUMN )->text();
 
     /* If we don't know about this value, we need to add it to the DB. */
@@ -479,7 +480,7 @@ void GCMainWindow::attributeValueChanged( const QString &value )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::setCurrentComboBox( QWidget *combo )
+void GCMainWindow::setCurrentComboBox( QWidget* combo )
 {
   m_currentCombo = combo;
 }
@@ -516,8 +517,8 @@ bool GCMainWindow::openXMLFile()
   if( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
   {
     QString errorMsg = QString( "Failed to open file \"%1\": [%2]" )
-                       .arg( fileName )
-                       .arg( file.errorString() );
+      .arg( fileName )
+      .arg( file.errorString() );
     GCMessageSpace::showErrorMessageBox( this, errorMsg );
     return false;
   }
@@ -549,15 +550,15 @@ bool GCMainWindow::openXMLFile()
   }
 
   QString xmlErr( "" );
-  int     line  ( -1 );
-  int     col   ( -1 );
+  int line  ( -1 );
+  int col   ( -1 );
 
   if( !ui->treeWidget->setContent( fileContent, &xmlErr, &line, &col ) )
   {
     QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3]" )
-                       .arg( xmlErr )
-                       .arg( line )
-                       .arg( col );
+      .arg( xmlErr )
+      .arg( line )
+      .arg( col );
     GCMessageSpace::showErrorMessageBox( this, errorMsg );
     resetDOM();
     return false;
@@ -644,8 +645,8 @@ bool GCMainWindow::saveXMLFile()
     if( !file.open( QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text ) )
     {
       QString errMsg = QString( "Failed to save file \"%1\": [%2]." )
-                       .arg( m_currentXMLFileName )
-                       .arg( file.errorString() );
+        .arg( m_currentXMLFileName )
+        .arg( file.errorString() );
       GCMessageSpace::showErrorMessageBox( this, errMsg );
       return false;
     }
@@ -766,7 +767,7 @@ bool GCMainWindow::importXMLToDatabase()
 
 void GCMainWindow::addNewDatabase()
 {
-  GCDBSessionManager *manager = createDBSessionManager();
+  GCDBSessionManager* manager = createDBSessionManager();
 
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
@@ -790,7 +791,7 @@ void GCMainWindow::addNewDatabase()
 
 void GCMainWindow::addExistingDatabase()
 {
-  GCDBSessionManager *manager = createDBSessionManager();
+  GCDBSessionManager* manager = createDBSessionManager();
 
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
@@ -814,7 +815,7 @@ void GCMainWindow::addExistingDatabase()
 
 void GCMainWindow::removeDatabase()
 {
-  GCDBSessionManager *manager = createDBSessionManager();
+  GCDBSessionManager* manager = createDBSessionManager();
 
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
@@ -839,7 +840,7 @@ void GCMainWindow::removeDatabase()
 
 void GCMainWindow::switchActiveDatabase()
 {
-  GCDBSessionManager *manager = createDBSessionManager();
+  GCDBSessionManager* manager = createDBSessionManager();
 
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
@@ -919,14 +920,14 @@ void GCMainWindow::addElementToDocument()
     /* Update the tree widget. */
     ui->treeWidget->addItem( elementName, addToParent );
 
-    GCTreeWidgetItem *treeItem = ui->treeWidget->gcCurrentItem();
+    GCTreeWidgetItem* treeItem = ui->treeWidget->gcCurrentItem();
     treeItem->setFlags( treeItem->flags() | Qt::ItemIsEditable );
 
     /* If the user starts creating a DOM document without having explicitly asked for
     a new file to be created, do it automatically (we can't call "newXMLFile here" since
     it resets the DOM document). */
     if( treeWasEmpty )
-    {      
+    {
       m_currentXMLFileName = "";
       ui->actionCloseFile->setEnabled( true );
       ui->actionSave->setEnabled( true );
@@ -958,18 +959,18 @@ void GCMainWindow::addSnippetToDocument()
   if( elementName.contains( QRegExp( LEFTRIGHTBRACKETS ) ) )
   {
     /* Qt::WA_DeleteOnClose flag set. */
-    GCAddSnippetsForm *dialog = new GCAddSnippetsForm( elementName.remove( QRegExp( LEFTRIGHTBRACKETS ) ),
-                                                 ui->treeWidget->gcCurrentItem()->gcParent(),
-                                                 this );
+    GCAddSnippetsForm* dialog = new GCAddSnippetsForm( elementName.remove( QRegExp( LEFTRIGHTBRACKETS ) ),
+                                                       ui->treeWidget->gcCurrentItem()->gcParent(),
+                                                       this );
     connect( dialog, SIGNAL( snippetAdded( GCTreeWidgetItem*, QDomElement ) ), this, SLOT( insertSnippet( GCTreeWidgetItem*, QDomElement ) ) );
     dialog->exec();
   }
   else
   {
     /* Qt::WA_DeleteOnClose flag set. */
-    GCAddSnippetsForm *dialog = new GCAddSnippetsForm( elementName,
-                                                 ui->treeWidget->gcCurrentItem(),
-                                                 this );
+    GCAddSnippetsForm* dialog = new GCAddSnippetsForm( elementName,
+                                                       ui->treeWidget->gcCurrentItem(),
+                                                       this );
     connect( dialog, SIGNAL( snippetAdded( GCTreeWidgetItem*, QDomElement ) ), this, SLOT( insertSnippet( GCTreeWidgetItem*, QDomElement ) ) );
     dialog->exec();
   }
@@ -977,7 +978,7 @@ void GCMainWindow::addSnippetToDocument()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::insertSnippet( GCTreeWidgetItem *treeItem, QDomElement element )
+void GCMainWindow::insertSnippet( GCTreeWidgetItem* treeItem, QDomElement element )
 {
   ui->treeWidget->appendSnippet( treeItem, element );
   ui->treeWidget->expandAll();
@@ -1007,15 +1008,14 @@ void GCMainWindow::removeItemsFromDB()
   if( !ui->treeWidget->isEmpty() )
   {
     GCMessageSpace::showErrorMessageBox( this, "For practical reasons, items cannot be removed when documents are open.\n"
-                                               "Please \"Save\" and/or \"Close\" the current document before returning back here.");
+                                         "Please \"Save\" and/or \"Close\" the current document before returning back here." );
     return;
   }
 
   /* Delete on close flag set (no clean-up needed). */
-  GCRemoveItemsForm *dialog = new GCRemoveItemsForm( this );
+  GCRemoveItemsForm* dialog = new GCRemoveItemsForm( this );
   dialog->exec();
 }
-
 
 /*--------------------------------------------------------------------------------------*/
 
@@ -1030,7 +1030,7 @@ void GCMainWindow::addItemsToDB()
   bool profileWasEmpty = GCDataBaseInterface::instance()->isProfileEmpty();
 
   /* Delete on close flag set (no clean-up needed). */
-  GCAddItemsForm *form = new GCAddItemsForm( this );
+  GCAddItemsForm* form = new GCAddItemsForm( this );
   form->exec();
 
   /* If the active profile has just been populated with elements for the first time,
@@ -1047,14 +1047,14 @@ void GCMainWindow::addItemsToDB()
 void GCMainWindow::searchDocument()
 {
   /* Delete on close flag set (no clean-up needed). */
-  GCSearchForm *form = new GCSearchForm( ui->treeWidget->allTreeWidgetItems(), ui->treeWidget->toString(), this );
+  GCSearchForm* form = new GCSearchForm( ui->treeWidget->allTreeWidgetItems(), ui->treeWidget->toString(), this );
   connect( form, SIGNAL( foundItem( GCTreeWidgetItem* ) ), this, SLOT( itemFound( GCTreeWidgetItem* ) ) );
   form->exec();
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::itemFound( GCTreeWidgetItem *item )
+void GCMainWindow::itemFound( GCTreeWidgetItem* item )
 {
   ui->treeWidget->expandAll();
   ui->treeWidget->setCurrentItem( item );
@@ -1063,7 +1063,7 @@ void GCMainWindow::itemFound( GCTreeWidgetItem *item )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::commentOut( const QList< int > &indices, const QString &comment )
+void GCMainWindow::commentOut( const QList< int >& indices, const QString& comment )
 {
   m_fileContentsChanged = true;
   ui->treeWidget->replaceItemsWithComment( indices, comment );
@@ -1090,7 +1090,7 @@ void GCMainWindow::rebuild()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::updateComment( const QString &comment )
+void GCMainWindow::updateComment( const QString& comment )
 {
   ui->treeWidget->setActiveCommentValue( comment );
 }
@@ -1190,7 +1190,7 @@ void GCMainWindow::resetDOM()
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCMainWindow::queryResetDOM( const QString &resetReason )
+bool GCMainWindow::queryResetDOM( const QString& resetReason )
 {
   /* There are a number of places and opportunities for "resetDOM" to be called,
     if there is an active document, check if it's content has changed since the
@@ -1264,7 +1264,7 @@ void GCMainWindow::showMainHelp()
     file.close();
 
     /* Qt::WA_DeleteOnClose flag set...no cleanup required. */
-    GCHelpDialog *dialog = new GCHelpDialog( fileContent, this );
+    GCHelpDialog* dialog = new GCHelpDialog( fileContent, this );
     dialog->show();
   }
 }
@@ -1313,10 +1313,10 @@ void GCMainWindow::setShowTreeItemsVerbose( bool verbose )
 
 /*--------------------------------------------------------------------------------------*/
 
-GCDBSessionManager *GCMainWindow::createDBSessionManager()
+GCDBSessionManager* GCMainWindow::createDBSessionManager()
 {
   /* Clean-up is the responsibility of the calling function. */
-  GCDBSessionManager *manager = new GCDBSessionManager( this );
+  GCDBSessionManager* manager = new GCDBSessionManager( this );
   connect( manager, SIGNAL( reset() ), this, SLOT( resetDOM() ) );
   connect( manager, SIGNAL( activeDatabaseChanged( QString ) ), this, SLOT( activeDatabaseChanged( QString ) ) );
   return manager;
@@ -1352,15 +1352,16 @@ void GCMainWindow::processDOMDoc()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::setStatusBarMessage( const QString &message )
+void GCMainWindow::setStatusBarMessage( const QString& message )
 {
-    Q_UNUSED( message );
+  Q_UNUSED( message )
+  ;
   // TODO.
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::setTextEditContent( GCTreeWidgetItem *item )
+void GCMainWindow::setTextEditContent( GCTreeWidgetItem* item )
 {
   m_fileContentsChanged = true;
   ui->dockWidgetTextEdit->setContent( ui->treeWidget->toString() );
@@ -1369,7 +1370,7 @@ void GCMainWindow::setTextEditContent( GCTreeWidgetItem *item )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::highlightTextElement( GCTreeWidgetItem *item )
+void GCMainWindow::highlightTextElement( GCTreeWidgetItem* item )
 {
   if( item )
   {
@@ -1383,14 +1384,14 @@ void GCMainWindow::highlightTextElement( GCTreeWidgetItem *item )
 
 void GCMainWindow::insertEmptyTableRow()
 {
-  QTableWidgetItem *label = new QTableWidgetItem( EMPTY );
+  QTableWidgetItem* label = new QTableWidgetItem( EMPTY );
 
   int lastRow = ui->tableWidget->rowCount();
   ui->tableWidget->setRowCount( lastRow + 1 );
   ui->tableWidget->setItem( lastRow, 0, label );
 
   /* Create the combo box, but deactivate it until we have an associated attribute name. */
-  GCComboBox *attributeCombo = new GCComboBox;
+  GCComboBox* attributeCombo = new GCComboBox;
   attributeCombo->setEditable( true );
   attributeCombo->setEnabled( false );
 
@@ -1480,7 +1481,7 @@ void GCMainWindow::querySetActiveSession( QString reason )
   while( !GCDataBaseInterface::instance()->hasActiveSession() )
   {
     GCMessageSpace::showErrorMessageBox( this, reason );
-    GCDBSessionManager *manager = createDBSessionManager();
+    GCDBSessionManager* manager = createDBSessionManager();
     manager->selectActiveDatabase();
     delete manager;
   }
@@ -1536,9 +1537,9 @@ void GCMainWindow::queryRestoreFiles()
 {
   QDir dir = QDir::current();
   QStringList tempFiles = QDir::current()
-                          .entryList( QDir::Files )
-                          .filter( QString( "%1_temp" )
-                                   .arg( GCDataBaseInterface::instance()->activeSessionName().remove( ".db" ) ) );
+    .entryList( QDir::Files )
+    .filter( QString( "%1_temp" )
+             .arg( GCDataBaseInterface::instance()->activeSessionName().remove( ".db" ) ) );
 
   if( !tempFiles.isEmpty() )
   {
@@ -1551,7 +1552,7 @@ void GCMainWindow::queryRestoreFiles()
     if( accept == QMessageBox::Ok )
     {
       /* "Delete on close" flag set. */
-      GCRestoreFilesForm *restore = new GCRestoreFilesForm( tempFiles, this );
+      GCRestoreFilesForm* restore = new GCRestoreFilesForm( tempFiles, this );
       restore->exec();
     }
   }

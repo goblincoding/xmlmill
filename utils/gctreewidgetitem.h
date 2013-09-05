@@ -55,10 +55,10 @@ public:
   explicit GCTreeWidgetItem( QDomElement element, int index );
 
   /*! Returns the parent item as a GCTreeWidgetItem. */
-  GCTreeWidgetItem *gcParent() const;
+  GCTreeWidgetItem* gcParent() const;
 
   /*! Returns the child item at "index" as a GCTreeWidgetItem. */
-  GCTreeWidgetItem *gcChild( int index ) const;
+  GCTreeWidgetItem* gcChild( int index ) const;
 
   /*! Returns the associated element via QDomElement's default shallow copy constructor. */
   QDomElement element() const;
@@ -75,17 +75,17 @@ public:
   /*! Removes "attribute" from the underlying DOM element.
       \sa includeAttribute
       \sa attributeIncluded */
-  void excludeAttribute( const QString &attribute );
+  void excludeAttribute( const QString& attribute );
 
   /*! Includes "attribute" with "value" in the underlying DOM element.
       \sa excludeAttribute
       \sa attributeIncluded */
-  void includeAttribute( const QString &attribute, const QString &value );
+  void includeAttribute( const QString& attribute, const QString& value );
 
   /*! Returns true if the underlying element contains "attribute".
       \sa excludeAttribute
       \sa includeAttribute */
-  bool attributeIncluded( const QString &attribute ) const;
+  bool attributeIncluded( const QString& attribute ) const;
 
   /*! This function is only used in GCAddSnippetsForm. Adds "attribute" to a list of attributes
       whose values must be incremented when multiple snippets are added to the active DOM.  The
@@ -96,7 +96,7 @@ public:
       \sa fixAttributeValues
       \sa fixedValue
       \sa revertToFixedValues */
-  void setIncrementAttribute( const QString & attribute, bool increment );
+  void setIncrementAttribute( const QString& attribute, bool increment );
 
   /*! This function is only used in GCAddSnippetsForm. Returns true if "attribute" must
       be incremented automatically.
@@ -104,7 +104,7 @@ public:
       \sa fixAttributeValues
       \sa fixedValue
       \sa revertToFixedValues */
-  bool incrementAttribute( const QString &attribute ) const;
+  bool incrementAttribute( const QString& attribute ) const;
 
   /*! This function is only used in GCAddSnippetsForm. Takes a snapshot of the current attribute values
       so that element attributes may be updated on each snippet iteration without forgetting what the
@@ -120,7 +120,7 @@ public:
       \sa setIncrementAttribute
       \sa fixAttributeValues
       \sa revertToFixedValues */
-  QString fixedValue( const QString &attribute ) const;
+  QString fixedValue( const QString& attribute ) const;
 
   /*! This function is only used in GCAddSnippetsForm. Reverts to the attribute values set with the
       "fixedAttributeValues" call.
@@ -144,14 +144,14 @@ public:
   int index() const;
 
   /*! Renames the element to "newName". */
-  void rename( const QString &newName );
+  void rename( const QString& newName );
 
   /*! Returns the element name. */
-  QString name() const;  
+  QString name() const;
 
   /*! Sets the item's element display as "verbose". When "verbose", the entire node is displayed (element
-      attributes and values), otherwise only the element name is displayed.
-      \sa setDisplayText */
+  attributes and values), otherwise only the element name is displayed.
+  \sa setDisplayText */
   void setVerbose( bool verbose );
 
   /*! Inserts "item" at "index" and ensures that the corresponding DOM element is also
@@ -169,12 +169,11 @@ private:
   QDomElement m_element;
   bool m_elementExcluded;
   bool m_verbose;
-  int  m_index;
+  int m_index;
 
   QStringList m_includedAttributes;
   QStringList m_incrementedAttributes;
-  QHash< QString /*attr*/, QString /*val*/ > m_fixedValues;
-
+  QHash< QString/*attr*/, QString /*val*/ > m_fixedValues;
 };
 
 #endif // GCTREEWIDGETITEM_H

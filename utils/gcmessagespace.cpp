@@ -37,7 +37,7 @@
 /// Provides a user dialog prompt with the option to save the user's preference.
 class GCMessageDialog : public QDialog
 {
-  Q_OBJECT
+Q_OBJECT
 public:
 
   /*! Constructor.
@@ -48,69 +48,68 @@ public:
       @param buttons - the buttons that should be displayed for this particular message
       @param defaultButton - the button that should be highlighted as the default
       @param icon - the icon associated with this particular message. */
-  explicit GCMessageDialog( bool *remember,
-                            const QString &heading,
-                            const QString &text,
+  explicit GCMessageDialog( bool* remember,
+                            const QString& heading,
+                            const QString& text,
                             GCMessageSpace::ButtonCombo buttons,
                             GCMessageSpace::Buttons defaultButton,
                             GCMessageSpace::Icon icon = GCMessageSpace::NoIcon )
-    :
-      ui( new Ui::GCMessageDialog ),
-      m_remember( remember )
+  : ui( new Ui::GCMessageDialog ),
+    m_remember( remember )
   {
     ui->setupUi( this );
     ui->textLabel->setText( text );
 
     switch( buttons )
     {
-    case GCMessageSpace::YesNo:
-      ui->acceptButton->setText( "Yes" );
-      ui->rejectButton->setText( "No" );
-      break;
-    case GCMessageSpace::OKCancel:
-      ui->acceptButton->setText( "OK" );
-      ui->rejectButton->setText( "Cancel" );
-      break;
-    case GCMessageSpace::OKOnly:
-      ui->acceptButton->setText( "OK" );
-      ui->rejectButton->setVisible( false );
+      case GCMessageSpace::YesNo:
+        ui->acceptButton->setText( "Yes" );
+        ui->rejectButton->setText( "No" );
+        break;
+      case GCMessageSpace::OKCancel:
+        ui->acceptButton->setText( "OK" );
+        ui->rejectButton->setText( "Cancel" );
+        break;
+      case GCMessageSpace::OKOnly:
+        ui->acceptButton->setText( "OK" );
+        ui->rejectButton->setVisible( false );
     }
 
     switch( defaultButton )
     {
-    case GCMessageSpace::Yes:
-      /* Deliberate fall-through. */
-    case GCMessageSpace::OK:
-      ui->acceptButton->setDefault( true );
-      break;
-    case GCMessageSpace::No:
-      /* Deliberate fall-through. */
-    case GCMessageSpace::Cancel:
-      ui->rejectButton->setDefault( true );
+      case GCMessageSpace::Yes:
+        /* Deliberate fall-through. */
+      case GCMessageSpace::OK:
+        ui->acceptButton->setDefault( true );
+        break;
+      case GCMessageSpace::No:
+        /* Deliberate fall-through. */
+      case GCMessageSpace::Cancel:
+        ui->rejectButton->setDefault( true );
     }
 
     switch( icon )
     {
-    case GCMessageSpace::Information:
-      ui->iconLabel->setPixmap( style()->standardIcon( QStyle::SP_MessageBoxInformation ).pixmap( 32, 32 ) );
-      break;
-    case GCMessageSpace::Warning:
-      ui->iconLabel->setPixmap( style()->standardIcon( QStyle::SP_MessageBoxWarning ).pixmap( 32, 32 ) );
-      break;
-    case GCMessageSpace::Critical:
-      ui->iconLabel->setPixmap( style()->standardIcon( QStyle::SP_MessageBoxCritical ).pixmap( 32, 32 ) );
-      break;
-    case GCMessageSpace::Question:
-      ui->iconLabel->setPixmap( style()->standardIcon( QStyle::SP_MessageBoxQuestion ).pixmap( 32, 32 ) );
-      break;
-    case GCMessageSpace::NoIcon:
-    default:
-      ui->iconLabel->setPixmap( QPixmap() );
+      case GCMessageSpace::Information:
+        ui->iconLabel->setPixmap( style()->standardIcon( QStyle::SP_MessageBoxInformation ).pixmap( 32, 32 ) );
+        break;
+      case GCMessageSpace::Warning:
+        ui->iconLabel->setPixmap( style()->standardIcon( QStyle::SP_MessageBoxWarning ).pixmap( 32, 32 ) );
+        break;
+      case GCMessageSpace::Critical:
+        ui->iconLabel->setPixmap( style()->standardIcon( QStyle::SP_MessageBoxCritical ).pixmap( 32, 32 ) );
+        break;
+      case GCMessageSpace::Question:
+        ui->iconLabel->setPixmap( style()->standardIcon( QStyle::SP_MessageBoxQuestion ).pixmap( 32, 32 ) );
+        break;
+      case GCMessageSpace::NoIcon:
+      default:
+        ui->iconLabel->setPixmap( QPixmap() );
     }
 
-    connect( ui->checkBox,     SIGNAL( toggled( bool ) ), this, SLOT( setRememberUserChoice( bool ) ) );
-    connect( ui->acceptButton, SIGNAL( clicked() ),       this, SLOT( accept() ) );
-    connect( ui->rejectButton, SIGNAL( clicked() ),       this, SLOT( reject() ) );
+    connect( ui->checkBox, SIGNAL( toggled( bool ) ), this, SLOT( setRememberUserChoice( bool ) ) );
+    connect( ui->acceptButton, SIGNAL( clicked() ), this, SLOT( accept() ) );
+    connect( ui->rejectButton, SIGNAL( clicked() ), this, SLOT( reject() ) );
 
     setWindowTitle( heading );
   }
@@ -122,7 +121,7 @@ public:
     delete ui;
   }
 
-private slots:
+  private slots:
   /*! Triggered when the user checks or unchecks the "Don't ask me again" box. */
   void setRememberUserChoice( bool remember )
   {
@@ -130,8 +129,8 @@ private slots:
   }
 
 private:
-  Ui::GCMessageDialog *ui;
-  bool *m_remember;
+  Ui::GCMessageDialog* ui;
+  bool* m_remember;
 };
 
 /* Standard trick for classes defined in .cpp files (resolves "Undefined Reference
@@ -154,9 +153,9 @@ namespace GCMessageSpace
 
   /* Uses QSettings to save the user preference to the registry (Windows) or
     relevant XML files (Mac) or ini (Unix). */
-  bool userAccepted( const QString &uniqueMessageKey,
-                     const QString &heading,
-                     const QString &text,
+  bool userAccepted( const QString& uniqueMessageKey,
+                     const QString& heading,
+                     const QString& text,
                      ButtonCombo buttons,
                      Buttons defaultButton,
                      Icon icon,
@@ -228,7 +227,7 @@ namespace GCMessageSpace
 
   /*------------------------------------------------------------------------------------*/
 
-  void showErrorMessageBox( QWidget *parent, const QString &message )
+  void showErrorMessageBox( QWidget* parent, const QString& message )
   {
     QMessageBox::critical( parent, "Error!", message );
   }

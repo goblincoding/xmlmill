@@ -40,21 +40,21 @@
 */
 class GCComboBox : public QComboBox
 {
-  Q_OBJECT
+Q_OBJECT
 
 public:
   /*! Constructor. */
-  explicit GCComboBox( QWidget *parent = 0 );
-  
+  explicit GCComboBox( QWidget* parent = 0 );
+
 protected:
   /*! Re-eimplemented from QComboBox to emit the activated(int) signal. */
-  void mousePressEvent( QMouseEvent *e );
+  void mousePressEvent( QMouseEvent* e );
 
   /*! Re-eimplemented from QComboBox to emit the activated(int) signal. */
-  void focusInEvent ( QFocusEvent *e );
+  void focusInEvent( QFocusEvent* e );
 
   /*! Re-eimplemented from QComboBox to emit the currentIndexChanged(QString) signal. */
-  void focusOutEvent( QFocusEvent *e );
+  void focusOutEvent( QFocusEvent* e );
 };
 
 #endif // GCCOMBOBOX_H

@@ -73,15 +73,15 @@ public:
 
       @param knownAttributes - the list of attributes known to the active database, if empty,
                                all the attributes in the DOM will be assumed to be new.  */
-  GCBatchProcessorHelper( const QDomDocument *domDoc,
-                          const QString &stringSeparator,
-                          const QStringList &knownElements,
-                          const QStringList &knownAttributes );
+  GCBatchProcessorHelper( const QDomDocument* domDoc,
+                          const QString& stringSeparator,
+                          const QStringList& knownElements,
+                          const QStringList& knownAttributes );
 
   /*! Returns a list of all the new element names that should be added to the database.
       \sa newElementChildrenToAdd
       \sa newElementAttributesToAdd */
-  const QVariantList &newElementsToAdd() const;
+  const QVariantList& newElementsToAdd() const;
 
   /*! Returns a list of lists of all new first level child element namess that should be added to
       the database. Each item in this list is a list of first level child elements corresponding
@@ -91,10 +91,10 @@ public:
       all these first level child elements concatenated into a single string value with the individuals
       separated by the unique string separator that was passed in as constructor parameter.
       Where an element does not have first level children, a NULL QVariant value is added to the
-      list to ensure that the indices of all lists are kept in synch. 
+      list to ensure that the indices of all lists are kept in synch.
       \sa newElementsToAdd
       \sa newElementAttributesToAdd */
-  const QVariantList &newElementChildrenToAdd() const;
+  const QVariantList& newElementChildrenToAdd() const;
 
   /*! Returns a list of lists of all new associated attribute names that should be added to
       the database. Each item in this list is a list of associated attributes corresponding
@@ -104,102 +104,102 @@ public:
       consists of all these associated attributes concatenated into a single string value with the
       individuals separated by the unique string separator that was passed in as constructor parameter.
       Where an element does not have associated attributes, a NULL QVariant value is added to the
-      list to ensure that the indices of all lists are kept in synch. 
+      list to ensure that the indices of all lists are kept in synch.
       \sa newElementsToAdd
       \sa newElementChildrenToAdd */
-  const QVariantList &newElementAttributesToAdd() const;
+  const QVariantList& newElementAttributesToAdd() const;
 
   /*! Returns a list of all the element names that should be updated.
       \sa elementChildrenToUpdate
       \sa elementAttributesToUpdate */
-  const QVariantList &elementsToUpdate() const;
+  const QVariantList& elementsToUpdate() const;
 
   /*! Returns a list of lists of all first level child element names corresponding to existing elements
       that should be updated. Each item in this list is a list of first level child elements corresponding
-      to an element in the "elements to update" list.  In other words, for each item in the "elements 
+      to an element in the "elements to update" list.  In other words, for each item in the "elements
       to update" list, there is a corresponding QVariant item in this list (with the same
       index number) that represents the list of the element's first level children.  Each QVariant consists
       of all these first level child elements concatenated into a single string value with the individuals
       separated by the unique string separator that was passed in as constructor parameter.
       Where an element does not have first level children, a NULL QVariant value is added to the
-      list to ensure that the indices of all lists are kept in synch. 
+      list to ensure that the indices of all lists are kept in synch.
       \sa elementsToUpdate
       \sa elementAttributesToUpdate */
-  const QVariantList &elementChildrenToUpdate() const;
+  const QVariantList& elementChildrenToUpdate() const;
 
   /*! Returns a list of lists of all associated attribute names corresponding to existing elements that
       should be updated. Each item in this list is a list of associated attributes corresponding
-      to an element in the "elements to update" list.  In other words, for each item in the "elements 
+      to an element in the "elements to update" list.  In other words, for each item in the "elements
       to update" list, there is a corresponding QVariant item in this list (with the same
       index number) that represents the list of the element's associated attributes.  Each QVariant consists
       of all these associated attributes concatenated into a single string value with the individuals
       separated by the unique string separator that was passed in as constructor parameter.
       Where an element does not have associated attributes, a NULL QVariant value is added to the
-      list to ensure that the indices of all lists are kept in synch. 
+      list to ensure that the indices of all lists are kept in synch.
       \sa elementsToUpdate
       \sa elementChildrenToUpdate */
-  const QVariantList &elementAttributesToUpdate() const;
+  const QVariantList& elementAttributesToUpdate() const;
 
   /*! Returns a list of all the new attribute names that should be added to the database.
       \sa newAssociatedElementsToAdd()
       \sa newAttributeValuesToAdd() */
-  const QVariantList &newAttributeKeysToAdd() const;
+  const QVariantList& newAttributeKeysToAdd() const;
 
   /*! Returns a list of all the new associated element names that should be added to the database.
       All attributes are associated with specific elements (this allows us to save different values
       against attributes of the same name that are associated with different elements).
       Each item in this list is the specific element associated with an attribute in the "new attribute
-      keys to add" list. 
+      keys to add" list.
       \sa newAttributeKeysToAdd()
       \sa newAttributeValuesToAdd() */
-  const QVariantList &newAssociatedElementsToAdd() const;
+  const QVariantList& newAssociatedElementsToAdd() const;
 
-  /*! Returns a list of lists of all new attribute values that should be added to 
+  /*! Returns a list of lists of all new attribute values that should be added to
       the database. Each item in this list is a list of known attribute values corresponding
-      to an attribute in the "new attribute keys to add" list.  In other words, for each item in the 
+      to an attribute in the "new attribute keys to add" list.  In other words, for each item in the
       "new attribute keys to add" list, there is a corresponding QVariant item in this list (with the
       same index number) that represents the list of the attribute's known values.  Each QVariant consists
       of all these known values concatenated into a single string value with the individuals
-      separated by the unique string separator that was passed in as constructor parameter. 
+      separated by the unique string separator that was passed in as constructor parameter.
       \sa newAttributeKeysToAdd()
       \sa newAssociatedElementsToAdd() */
-  const QVariantList &newAttributeValuesToAdd() const;
+  const QVariantList& newAttributeValuesToAdd() const;
 
   /*! Returns a list of all the attribute keys that should be updated.
       \sa associatedElementsToUpdate()
       \sa attributeValuesToUpdate() */
-  const QVariantList &attributeKeysToUpdate() const;
+  const QVariantList& attributeKeysToUpdate() const;
 
   /*! Returns a list of all the associated element names corresponding to existing attribute keys
-      that should be updated. All attributes are associated with specific elements (this allows us to 
+      that should be updated. All attributes are associated with specific elements (this allows us to
       save different values against attributes of the same name that are associated with different elements).
       Each item in this list is the specific element associated with an attribute in the "attribute keys to
-      update" list. 
-      \sa attributeKeysToUpdate() 
+      update" list.
+      \sa attributeKeysToUpdate()
       \sa attributeValuesToUpdate() */
-  const QVariantList &associatedElementsToUpdate() const;
+  const QVariantList& associatedElementsToUpdate() const;
 
-  /*! Returns a list of lists of all attribute values associated with existing attributes that should be 
+  /*! Returns a list of lists of all attribute values associated with existing attributes that should be
       updated. Each item in this list is a list of known attribute values corresponding
-      to an attribute in the "attribute keys to update" list.  In other words, for each item in the 
+      to an attribute in the "attribute keys to update" list.  In other words, for each item in the
       "attribute keys to update" list, there is a corresponding QVariant item in this list (with the same
       index number) that represents the list of the attribute's known values.  Each QVariant consists of
       all these known values concatenated into a single string value with the individuals
-      separated by the unique string separator that was passed in as constructor parameter. 
-      \sa attributeKeysToUpdate() 
+      separated by the unique string separator that was passed in as constructor parameter.
+      \sa attributeKeysToUpdate()
       \sa associatedElementsToUpdate() */
-  const QVariantList &attributeValuesToUpdate() const;
+  const QVariantList& attributeValuesToUpdate() const;
 
 private:
   /*! Processes an element by extracting information related to its first level children, associated
       attributes and the values of these attributes. This function is called recursively in order to traverse
       the DOM hierarchy.  */
-  void processElement( const QDomElement &parentElement );
+  void processElement( const QDomElement& parentElement );
 
   /*! Creates an "ElementRecord" from "element".  Called from within processElement, this function
       creates the records and adds them to the record map without checking for duplicates.
       \sa sortRecords */
-  void createRecord( const QDomElement &element );
+  void createRecord( const QDomElement& element );
 
   /*! Sorts all the element records in the unsorted record map and consolidates values where duplicates
       are encountered.
@@ -211,8 +211,8 @@ private:
 
   QString m_stringListSeparator;
 
-  QStringList  m_knownElements;
-  QStringList  m_knownAttributeKeys;
+  QStringList m_knownElements;
+  QStringList m_knownAttributeKeys;
 
   QVariantList m_newElementsToAdd;
   QVariantList m_newElementChildrenToAdd;
@@ -235,17 +235,15 @@ private:
   struct ElementRecord
   {
     QStringList children;
-    QMap< QString /*name*/, QStringList /*values*/ > attributes;
+    QMap< QString/*name*/, QStringList /*values*/ > attributes;
 
     ElementRecord()
-      :
-        children  (),
-        attributes()
-    {}
+    : children  (),
+      attributes() {}
   };
 
-  QMultiHash< QString /*element*/, ElementRecord > m_unsorted;
-  QMap      < QString /*element*/, ElementRecord > m_records;
+  QMultiHash< QString/*element*/, ElementRecord > m_unsorted;
+  QMap< QString/*element*/, ElementRecord > m_records;
 };
 
 #endif // GCBATCHPROCESSORHELPER_H

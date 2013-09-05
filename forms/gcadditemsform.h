@@ -39,11 +39,11 @@ namespace Ui
 /// Allows the user to add elements and attributes to the active database.
 
 /**
-  This form allows the user to add new elements and their associated attributes to the 
-  database.  Although only one element can be added at a time (with or without attributes), 
-  all an element's attributes can be provided in one go through simply ensuring that each 
-  attribute appears on its own line in the input text edit.  
-  
+  This form allows the user to add new elements and their associated attributes to the
+  database.  Although only one element can be added at a time (with or without attributes),
+  all an element's attributes can be provided in one go through simply ensuring that each
+  attribute appears on its own line in the input text edit.
+
   The user will also be allowed to continue adding elements until "Done" is selected.
 
   Finally, the Qt::WA_DeleteOnClose flag is set for all instances of this form.  If you're
@@ -54,22 +54,22 @@ namespace Ui
 class GCAddItemsForm : public QDialog
 {
   Q_OBJECT
-  
+
 public:
   /*! Constructor. */
-  explicit GCAddItemsForm( QWidget *parent = 0 );
+  explicit GCAddItemsForm( QWidget* parent = 0 );
 
   /*! Destructor. */
   ~GCAddItemsForm();
-  
+
 private slots:
-  /*! Triggered when the "Add" button is clicked.  The new element will be added as a 
-      first level child of the representative selected tree widget item if such an item exists, 
+  /*! Triggered when the "Add" button is clicked.  The new element will be added as a
+      first level child of the representative selected tree widget item if such an item exists,
       or as a new root element if it doesn't. */
   void addElementAndAttributes();
 
   /*! Disables the line edit when an existing element is selected in the drop down. */
-  void comboValueChanged( const QString &element );
+  void comboValueChanged( const QString& element );
 
   /*! Displays help specific to this form. */
   void showHelp();
@@ -78,7 +78,7 @@ private:
   /*! Populates the combo box with all the element names known to the active database. */
   void populateCombo();
 
-  Ui::GCAddItemsForm *ui;
+  Ui::GCAddItemsForm* ui;
 };
 
 #endif // GCADDITEMSFORM_H

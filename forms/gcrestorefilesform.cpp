@@ -40,8 +40,8 @@
 
 /*--------------------------------------------------------------------------------------*/
 
-GCRestoreFilesForm::GCRestoreFilesForm( const QStringList &tempFiles, QWidget *parent ) :
-  QDialog    ( parent ),
+GCRestoreFilesForm::GCRestoreFilesForm( const QStringList& tempFiles, QWidget* parent )
+: QDialog    ( parent ),
   ui         ( new Ui::GCRestoreFilesForm ),
   m_tempFiles( tempFiles ),
   m_fileName ( "" )
@@ -56,8 +56,9 @@ GCRestoreFilesForm::GCRestoreFilesForm( const QStringList &tempFiles, QWidget *p
   connect( ui->discardButton, SIGNAL( clicked() ), this, SLOT( deleteTempFile() ) );
 
   /* Everything happens automagically and the text edit takes ownership. */
-  XmlSyntaxHighlighter *highLighter = new XmlSyntaxHighlighter( ui->plainTextEdit->document() );
-  Q_UNUSED( highLighter );
+  XmlSyntaxHighlighter* highLighter = new XmlSyntaxHighlighter( ui->plainTextEdit->document() );
+  Q_UNUSED( highLighter )
+  ;
 
   next();
 }
@@ -83,8 +84,8 @@ void GCRestoreFilesForm::saveFile()
     if( !file.open( QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text ) )
     {
       QString errMsg = QString( "Failed to save file \"%1\": [%2]." )
-                       .arg( fileName )
-                       .arg( file.errorString() );
+        .arg( fileName )
+        .arg( file.errorString() );
       GCMessageSpace::showErrorMessageBox( this, errMsg );
     }
     else
@@ -131,7 +132,7 @@ void GCRestoreFilesForm::next()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCRestoreFilesForm::loadFile( const QString &fileName )
+void GCRestoreFilesForm::loadFile( const QString& fileName )
 {
   QFile file( fileName );
 
@@ -142,8 +143,8 @@ void GCRestoreFilesForm::loadFile( const QString &fileName )
     ui->lineEdit->setText( displayName );
 
     QString xmlErr( "" );
-    int     line  ( -1 );
-    int     col   ( -1 );
+    int line  ( -1 );
+    int col   ( -1 );
 
     QTextStream inStream( &file );
     QString fileContent = inStream.readAll();
@@ -154,9 +155,9 @@ void GCRestoreFilesForm::loadFile( const QString &fileName )
     if( !doc.setContent( fileContent, &xmlErr, &line, &col ) )
     {
       QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3]." )
-                         .arg( xmlErr )
-                         .arg( line )
-                         .arg( col );
+        .arg( xmlErr )
+        .arg( line )
+        .arg( col );
 
       GCMessageSpace::showErrorMessageBox( this, errorMsg );
 
@@ -172,7 +173,7 @@ void GCRestoreFilesForm::loadFile( const QString &fileName )
       QTextEdit::ExtraSelection highlight;
       highlight.cursor = cursor;
       highlight.format.setBackground( QColor( 220, 150, 220 ) );
-      highlight.format.setProperty  ( QTextFormat::FullWidthSelection, true );
+      highlight.format.setProperty( QTextFormat::FullWidthSelection, true );
 
       QList< QTextEdit::ExtraSelection > extras;
       extras << highlight;

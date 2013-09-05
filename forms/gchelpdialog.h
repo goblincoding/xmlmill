@@ -46,18 +46,18 @@ namespace Ui
 */
 class GCHelpDialog : public QDialog
 {
-  Q_OBJECT
-  
+Q_OBJECT
+
 public:
-  /*! Constructor. 
+  /*! Constructor.
       @param text - the "Help" text that should be displayed. */
-  explicit GCHelpDialog( const QString &text, QWidget *parent = 0 );
+  explicit GCHelpDialog( const QString& text, QWidget* parent = 0 );
 
   /*! Destructor. */
   ~GCHelpDialog();
-  
+
 private:
-  Ui::GCHelpDialog *ui;
+  Ui::GCHelpDialog* ui;
 };
 
 #endif // GCHELPDIALOG_H

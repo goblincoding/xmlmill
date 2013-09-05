@@ -79,14 +79,14 @@ void GCTreeWidgetItem::setDisplayText()
 
 /*--------------------------------------------------------------------------------------*/
 
-GCTreeWidgetItem *GCTreeWidgetItem::gcParent() const
+GCTreeWidgetItem* GCTreeWidgetItem::gcParent() const
 {
   return dynamic_cast< GCTreeWidgetItem* >( parent() );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-GCTreeWidgetItem *GCTreeWidgetItem::gcChild( int index ) const
+GCTreeWidgetItem* GCTreeWidgetItem::gcChild( int index ) const
 {
   return dynamic_cast< GCTreeWidgetItem* >( child( index ) );
 }
@@ -126,7 +126,7 @@ bool GCTreeWidgetItem::elementExcluded() const
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCTreeWidgetItem::excludeAttribute( const QString &attribute )
+void GCTreeWidgetItem::excludeAttribute( const QString& attribute )
 {
   m_element.removeAttribute( attribute );
   m_includedAttributes.removeAll( attribute );
@@ -136,7 +136,7 @@ void GCTreeWidgetItem::excludeAttribute( const QString &attribute )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCTreeWidgetItem::includeAttribute( const QString &attribute, const QString &value )
+void GCTreeWidgetItem::includeAttribute( const QString& attribute, const QString& value )
 {
   m_element.setAttribute( attribute, value );
   m_includedAttributes.append( attribute );
@@ -147,14 +147,14 @@ void GCTreeWidgetItem::includeAttribute( const QString &attribute, const QString
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCTreeWidgetItem::attributeIncluded( const QString &attribute ) const
+bool GCTreeWidgetItem::attributeIncluded( const QString& attribute ) const
 {
   return m_includedAttributes.contains( attribute );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCTreeWidgetItem::setIncrementAttribute( const QString &attribute, bool increment )
+void GCTreeWidgetItem::setIncrementAttribute( const QString& attribute, bool increment )
 {
   if( increment )
   {
@@ -170,7 +170,7 @@ void GCTreeWidgetItem::setIncrementAttribute( const QString &attribute, bool inc
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCTreeWidgetItem::incrementAttribute( const QString &attribute ) const
+bool GCTreeWidgetItem::incrementAttribute( const QString& attribute ) const
 {
   return m_incrementedAttributes.contains( attribute );
 }
@@ -192,7 +192,7 @@ void GCTreeWidgetItem::fixAttributeValues()
 
 /*--------------------------------------------------------------------------------------*/
 
-QString GCTreeWidgetItem::fixedValue( const QString &attribute ) const
+QString GCTreeWidgetItem::fixedValue( const QString& attribute ) const
 {
   return m_fixedValues.value( attribute, QString() );
 }
@@ -202,9 +202,9 @@ QString GCTreeWidgetItem::fixedValue( const QString &attribute ) const
 void GCTreeWidgetItem::revertToFixedValues()
 {
   foreach( QString attribute, m_fixedValues.keys() )
-  {
-    m_element.setAttribute( attribute, m_fixedValues.value( attribute ) );
-  }
+                                                    {
+                                                      m_element.setAttribute( attribute, m_fixedValues.value( attribute ) );
+                                                    }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -274,7 +274,7 @@ int GCTreeWidgetItem::index() const
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCTreeWidgetItem::rename( const QString &newName )
+void GCTreeWidgetItem::rename( const QString& newName )
 {
   m_element.setTagName( newName );
   setDisplayText();
@@ -302,7 +302,7 @@ void GCTreeWidgetItem::setVerbose( bool verbose )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCTreeWidgetItem::insertGcChild( int index, GCTreeWidgetItem *item )
+void GCTreeWidgetItem::insertGcChild( int index, GCTreeWidgetItem* item )
 {
   QTreeWidgetItem::insertChild( index + 1, item );
 

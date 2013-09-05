@@ -45,11 +45,11 @@ namespace Ui
 */
 class GCDBSessionManager : public QDialog
 {
-  Q_OBJECT
-  
+Q_OBJECT
+
 public:
   /*! Constructor. */
-  explicit GCDBSessionManager( QWidget *parent = 0 );
+  explicit GCDBSessionManager( QWidget* parent = 0 );
 
   /*! Destructor. */
   ~GCDBSessionManager();
@@ -57,33 +57,33 @@ public:
   /*! Select a known database from the dropdown, or add a new or existing database from file.
       @param currentRoot - used to determine whether or not the change will affect the active
                            document (if not provided, the current document is assumed empty). */
-  void selectActiveDatabase(  const QString &currentRoot = QString() );
+  void selectActiveDatabase( const QString& currentRoot = QString() );
 
   /*! Display the list of known databases that can be removed.
       @param currentRoot - used to determine whether or not the change will affect the active
                            document (if not provided, the current document is assumed empty). */
-  void removeDatabase( const QString &currentRoot = QString() );
+  void removeDatabase( const QString& currentRoot = QString() );
 
-public slots:
+  public slots:
   /*! Add an existing database from file.
       @param currentRoot - used to determine whether or not the change will affect the active
                            document (if not provided, the current document is assumed empty). */
-  void addExistingDatabase( const QString &currentRoot = QString() );
+  void addExistingDatabase( const QString& currentRoot = QString() );
 
   /*! Create and add a new database.
       @param currentRoot - used to determine whether or not the change will affect the active
                            document (if not provided, the current document is assumed empty). */
-  void addNewDatabase( const QString &currentRoot = QString() );
+  void addNewDatabase( const QString& currentRoot = QString() );
 
 signals:
   /*! Emitted whenever the active database session is changed. */
   void activeDatabaseChanged( QString );
 
-  /*! Emitted when the database change affects the current active document and 
+  /*! Emitted when the database change affects the current active document and
       informs the listener that the document must be reset. */
   void reset();
 
-private slots:
+  private slots:
   /*! Triggered when the user selection is completed. Removes the selected database
       via GCDatabaseInterface. */
   void removeDatabaseConnection();
@@ -97,16 +97,16 @@ private slots:
 
 private:
   /*! Sets the active database session to "dbName" via GCDatabaseInterface. */
-  void setActiveDatabase( const QString &dbName );
+  void setActiveDatabase( const QString& dbName );
 
   /*! Adds "dbName" to the list of known databases via GCDatabaseInterface. */
-  void addDatabaseConnection( const QString &dbName );
+  void addDatabaseConnection( const QString& dbName );
 
   /*! Sets the list of known database names on the combo box. */
   void setDatabaseList();
-  
-  Ui::GCDBSessionManager *ui;
-  QString  m_currentRoot;
+
+  Ui::GCDBSessionManager* ui;
+  QString m_currentRoot;
 };
 
 #endif // GCDBSESSIONMANAGER_H
