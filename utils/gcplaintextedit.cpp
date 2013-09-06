@@ -268,11 +268,10 @@ void GCPlainTextEdit::uncommentSelection()
 
   if( confirmDomNotBroken( 2 ) )
   {
-    QTextCursor reselectCursor = textCursor();
-    reselectCursor.setPosition( selectionStart );
-
     emit manualEditAccepted();
 
+    QTextCursor reselectCursor = textCursor();
+    reselectCursor.setPosition( selectionStart );
     setTextCursor( reselectCursor );
     emitSelectedIndex();
   }
@@ -284,11 +283,15 @@ void GCPlainTextEdit::deleteSelection()
 {
   m_cursorPositionChanging = true;
 
+  QTextCursor reselectCursor = textCursor();
   textCursor().removeSelectedText();
 
   if( confirmDomNotBroken( 1 ) )
   {
     emit manualEditAccepted();
+
+    setTextCursor( reselectCursor );
+    emitSelectedIndex();
   }
 
   m_cursorPositionChanging = false;

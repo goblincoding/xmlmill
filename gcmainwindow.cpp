@@ -1066,16 +1066,14 @@ void GCMainWindow::commentOut( const QList< int >& indices, const QString& comme
 
 void GCMainWindow::rebuild()
 {
-  /* Capture the parent item's text content and position before we reset the doc content. */
-  QString stringToMatch = ui->treeWidget->gcCurrentItem()->toString();
-
-  /* The -1 is due to a preference to highlight the parent rather than the child. */
-  int pos = ui->treeWidget->findItemPositionAmongDuplicates( stringToMatch, ui->treeWidget->gcCurrentItem()->index() ) - 1;
-
   /* No need to check if setContent is a success.  If this function gets called, the document
-    content is already valid XML. */
+    content is already valid XML. The reason I reset the text edit's content is due to the Qt
+    XML parser adding attributes in alphabetical order.  What this means is that the elements
+    in the tree widget have all their attributes aligned alphabetically, and this may or may
+    not add up with what is in the text edit, hence the reset (this way we ensure that the order
+    of the attributes in the text edit matches exactly that of the tree widget's elements). */
   ui->treeWidget->setContent( ui->dockWidgetTextEdit->toPlainText() );
-  ui->dockWidgetTextEdit->findTextRelativeToDuplicates( stringToMatch, pos );
+  ui->dockWidgetTextEdit->setContent( ui->treeWidget->toString() );
 
   ui->treeWidget->expandAll();
   m_fileContentsChanged = true;
