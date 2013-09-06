@@ -69,7 +69,9 @@ GCPlainTextEdit::GCPlainTextEdit( QWidget* parent )
   m_deleteSelection( NULL ),
   m_deleteEmptyRow ( NULL ),
   m_insertEmptyRow ( NULL ),
-  m_cursorPositionChanging( false )
+  m_cursorPositionChanged ( false ),
+  m_cursorPositionChanging( false ),
+  m_mouseDragEntered      ( false )
 {
   setAcceptDrops( false );
   setFont( QFont( GCGlobalSpace::FONT, GCGlobalSpace::FONTSIZE ) );
@@ -93,7 +95,7 @@ GCPlainTextEdit::GCPlainTextEdit( QWidget* parent )
   connect( m_insertEmptyRow, SIGNAL( triggered() ), this, SLOT( insertEmptyRow() ) );
 
   connect( this, SIGNAL( customContextMenuRequested( const QPoint& ) ), this, SLOT( showContextMenu( const QPoint& ) ) );
-  connect( this, SIGNAL( cursorPositionChanged() ), this, SLOT( emitSelectedIndex() ) );
+  connect( this, SIGNAL( cursorPositionChanged() ), this, SLOT( setCursorPositionChanged() ) );
 
   /* Everything happens automagically and the text edit takes ownership. */
   XmlSyntaxHighlighter* highLighter = new XmlSyntaxHighlighter( document() );
@@ -107,7 +109,7 @@ void GCPlainTextEdit::setContent( const QString& text )
 {
   m_cursorPositionChanging = true;
 
-  /* Squeezing every once of performance out of the text edit...this significantly speeds
+  /* Squeezing every ounce of performance out of the text edit...this significantly speeds
     up the loading of large files. */
   setUpdatesEnabled( false );
   setPlainText( text );
@@ -149,6 +151,13 @@ void GCPlainTextEdit::emitSelectedIndex()
   {
     emit selectedIndex( findIndexMatchingBlockNumber( textCursor().block() ) );
   }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCPlainTextEdit::setCursorPositionChanged()
+{
+  m_cursorPositionChanged = true;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -259,7 +268,13 @@ void GCPlainTextEdit::uncommentSelection()
 
   if( confirmDomNotBroken( 2 ) )
   {
+    QTextCursor reselectCursor = textCursor();
+    reselectCursor.setPosition( selectionStart );
+
     emit manualEditAccepted();
+
+    setTextCursor( reselectCursor );
+    emitSelectedIndex();
   }
 }
 
@@ -346,9 +361,10 @@ bool GCPlainTextEdit::confirmDomNotBroken( int undoCount )
 
     QString errorMsg = QString( "XML is broken - Error [%1], line [%2], column [%3].\n\n"
                                 "Your action will be reverted." )
-      .arg( xmlErr )
-      .arg( line )
-      .arg( col );
+                                .arg( xmlErr )
+                                .arg( line )
+                                .arg( col );
+
     GCMessageSpace::showErrorMessageBox( this, errorMsg );
 
     for( int i = 0; i < undoCount; ++i )
@@ -446,6 +462,28 @@ void GCPlainTextEdit::keyPressEvent( QKeyEvent* e )
     default:
       QPlainTextEdit::keyPressEvent( e );
   }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCPlainTextEdit::mouseMoveEvent( QMouseEvent *e )
+{
+  m_mouseDragEntered = true;
+  QPlainTextEdit::mouseMoveEvent(e);
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCPlainTextEdit::mouseReleaseEvent( QMouseEvent *e )
+{
+  if (!m_mouseDragEntered &&
+       m_cursorPositionChanged )
+  {
+    emitSelectedIndex();
+  }
+
+  m_mouseDragEntered = false;
+  m_cursorPositionChanged = false;
 }
 
 /*--------------------------------------------------------------------------------------*/

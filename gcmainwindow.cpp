@@ -127,8 +127,8 @@ GCMainWindow::GCMainWindow( QWidget* parent )
   connect( ui->showAddElementHelpButton, SIGNAL( clicked() ), this, SLOT( showElementHelp() ) );
 
   /* Everything tree widget related. */
-  connect( ui->treeWidget, SIGNAL( gcCurrentItemSelected( GCTreeWidgetItem*,int,bool ) ), this, SLOT( elementSelected( GCTreeWidgetItem*, int, bool ) ) );
-  connect( ui->treeWidget, SIGNAL( gcCurrentItemChanged( GCTreeWidgetItem*,int ) ), this, SLOT( elementChanged( GCTreeWidgetItem*, int ) ) );
+  connect( ui->treeWidget, SIGNAL( gcCurrentItemSelected( GCTreeWidgetItem*, int ) ), this, SLOT( elementSelected( GCTreeWidgetItem*, int ) ) );
+  connect( ui->treeWidget, SIGNAL( gcCurrentItemChanged( GCTreeWidgetItem*, int ) ), this, SLOT( elementChanged( GCTreeWidgetItem*, int ) ) );
   connect( ui->treeWidget, SIGNAL( collapsed( QModelIndex ) ), this, SLOT( uncheckExpandAll() ) );
   connect( ui->actionShowTreeElementsVerbose, SIGNAL( triggered( bool ) ), this, SLOT( setShowTreeItemsVerbose( bool ) ) );
 
@@ -220,9 +220,7 @@ void GCMainWindow::elementChanged( GCTreeWidgetItem* item, int column )
 {
   if( !ui->treeWidget->isEmpty() )
   {
-    /* No need to highlight the element in "elementSelected" as "setTextEditContent"
-      will take care of it. */
-    elementSelected( item, column, false );
+    elementSelected( item, column );
     setTextEditContent( item );
   }
   else
@@ -233,10 +231,9 @@ void GCMainWindow::elementChanged( GCTreeWidgetItem* item, int column )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCMainWindow::elementSelected( GCTreeWidgetItem* item, int column, bool highlightElement )
+void GCMainWindow::elementSelected( GCTreeWidgetItem* item, int column )
 {
-  Q_UNUSED( column )
-  ;
+  Q_UNUSED( column );
 
   if( item )
   {
@@ -326,11 +323,7 @@ void GCMainWindow::elementSelected( GCTreeWidgetItem* item, int column, bool hig
     }
 
     toggleAddElementWidgets();
-
-    if( highlightElement )
-    {
-      highlightTextElement( item );
-    }
+    highlightTextElement( item );
 
     /* The user must not be allowed to add an entire document as a "snippet". */
     if( ui->treeWidget->matchesRootName( ui->addElementComboBox->currentText() ) )
@@ -1354,8 +1347,7 @@ void GCMainWindow::processDOMDoc()
 
 void GCMainWindow::setStatusBarMessage( const QString& message )
 {
-  Q_UNUSED( message )
-  ;
+  Q_UNUSED( message );
   // TODO.
 }
 

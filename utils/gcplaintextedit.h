@@ -76,10 +76,19 @@ protected:
   /*! Re-implemented from QPlainTextEdit. */
   void keyPressEvent( QKeyEvent* e );
 
-  private slots:
+  /*! Re-implemented from QPlainTextEdit. */
+  void mouseMoveEvent(QMouseEvent *e);
+
+  /*! Re-implemented from QPlainTextEdit. */
+  void mouseReleaseEvent(QMouseEvent *e);
+
+private slots:
   /*! Activated when the cursor in the plain text edit changes.
       \sa selectedIndex */
   void emitSelectedIndex();
+
+  /*! Activated when the cursorPositionChanged signal is emitted. */
+  void setCursorPositionChanged();
 
   /*! Shows the default context menu with the additional options to "Comment Out Selection"
       and "Uncomment Selection"
@@ -125,6 +134,8 @@ private:
   QAction* m_deleteEmptyRow;
   QAction* m_insertEmptyRow;
   bool m_cursorPositionChanging;
+  bool m_cursorPositionChanged;
+  bool m_mouseDragEntered;
 };
 
 #endif // GCPLAINTEXTEDIT_H

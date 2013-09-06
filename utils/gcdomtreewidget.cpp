@@ -581,7 +581,7 @@ void GCDomTreeWidget::setCurrentItemWithIndexMatching( int index )
   {
     if( m_items.at( i )->index() == index )
     {
-      emitGcCurrentItemSelected( m_items.at( i ), 0, false );
+      emitGcCurrentItemSelected( m_items.at( i ), 0 );
       break;
     }
   }
@@ -807,7 +807,7 @@ void GCDomTreeWidget::currentGcItemChanged( QTreeWidgetItem* current, QTreeWidge
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::emitGcCurrentItemSelected( QTreeWidgetItem* item, int column, bool highlightElement )
+void GCDomTreeWidget::emitGcCurrentItemSelected( QTreeWidgetItem* item, int column )
 {
   if( !m_busyIterating )
   {
@@ -819,7 +819,7 @@ void GCDomTreeWidget::emitGcCurrentItemSelected( QTreeWidgetItem* item, int colu
       m_commentNode = m_activeItem->element().previousSibling().toComment();
     }
 
-    emit gcCurrentItemSelected( m_activeItem, column, highlightElement );
+    emit gcCurrentItemSelected( m_activeItem, column );
   }
 }
 

@@ -56,7 +56,7 @@ GCRemoveItemsForm::GCRemoveItemsForm( QWidget* parent )
   connect( ui->deleteElementButton, SIGNAL( clicked() ), this, SLOT( deleteElement() ) );
   connect( ui->removeFromParentButton, SIGNAL( clicked() ), this, SLOT( removeChildElement() ) );
 
-  connect( ui->treeWidget, SIGNAL( gcCurrentItemSelected( GCTreeWidgetItem*,int,bool ) ), this, SLOT( elementSelected( GCTreeWidgetItem*,int ) ) );
+  connect( ui->treeWidget, SIGNAL( gcCurrentItemSelected( GCTreeWidgetItem*, int ) ), this, SLOT( elementSelected( GCTreeWidgetItem*, int ) ) );
   connect( ui->comboBox, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( attributeActivated( QString ) ) );
 
   ui->treeWidget->populateFromDatabase();

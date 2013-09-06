@@ -111,7 +111,7 @@ protected:
       will also create "empty" cells and combo boxes so that the user may add new attribute names. The
       addition of new attributes and values will automatically be persisted to the active database.
       \sa elementChanged */
-  void elementSelected( GCTreeWidgetItem* item, int column, bool highlightElement = true );
+  void elementSelected( GCTreeWidgetItem* item, int column );
 
   /*! Connected to the UI table widget's "itemChanged( QTableWidgetItem* )" signal.
       This function is called when the user changes the name of an existing attribute
