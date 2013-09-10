@@ -34,6 +34,7 @@
 #include <QMenu>
 #include <QAction>
 #include <QDomDocument>
+#include <QApplication>
 
 /*--------------------------------------------------------------------------------------*/
 
@@ -71,7 +72,8 @@ GCPlainTextEdit::GCPlainTextEdit( QWidget* parent )
   m_insertEmptyRow ( NULL ),
   m_cursorPositionChanged ( false ),
   m_cursorPositionChanging( false ),
-  m_mouseDragEntered      ( false )
+  m_mouseDragEntered      ( false ),
+  m_textEditClicked       ( false )
 {
   setAcceptDrops( false );
   setFont( QFont( GCGlobalSpace::FONT, GCGlobalSpace::FONTSIZE ) );
@@ -122,16 +124,37 @@ void GCPlainTextEdit::setContent( const QString& text )
 
 void GCPlainTextEdit::findTextRelativeToDuplicates( const QString& text, int relativePos )
 {
-  m_cursorPositionChanging = true;
-
-  moveCursor( QTextCursor::Start );
-
-  for( int i = 0; i <= relativePos; ++i )
+  /* If the user clicked on any element's representation in the text edit, then there is
+     no need to find the text (this method is called after the tree is updated with the
+     selected element) since we already know where it is and moving the cursor around
+     will only make the text edit "jump" positions.  Rather highlight the text ourselves.
+    */
+  if ( m_textEditClicked )
   {
-    find( text );
-  }
+    QTextEdit::ExtraSelection extra;
+    extra.cursor = textCursor();
+    extra.format.setProperty( QTextFormat::FullWidthSelection, true );
+    extra.format.setBackground( QApplication::palette().highlight() );
+    extra.format.setForeground( QApplication::palette().highlightedText() );
 
-  m_cursorPositionChanging = false;
+    QList< QTextEdit::ExtraSelection > extras;
+    extras << extra;
+    setExtraSelections( extras );
+    m_textEditClicked = false;
+  }
+  else
+  {
+    m_cursorPositionChanging = true;
+
+    moveCursor( QTextCursor::Start );
+
+    for( int i = 0; i <= relativePos; ++i )
+    {
+      find( text );
+    }
+
+    m_cursorPositionChanging = false;
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -482,11 +505,13 @@ void GCPlainTextEdit::mouseReleaseEvent( QMouseEvent *e )
   if (!m_mouseDragEntered &&
        m_cursorPositionChanged )
   {
+    m_textEditClicked = true;
     emitSelectedIndex();
   }
 
   m_mouseDragEntered = false;
   m_cursorPositionChanged = false;
+  QPlainTextEdit::mouseReleaseEvent( e );
 }
 
 /*--------------------------------------------------------------------------------------*/

@@ -179,12 +179,12 @@ signals:
   /*! Emitted when the current active item changes.
       \sa emitGcCurrentItemSelected
       \sa gcCurrentItemChanged */
-  void gcCurrentItemSelected( GCTreeWidgetItem*, int );
+  void gcCurrentItemSelected( GCTreeWidgetItem* item, int column );
 
   /*! Emitted when the current item's content changes
       \sa emitGcCurrentItemChanged
       \sa gcCurrentItemSelected */
-  void gcCurrentItemChanged( GCTreeWidgetItem*, int );
+  void gcCurrentItemChanged( GCTreeWidgetItem* item, int column );
 
 protected:
   /*! Re-implemented from QTreeWidget. */

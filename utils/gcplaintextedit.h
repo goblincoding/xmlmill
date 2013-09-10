@@ -63,7 +63,7 @@ public:
 signals:
   /*! Emitted when the user clicks or otherwise moves within the text edit.
       \sa emitSelectedIndex */
-  void selectedIndex( int );
+  void selectedIndex( int index );
 
   /*! Emitted whenever a selection has been commented out. The parameter list contains
       the indices corresponding to the items that should be removed from the tree widget. */
@@ -136,6 +136,7 @@ private:
   bool m_cursorPositionChanging;
   bool m_cursorPositionChanged;
   bool m_mouseDragEntered;
+  bool m_textEditClicked;
 };
 
 #endif // GCPLAINTEXTEDIT_H
