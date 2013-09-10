@@ -50,18 +50,22 @@ public:
       for larger documents). */
   void setContent( const QString& text );
 
-  /*! Finds the "relativePos"'s occurrence of "text" within the active document. */
+  /*! Finds the "relativePos"'s occurrence of "text" within the active document (i.e if there
+      are multiple occurrences of "text" within the document, we will find the "relativePos"
+      occurrence measured from the start of the document). */
   void findTextRelativeToDuplicates( const QString& text, int relativePos );
 
   /*! Resets the internal state of GCPlainTextEdit. */
   void clearAndReset();
 
 public slots:
-  /*! Sets the necessary flags on the text edit to wrap or unwrap text as per user preference. */
+  /*! Sets the necessary flags on the text edit to wrap or unwrap text as per "wrap". */
   void wrapText( bool wrap );
 
 signals:
-  /*! Emitted when the user clicks or otherwise moves within the text edit.
+  /*! Emitted whenever the selected index changes ("index" is the position of the text element/line
+      relative to the first active element/beginning of the document, excluding comment blocks and
+      other "non-active" XML).
       \sa emitSelectedIndex */
   void selectedIndex( int index );
 
@@ -69,7 +73,8 @@ signals:
       the indices corresponding to the items that should be removed from the tree widget. */
   void commentOut( const QList< int >&, const QString& );
 
-  /*! Emitted whenever a selection must be "uncommented" or deleted. */
+  /*! Emitted whenever direct editing to the XML text occurred where the edit could represent any
+      number of element additions/removals. */
   void manualEditAccepted();
 
 protected:
@@ -83,15 +88,15 @@ protected:
   void mouseReleaseEvent( QMouseEvent* e );
 
 private slots:
-  /*! Activated when the cursor in the plain text edit changes.
+  /*! Checks if the text cursor is currently being manipulated programmatically and emits
+      the "selectedIndex" signal if appropriate.
       \sa selectedIndex */
   void emitSelectedIndex();
 
   /*! Activated when the cursorPositionChanged signal is emitted. */
   void setCursorPositionChanged();
 
-  /*! Shows the default context menu with the additional options to "Comment Out Selection"
-      and "Uncomment Selection"
+  /*! Shows the default context menu with the custom actions appended.
       \sa commentOut
       \sa commentOutSelection
       \sa uncommentSelection
@@ -103,27 +108,27 @@ private slots:
       \sa commentOut */
   void commentOutSelection();
 
-  /*! Uncomments a selection that's currently commented out.
-      \sa manualEditAccepted */
+  /*! Uncomments a selection that's currently commented out and broadcasts the general change notification
+      via \sa manualEditAccepted */
   void uncommentSelection();
 
-  /*! Permanently deletes the selection.
-      \sa manualEditAccepted*/
+  /*! Permanently deletes the selection and broadcasts the general change notification
+  via \sa manualEditAccepted */
   void deleteSelection();
 
   /*! Adds an empty row (useful when improving XML legibility).
       \sa deleteEmptyRow */
   void insertEmptyRow();
 
-  /*! Deletes an empty row (the only manual deletion allowed directly in the text edit).
+  /*! Deletes an empty row (useful when improving XML legibility).
       \sa insertEmptyRow */
   void deleteEmptyRow();
 
-  /*! Check if the DOM got broken when the user commented out or uncommented sections. */
+  /*! Check if the DOM was broken during a manual edit. */
   bool confirmDomNotBroken( int undoCount );
 
-  /*! Accounts for non-active document aspects (comments and element closing brackets),
-      to determine the index corresponding to a specific block number. */
+  /*! Finds the position (index) of the text element/line represented by "block" relative to the first active
+      element of the document, excluding comment blocks and other "non-active" XML. */
   int findIndexMatchingBlockNumber( QTextBlock block );
 
 private:
