@@ -64,6 +64,8 @@ void removeDuplicates( QList< int >& indices )
 
 GCPlainTextEdit::GCPlainTextEdit( QWidget* parent )
 : QPlainTextEdit   ( parent ),
+  m_savedBackground(),
+  m_savedForeground(),
   m_comment        ( NULL ),
   m_uncomment      ( NULL ),
   m_deleteSelection( NULL ),
@@ -128,8 +130,11 @@ void GCPlainTextEdit::findTextRelativeToDuplicates( const QString& text, int rel
      selected element) since we already know where it is and moving the cursor around
      will only make the text edit "jump" positions.  Rather highlight the text ourselves.
     */
-  if ( m_textEditClicked )
+  if( m_textEditClicked )
   {
+    m_savedBackground = textCursor().blockCharFormat().background();
+    m_savedForeground = textCursor().blockCharFormat().foreground();
+
     QTextEdit::ExtraSelection extra;
     extra.cursor = textCursor();
     extra.format.setProperty( QTextFormat::FullWidthSelection, true );
@@ -143,6 +148,18 @@ void GCPlainTextEdit::findTextRelativeToDuplicates( const QString& text, int rel
   }
   else
   {
+    /* Unset any previously set selections. */
+    QList< QTextEdit::ExtraSelection > extras = extraSelections();
+
+    for( int i = 0; i < extras.size(); ++i )
+    {
+      extras[ i ].format.setProperty( QTextFormat::FullWidthSelection, true );
+      extras[ i ].format.setBackground( m_savedBackground );
+      extras[ i ].format.setForeground( m_savedForeground );
+    }
+
+    setExtraSelections( extras );
+
     m_cursorPositionChanging = true;
 
     moveCursor( QTextCursor::Start );
@@ -369,6 +386,8 @@ bool GCPlainTextEdit::confirmDomNotBroken( int undoCount )
     cursor.movePosition( QTextCursor::NextWord );
     cursor.movePosition( QTextCursor::EndOfBlock, QTextCursor::KeepAnchor );
 
+    m_savedBackground = cursor.blockCharFormat().background();
+
     QTextEdit::ExtraSelection highlight;
     highlight.cursor = cursor;
     highlight.format.setBackground( QColor( 220, 150, 220 ) );
@@ -393,7 +412,7 @@ bool GCPlainTextEdit::confirmDomNotBroken( int undoCount )
     }
 
     highlight.cursor = textCursor();
-    highlight.format.setBackground( QApplication::palette().background() );
+    highlight.format.setBackground( m_savedBackground );
     highlight.format.setProperty( QTextFormat::FullWidthSelection, true );
 
     extras.clear();
@@ -486,17 +505,17 @@ void GCPlainTextEdit::keyPressEvent( QKeyEvent* e )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCPlainTextEdit::mouseMoveEvent( QMouseEvent *e )
+void GCPlainTextEdit::mouseMoveEvent( QMouseEvent* e )
 {
   m_mouseDragEntered = true;
-  QPlainTextEdit::mouseMoveEvent(e);
+  QPlainTextEdit::mouseMoveEvent( e );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCPlainTextEdit::mouseReleaseEvent( QMouseEvent *e )
+void GCPlainTextEdit::mouseReleaseEvent( QMouseEvent* e )
 {
-  if (!m_mouseDragEntered &&
+  if( !m_mouseDragEntered &&
        m_cursorPositionChanged )
   {
     m_textEditClicked = true;

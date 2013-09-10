@@ -56,7 +56,7 @@ public:
   /*! Resets the internal state of GCPlainTextEdit. */
   void clearAndReset();
 
-  public slots:
+public slots:
   /*! Sets the necessary flags on the text edit to wrap or unwrap text as per user preference. */
   void wrapText( bool wrap );
 
@@ -77,10 +77,10 @@ protected:
   void keyPressEvent( QKeyEvent* e );
 
   /*! Re-implemented from QPlainTextEdit. */
-  void mouseMoveEvent( QMouseEvent *e );
+  void mouseMoveEvent( QMouseEvent* e );
 
   /*! Re-implemented from QPlainTextEdit. */
-  void mouseReleaseEvent( QMouseEvent *e );
+  void mouseReleaseEvent( QMouseEvent* e );
 
 private slots:
   /*! Activated when the cursor in the plain text edit changes.
@@ -127,6 +127,8 @@ private slots:
   int findIndexMatchingBlockNumber( QTextBlock block );
 
 private:
+  QBrush m_savedBackground;
+  QBrush m_savedForeground;
   QAction* m_comment;
   QAction* m_uncomment;
   QAction* m_deleteSelection;
