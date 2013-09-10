@@ -64,7 +64,6 @@ void removeDuplicates( QList< int >& indices )
 
 GCPlainTextEdit::GCPlainTextEdit( QWidget* parent )
 : QPlainTextEdit   ( parent ),
-  m_savedPalette   (),
   m_comment        ( NULL ),
   m_uncomment      ( NULL ),
   m_deleteSelection( NULL ),
@@ -306,14 +305,11 @@ void GCPlainTextEdit::deleteSelection()
 {
   m_cursorPositionChanging = true;
 
-  QTextCursor reselectCursor = textCursor();
   textCursor().removeSelectedText();
 
   if( confirmDomNotBroken( 1 ) )
   {
     emit manualEditAccepted();
-
-    setTextCursor( reselectCursor );
     emitSelectedIndex();
   }
 
@@ -373,8 +369,6 @@ bool GCPlainTextEdit::confirmDomNotBroken( int undoCount )
     cursor.movePosition( QTextCursor::NextWord );
     cursor.movePosition( QTextCursor::EndOfBlock, QTextCursor::KeepAnchor );
 
-    m_savedPalette = cursor.blockCharFormat().background();
-
     QTextEdit::ExtraSelection highlight;
     highlight.cursor = cursor;
     highlight.format.setBackground( QColor( 220, 150, 220 ) );
@@ -399,7 +393,7 @@ bool GCPlainTextEdit::confirmDomNotBroken( int undoCount )
     }
 
     highlight.cursor = textCursor();
-    highlight.format.setBackground( m_savedPalette );
+    highlight.format.setBackground( QApplication::palette().background() );
     highlight.format.setProperty( QTextFormat::FullWidthSelection, true );
 
     extras.clear();

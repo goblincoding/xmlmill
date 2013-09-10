@@ -77,10 +77,10 @@ protected:
   void keyPressEvent( QKeyEvent* e );
 
   /*! Re-implemented from QPlainTextEdit. */
-  void mouseMoveEvent(QMouseEvent *e);
+  void mouseMoveEvent( QMouseEvent *e );
 
   /*! Re-implemented from QPlainTextEdit. */
-  void mouseReleaseEvent(QMouseEvent *e);
+  void mouseReleaseEvent( QMouseEvent *e );
 
 private slots:
   /*! Activated when the cursor in the plain text edit changes.
@@ -127,7 +127,6 @@ private slots:
   int findIndexMatchingBlockNumber( QTextBlock block );
 
 private:
-  QBrush m_savedPalette;
   QAction* m_comment;
   QAction* m_uncomment;
   QAction* m_deleteSelection;
