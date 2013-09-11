@@ -225,8 +225,7 @@ void GCAddSnippetsForm::attributeValueChanged() const
 
 void GCAddSnippetsForm::addSnippet()
 {
-  QList< GCTreeWidgetItem* > includedItems;
-  ui->treeWidget->getIncludedTreeWidgetItems( includedItems );
+  QList< GCTreeWidgetItem* > includedItems = ui->treeWidget->includedTreeWidgetItems();
 
   /* Add the required number of snippets. */
   for( int i = 0; i < ui->spinBox->value(); ++i )

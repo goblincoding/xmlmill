@@ -175,7 +175,6 @@ void GCDomTreeWidget::setActiveCommentValue( const QString& value )
       QDomComment comment = m_domDoc->createComment( value );
       m_activeItem->element().parentNode().insertBefore( comment, m_activeItem->element() );
       m_comments.append( comment );
-      emitGcCurrentItemChanged( m_activeItem, 0 );
     }
   }
 
@@ -184,8 +183,10 @@ void GCDomTreeWidget::setActiveCommentValue( const QString& value )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::getIncludedTreeWidgetItems( QList< GCTreeWidgetItem* >& includedItems ) const
+QList< GCTreeWidgetItem* > GCDomTreeWidget::includedTreeWidgetItems() const
 {
+  QList< GCTreeWidgetItem* > includedItems;
+
   for( int i = 0; i < m_items.size(); ++i )
   {
     GCTreeWidgetItem* localItem = m_items.at( i );
@@ -195,6 +196,8 @@ void GCDomTreeWidget::getIncludedTreeWidgetItems( QList< GCTreeWidgetItem* >& in
       includedItems.append( localItem );
     }
   }
+
+  return includedItems;
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -206,7 +209,7 @@ const QList< GCTreeWidgetItem* >& GCDomTreeWidget::allTreeWidgetItems() const
 
 /*--------------------------------------------------------------------------------------*/
 
-int GCDomTreeWidget::findItemPositionAmongDuplicates( const QString& nodeText, int itemIndex ) const
+int GCDomTreeWidget::itemPositionRelativeToIdenticalSiblings( const QString& nodeText, int itemIndex ) const
 {
   QList< int > indices;
 
@@ -228,7 +231,7 @@ int GCDomTreeWidget::findItemPositionAmongDuplicates( const QString& nodeText, i
   /* Now that we have a list of all the indices matching identical nodes (indices are a rough
     indication of an element's position in the DOM and closely matches the "line numbers" of the
     items in the tree widget), we can determine the position of the selected DOM element relative
-    to its doppelgangers and highlight its text representation in the text edit area. */
+    to its doppelgangers. */
   qSort( indices.begin(), indices.end() );
 
   return indices.indexOf( itemIndex );
@@ -255,14 +258,14 @@ bool GCDomTreeWidget::setContent( const QString& text, QString* errorMsg, int* e
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDomTreeWidget::isEmpty() const
+bool GCDomTreeWidget::empty() const
 {
   return m_isEmpty;
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDomTreeWidget::isCurrentItemRoot() const
+bool GCDomTreeWidget::currentItemIsRoot() const
 {
   if( gcCurrentItem() )
   {
@@ -281,14 +284,14 @@ bool GCDomTreeWidget::matchesRootName( const QString& elementName ) const
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDomTreeWidget::isDocumentCompatible() const
+bool GCDomTreeWidget::documentCompatible() const
 {
   return GCDataBaseInterface::instance()->isDocumentCompatible( m_domDoc );
 }
 
 /*--------------------------------------------------------------------------------------*/
 
-bool GCDomTreeWidget::isBatchProcessSuccess() const
+bool GCDomTreeWidget::batchProcessSuccess() const
 {
   return GCDataBaseInterface::instance()->batchProcessDomDocument( m_domDoc );
 }
@@ -320,7 +323,7 @@ void GCDomTreeWidget::rebuildTreeWidget()
   m_items.append( item );
   m_isEmpty = false;
 
-  processNextElement( item, item->element().firstChildElement() );
+  processElement( item, item->element().firstChildElement() );
 
   m_comments.clear();
   populateCommentList( m_domDoc->documentElement() );
@@ -333,7 +336,7 @@ void GCDomTreeWidget::rebuildTreeWidget()
 void GCDomTreeWidget::appendSnippet( GCTreeWidgetItem* parentItem, QDomElement childElement )
 {
   parentItem->element().appendChild( childElement );
-  processNextElement( parentItem, childElement );
+  processElement( parentItem, childElement );
   populateCommentList( childElement );
   updateIndices();
   emitGcCurrentItemSelected( currentItem(), 0 );
@@ -415,7 +418,7 @@ void GCDomTreeWidget::replaceItemsWithComment( const QList< int >& indices, cons
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::processNextElement( GCTreeWidgetItem* parentItem, QDomElement element )
+void GCDomTreeWidget::processElement( GCTreeWidgetItem* parentItem, QDomElement element )
 {
   if( parentItem )
   {
@@ -425,7 +428,7 @@ void GCDomTreeWidget::processNextElement( GCTreeWidgetItem* parentItem, QDomElem
       parentItem->addChild( item );  // takes ownership
       m_items.append( item );
 
-      processNextElement( item, element.firstChildElement() );
+      processElement( item, element.firstChildElement() );
       element = element.nextSiblingElement();
     }
 
@@ -443,16 +446,16 @@ void GCDomTreeWidget::populateFromDatabase( const QString& baseElementName )
   {
     /* It is possible that there may be multiple document types saved to this profile. */
     foreach( QString element, GCDataBaseInterface::instance()->knownRootElements() )
-                                                                                    {
-                                                                                      m_isEmpty = true;   // forces the new item to be added to the invisible root
-                                                                                      addItem( element );
-                                                                                      processNextElementFromDatabase( element );
-                                                                                    }
+    {
+      m_isEmpty = true;   // forces the new item to be added to the invisible root
+      addItem( element );
+      processElementFromDatabase( element );
+    }
   }
   else
   {
     addItem( baseElementName );
-    processNextElementFromDatabase( baseElementName );
+    processElementFromDatabase( baseElementName );
   }
 
   expandAll();
@@ -461,29 +464,29 @@ void GCDomTreeWidget::populateFromDatabase( const QString& baseElementName )
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::processNextElementFromDatabase( const QString& element )
+void GCDomTreeWidget::processElementFromDatabase( const QString& element )
 {
   QStringList children = GCDataBaseInterface::instance()->children( element );
 
   foreach( QString child, children )
-                                    {
-                                      addItem( child );
+  {
+    addItem( child );
 
-                                      /* Since it isn't illegal to have elements with children of the same name, we cannot
-                                        block it in the DB, however, if we DO have elements with children of the same name,
-                                        this recursive call enters an infinite loop, so we need to make sure that doesn't
-                                        happen. */
-                                      GCTreeWidgetItem* newItem = gcCurrentItem();
+    /* Since it isn't illegal to have elements with children of the same name, we cannot
+      block it in the DB, however, if we DO have elements with children of the same name,
+      this recursive call enters an infinite loop, so we need to make sure that doesn't
+      happen. */
+    GCTreeWidgetItem* newItem = gcCurrentItem();
 
-                                      if( !parentTreeAlreadyContainsElement( newItem, child ) )
-                                      {
-                                        processNextElementFromDatabase( child );
-                                      }
-                                      else
-                                      {
-                                        setCurrentItem( m_activeItem->parent() );  // required to enforce sibling relationships
-                                      }
-                                    }
+    if( !parentTreeAlreadyContainsElement( newItem, child ) )
+    {
+      processElementFromDatabase( child );
+    }
+    else
+    {
+      setCurrentItem( m_activeItem->parent() );  // required to enforce sibling relationships
+    }
+  }
 
   setCurrentItem( m_activeItem->parent() );  // required to enforce sibling relationships
 }
@@ -500,7 +503,7 @@ bool GCDomTreeWidget::parentTreeAlreadyContainsElement( const GCTreeWidgetItem* 
     }
 
     item = item->gcParent();
-    parentTreeAlreadyContainsElement( item, element );
+    return parentTreeAlreadyContainsElement( item, element );
   }
 
   return false;
@@ -573,7 +576,7 @@ void GCDomTreeWidget::insertItem( const QString& elementName, int index, bool to
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCDomTreeWidget::setCurrentItemWithIndexMatching( int index )
+void GCDomTreeWidget::setCurrentItemFromIndex( int index )
 {
   index = ( index < 0 ) ? 0 : index;
 
@@ -796,8 +799,7 @@ void GCDomTreeWidget::keyPressEvent( QKeyEvent* event )
 
 void GCDomTreeWidget::currentGcItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous )
 {
-  Q_UNUSED( previous )
-  ;
+  Q_UNUSED( previous );
 
   if( !m_itemBeingManipulated )
   {
@@ -865,17 +867,17 @@ void GCDomTreeWidget::renameItem()
       GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
     }
 
-    /* If we are, in fact, dealing with a new element, we also want the "new" element's associated attributes
+    /* If we are, in fact, dealing with a new element, we also want the new element's associated attributes
       to be updated with the known values of these attributes. */
     foreach( QString attribute, attributes )
-                                            {
-                                              QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( oldName, attribute );
+    {
+      QStringList attributeValues = GCDataBaseInterface::instance()->attributeValues( oldName, attribute );
 
-                                              if( !GCDataBaseInterface::instance()->updateAttributeValues( newName, attribute, attributeValues ) )
-                                              {
-                                                GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
-                                              }
-                                            }
+      if( !GCDataBaseInterface::instance()->updateAttributeValues( newName, attribute, attributeValues ) )
+      {
+        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
+      }
+    }
 
     emitGcCurrentItemChanged( m_activeItem, 0 );
   }
@@ -892,7 +894,8 @@ void GCDomTreeWidget::removeItem()
     /* I think it is safe to assume that comment nodes will exist just above an element
       although it might not always be the case that a multi-line comment exists within
       a single set of comment tags.  However, for those cases, it's the user's responsibility
-      to clean them up. */
+      to clean them up as we cannot assume to know which of these comments will go with the
+      element being removed. */
     if( !m_commentNode.isNull() )
     {
       /* Check if the comment is an actual comment or if it's valid XML that's been

@@ -116,9 +116,9 @@ void GCRemoveItemsForm::attributeActivated( const QString& attribute )
   ui->plainTextEdit->clear();
 
   foreach( QString value, attributeValues )
-                                           {
-                                            ui->plainTextEdit->insertPlainText( QString( "%1\n" ).arg( value ) );
-                                           }
+  {
+   ui->plainTextEdit->insertPlainText( QString( "%1\n" ).arg( value ) );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/
@@ -140,24 +140,24 @@ void GCRemoveItemsForm::deleteElement( const QString& element )
   if( !children.isEmpty() )
   {
     foreach( QString child, children )
-                                      {
-                                        if( GCDataBaseInterface::instance()->isUniqueChildElement( currentElement, child ) )
-                                        {
-                                          deleteElement( child );
-                                        }
-                                      }
+    {
+      if( GCDataBaseInterface::instance()->isUniqueChildElement( currentElement, child ) )
+      {
+        deleteElement( child );
+      }
+    }
   }
 
   /* Remove all the attributes (and their known values) associated with this element. */
   QStringList attributes = GCDataBaseInterface::instance()->attributes( currentElement );
 
   foreach( QString attribute, attributes )
-                                          {
-                                            if( !GCDataBaseInterface::instance()->removeAttribute( currentElement, attribute ) )
-                                            {
-                                              GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
-                                            }
-                                          }
+  {
+    if( !GCDataBaseInterface::instance()->removeAttribute( currentElement, attribute ) )
+    {
+      GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
+    }
+  }
 
   /* Now we can remove the element itself. */
   if( !GCDataBaseInterface::instance()->removeElement( currentElement ) )
@@ -284,23 +284,23 @@ void GCRemoveItemsForm::updateChildLists()
   QStringList knownElements = GCDataBaseInterface::instance()->knownElements();
 
   foreach( QString element, knownElements )
-                                           {
-                                            QStringList children = GCDataBaseInterface::instance()->children( element );
+  {
+   QStringList children = GCDataBaseInterface::instance()->children( element );
 
-                                            if( !children.isEmpty() )
-                                            {
-                                              foreach( QString deletedElement, m_deletedElements )
-                                                                                                  {
-                                                                                                    if( children.contains( deletedElement ) )
-                                                                                                    {
-                                                                                                      if( !GCDataBaseInterface::instance()->removeChildElement( element, deletedElement ) )
-                                                                                                      {
-                                                                                                        GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
-                                                                                                      }
-                                                                                                    }
-                                                                                                  }
-                                            }
-                                           }
+   if( !children.isEmpty() )
+   {
+     foreach( QString deletedElement, m_deletedElements )
+     {
+       if( children.contains( deletedElement ) )
+       {
+         if( !GCDataBaseInterface::instance()->removeChildElement( element, deletedElement ) )
+         {
+           GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
+         }
+       }
+     }
+   }
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/

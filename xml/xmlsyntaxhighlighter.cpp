@@ -74,16 +74,16 @@ XmlSyntaxHighlighter::XmlSyntaxHighlighter( QTextDocument* parent )
 void XmlSyntaxHighlighter::highlightBlock( const QString& text )
 {
   foreach (const HighlightingRule &rule, highlightingRules)
-                                                           {
-                                                            QRegExp expression( rule.pattern );
-                                                            int index = text.indexOf( expression );
-                                                            while( index >= 0 )
-                                                            {
-                                                              int length = expression.matchedLength();
-                                                              setFormat( index, length, rule.format );
-                                                              index = text.indexOf( expression, index + length );
-                                                            }
-                                                           }
+  {
+   QRegExp expression( rule.pattern );
+   int index = text.indexOf( expression );
+   while( index >= 0 )
+   {
+     int length = expression.matchedLength();
+     setFormat( index, length, rule.format );
+     index = text.indexOf( expression, index + length );
+   }
+  }
   setCurrentBlockState( 0 );
 
   int startIndex = 0;

@@ -117,7 +117,7 @@ GCMainWindow::GCMainWindow( QWidget* parent )
   connect( ui->actionUseDarkTheme, SIGNAL( triggered( bool ) ), this, SLOT( useDarkTheme( bool ) ) );
 
   connect( ui->wrapTextCheckBox, SIGNAL( clicked( bool ) ), ui->dockWidgetTextEdit, SLOT( wrapText( bool ) ) );
-  connect( ui->dockWidgetTextEdit, SIGNAL( selectedIndex( int ) ), ui->treeWidget, SLOT( setCurrentItemWithIndexMatching( int ) ) );
+  connect( ui->dockWidgetTextEdit, SIGNAL( selectedIndex( int ) ), ui->treeWidget, SLOT( setCurrentItemFromIndex( int ) ) );
   connect( ui->dockWidgetTextEdit, SIGNAL( commentOut( const QList< int >&, const QString& ) ), this, SLOT( commentOut( const QList< int >&, const QString& ) ) );
   connect( ui->dockWidgetTextEdit, SIGNAL( manualEditAccepted() ), this, SLOT( rebuild() ) );
 
@@ -218,7 +218,7 @@ void GCMainWindow::initialise()
 
 void GCMainWindow::elementChanged( GCTreeWidgetItem* item, int column )
 {
-  if( !ui->treeWidget->isEmpty() )
+  if( !ui->treeWidget->empty() )
   {
     elementSelected( item, column );
     setTextEditContent( item );
@@ -342,7 +342,7 @@ void GCMainWindow::elementSelected( GCTreeWidgetItem* item, int column )
     /* Unset flag. */
     m_wasTreeItemActivated = false;
   }
-  else if( ui->treeWidget->isEmpty() )
+  else if( ui->treeWidget->empty() )
   {
     resetDOM();
   }
@@ -564,7 +564,7 @@ bool GCMainWindow::openXMLFile()
   {
     /* If the user is opening an XML file of a kind that isn't supported by the current active DB,
         we need to warn him/her of this fact and provide them with a couple of options. */
-    if( !ui->treeWidget->isDocumentCompatible() )
+    if( !ui->treeWidget->documentCompatible() )
     {
       bool accepted = GCMessageSpace::userAccepted( "QueryImportXML",
                                                     "Import document?",
@@ -579,7 +579,7 @@ bool GCMainWindow::openXMLFile()
         timer.singleShot( 1000, this, SLOT( createSpinner() ) );
         qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
 
-        if( !ui->treeWidget->isBatchProcessSuccess() )
+        if( !ui->treeWidget->batchProcessSuccess() )
         {
           GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
         }
@@ -745,7 +745,7 @@ bool GCMainWindow::importXMLToDatabase()
   createSpinner();
   qApp->processEvents( QEventLoop::ExcludeUserInputEvents );
 
-  if( !ui->treeWidget->isBatchProcessSuccess() )
+  if( !ui->treeWidget->batchProcessSuccess() )
   {
     GCMessageSpace::showErrorMessageBox( this, GCDataBaseInterface::instance()->lastError() );
     deleteSpinner();
@@ -765,7 +765,7 @@ void GCMainWindow::addNewDatabase()
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
     or not a user is on the verge of messing something up... */
-  if( ui->treeWidget->isEmpty() )
+  if( ui->treeWidget->empty() )
   {
     manager->addNewDatabase();
   }
@@ -789,7 +789,7 @@ void GCMainWindow::addExistingDatabase()
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
     or not a user is on the verge of messing something up... */
-  if( ui->treeWidget->isEmpty() )
+  if( ui->treeWidget->empty() )
   {
     manager->addExistingDatabase();
   }
@@ -813,7 +813,7 @@ void GCMainWindow::removeDatabase()
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
     or not a user is on the verge of messing something up... */
-  if( ui->treeWidget->isEmpty() )
+  if( ui->treeWidget->empty() )
   {
     manager->removeDatabase();
   }
@@ -838,7 +838,7 @@ void GCMainWindow::switchActiveDatabase()
   /* If we have an active DOM document, we need to pass the name of the root
     element through to the DB session manager which uses it to determine whether
     or not a user is on the verge of messing something up... */
-  if( ui->treeWidget->isEmpty() )
+  if( ui->treeWidget->empty() )
   {
     manager->selectActiveDatabase();
   }
@@ -854,7 +854,7 @@ void GCMainWindow::switchActiveDatabase()
 
 void GCMainWindow::activeDatabaseChanged( QString dbName )
 {
-  if( ui->treeWidget->isEmpty() )
+  if( ui->treeWidget->empty() )
   {
     resetDOM();
   }
@@ -896,7 +896,7 @@ void GCMainWindow::activeDatabaseChanged( QString dbName )
 void GCMainWindow::addElementToDocument()
 {
   QString elementName = ui->addElementComboBox->currentText();
-  bool treeWasEmpty = ui->treeWidget->isEmpty();
+  bool treeWasEmpty = ui->treeWidget->empty();
   bool addToParent = false;
 
   /* If the user selected the <element> option, we add a new sibling element
@@ -998,7 +998,7 @@ void GCMainWindow::removeItemsFromDB()
     return;
   }
 
-  if( !ui->treeWidget->isEmpty() )
+  if( !ui->treeWidget->empty() )
   {
     GCMessageSpace::showErrorMessageBox( this, "For practical reasons, items cannot be removed when documents are open.\n"
                                          "Please \"Save\" and/or \"Close\" the current document before returning back here." );
@@ -1365,7 +1365,7 @@ void GCMainWindow::highlightTextElement( GCTreeWidgetItem* item )
   if( item )
   {
     QString stringToMatch = item->toString();
-    int pos = ui->treeWidget->findItemPositionAmongDuplicates( stringToMatch, item->index() );
+    int pos = ui->treeWidget->itemPositionRelativeToIdenticalSiblings( stringToMatch, item->index() );
     ui->dockWidgetTextEdit->findTextRelativeToDuplicates( stringToMatch, pos );
   }
 }
@@ -1531,7 +1531,7 @@ void GCMainWindow::queryRestoreFiles()
     .filter( QString( "%1_temp" )
              .arg( GCDataBaseInterface::instance()->activeSessionName().remove( ".db" ) ) );
 
-  if( !tempFiles.isEmpty() )
+  if( !tempFiles.empty() )
   {
     QMessageBox::StandardButton accept = QMessageBox::information( this,
                                                                    "Found recovery files",

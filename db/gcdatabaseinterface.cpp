@@ -128,13 +128,13 @@ GCDataBaseInterface::GCDataBaseInterface()
     QStringList list = fileContent.split( "\n", QString::SkipEmptyParts );
 
     foreach( QString str, list )
-                                {
-                                  if( !addDatabase( str ) )
-                                  {
-                                    m_lastErrorMsg = QString( "Failed to load existing connection: \n %1" ).arg( str );
-                                    m_initialised = false;
-                                  }
-                                }
+    {
+      if( !addDatabase( str ) )
+      {
+        m_lastErrorMsg = QString( "Failed to load existing connection: \n %1" ).arg( str );
+        m_initialised = false;
+      }
+    }
   }
   else
   {
@@ -1390,9 +1390,9 @@ void GCDataBaseInterface::saveDatabaseFile() const
     QTextStream outStream( &flatFile );
 
     foreach( QString str, m_dbMap.values() )
-                                            {
-                                              outStream << str << "\n";
-                                            }
+    {
+      outStream << str << "\n";
+    }
 
     flatFile.close();
   }

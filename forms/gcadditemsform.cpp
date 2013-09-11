@@ -82,9 +82,9 @@ void GCAddItemsForm::populateCombo()
   QStringList elements( GCDataBaseInterface::instance()->knownElements() );
 
   foreach( QString root, GCDataBaseInterface::instance()->knownRootElements() )
-                                                                               {
-                                                                                elements.removeAll( root );
-                                                                               }
+  {
+   elements.removeAll( root );
+  }
 
   ui->comboBox->addItem( CREATE_NEW );
   ui->comboBox->addItems( elements );
@@ -168,9 +168,9 @@ void GCAddItemsForm::comboValueChanged( const QString& element )
     ui->plainTextEdit->clear();
 
     foreach( QString value, attributes )
-                                        {
-                                          ui->plainTextEdit->insertPlainText( QString( "%1\n" ).arg( value ) );
-                                        }
+    {
+      ui->plainTextEdit->insertPlainText( QString( "%1\n" ).arg( value ) );
+    }
   }
   else
   {

@@ -202,9 +202,9 @@ QString GCTreeWidgetItem::fixedValue( const QString& attribute ) const
 void GCTreeWidgetItem::revertToFixedValues()
 {
   foreach( QString attribute, m_fixedValues.keys() )
-                                                    {
-                                                      m_element.setAttribute( attribute, m_fixedValues.value( attribute ) );
-                                                    }
+  {
+    m_element.setAttribute( attribute, m_fixedValues.value( attribute ) );
+  }
 }
 
 /*--------------------------------------------------------------------------------------*/

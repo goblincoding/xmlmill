@@ -34,7 +34,7 @@
 #include <QString>
 #include <QDomElement>
 
-/// Used in GCDomTreeWidget, each GCTreeWidgetItem can be associated with a QDomElement.
+/// Used by GCDomTreeWidget, each GCTreeWidgetItem can be associated with a QDomElement.
 
 /**
     Can be associated with a QDomElement in order to provide additional information in the XML Mill
@@ -54,21 +54,22 @@ public:
       within the DOM (roughly corresponding to "line numbers"). */
   explicit GCTreeWidgetItem( QDomElement element, int index );
 
-  /*! Returns the parent item as a GCTreeWidgetItem. */
+  /*! Returns this item's parent item as a GCTreeWidgetItem. */
   GCTreeWidgetItem* gcParent() const;
 
-  /*! Returns the child item at "index" as a GCTreeWidgetItem. */
+  /*! Returns this item's child item at "index" as a GCTreeWidgetItem. */
   GCTreeWidgetItem* gcChild( int index ) const;
 
   /*! Returns the associated element via QDomElement's default shallow copy constructor. */
   QDomElement element() const;
 
-  /*! Sets the "exclude" flag (used to determine if the element must be included in GCDomTreeWidget's
-      DOM document).
+  /*! Sets the "exclude" flag used to determine whether or not the element must be included in GCDomTreeWidget's
+      DOM document (elements are included by default).
       \sa elementExcluded */
   void setExcludeElement( bool exclude );
 
-  /*! Returns "true" if the element should be excluded from the active document.
+  /*! Returns "true" if the element should be excluded from the active document (elements are included
+      by default).
       \sa setExcludeElement */
   bool elementExcluded() const;
 
@@ -89,8 +90,8 @@ public:
 
   /*! This function is only used in GCAddSnippetsForm. Adds "attribute" to a list of attributes
       whose values must be incremented when multiple snippets are added to the active DOM.  The
-      reason this functionality was added is due to the complications inherent to the default
-      shallow copy constructors of QDomAttr (I originally tried to use maps confined to GCSnippetForm
+      reason this functionality was added is due to the complications inherent in the default
+      shallow copy constructors of QDomAttr (I originally tried to use maps confined to GCAddSnippetForm
       objects, but to no avail).
       \sa incrementAttribute
       \sa fixAttributeValues
@@ -150,8 +151,8 @@ public:
   QString name() const;
 
   /*! Sets the item's element display as "verbose". When "verbose", the entire node is displayed (element
-  attributes and values), otherwise only the element name is displayed.
-  \sa setDisplayText */
+      attributes and values), otherwise only the element name is displayed.
+      \sa setDisplayText */
   void setVerbose( bool verbose );
 
   /*! Inserts "item" at "index" and ensures that the corresponding DOM element is also
