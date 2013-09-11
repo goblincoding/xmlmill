@@ -76,7 +76,7 @@ class QMovie;
   All the code refers to "databases" whereas all the user prompts reference "profiles". This
   is deliberate.  In reality, everything is persisted to SQLite database files, but a friend
   suggested that end users may be intimidated by the use of the word "database" (especially
-  if they aren't necessarily technically inclined) and that "profile" may be less scary and
+  if they aren't necessarily technically inclined) and that "profile" may be less scary...
   I agreed :)
 */
 class GCMainWindow : public QMainWindow
@@ -95,7 +95,7 @@ protected:
       saves the user's "Options" preferences to settings. */
   void closeEvent( QCloseEvent* event );
 
-  private slots:
+private slots:
   /*! Triggered as soon as the main event loop is entered (via a connection to a single shot
       timer in the constructor). This function ensures that GCDataBaseInterface is successfully
       initialised and prompts the user to select a database for the current session. */

@@ -83,8 +83,7 @@ GCAddSnippetsForm::~GCAddSnippetsForm()
 
 void GCAddSnippetsForm::elementSelected( GCTreeWidgetItem* item, int column )
 {
-  Q_UNUSED( column )
-  ;
+  Q_UNUSED( column );
 
   if( item )
   {

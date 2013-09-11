@@ -44,7 +44,7 @@
 #include <QtGui/QSyntaxHighlighter>
 
 /*!
-    Original class was obtained here:
+    Original class was obtained from here:
     http://qt.gitorious.org/qt/qt/blobs/HEAD/examples/xmlpatterns/shared/xmlsyntaxhighlighter.h
 
     This version has some alterations made to the regular expressions.

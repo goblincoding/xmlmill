@@ -41,6 +41,11 @@
     context regarding whether or not the element or any of its attributes should be excluded
     from the DOM document being built.  This item DOES NOT OWN the QDomElement (hence all the non
     const return values...QDomElement's default copy constructor is shallow).
+
+    Some specialisation specific to GCAddSnippetsForm was added to this class (all functions related to
+    incrementation and fixing of attribute values).  The reason this functionality was added here is
+    due to complications derived from the default shallow copy constructors of QDomAttr (I originally
+    tried to use maps confined to GCAddSnippetForm objects, but to no avail).
 */
 
 class GCTreeWidgetItem : public QTreeWidgetItem
@@ -88,43 +93,40 @@ public:
       \sa includeAttribute */
   bool attributeIncluded( const QString& attribute ) const;
 
-  /*! This function is only used in GCAddSnippetsForm. Adds "attribute" to a list of attributes
-      whose values must be incremented when multiple snippets are added to the active DOM.  The
-      reason this functionality was added is due to the complications inherent in the default
-      shallow copy constructors of QDomAttr (I originally tried to use maps confined to GCAddSnippetForm
-      objects, but to no avail).
+  /*! Adds "attribute" to a list of attributes whose values must be incremented when multiple snippets
+      are added to the active DOM.  The reason this functionality was added here is due to the complications
+      inherent in the default shallow copy constructors of QDomAttr (I originally tried to use maps confined
+      to GCAddSnippetForm objects, but to no avail).
       \sa incrementAttribute
       \sa fixAttributeValues
       \sa fixedValue
       \sa revertToFixedValues */
   void setIncrementAttribute( const QString& attribute, bool increment );
 
-  /*! This function is only used in GCAddSnippetsForm. Returns true if "attribute" must
-      be incremented automatically.
+  /*! Returns true if "attribute" must be incremented automatically when multiple snippets
+      are added to the active DOM.
       \sa setIncrementAttribute
       \sa fixAttributeValues
       \sa fixedValue
       \sa revertToFixedValues */
   bool incrementAttribute( const QString& attribute ) const;
 
-  /*! This function is only used in GCAddSnippetsForm. Takes a snapshot of the current attribute values
-      so that element attributes may be updated on each snippet iteration without forgetting what the
-      underlying value was.
+  /*! Takes a snapshot of the current attribute values so that element attributes may be incremented
+      automatically with reference to (and without losing) the original values.
       \sa incrementAttribute
       \sa setIncrementAttribute
       \sa fixedValue
       \sa revertToFixedValues */
   void fixAttributeValues();
 
-  /*! This function is only used in GCAddSnippetsForm. Returns the fixed value saved against "attribute".
+  /*! Returns the fixed value saved against "attribute".
       \sa incrementAttribute
       \sa setIncrementAttribute
       \sa fixAttributeValues
       \sa revertToFixedValues */
   QString fixedValue( const QString& attribute ) const;
 
-  /*! This function is only used in GCAddSnippetsForm. Reverts to the attribute values set with the
-      "fixedAttributeValues" call.
+  /*! Reverts to the attribute values set with the "fixedAttributeValues" call.
       \sa setIncrementAttribute
       \sa incrementAttribute
       \sa fixAttributeValues

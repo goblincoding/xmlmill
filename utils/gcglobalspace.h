@@ -56,7 +56,7 @@ namespace GCGlobalSpace
   /*--------------------------------------------------------------------------------------*/
 
   /*! Used when saving and loading settings to registry/XML/ini. */
-  const QString ORGANISATION = "William Hallatt";
+  const QString ORGANISATION = "GoblinCoding";
 
   /*! Used when saving and loading settings to registry/XML/ini. */
   const QString APPLICATION = "XML Mill";

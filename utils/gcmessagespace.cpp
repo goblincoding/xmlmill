@@ -121,7 +121,7 @@ public:
     delete ui;
   }
 
-  private slots:
+private slots:
   /*! Triggered when the user checks or unchecks the "Don't ask me again" box. */
   void setRememberUserChoice( bool remember )
   {
@@ -231,4 +231,6 @@ namespace GCMessageSpace
   {
     QMessageBox::critical( parent, "Error!", message );
   }
+
+  /*------------------------------------------------------------------------------------*/
 }
