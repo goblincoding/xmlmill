@@ -57,8 +57,7 @@ GCRestoreFilesForm::GCRestoreFilesForm( const QStringList& tempFiles, QWidget* p
 
   /* Everything happens automagically and the text edit takes ownership. */
   XmlSyntaxHighlighter* highLighter = new XmlSyntaxHighlighter( ui->plainTextEdit->document() );
-  Q_UNUSED( highLighter )
-  ;
+  Q_UNUSED( highLighter );
 
   next();
 }

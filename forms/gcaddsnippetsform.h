@@ -75,9 +75,9 @@ public:
 signals:
   /*! Informs the listener that a new snippet has been added. The GCTreeWidgetItem thus emitted
       is the item to which the snippet must be added and the QDomElement is the element corresponding
-      to this item.  As always, we dependon QDomElement's shallow copy constructor and the GCTreeWidgetItem
-      thus emitted is not owned by this class. */
-  void snippetAdded( GCTreeWidgetItem*, QDomElement );
+      to this item.  As always, we depend on QDomElement's shallow copy constructor. The GCTreeWidgetItem
+      thus emitted is not owned by this class, but is the same one that was passed in as constructor argument. */
+  void snippetAdded( GCTreeWidgetItem* parent, QDomElement elementToAdd );
 
   private slots:
   /*! Triggered when an element is selected in the tree widget.  This function populates the attributes
