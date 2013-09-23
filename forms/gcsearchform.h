@@ -30,7 +30,7 @@
 #define GCSEARCHFORM_H
 
 #include <QDialog>
-#include <QTextEdit>
+#include <QPlainTextEdit>
 
 namespace Ui
 {
@@ -54,8 +54,8 @@ Q_OBJECT
 public:
   /*! Constructor.
       @param elements - a list of all the elements in the active document.
-      @param docContents - the string representation of the active document's DOM content. */
-  explicit GCSearchForm( const QList< GCTreeWidgetItem* >& items, const QString& docContents, QWidget* parent = 0 );
+      @param textEdit - the textEdit currently displaying the active document's DOM content. */
+  explicit GCSearchForm( const QList< GCTreeWidgetItem* >& items, QPlainTextEdit* textEdit, QWidget* parent = 0 );
 
   /*! Destructor. */
   ~GCSearchForm();
@@ -92,12 +92,26 @@ signals:
   void wholeWords();
 
 private:
-  /*! Called from within the search function when a match is found and emits the foundItem
-      signal. */
-  void foundMatch( GCTreeWidgetItem* treeItem );
+  /*! Gathers all items matching "nodeText" into a list. */
+  QList< GCTreeWidgetItem* > gatherMatchingItems( const QString& nodeText );
+
+  /*! Called from within the search function, finds the match (if any) and emits the foundItem
+      signal if it does. */
+  void findMatchingTreeItem(  const QList< GCTreeWidgetItem* > matchingItems, bool ascending  );
+
+  /*! Resets all "manually" highlighted text to their standard appearance
+      \sa highlightFind
+  */
+  void resetHighlights();
+
+  /*! Called whenever the found text does not match a node (i.e. matches text in a closing bracket,
+      or in a comment, etc) so that we may highlight the match ourselves for display purposes. */
+  void highlightFind();
 
   Ui::GCSearchForm* ui;
-  QTextEdit m_text;
+  QPlainTextEdit* m_text;
+  QBrush m_savedBackground;
+  QBrush m_savedForeground;
   bool m_wasFound;
   bool m_searchUp;
   bool m_firstRun;

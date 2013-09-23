@@ -31,6 +31,7 @@
 #include "utils/gctreewidgetitem.h"
 
 #include <QMessageBox>
+#include <QTextBlock>
 
 /*-------------------------------- NON MEMBER FUNCTIONS --------------------------------*/
 
@@ -48,20 +49,22 @@ bool greaterThan( GCTreeWidgetItem* lhs, GCTreeWidgetItem* rhs )
 
 /*---------------------------------- MEMBER FUNCTIONS ----------------------------------*/
 
-GCSearchForm::GCSearchForm( const QList< GCTreeWidgetItem* >& items, const QString& docContents, QWidget* parent )
-: QDialog        ( parent ),
-  ui             ( new Ui::GCSearchForm ),
-  m_text         (),
-  m_wasFound     ( false ),
-  m_searchUp     ( false ),
-  m_firstRun     ( true ),
-  m_previousIndex( -1 ),
-  m_searchFlags  ( 0 ),
-  m_items        ( items )
+GCSearchForm::GCSearchForm( const QList< GCTreeWidgetItem* >& items, QPlainTextEdit* textEdit, QWidget* parent )
+: QDialog          ( parent ),
+  ui               ( new Ui::GCSearchForm ),
+  m_text           ( textEdit ),
+  m_savedBackground(),
+  m_savedForeground(),
+  m_wasFound       ( false ),
+  m_searchUp       ( false ),
+  m_firstRun       ( true ),
+  m_previousIndex  ( -1 ),
+  m_searchFlags    ( 0 ),
+  m_items          ( items )
 {
   ui->setupUi( this );
   ui->lineEdit->setFocus();
-  m_text.setText( docContents );
+  //m_text->setText( docContents );
 
   connect( ui->searchButton, SIGNAL( clicked() ), this, SLOT( search() ) );
   connect( ui->closeButton, SIGNAL( clicked() ), this, SLOT( close() ) );
@@ -87,7 +90,7 @@ void GCSearchForm::search()
 {
   m_firstRun = false;
   QString searchText = ui->lineEdit->text();
-  bool found = m_text.find( searchText, m_searchFlags );
+  bool found = m_text->find( searchText, m_searchFlags );
 
   /* The first time we enter this function, if the text does not exist
     within the document, "found" and "m_wasFound" will both be false.
@@ -99,7 +102,7 @@ void GCSearchForm::search()
       ( !m_wasFound && m_searchUp ) )
   {
     resetCursor();
-    found = m_text.find( searchText, m_searchFlags );
+    found = m_text->find( searchText, m_searchFlags );
   }
 
   if( found )
@@ -108,61 +111,32 @@ void GCSearchForm::search()
 
     /* Highlight the entire node (element, attributes and attribute values)
       in which the match was found. */
-    m_text.moveCursor( QTextCursor::StartOfLine );
-    m_text.moveCursor( QTextCursor::EndOfLine, QTextCursor::KeepAnchor );
+    m_text->moveCursor( QTextCursor::StartOfLine );
+    m_text->moveCursor( QTextCursor::EndOfBlock, QTextCursor::KeepAnchor );
 
-    QString nodeText = m_text.textCursor().selectedText().trimmed();
-    QList< GCTreeWidgetItem* > matchingItems;
-
-    /* Find the first tree widget item whose corresponding element node matches the
+    /* Find all tree widget items whose corresponding element node matches the
       highlighted text. */
-    for( int i = 0; i < m_items.size(); ++i )
-    {
-      GCTreeWidgetItem* treeItem = m_items.at( i );
+    QString nodeText = m_text->textCursor().selectedText().trimmed();
+    QList< GCTreeWidgetItem* > matchingItems = gatherMatchingItems( nodeText );
 
-      if( m_items.at( i )->toString() == nodeText )
+    if ( !matchingItems.empty() )
+    {
+      if( !m_searchUp )
       {
-        matchingItems.append( treeItem );
+        /* Sort ascending. */
+        qSort( matchingItems.begin(), matchingItems.end(), lessThan );
+        findMatchingTreeItem( matchingItems, true );
       }
-    }
-
-    if( !m_searchUp )
-    {
-      /* Sort ascending. */
-      qSort( matchingItems.begin(), matchingItems.end(), lessThan );
-
-      for( int i = 0; i < matchingItems.size(); ++i )
+      else
       {
-        GCTreeWidgetItem* treeItem = matchingItems.at( i );
-
-        /* Make sure we find the next occurrence of the match ("down" from the
-          previous match). */
-        if( treeItem->index() > m_previousIndex )
-        {
-          m_previousIndex = treeItem->index();
-          emit foundMatch( treeItem );
-          break;
-        }
+        /* Sort descending. */
+        qSort( matchingItems.begin(), matchingItems.end(), greaterThan );
+        findMatchingTreeItem( matchingItems, false );
       }
     }
     else
     {
-      /* Sort descending. */
-      qSort( matchingItems.begin(), matchingItems.end(), greaterThan );
-
-      for( int i = 0; i < matchingItems.size(); ++i )
-      {
-        GCTreeWidgetItem* treeItem = matchingItems.at( i );
-
-        /* Make sure we find the next occurrence of the match ("up" from the
-          previous match). */
-        if( treeItem->index() < m_previousIndex )
-        {
-          m_previousIndex = treeItem->index();
-          emit foundMatch( treeItem );
-          break;
-        }
-      }
+      highlightFind();
     }
   }
   else
@@ -178,13 +152,13 @@ void GCSearchForm::resetCursor()
   /* Reset cursor so that we may keep cycling through the document content. */
   if( ui->searchUpCheckBox->isChecked() )
   {
-    m_text.moveCursor( QTextCursor::End );
+    m_text->moveCursor( QTextCursor::End );
     QMessageBox::information( this, "Reached Top", "Search reached top, continuing at bottom." );
     m_previousIndex = 9999999;
   }
   else
   {
-    m_text.moveCursor( QTextCursor::Start );
+    m_text->moveCursor( QTextCursor::Start );
     QMessageBox::information( this, "Reached Bottom", "Search reached bottom, continuing at top." );
     m_previousIndex = -1;
   }
@@ -249,14 +223,82 @@ void GCSearchForm::wholeWords()
 
 /*--------------------------------------------------------------------------------------*/
 
-void GCSearchForm::foundMatch( GCTreeWidgetItem* treeItem )
+QList< GCTreeWidgetItem* > GCSearchForm::gatherMatchingItems( const QString& nodeText )
 {
-  emit foundItem( treeItem );
+  QList< GCTreeWidgetItem* > matchingItems;
+
+  for( int i = 0; i < m_items.size(); ++i )
+  {
+    GCTreeWidgetItem* treeItem = m_items.at( i );
+
+    if( treeItem->toString() == nodeText )
+    {
+      matchingItems.append( treeItem );
+    }
+  }
+
+  return matchingItems;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCSearchForm::findMatchingTreeItem( const QList< GCTreeWidgetItem* > matchingItems, bool ascending )
+{
+  for( int i = 0; i < matchingItems.size(); ++i )
+  {
+    GCTreeWidgetItem* treeItem = matchingItems.at( i );
+
+    if( ( ascending && treeItem->index() > m_previousIndex ) ||
+        ( !ascending && treeItem->index() < m_previousIndex ) )
+    {
+      m_previousIndex = treeItem->index();
+      resetHighlights();
+      emit foundItem( treeItem );
+      break;
+    }
+  }
 
   if( ui->searchButton->text() == "Search" )
   {
     ui->searchButton->setText( "Next" );
   }
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCSearchForm::resetHighlights()
+{
+  QList< QTextEdit::ExtraSelection > extras = m_text->extraSelections();
+
+  for( int i = 0; i < extras.size(); ++i )
+  {
+    extras[ i ].format.setProperty( QTextFormat::FullWidthSelection, true );
+    extras[ i ].format.setBackground( m_savedBackground );
+    extras[ i ].format.setForeground( m_savedForeground );
+  }
+
+  m_text->setExtraSelections( extras );
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+void GCSearchForm::highlightFind()
+{
+  /* First we reset all previous selections. */
+  resetHighlights();
+
+  /* Now we can set the highlighted text. */
+  m_savedBackground = m_text->textCursor().blockCharFormat().background();
+  m_savedForeground = m_text->textCursor().blockCharFormat().foreground();
+
+  QTextEdit::ExtraSelection extra;
+  extra.cursor = m_text->textCursor();
+  extra.format.setBackground( QApplication::palette().highlight() );
+  extra.format.setForeground( QApplication::palette().highlightedText() );
+
+  QList< QTextEdit::ExtraSelection > extras;
+  extras << extra;
+  m_text->setExtraSelections( extras );
 }
 
 /*--------------------------------------------------------------------------------------*/

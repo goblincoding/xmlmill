@@ -1040,7 +1040,7 @@ void GCMainWindow::addItemsToDB()
 void GCMainWindow::searchDocument()
 {
   /* Delete on close flag set (no clean-up needed). */
-  GCSearchForm* form = new GCSearchForm( ui->treeWidget->allTreeWidgetItems(), ui->treeWidget->toString(), this );
+  GCSearchForm* form = new GCSearchForm( ui->treeWidget->allTreeWidgetItems(), ui->dockWidgetTextEdit, this );
   connect( form, SIGNAL( foundItem( GCTreeWidgetItem* ) ), this, SLOT( itemFound( GCTreeWidgetItem* ) ) );
   form->exec();
 }
