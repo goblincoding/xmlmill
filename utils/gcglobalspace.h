@@ -55,6 +55,14 @@ namespace GCGlobalSpace
 
   /*--------------------------------------------------------------------------------------*/
 
+  /*! Returns the last directory that the user navigated to through dialogs, etc. */
+  QString lastUserSelectedDirectory();
+
+  /*! Saves the last directory the user navigated to through dialogs, etc. */
+  void setLastUserSelectedDirectory( const QString& dir );
+
+  /*--------------------------------------------------------------------------------------*/
+
   /*! Used when saving and loading settings to registry/XML/ini. */
   const QString ORGANISATION = "GoblinCoding";
 

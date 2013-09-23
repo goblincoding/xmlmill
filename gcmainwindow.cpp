@@ -490,7 +490,8 @@ bool GCMainWindow::openXMLFile()
     return false;
   }
 
-  QString fileName = QFileDialog::getOpenFileName( this, "Open File", QDir::homePath(), "XML Files (*.*)" );
+  /* Start off where the user finished last. */
+  QString fileName = QFileDialog::getOpenFileName( this, "Open File", GCGlobalSpace::lastUserSelectedDirectory(), "XML Files (*.*)" );
 
   /* If the user cancelled, we don't want to continue. */
   if( fileName.isEmpty() )
@@ -606,6 +607,10 @@ bool GCMainWindow::openXMLFile()
     }
   }
 
+  /* Save whatever directory the user ended up in. */
+  QFileInfo fileInfo( fileName );
+  QString finalDirectory = fileInfo.dir().path();
+  GCGlobalSpace::setLastUserSelectedDirectory( finalDirectory );
   return true;
 }
 
@@ -662,12 +667,18 @@ bool GCMainWindow::saveXMLFile()
 
 bool GCMainWindow::saveXMLFileAs()
 {
-  QString file = QFileDialog::getSaveFileName( this, "Save As", QDir::homePath(), "XML Files (*.*)" );
+  QString file = QFileDialog::getSaveFileName( this, "Save As", GCGlobalSpace::lastUserSelectedDirectory(), "XML Files (*.*)" );
 
   /* If the user clicked "OK". */
   if( !file.isEmpty() )
   {
     m_currentXMLFileName = file;
+
+    /* Save the last visited directory. */
+    QFileInfo fileInfo( m_currentXMLFileName );
+    QString finalDirectory = fileInfo.dir().path();
+    GCGlobalSpace::setLastUserSelectedDirectory( finalDirectory );
+
     return saveXMLFile();
   }
   else

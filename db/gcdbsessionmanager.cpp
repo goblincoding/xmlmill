@@ -30,6 +30,7 @@
 #include "ui_gcdbsessionmanager.h"
 #include "db/gcdatabaseinterface.h"
 #include "utils/gcmessagespace.h"
+#include "utils/gcglobalspace.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -103,12 +104,17 @@ void GCDBSessionManager::addExistingDatabase( const QString& currentRoot )
 {
   m_currentRoot = currentRoot;
 
-  QString file = QFileDialog::getOpenFileName( this, "Add Existing Profile", QDir::homePath(), "XML Profiles (*.db)" );
+  QString file = QFileDialog::getOpenFileName( this, "Add Existing Profile", GCGlobalSpace::lastUserSelectedDirectory(), "XML Profiles (*.db)" );
 
   /* If the user clicked "OK". */
   if( !file.isEmpty() )
   {
     addDatabaseConnection( file );
+
+    /* Save the last visited directory. */
+    QFileInfo fileInfo( file );
+    QString finalDirectory = fileInfo.dir().path();
+    GCGlobalSpace::setLastUserSelectedDirectory( finalDirectory );
   }
 }
 
@@ -118,12 +124,17 @@ void GCDBSessionManager::addNewDatabase( const QString& currentRoot )
 {
   m_currentRoot = currentRoot;
 
-  QString file = QFileDialog::getSaveFileName( this, "Add New Profile", QDir::homePath(), "XML Profiles (*.db)" );
+  QString file = QFileDialog::getSaveFileName( this, "Add New Profile", GCGlobalSpace::lastUserSelectedDirectory(), "XML Profiles (*.db)" );
 
   /* If the user clicked "OK". */
   if( !file.isEmpty() )
   {
     addDatabaseConnection( file );
+
+    /* Save the last visited directory. */
+    QFileInfo fileInfo( file );
+    QString finalDirectory = fileInfo.dir().path();
+    GCGlobalSpace::setLastUserSelectedDirectory( finalDirectory );
   }
 }
 

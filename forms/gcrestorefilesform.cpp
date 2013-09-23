@@ -73,7 +73,7 @@ GCRestoreFilesForm::~GCRestoreFilesForm()
 
 void GCRestoreFilesForm::saveFile()
 {
-  QString fileName = QFileDialog::getSaveFileName( this, "Save As", QDir::homePath(), "XML Files (*.*)" );
+  QString fileName = QFileDialog::getSaveFileName( this, "Save As", GCGlobalSpace::lastUserSelectedDirectory(), "XML Files (*.*)" );
 
   /* If the user clicked "OK". */
   if( !fileName.isEmpty() )
@@ -94,6 +94,11 @@ void GCRestoreFilesForm::saveFile()
       file.close();
 
       deleteTempFile();
+
+      /* Save the last visited directory. */
+      QFileInfo fileInfo( fileName );
+      QString finalDirectory = fileInfo.dir().path();
+      GCGlobalSpace::setLastUserSelectedDirectory( finalDirectory );
     }
   }
 }

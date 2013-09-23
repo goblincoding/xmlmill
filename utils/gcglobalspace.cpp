@@ -28,6 +28,7 @@
 
 #include "utils/gcglobalspace.h"
 #include <QSettings>
+#include <QDir>
 
 /*--------------------------------------------------------------------------------------*/
 
@@ -37,6 +38,7 @@ namespace GCGlobalSpace
   {
     const QString HELP = "showHelpButtons";
     const QString VERBOSE = "showTreeItemsVerbose";
+    const QString LAST_DIR = "lastDirectory";
   }
 
   bool showHelpButtons()
@@ -61,6 +63,18 @@ namespace GCGlobalSpace
   {
     QSettings settings( GCGlobalSpace::ORGANISATION, GCGlobalSpace::APPLICATION );
     settings.setValue( VERBOSE, show );
+  }
+
+  QString lastUserSelectedDirectory()
+  {
+    QSettings settings( GCGlobalSpace::ORGANISATION, GCGlobalSpace::APPLICATION );
+    return settings.value( GCGlobalSpace::LAST_DIR, QDir::homePath() ).toString();
+  }
+
+  void setLastUserSelectedDirectory( const QString& dir )
+  {
+    QSettings settings( GCGlobalSpace::ORGANISATION, GCGlobalSpace::APPLICATION );
+    settings.setValue( LAST_DIR, dir );
   }
 }
 
