@@ -53,10 +53,7 @@ int main( int argc, char* argv[] )
 {
   QApplication a( argc, argv );
 
-  QSettings settings( GCGlobalSpace::ORGANISATION, GCGlobalSpace::APPLICATION );
-  QVariant useDark = settings.value( "useDarkTheme", false );
-
-  if( useDark.toBool() )
+  if( GCGlobalSpace::useDarkTheme() )
   {
     a.setStyleSheet( styleSheet() );
   }

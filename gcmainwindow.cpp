@@ -1492,15 +1492,14 @@ void GCMainWindow::querySetActiveSession( QString reason )
 
 void GCMainWindow::readSettings()
 {
-  QSettings settings( GCGlobalSpace::ORGANISATION, GCGlobalSpace::APPLICATION );
-  restoreGeometry( settings.value( "geometry" ).toByteArray() );
-  restoreState( settings.value( "windowState" ).toByteArray() );
+  restoreGeometry( GCGlobalSpace::windowGeometry() );
+  restoreState( GCGlobalSpace::windowState() );
 
   setShowHelpButtons( GCGlobalSpace::showHelpButtons() );
   setShowTreeItemsVerbose( GCGlobalSpace::showTreeItemsVerbose() );
 
-  ui->actionRememberWindowGeometry->setChecked( settings.value( "saveWindowInformation", true ).toBool() );
-  ui->actionUseDarkTheme->setChecked( settings.value( "useDarkTheme", false ).toBool() );
+  ui->actionRememberWindowGeometry->setChecked( GCGlobalSpace::useWindowSettings() );
+  ui->actionUseDarkTheme->setChecked( GCGlobalSpace::useDarkTheme() );
   ui->actionShowHelpButtons->setChecked( GCGlobalSpace::showHelpButtons() );
 }
 
@@ -1508,28 +1507,18 @@ void GCMainWindow::readSettings()
 
 void GCMainWindow::saveSettings()
 {
-  QSettings settings( GCGlobalSpace::ORGANISATION, GCGlobalSpace::APPLICATION );
-
   if( ui->actionRememberWindowGeometry->isChecked() )
   {
-    settings.setValue( "geometry", saveGeometry() );
-    settings.setValue( "windowState", saveState() );
+    GCGlobalSpace::setWindowGeometry( saveGeometry() );
+    GCGlobalSpace::setWindowState( saveState() );
   }
   else
   {
-    if( settings.contains( "geometry" ) )
-    {
-      settings.remove( "geometry" );
-    }
-
-    if( settings.contains( "windowState" ) )
-    {
-      settings.remove( "windowState" );
-    }
+    GCGlobalSpace::removeWindowInfo();
   }
 
-  settings.setValue( "saveWindowInformation", ui->actionRememberWindowGeometry->isChecked() );
-  settings.setValue( "useDarkTheme", ui->actionUseDarkTheme->isChecked() );
+  GCGlobalSpace::setUseDarkTheme( ui->actionUseDarkTheme->isChecked() );
+  GCGlobalSpace::setUseWindowSettings( ui->actionRememberWindowGeometry->isChecked() );
 }
 
 /*--------------------------------------------------------------------------------------*/

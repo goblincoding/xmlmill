@@ -39,6 +39,11 @@ namespace GCGlobalSpace
 {
   /*--------------------------------------------------------------------------------------*/
 
+  const QString& getOrganisationName();
+  const QString& getApplicationName();
+
+  /*--------------------------------------------------------------------------------------*/
+
   /*! Used by various forms to determine whether or not they must display their "Help" tool buttons. */
   bool showHelpButtons();
 
@@ -58,16 +63,39 @@ namespace GCGlobalSpace
   /*! Returns the last directory that the user navigated to through dialogs, etc. */
   QString lastUserSelectedDirectory();
 
-  /*! Saves the last directory the user navigated to through dialogs, etc. */
+  /*! Saves the last directory the user navigated to through dialogs, etc to the registry/ini/xml. */
   void setLastUserSelectedDirectory( const QString& dir );
 
   /*--------------------------------------------------------------------------------------*/
 
-  /*! Used when saving and loading settings to registry/XML/ini. */
-  const QString ORGANISATION = "GoblinCoding";
+  /*! Returns the window geometry settings. */
+  QByteArray windowGeometry();
 
-  /*! Used when saving and loading settings to registry/XML/ini. */
-  const QString APPLICATION = "XML Mill";
+  /*! Saves the window geometry settings to the registry/ini/xml. */
+  void setWindowGeometry( const QByteArray& geometry );
+
+  /*! Returns the window state settings. */
+  QByteArray windowState();
+
+  /*! Saves the window state settings to the registry/ini/xml. */
+  void setWindowState( const QByteArray& state );
+
+  /*! Deletes all saved window state and geometry information from the registry. */
+  void removeWindowInfo();
+
+  /*--------------------------------------------------------------------------------------*/
+
+  /*! Returns "true" if the application needs to have the dark theme set. */
+  bool useDarkTheme();
+
+  /*! Saves the dark theme state to the registry/ini/xml. */
+  void setUseDarkTheme( bool use );
+
+  /*! Returns "true" if the application needs to save window settings. */
+  bool useWindowSettings();
+
+  /*! Saves the windows settings state to the registry/ini/xml. */
+  void setUseWindowSettings( bool use );
 
   /*--------------------------------------------------------------------------------------*/
 
