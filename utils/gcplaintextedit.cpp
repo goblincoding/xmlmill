@@ -71,8 +71,8 @@ GCPlainTextEdit::GCPlainTextEdit( QWidget* parent )
   m_deleteSelection( NULL ),
   m_deleteEmptyRow ( NULL ),
   m_insertEmptyRow ( NULL ),
-  m_cursorPositionChanged ( false ),
   m_cursorPositionChanging( false ),
+  m_cursorPositionChanged ( false ),
   m_mouseDragEntered      ( false ),
   m_textEditClicked       ( false )
 {
