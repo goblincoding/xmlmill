@@ -39,7 +39,10 @@ namespace GCGlobalSpace
 {
   /*--------------------------------------------------------------------------------------*/
 
+  /*! Returns the organisation name for use with QSettings. */
   const QString& getOrganisationName();
+
+  /*! Returns the application name for use with QSettings. */
   const QString& getApplicationName();
 
   /*--------------------------------------------------------------------------------------*/
