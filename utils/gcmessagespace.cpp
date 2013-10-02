@@ -145,7 +145,7 @@ namespace GCMessageSpace
   /* Hides our "member" variables. */
   namespace
   {
-    QSettings settings( GCGlobalSpace::getOrganisationName(), GCGlobalSpace::getApplicationName() );
+    QSettings settings( GCGlobalSpace::ORGANISATION, GCGlobalSpace::APPLICATION );
     bool settingsInitialised( false );
   }
 

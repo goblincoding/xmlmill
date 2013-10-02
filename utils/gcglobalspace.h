@@ -39,11 +39,11 @@ namespace GCGlobalSpace
 {
   /*--------------------------------------------------------------------------------------*/
 
-  /*! Returns the organisation name for use with QSettings. */
-  const QString& getOrganisationName();
+  /*! Used when saving and loading settings to registry/XML/ini. */
+  const QString ORGANISATION = "GoblinCoding";
 
-  /*! Returns the application name for use with QSettings. */
-  const QString& getApplicationName();
+  /*! Used when saving and loading settings to registry/XML/ini. */
+  const QString APPLICATION = "XML Mill";
 
   /*--------------------------------------------------------------------------------------*/
 

@@ -36,12 +36,6 @@ namespace GCGlobalSpace
 {
   namespace
   {
-    /*! Used when saving and loading settings to registry/XML/ini. */
-    const QString ORGANISATION = "GoblinCoding";
-
-    /*! Used when saving and loading settings to registry/XML/ini. */
-    const QString APPLICATION = "XML Mill";
-
     const QString HELP = "showHelpButtons";
     const QString VERBOSE = "showTreeItemsVerbose";
     const QString LAST_DIR = "lastDirectory";
@@ -49,20 +43,6 @@ namespace GCGlobalSpace
     const QString STATE = "windowState";
     const QString USE_DARK = "useDarkTheme";
     const QString SAVE_WINDOW = "saveWindowInformation";
-  }
-
-  /*--------------------------------------------------------------------------------------*/
-
-  const QString& getOrganisationName()
-  {
-    return ORGANISATION;
-  }
-
-  /*--------------------------------------------------------------------------------------*/
-
-  const QString& getApplicationName()
-  {
-    return APPLICATION;
   }
 
   /*--------------------------------------------------------------------------------------*/
