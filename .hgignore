@@ -983,3 +983,6 @@ xmlmill.suo
 xmlmill.ncb
 Win32
 GeneratedFiles
+docs/latex
+docs/html
+docs/xmlmill.pdf

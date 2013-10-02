@@ -1,4 +1,6 @@
-This is the first (pretty stable) Alpha release, so please log bugs and errors either via the official tickets link:
+Note: Due to the complications involved in distributing binaries to *nix platforms, I am yet to figure out a reliable way to distribute the *nix flavours...if you know how to do so for your specific platform, I would greatly appreciate it if you could provide me with a quick how-to or, better yet, a script ;)
+
+Please log bugs and errors either via the official tickets link:
 
 https://sourceforge.net/p/xmlmill/tickets/
 
@@ -7,3 +9,8 @@ or alternatively, inform me of problems via this contact form:
 http://goblincoding.com/contact/
 
 Any feedback is welcome (and will definitely be appreciated).
+
+Revision history:
+
+1.1.0 - Beta release (bug fixes and minor enhancements)
+1.0.0 - Initial alpha release

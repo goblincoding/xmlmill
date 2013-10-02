@@ -55,7 +55,7 @@ class QMovie;
     documentation intended for use by developers or parties interested in the code.
 
     If you are a user and want to know more about the application and its uses itself,
-    the <a href="http://goblincoding.com/xmlmill/overview">official site</a>
+    the <a href="http://goblincoding.com/xmlmill/xmlmilloverview/">official site</a>
     contains all the relevant information about this application.
 
     Please also feel free to <a href="http://goblincoding.com/contact">contact me</a> for any
