@@ -22,10 +22,10 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
-LicenseFile=C:\Documents\Personal\XMLMill5\GNUGPL.txt
-OutputDir=C:\Documents\Personal\XMLMill5\Setup
+LicenseFile=E:\William\XMLMillQt5\GNUGPL.txt
+OutputDir=E:\William\XMLMillQt5\Setup
 OutputBaseFilename=SetupXMLMill
-SetupIconFile=C:\Documents\Personal\XMLMill5\goblinappicon.ico
+SetupIconFile=E:\William\XMLMillQt5\goblinappicon.ico
 Compression=lzma
 SolidCompression=yes
 
@@ -37,23 +37,23 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
-Source: "C:\Documents\Personal\XMLMill5\XMLMill.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents\Personal\XMLMill5\D3DCompiler_43.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents\Personal\XMLMill5\icudt49.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents\Personal\XMLMill5\icuin49.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents\Personal\XMLMill5\icuuc49.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents\Personal\XMLMill5\libEGL.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents\Personal\XMLMill5\libgcc_s_sjlj-1.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents\Personal\XMLMill5\libGLESv2.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents\Personal\XMLMill5\libstdc++-6.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents\Personal\XMLMill5\libwinpthread-1.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents\Personal\XMLMill5\Qt5Core.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents\Personal\XMLMill5\Qt5Gui.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents\Personal\XMLMill5\Qt5Sql.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents\Personal\XMLMill5\Qt5Widgets.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents\Personal\XMLMill5\Qt5Xml.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Documents\Personal\XMLMill5\sqldrivers\qsqlite.dll"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "C:\Documents\Personal\XMLMill5\platforms\qwindows.dll"; DestDir: "{app}\platforms"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "E:\William\XMLMillQt5\XMLMill.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "E:\William\XMLMillQt5\D3DCompiler_43.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "E:\William\XMLMillQt5\icudt51.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "E:\William\XMLMillQt5\icuin51.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "E:\William\XMLMillQt5\icuuc51.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "E:\William\XMLMillQt5\libEGL.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "E:\William\XMLMillQt5\libgcc_s_dw2-1.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "E:\William\XMLMillQt5\libGLESv2.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "E:\William\XMLMillQt5\libstdc++-6.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "E:\William\XMLMillQt5\libwinpthread-1.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "E:\William\XMLMillQt5\Qt5Core.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "E:\William\XMLMillQt5\Qt5Gui.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "E:\William\XMLMillQt5\Qt5Sql.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "E:\William\XMLMillQt5\Qt5Widgets.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "E:\William\XMLMillQt5\Qt5Xml.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "E:\William\XMLMillQt5\sqldrivers\qsqlite.dll"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "E:\William\XMLMillQt5\platforms\qwindows.dll"; DestDir: "{app}\platforms"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
