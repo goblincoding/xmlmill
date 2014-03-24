@@ -1,0 +1,957 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML><HEAD></HEAD><BODY>
+<OBJECT type="text/site properties">
+<param name="FrameName" value="right">
+</OBJECT>
+<UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#aa633c35eca5e015becede2518e031042"><param name="Name" value="activeCommentValue"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#a47338631e494645f867544a719825311"><param name="Name" value="activeDatabaseChanged"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#a47338631e494645f867544a719825311"><param name="Name" value="GCDBSessionManager"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a04531b8e30600609c2a74042d550626f"><param name="Name" value="GCMainWindow"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a53aff43e5997c5f0180ba214205e5bc6"><param name="Name" value="activeSessionName"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a6b3cc67ba9e4bdf58b49869243446764"><param name="Name" value="addDatabase"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#ac4e99e525a26293d29203bd5c726d661"><param name="Name" value="addDatabaseConnection"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a650cbb413d65c7b2f76fb4c8621295f7"><param name="Name" value="addElement"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_items_form.html#a5ef9ccc6a8339c21f2e9159a944a4cab"><param name="Name" value="addElementAndAttributes"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ac4050f48f018c5b7dbea8a76108dd181"><param name="Name" value="addElementToDocument"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#a52f3407b7ad5cac7c8c422d2528b28fc"><param name="Name" value="addExistingDatabase"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#a52f3407b7ad5cac7c8c422d2528b28fc"><param name="Name" value="GCDBSessionManager"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ad5f5bfa31355f3432d69d77fe8dd0d65"><param name="Name" value="GCMainWindow"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#adbbe1eeb6dc9a2d6c84a7133106a7f77"><param name="Name" value="addItem"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a6d3f5ddb510b355aa4e33c1517fb3106"><param name="Name" value="addItemsToDB"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#ad029ca4ec8ffff788a281f1b3f3eee71"><param name="Name" value="addNewDatabase"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#ad029ca4ec8ffff788a281f1b3f3eee71"><param name="Name" value="GCDBSessionManager"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ae1dcff9880c9740b393097d46e0d0795"><param name="Name" value="GCMainWindow"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a83ecf5fa6efc6650c834274e0e3b3aa5"><param name="Name" value="addRootElement"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#a32b2984599cb7e7fc961610bac1d9eaf"><param name="Name" value="addSnippet"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a7883dd80abed6f83616837d1c46cc758"><param name="Name" value="addSnippetToDocument"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a913ceee0af8eefd3ec41115b64008b55"><param name="Name" value="allTreeWidgetItems"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#afdf29124d6e6cc6061f5e9978c6a7f81"><param name="Name" value="appendSnippet"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#ab53b9c3447f00f1cc45a1d3fdfbba564"><param name="Name" value="APPLICATION"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a22c3d5f21c3dff029e89536c0a08daf4"><param name="Name" value="associatedElementsToUpdate"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#ab1846c95a48ed0aa9bb31424e676e97e"><param name="Name" value="attributeActivated"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#a0ce14ed4d2c39114d9570e98b41c527e"><param name="Name" value="attributeChanged"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#a0ce14ed4d2c39114d9570e98b41c527e"><param name="Name" value="GCAddSnippetsForm"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a35ebe83401cbaf9affc694d7e542671f"><param name="Name" value="GCMainWindow"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_xml_syntax_highlighter.html#a640cff54ce24e9fc078fba3e51d5b094"><param name="Name" value="attributeContentFormat"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_xml_syntax_highlighter.html#a57bf567feed0060e4f33996468f04182"><param name="Name" value="attributeFormat"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a91d71330acb400242d45b6d74c7e0f87"><param name="Name" value="attributeIncluded"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a4cad81bffaa5af1531a72ccaeaedd600"><param name="Name" value="attributeKeysToUpdate"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="struct_g_c_batch_processor_helper_1_1_element_record.html#af2280c32ed058cc2576941c9f989e067"><param name="Name" value="attributes"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="struct_g_c_batch_processor_helper_1_1_element_record.html#af2280c32ed058cc2576941c9f989e067"><param name="Name" value="GCBatchProcessorHelper::ElementRecord"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#afb1e49e08f98ca453f9ac66340a35642"><param name="Name" value="GCDataBaseInterface"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a481a4eb953cf0350bec65717ae67e7c4"><param name="Name" value="attributeSelected"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#aa06ed47a926b418588858a593a4a1fdb"><param name="Name" value="attributeValueChanged"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#aa06ed47a926b418588858a593a4a1fdb"><param name="Name" value="GCAddSnippetsForm"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a4aebc10d51db20a9edbc66fa9bd51bfc"><param name="Name" value="GCMainWindow"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a329e17f6c02c62fd554884f2b5a7e2df"><param name="Name" value="attributeValues"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a390cab72c76739bea0d98d5ba1ff7e21"><param name="Name" value="attributeValuesToUpdate"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a2c20ff88464664aef988c9c0417e19be"><param name="Name" value="batchProcessDomDocument"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#ad19a7b150044ddb4a5739a193f7f6d3b"><param name="Name" value="batchProcessSuccess"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a54e10465b10b96a915d2bffb6a8fbf5f"><param name="Name" value="caseSensitive"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="struct_g_c_batch_processor_helper_1_1_element_record.html#a4f651ed514fc22a88aa6b62d2156e897"><param name="Name" value="children"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="struct_g_c_batch_processor_helper_1_1_element_record.html#a4f651ed514fc22a88aa6b62d2156e897"><param name="Name" value="GCBatchProcessorHelper::ElementRecord"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#aab5126783bc3acc7c718c8ffd8af62bc"><param name="Name" value="GCDataBaseInterface"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a3716c84a2a4fadc653cfac157caa215d"><param name="Name" value="clearAndReset"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a3716c84a2a4fadc653cfac157caa215d"><param name="Name" value="GCDomTreeWidget"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a974f08b952447cec6f1935140d9808b1"><param name="Name" value="GCPlainTextEdit"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a25d3fcc908e06b83eba4f7d1c0e0df89"><param name="Name" value="cloneDocument"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a08995f775bad0ea2ff98965ede9c2967"><param name="Name" value="closeEvent"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#acfaf94ee5dc74c20362b6c6e9981ba3d"><param name="Name" value="closeXMLFile"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#aca381ff9f9cc378cbd51647463879ff5"><param name="Name" value="collapse"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a296b7cf4181a0086c8e1add93986f5ec"><param name="Name" value="collapseOrExpandTreeWidget"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_items_form.html#ab602dd33984dafc5b42699654d58c145"><param name="Name" value="comboValueChanged"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_xml_syntax_highlighter.html#ab6dfd4f1b8abcbb56f47a8e40a08396e"><param name="Name" value="commentEndExpression"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_xml_syntax_highlighter.html#a983c1d73bc90833e10da0ee56d81badc"><param name="Name" value="commentFormat"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a88fd6a6169bc50c5cb159f6f79914834"><param name="Name" value="commentOut"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a88fd6a6169bc50c5cb159f6f79914834"><param name="Name" value="GCMainWindow"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a5df13199f02cf478a436689d52924201"><param name="Name" value="GCPlainTextEdit"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a5f05968816a795e22da7693391a3cfd0"><param name="Name" value="commentOutSelection"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_xml_syntax_highlighter.html#ad6ff9de80faf0bb402715a18367be229"><param name="Name" value="commentStartExpression"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#aecb8674a39bdd57ade47788ae8a8d59c"><param name="Name" value="confirmDomNotBroken"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#ab34f716b89ee96de9bf599f5d5d2c152"><param name="Name" value="connectionList"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a91183c2d227bf90d0d26fccc1e4ae878"><param name="Name" value="containsKnownRootElement"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#aa52e9a4b5b584f394784aea3d0f3e024"><param name="Name" value="createDBSessionManager"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a7a98115277f8c07df9a938d6d186d206"><param name="Name" value="createRecord"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#aa69b4696e4c6a0a4e0aac3b634ac0fb6"><param name="Name" value="createSpinner"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a12ccb5f77d1e550c7123233d698df9f5"><param name="Name" value="createTables"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a3a6e6128ef36192b281c17d95ab681d8"><param name="Name" value="createVariantLists"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#a67e94586e09cbc305257fbcdd7b686e2a4e02f76ed3971c8adbee5dd44724e8a6"><param name="Name" value="Critical"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a2f49724a958046b8b4b60e7344d90e0f"><param name="Name" value="currentGcItemChanged"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a215c75cf20a4e42bb78a1489475ae249"><param name="Name" value="currentItemIsRoot"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#af5b94438cd0f07969917d602a9f3fdb9"><param name="Name" value="deleteAttribute"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#a839e69e56f3815255f6fe70bedba01f0"><param name="Name" value="deleteElement"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a3313bf84abc37a2945a601e11c30f1fa"><param name="Name" value="deleteEmptyRow"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a8e814e0d57891674498b80b847260a09"><param name="Name" value="deleteSelection"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a6db740324f23b5933b294f6f3974ce20"><param name="Name" value="deleteSpinner"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#acb9fbd1c74ea2c139a0678566810c070"><param name="Name" value="deleteTempFile"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#acb9fbd1c74ea2c139a0678566810c070"><param name="Name" value="GCMainWindow"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_restore_files_form.html#ac64c885e1af70bbaf270451d9c890bef"><param name="Name" value="GCRestoreFilesForm"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a32b777ba5a85752d810454323257f79e"><param name="Name" value="documentCompatible"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#ac4ccf569a0c538e3c1c72e887f78f5b6"><param name="Name" value="dropEvent"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a584cad866bdbd94710d31eb77b804d84"><param name="Name" value="element"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a3b0630e9e210b2b86e58cb43d3706b73"><param name="Name" value="elementAttributesToUpdate"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a13bde1af619cef0c627835c2c7f2cb07"><param name="Name" value="elementChanged"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a8fd4cac8af9a54df52a98628d5ba6fbe"><param name="Name" value="elementChildrenToUpdate"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a9ea36ae7110324b227abea2036063b96"><param name="Name" value="elementExcluded"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#af267336f1f92aa0ed47e145409d10bc2"><param name="Name" value="elementSelected"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#af267336f1f92aa0ed47e145409d10bc2"><param name="Name" value="GCAddSnippetsForm"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ab1f6a53d733252cf4bcb939089e0b182"><param name="Name" value="GCMainWindow"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#a70cbba0c04a4b06e8e13f8f362da77d8"><param name="Name" value="GCRemoveItemsForm"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#aca0a2d6bbfcb23907e917b5d2251fc6f"><param name="Name" value="elementsToUpdate"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#ab1c37d7974fc19551ffcff21fbccf63b"><param name="Name" value="emitGcCurrentItemChanged"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a8451981afe5d9c664ccd6b3e88cd8caa"><param name="Name" value="emitGcCurrentItemSelected"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#afe97fc2ebc690d23771508d46edf112e"><param name="Name" value="emitSelectedIndex"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a48577b935b6ab42f69698b8f56c44937"><param name="Name" value="empty"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a76e60292eec635fd2e6df27a3e162e16"><param name="Name" value="excludeAttribute"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a8488d36ce08197c21d753537359f84d0"><param name="Name" value="expand"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a919ac48b25a56b44e3ecfa3a169ea5ac"><param name="Name" value="findIndexMatchingBlockNumber"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a05b839f9c927b860cccc9864d81810ed"><param name="Name" value="findMatchingTreeItem"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a9c3603b9e62a7737b8d442da4a16109d"><param name="Name" value="findTextRelativeToDuplicates"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#ada99ae07bebffd9714be294cdd3d920b"><param name="Name" value="fixAttributeValues"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a62a31fad1e50915f6df144e23394abef"><param name="Name" value="fixedValue"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_combo_box.html#aeb5633813d3c92ee6b7759d2ae5f942d"><param name="Name" value="focusInEvent"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_combo_box.html#ab3aff530b6cac02b9eeda39b83a16411"><param name="Name" value="focusOutEvent"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a9d7158c8a1dfcc867d85ee6b9c5c4810"><param name="Name" value="FONT"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#ab9fa2f10bab070a4f59b7e3ef9166c86"><param name="Name" value="FONTSIZE"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#ad9b01668af8368ac7e2c69065d45bf19"><param name="Name" value="forgetAllPreferences"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#af4d8e38d94b32e3d706002983eb0f2a3"><param name="Name" value="forgetMessagePreferences"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="struct_xml_syntax_highlighter_1_1_highlighting_rule.html#aa30355002822d408ee7dc1e28e0767fc"><param name="Name" value="format"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a275c8071b3e054236f90d979da26d084"><param name="Name" value="foundItem"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#aff692b1a5bd5a47fb28120f4aebe122a"><param name="Name" value="gatherMatchingItems"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_items_form.html"><param name="Name" value="GCAddItemsForm"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_items_form.html#a5ef9ccc6a8339c21f2e9159a944a4cab"><param name="Name" value="addElementAndAttributes"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_items_form.html#ab602dd33984dafc5b42699654d58c145"><param name="Name" value="comboValueChanged"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_items_form.html#adfd8359e3e47a03741efee4e2be3d229"><param name="Name" value="GCAddItemsForm"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_items_form.html#adb0a667a7eb7608940ea52ccd448f618"><param name="Name" value="populateCombo"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_items_form.html#a77a5d358714e991462308e284899d592"><param name="Name" value="showHelp"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_items_form.html#a23e55d515a2e55bb8419651e998e04ab"><param name="Name" value="ui"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_items_form.html#adbcd4fa77a2c1c345fd08e2333a45102"><param name="Name" value="~GCAddItemsForm"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html"><param name="Name" value="GCAddSnippetsForm"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#a32b2984599cb7e7fc961610bac1d9eaf"><param name="Name" value="addSnippet"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#a0ce14ed4d2c39114d9570e98b41c527e"><param name="Name" value="attributeChanged"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#aa06ed47a926b418588858a593a4a1fdb"><param name="Name" value="attributeValueChanged"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#af267336f1f92aa0ed47e145409d10bc2"><param name="Name" value="elementSelected"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#af1cfc60ffd8ac6b25f1d1a2dc49e311b"><param name="Name" value="GCAddSnippetsForm"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#af1f994f11996e20bda4babc78c5e8c54"><param name="Name" value="m_parentItem"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#ae2e761c2c0a3477e5e18c97cb9d0a160"><param name="Name" value="m_treeItemActivated"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#a5fff5f528fbbc09a6074858f6daa2030"><param name="Name" value="showHelp"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#a340d1273aa75e0210e68fdc9a53ec3e5"><param name="Name" value="snippetAdded"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#a5762eeaa57f901bb723076c603613a6e"><param name="Name" value="ui"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#ac1e711455f6d0d89ebd045a30b3db05f"><param name="Name" value="updateCheckStates"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#a3a56853da9df0a69b7dfc0de3c762d9e"><param name="Name" value="~GCAddSnippetsForm"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html"><param name="Name" value="GCBatchProcessorHelper"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="struct_g_c_batch_processor_helper_1_1_element_record.html"><param name="Name" value="GCBatchProcessorHelper::ElementRecord"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="struct_g_c_batch_processor_helper_1_1_element_record.html#af2280c32ed058cc2576941c9f989e067"><param name="Name" value="attributes"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="struct_g_c_batch_processor_helper_1_1_element_record.html#a4f651ed514fc22a88aa6b62d2156e897"><param name="Name" value="children"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html"><param name="Name" value="GCBatchProcessorHelper"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a22c3d5f21c3dff029e89536c0a08daf4"><param name="Name" value="associatedElementsToUpdate"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a4cad81bffaa5af1531a72ccaeaedd600"><param name="Name" value="attributeKeysToUpdate"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a390cab72c76739bea0d98d5ba1ff7e21"><param name="Name" value="attributeValuesToUpdate"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a7a98115277f8c07df9a938d6d186d206"><param name="Name" value="createRecord"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a3a6e6128ef36192b281c17d95ab681d8"><param name="Name" value="createVariantLists"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a3b0630e9e210b2b86e58cb43d3706b73"><param name="Name" value="elementAttributesToUpdate"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a8fd4cac8af9a54df52a98628d5ba6fbe"><param name="Name" value="elementChildrenToUpdate"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#aca0a2d6bbfcb23907e917b5d2251fc6f"><param name="Name" value="elementsToUpdate"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a36b76739cc2d64ab72e9d9b68425a7f1"><param name="Name" value="GCBatchProcessorHelper"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a5ca6b2a5d0989d615eec6b4b4dd4c911"><param name="Name" value="m_associatedElementsToUpdate"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a872738e9d562ec8bbbd68de2c72b4db2"><param name="Name" value="m_attributeKeysToUpdate"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a9f6934ff1b463cf92980430c42aa24c4"><param name="Name" value="m_attributeValuesToUpdate"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a294060184a7a0b92781572542e1683f5"><param name="Name" value="m_elementAttributesToUpdate"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a4f44e6f991f97c2fec41cc1dcec4b6a1"><param name="Name" value="m_elementChildrenToUpdate"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a32c916d480a1ccb37cfddb00b0fbfe7e"><param name="Name" value="m_elementsToUpdate"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#ab1f5e2343458e4ea772471e90d8e79e3"><param name="Name" value="m_knownAttributeKeys"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#ab2c74f6aec483a54d24a0510edf8b7df"><param name="Name" value="m_knownElements"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#aa4b83aaec03a15839852f68f55f8a7ca"><param name="Name" value="m_newAssociatedElementsToAdd"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#acef790beb7382b591bd06210b938b85b"><param name="Name" value="m_newAttributeKeysToAdd"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#aca28233df7223d15b06d364aaea21504"><param name="Name" value="m_newAttributeValuesToAdd"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#ad70e1e2938899dc44d98b7f894fe6503"><param name="Name" value="m_newElementAttributesToAdd"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#ac0bf6d01ed91170b3da873faee93b61c"><param name="Name" value="m_newElementChildrenToAdd"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a1fe2471f7a1377ed3abc6e71e4ff7002"><param name="Name" value="m_newElementsToAdd"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a9cf30ebc1622f56fd7005b431dc55c8b"><param name="Name" value="m_records"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a3666a204cc013b263084dbbc6ae7ef50"><param name="Name" value="m_stringListSeparator"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a4174fc7da01c3492740d57059efc46f8"><param name="Name" value="m_unsorted"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#abf195046fd00e629b2ce5e3bd6bcf90d"><param name="Name" value="newAssociatedElementsToAdd"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a605ca53123f28467df39cabeb3aa65cd"><param name="Name" value="newAttributeKeysToAdd"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#af06d87d433f9402667f1cd654ad4b422"><param name="Name" value="newAttributeValuesToAdd"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a640ca9bd78b7da0796fdfb82fefce8b6"><param name="Name" value="newElementAttributesToAdd"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a89c14c3740c7cb57c937ef8db99b4af1"><param name="Name" value="newElementChildrenToAdd"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#afdedbc674698c019ebd2a3938a239661"><param name="Name" value="newElementsToAdd"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a2d4fd28d80f3af95e7c33d98ae6da917"><param name="Name" value="processElement"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a8e686e34927c73bc365717a0e93ad5bb"><param name="Name" value="sortRecords"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#af44c0d2c5eaa1c5bb3a6a1aace3e8c78"><param name="Name" value="gcChild"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_combo_box.html"><param name="Name" value="GCComboBox"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_combo_box.html#aeb5633813d3c92ee6b7759d2ae5f942d"><param name="Name" value="focusInEvent"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_combo_box.html#ab3aff530b6cac02b9eeda39b83a16411"><param name="Name" value="focusOutEvent"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_combo_box.html#ab4d6f4af3941fe4d71eab7d8f78ac6c1"><param name="Name" value="GCComboBox"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_combo_box.html#a20358fcd497e5d179c3513d6829a1d84"><param name="Name" value="mousePressEvent"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a70d6a155777d375f3923c2d66e702d15"><param name="Name" value="gcCurrentItem"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#ac98037b2b112717e08a02ed2041e2233"><param name="Name" value="gcCurrentItemChanged"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#ab4dbf5fef2da10f8e5149f70f4ff8f5c"><param name="Name" value="gcCurrentItemSelected"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html"><param name="Name" value="GCDataBaseInterface"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a53aff43e5997c5f0180ba214205e5bc6"><param name="Name" value="activeSessionName"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a6b3cc67ba9e4bdf58b49869243446764"><param name="Name" value="addDatabase"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a650cbb413d65c7b2f76fb4c8621295f7"><param name="Name" value="addElement"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a83ecf5fa6efc6650c834274e0e3b3aa5"><param name="Name" value="addRootElement"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#afb1e49e08f98ca453f9ac66340a35642"><param name="Name" value="attributes"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a329e17f6c02c62fd554884f2b5a7e2df"><param name="Name" value="attributeValues"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a2c20ff88464664aef988c9c0417e19be"><param name="Name" value="batchProcessDomDocument"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#aab5126783bc3acc7c718c8ffd8af62bc"><param name="Name" value="children"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#ab34f716b89ee96de9bf599f5d5d2c152"><param name="Name" value="connectionList"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a91183c2d227bf90d0d26fccc1e4ae878"><param name="Name" value="containsKnownRootElement"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a12ccb5f77d1e550c7123233d698df9f5"><param name="Name" value="createTables"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#afa94297c49288698b78b73ab78935930"><param name="Name" value="GCDataBaseInterface"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a875e3999c9d91b5e0f59be8bdef54408"><param name="Name" value="hasActiveSession"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a1baea9c0667aa8b610ec30076fcab84c"><param name="Name" value="instance"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#ae16d516cbefe58ccf9ef0e8ece4a394f"><param name="Name" value="isDocumentCompatible"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a2d20cd6ae4f1ba007fdc1367611b97e0"><param name="Name" value="isInitialised"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#ae570c403f1b6b7f85e6a5c46829f42a8"><param name="Name" value="isProfileEmpty"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a94559ea23489e360757db42c50d3a261"><param name="Name" value="isUniqueChildElement"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#ac1ff852b7a9503c5a10abf4c54166d23"><param name="Name" value="knownAttributeKeys"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a6c4eabd4f39a1c23ab320bb0dbc855d4"><param name="Name" value="knownElements"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#ac5c57277f9476ab74cfe13fbcee52f15"><param name="Name" value="knownRootElements"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a30d5bbea06462c5ed0f76ad8a68c4b08"><param name="Name" value="lastError"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a56bb2d6eac07d62004877747c8159047"><param name="Name" value="m_dbMap"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a55592a187faa5c1f608bc47329d5eabf"><param name="Name" value="m_hasActiveSession"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a4caad12f0ad91344a0de6d06b41919a9"><param name="Name" value="m_initialised"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a1f885cd748643da2a9691cd05938bf88"><param name="Name" value="m_instance"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a76ebbbeb95a2e7ac6d41cebbf56ba56a"><param name="Name" value="m_lastErrorMsg"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a62c97a152f0bdab0e979c5a75b682ca6"><param name="Name" value="m_sessionDB"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#ae502984b5b0df091887e926e8d8e9dde"><param name="Name" value="openConnection"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#aed5be623bb18a1b7b33225444a60177d"><param name="Name" value="operator="></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a6fbf551a825c0fca13926449be4a5215"><param name="Name" value="removeAttribute"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a657f2885b6741f8ac229939f77e7dd73"><param name="Name" value="removeChildElement"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a86dcb92e64a35e3fb72fa58a4bacc3b9"><param name="Name" value="removeDatabase"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a3a4e3ca8a97fd798c18e7e79060ad7c4"><param name="Name" value="removeDuplicatesFromFields"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#ad8aa20de89390f0cc2a1b64270a831b3"><param name="Name" value="removeElement"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#adbace3a2d395dae9cd915238556a6f77"><param name="Name" value="removeRootElement"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#aca41e24d89f334fdaf245bc45c7570ac"><param name="Name" value="saveDatabaseFile"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#ac3369526551f07200d9a9da5b9e0bb06"><param name="Name" value="selectAllAttributes"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#af83f36bd1ae7a8943e4121852d5d146d"><param name="Name" value="selectAllElements"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a4333c95bd76118a3036ff16a804c4fb1"><param name="Name" value="selectAttribute"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a2664ef207a6442aa39b648d822549ad3"><param name="Name" value="selectElement"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a176952c9ba2fbc90809f9d64ea14a69f"><param name="Name" value="setActiveDatabase"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#ae4f158875b5a8a109d301f19ce5d21ae"><param name="Name" value="updateAttributeValues"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#abc13d0cb75b233fd83575bfef575ff19"><param name="Name" value="updateElementAttributes"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a91a60134bfb21a3f49d826340bebb852"><param name="Name" value="updateElementChildren"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html"><param name="Name" value="GCDBSessionManager"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#a47338631e494645f867544a719825311"><param name="Name" value="activeDatabaseChanged"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#ac4e99e525a26293d29203bd5c726d661"><param name="Name" value="addDatabaseConnection"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#a52f3407b7ad5cac7c8c422d2528b28fc"><param name="Name" value="addExistingDatabase"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#ad029ca4ec8ffff788a281f1b3f3eee71"><param name="Name" value="addNewDatabase"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#ae9bbc80ab3d7235f804393ea1b4e9f36"><param name="Name" value="GCDBSessionManager"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#ab6235df88f0d5069e5a72f61338ff247"><param name="Name" value="m_currentRoot"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#a0fc44e9d2efb407cc0964295920b2432"><param name="Name" value="removeDatabase"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#ae83a3f427a341bbf2230bd6e6fc6b306"><param name="Name" value="removeDatabaseConnection"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#add2dc0347405ffb60c4ba057009ead46"><param name="Name" value="reset"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#ac4e5a25619ee77bc9307d3428bfd345d"><param name="Name" value="selectActiveDatabase"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#ad1385c04f368fae53f88c77558444777"><param name="Name" value="setActiveDatabase"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#af8956f0867d1a9f674158562ab9e4c01"><param name="Name" value="setDatabaseList"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#a55bed32bbc9ab99802833daaf651333d"><param name="Name" value="showHelp"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#a5f0bc1d3c8ae1a2f3e54cd2c62a50a49"><param name="Name" value="ui"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#a95698026afd73f32557483f3fc19b419"><param name="Name" value="~GCDBSessionManager"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html"><param name="Name" value="GCDomTreeWidget"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#aa633c35eca5e015becede2518e031042"><param name="Name" value="activeCommentValue"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#adbbe1eeb6dc9a2d6c84a7133106a7f77"><param name="Name" value="addItem"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a913ceee0af8eefd3ec41115b64008b55"><param name="Name" value="allTreeWidgetItems"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#afdf29124d6e6cc6061f5e9978c6a7f81"><param name="Name" value="appendSnippet"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#ad19a7b150044ddb4a5739a193f7f6d3b"><param name="Name" value="batchProcessSuccess"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a3716c84a2a4fadc653cfac157caa215d"><param name="Name" value="clearAndReset"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a25d3fcc908e06b83eba4f7d1c0e0df89"><param name="Name" value="cloneDocument"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#aca381ff9f9cc378cbd51647463879ff5"><param name="Name" value="collapse"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a2f49724a958046b8b4b60e7344d90e0f"><param name="Name" value="currentGcItemChanged"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a215c75cf20a4e42bb78a1489475ae249"><param name="Name" value="currentItemIsRoot"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a32b777ba5a85752d810454323257f79e"><param name="Name" value="documentCompatible"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#ac4ccf569a0c538e3c1c72e887f78f5b6"><param name="Name" value="dropEvent"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#ab1c37d7974fc19551ffcff21fbccf63b"><param name="Name" value="emitGcCurrentItemChanged"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a8451981afe5d9c664ccd6b3e88cd8caa"><param name="Name" value="emitGcCurrentItemSelected"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a48577b935b6ab42f69698b8f56c44937"><param name="Name" value="empty"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a8488d36ce08197c21d753537359f84d0"><param name="Name" value="expand"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a70d6a155777d375f3923c2d66e702d15"><param name="Name" value="gcCurrentItem"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#ac98037b2b112717e08a02ed2041e2233"><param name="Name" value="gcCurrentItemChanged"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#ab4dbf5fef2da10f8e5149f70f4ff8f5c"><param name="Name" value="gcCurrentItemSelected"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a915a336d44b042d8a134abef8805bed4"><param name="Name" value="GCDomTreeWidget"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a3015c9fdf0fa0465e46543099dd35831"><param name="Name" value="gcItemFromNode"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a581a8cf87b37e7a7c46e9e0f45cda955"><param name="Name" value="includedTreeWidgetItems"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a5e4117a9b47ac0bd520d32fc54d5f1ed"><param name="Name" value="insertItem"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#ae7283f915c94209f23d636189a247f44"><param name="Name" value="itemPositionRelativeToIdenticalSiblings"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#ae79022f5265210c71c2a80eb662e3a81"><param name="Name" value="keyPressEvent"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#adae36caf107df31e4b5f6034ea492a6d"><param name="Name" value="m_activeItem"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#aea79f874dfb65f03e3eacf6f4b9249d1"><param name="Name" value="m_busyIterating"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a1f2c86d1441294f4b89f532b30d5d77b"><param name="Name" value="m_commentNode"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a055a8954ff21c53bdbd7821f95ff0439"><param name="Name" value="m_comments"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a0a34fc06df2ef79f374e8cfab858ac8a"><param name="Name" value="m_domDoc"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#af60c78d32f7f3a6dbab441160bd6bbc0"><param name="Name" value="m_isEmpty"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a245feb32955f1a588c8791c19fa1175c"><param name="Name" value="m_itemBeingManipulated"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#af63242c3e3f659e696e30690318ff585"><param name="Name" value="m_items"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a7bcb145540df569caeca3119cfebc23c"><param name="Name" value="matchesRootName"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a111a8a18426af853afba3612d9233f80"><param name="Name" value="parentTreeAlreadyContainsElement"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#adb7b683f80318e457454a4e909206a0d"><param name="Name" value="populateCommentList"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a06ee56d0aa9348302dbb8d3f4e5bab44"><param name="Name" value="populateFromDatabase"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#aa4a4f03fd4c9c32fa2f9f2fe76757ec5"><param name="Name" value="processElement"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a8b2b7a3504dbd628825fbc4f0da5ec7f"><param name="Name" value="processElementFromDatabase"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a0ac81800aa6d507dd17cbffa6814a632"><param name="Name" value="rebuildTreeWidget"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a2586e4d2823be535fe9064df61a5fe5d"><param name="Name" value="removeFromList"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a49e9214d4089dbf7314780c714411d25"><param name="Name" value="removeItem"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#aa29b6318dabd688411b9cc02328e16a3"><param name="Name" value="renameItem"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a0badfb9fc7250c5186fb9575019c335f"><param name="Name" value="replaceItemsWithComment"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#af70ce22ef830a0a546262ff8566cd731"><param name="Name" value="rootName"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a29bd5591054036ef5d6073a606716df3"><param name="Name" value="setActiveCommentValue"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#ae61a0ae85b5d250c49ebc8cfc6c24d09"><param name="Name" value="setAllCheckStates"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a7bcd409950b7e72202426ac0c42c9476"><param name="Name" value="setContent"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a7ed5e2b17b2368c4f55ac612af705a43"><param name="Name" value="setCurrentItemFromIndex"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a821fc62f1e29b67b3f6b00cd50de3bc8"><param name="Name" value="setShowTreeItemsVerbose"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a1a0995f4f7862ff52931c55e6e758467"><param name="Name" value="stepDown"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a30fa18f1e58f98b8191d2fb02170b845"><param name="Name" value="stepUp"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a6cd086334f363b2d0038c815e54c2b69"><param name="Name" value="toString"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a878e910094344db60e353a36561edabf"><param name="Name" value="updateIndices"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a1ec3ed3851e25adf1fac93fb42a4a8a7"><param name="Name" value="updateItemNames"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#aca9ba75d3798606da3f4e86c2a4b7113"><param name="Name" value="~GCDomTreeWidget"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html"><param name="Name" value="GCGlobalSpace"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#ab53b9c3447f00f1cc45a1d3fdfbba564"><param name="Name" value="APPLICATION"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a9d7158c8a1dfcc867d85ee6b9c5c4810"><param name="Name" value="FONT"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#ab9fa2f10bab070a4f59b7e3ef9166c86"><param name="Name" value="FONTSIZE"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a196b8033760262f46f02ea7305927a90"><param name="Name" value="lastUserSelectedDirectory"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a97583835f9987b1c94ff05802ccfe42f"><param name="Name" value="ORGANISATION"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a445d66652988cbbe57efa65e8cae0659"><param name="Name" value="removeWindowInfo"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a4f24b217759717a6f55a7d35855799b9"><param name="Name" value="setLastUserSelectedDirectory"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a6395acc08160e411395f96a88793eacc"><param name="Name" value="setShowHelpButtons"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a58bc4fea7a061440f9ef2dd0aca8aba5"><param name="Name" value="setShowTreeItemsVerbose"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#ac4760bf9e6fb7eb7de5422aabd36724f"><param name="Name" value="setUseDarkTheme"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#ae1113a0102d8f554fc3e88700848692a"><param name="Name" value="setUseWindowSettings"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#af982a7e2548ba830d51e023eed0c4f21"><param name="Name" value="setWindowGeometry"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#af9d06b8378fc54a5a6bbd2b3d96f2c33"><param name="Name" value="setWindowState"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a981753e55f0f77f981f67ccb1ad4ecf1"><param name="Name" value="showHelpButtons"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#ad9a35f311bda4dd28f5cf155c5efc818"><param name="Name" value="showTreeItemsVerbose"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a9cdd0b3db63d5727c3a23b904d68440d"><param name="Name" value="useDarkTheme"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#ae04d4bcc98792c58ed75cf3dda4e359f"><param name="Name" value="useWindowSettings"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#abacd37e11506d915bca210f75d78bbe5"><param name="Name" value="windowGeometry"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a895abb4bce9684d90cf2aa241605f7b9"><param name="Name" value="windowState"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_help_dialog.html"><param name="Name" value="GCHelpDialog"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_help_dialog.html#ab50a71cb98a1d9375288703bcd1e3be1"><param name="Name" value="GCHelpDialog"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_help_dialog.html#acb573cc3f97344f58745d1c7357a3346"><param name="Name" value="ui"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_help_dialog.html#ae8e5aa465ea3bd2fa4d922b0cc09cfdc"><param name="Name" value="~GCHelpDialog"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a3015c9fdf0fa0465e46543099dd35831"><param name="Name" value="gcItemFromNode"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html"><param name="Name" value="GCMainWindow"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a04531b8e30600609c2a74042d550626f"><param name="Name" value="activeDatabaseChanged"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ac4050f48f018c5b7dbea8a76108dd181"><param name="Name" value="addElementToDocument"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ad5f5bfa31355f3432d69d77fe8dd0d65"><param name="Name" value="addExistingDatabase"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a6d3f5ddb510b355aa4e33c1517fb3106"><param name="Name" value="addItemsToDB"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ae1dcff9880c9740b393097d46e0d0795"><param name="Name" value="addNewDatabase"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a7883dd80abed6f83616837d1c46cc758"><param name="Name" value="addSnippetToDocument"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a35ebe83401cbaf9affc694d7e542671f"><param name="Name" value="attributeChanged"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a481a4eb953cf0350bec65717ae67e7c4"><param name="Name" value="attributeSelected"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a4aebc10d51db20a9edbc66fa9bd51bfc"><param name="Name" value="attributeValueChanged"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a08995f775bad0ea2ff98965ede9c2967"><param name="Name" value="closeEvent"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#acfaf94ee5dc74c20362b6c6e9981ba3d"><param name="Name" value="closeXMLFile"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a296b7cf4181a0086c8e1add93986f5ec"><param name="Name" value="collapseOrExpandTreeWidget"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a88fd6a6169bc50c5cb159f6f79914834"><param name="Name" value="commentOut"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#aa52e9a4b5b584f394784aea3d0f3e024"><param name="Name" value="createDBSessionManager"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#aa69b4696e4c6a0a4e0aac3b634ac0fb6"><param name="Name" value="createSpinner"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a6db740324f23b5933b294f6f3974ce20"><param name="Name" value="deleteSpinner"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#acb9fbd1c74ea2c139a0678566810c070"><param name="Name" value="deleteTempFile"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a13bde1af619cef0c627835c2c7f2cb07"><param name="Name" value="elementChanged"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ab1f6a53d733252cf4bcb939089e0b182"><param name="Name" value="elementSelected"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#af4d8e38d94b32e3d706002983eb0f2a3"><param name="Name" value="forgetMessagePreferences"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ab20de5f22439fbb8baf7d6b4be2ef63e"><param name="Name" value="GCMainWindow"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a25756045870ecd285ef52173c2105e58"><param name="Name" value="goToSite"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ab9df1d178c7bea579a56f0d54aaa5d04"><param name="Name" value="highlightTextElement"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a3a96a13cb72f6f1adb831d529bcaaa73"><param name="Name" value="importXMLFromFile"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#afc599e54e8b71c07393f0d28ed3b594e"><param name="Name" value="importXMLToDatabase"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a0b4673cb47ca2d83b09260af185c11fa"><param name="Name" value="initialise"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ad0b1b4dca5f592684bf1b645b03019f8"><param name="Name" value="insertEmptyTableRow"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a05f810e337e427cf74c4a40adf5fec10"><param name="Name" value="insertSnippet"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a36a2f054115387a5cc26b6296a6be304"><param name="Name" value="itemFound"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a410751a037c83e683c8cdce8a4187af0"><param name="Name" value="m_activeAttribute"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ac8635b617ee51b89542b6e18ff8fb74b"><param name="Name" value="m_activeAttributeName"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ab189a92721e1e696604ad682f887b248"><param name="Name" value="m_activeProfileLabel"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a9a9dafc912b0cd757eb883e1ae1626c5"><param name="Name" value="m_busyImporting"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a422f55429472dbce52d6b42e614dd29c"><param name="Name" value="m_comboBoxes"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#aeaf7b7d60ad0b500e01c889a262264e0"><param name="Name" value="m_currentCombo"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a191019f0a17620e4041d6f32f16cc0f9"><param name="Name" value="m_currentXMLFileName"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a6e80a3c5685a5b6a332d2a741bb137d4"><param name="Name" value="m_fileContentsChanged"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#aac4be7752029d4f3d8f0fe8622838ec7"><param name="Name" value="m_newAttributeAdded"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a2e8b1323df0e92e9f88eace0e61f488b"><param name="Name" value="m_progressLabel"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a27d6358696982fa978ebb2f133612f07"><param name="Name" value="m_saveTimer"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ac23954938d57ff0ae86e87f12832e077"><param name="Name" value="m_signalMapper"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ad06d3bea9e4676a868242659695c7854"><param name="Name" value="m_spinner"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#aa1ad191e86d9c7d4ef5d77bc61d71a04"><param name="Name" value="m_wasTreeItemActivated"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#adf595e3fd0b8fd927539d24314dc397c"><param name="Name" value="newXMLFile"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#aed2d7c6593f793b627cabaf983265609"><param name="Name" value="openXMLFile"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#aedb1674171df6e0141f4611584421290"><param name="Name" value="processDOMDoc"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a1b36c2c67dd5529bc2e587248e7e38dc"><param name="Name" value="queryResetDOM"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#accabf0586f717d2b02fc0490ab096135"><param name="Name" value="queryRestoreFiles"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a7c9e5ee02a20bd23c3bb56de4cb5c1b5"><param name="Name" value="querySetActiveSession"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a47e244aafa167892e8ae827f2eb1a9f0"><param name="Name" value="readSettings"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ae048b7515af0a92c4322292b199b475c"><param name="Name" value="rebuild"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ad7a031f282d1e7c6fd2b1885a9865512"><param name="Name" value="removeDatabase"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#af2afe8d9934ab0cd82a4a928d9346527"><param name="Name" value="removeItemsFromDB"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a39a36e147dc71a12eb96e76333857b01"><param name="Name" value="resetDOM"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#abb789d55b6d10407642d01e9e4a4583a"><param name="Name" value="resetTableWidget"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a8c3d05ede224832af88709a5a7a5a187"><param name="Name" value="saveSettings"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ab5084b86ba4071820291342d44c99f34"><param name="Name" value="saveTempFile"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a5eb9ad6f8cec8f76c355ed380c6b0ae7"><param name="Name" value="saveXMLFile"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a4815f2eda2b9f3b8a60927c09664a109"><param name="Name" value="saveXMLFileAs"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#aee59a2ca287fe1568461f6f896453586"><param name="Name" value="searchDocument"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ac608d3a5f42de58ffbfd5622738a882e"><param name="Name" value="setCurrentComboBox"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a8e045afa7bbd54c36e4333276949ab4a"><param name="Name" value="setShowHelpButtons"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#adf609981435db58a9601d5778a89bf23"><param name="Name" value="setShowTreeItemsVerbose"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a73649b4503afb0a70dad6df8afc370cc"><param name="Name" value="setStatusBarMessage"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#acef6c7004aad36d4ae2a75103df3b4fb"><param name="Name" value="setTextEditContent"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ac0ba5847872c29e83ab2aa3e95b752ac"><param name="Name" value="showElementHelp"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#afc7761e374a7c541d9b52a52b0776652"><param name="Name" value="showEmptyProfileHelp"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#aa2bdc0c49fb38e59d1eb4ca76f8811f0"><param name="Name" value="showMainHelp"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a6dba63ebf0254f80928fac0bba575666"><param name="Name" value="startSaveTimer"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a99cf9e444a1c33195c4a4d06ae4a87ff"><param name="Name" value="switchActiveDatabase"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#acf792c0d5231b399710b5aaeb8b63b5a"><param name="Name" value="toggleAddElementWidgets"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a9054f31f7d35a094e5ed51187ad67bfa"><param name="Name" value="ui"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a145789e080e7657474e4cc030ad5c0ff"><param name="Name" value="uncheckExpandAll"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a3c48be220d42b4c026a481336d6cd113"><param name="Name" value="updateComment"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#aede653ff750a72083aebfe0dae87e5f9"><param name="Name" value="useDarkTheme"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a1b9394727a4790a926fae15973f9e629"><param name="Name" value="~GCMainWindow"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_message_dialog.html"><param name="Name" value="GCMessageDialog"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_message_dialog.html#ad2f8910da38a44831096a9c7f1e08323"><param name="Name" value="GCMessageDialog"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_message_dialog.html#a3dc1c133a41023214eda0e18be6ad6fe"><param name="Name" value="m_remember"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_message_dialog.html#a13616f9ec02d00e1932a7972d86e78ef"><param name="Name" value="setRememberUserChoice"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_message_dialog.html#ac3f8aff96554cd213b05e309dd11f50f"><param name="Name" value="ui"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_message_dialog.html#ae8f647f3c0a75c154f451d0a4fd6bd9d"><param name="Name" value="~GCMessageDialog"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html"><param name="Name" value="GCMessageSpace"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#a67e94586e09cbc305257fbcdd7b686e2a4e02f76ed3971c8adbee5dd44724e8a6"><param name="Name" value="Critical"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#ad9b01668af8368ac7e2c69065d45bf19"><param name="Name" value="forgetAllPreferences"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#a67e94586e09cbc305257fbcdd7b686e2aa675bd9dc6c7b7735b0c1c20954b8323"><param name="Name" value="Information"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#a67e94586e09cbc305257fbcdd7b686e2a54bba077357d6db019fb791266e133f0"><param name="Name" value="NoIcon"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#ac1db082c29062fe6508ba03bf76bea44a7de67bd6b388b96a468fcf8246dfdece"><param name="Name" value="OKCancel"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#ac1db082c29062fe6508ba03bf76bea44a3baa10aa8947d81b9001802c55131570"><param name="Name" value="OKOnly"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#a67e94586e09cbc305257fbcdd7b686e2ae66d6709c87ccb0832b1456e2b4ad895"><param name="Name" value="Question"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#ab118b3a133686167617eb955029fd44e"><param name="Name" value="showErrorMessageBox"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#ae6f97d25f38a6b35c49e6e67ce4afaca"><param name="Name" value="userAccepted"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#a67e94586e09cbc305257fbcdd7b686e2ab454bae3ed7cef63f273c303aea6c4c3"><param name="Name" value="Warning"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#ac1db082c29062fe6508ba03bf76bea44ab2defe87f3e886edf34f537f4ac8c282"><param name="Name" value="YesNo"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a1125dbc55a8ba3e50662b8258cb35fdf"><param name="Name" value="gcParent"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html"><param name="Name" value="GCPlainTextEdit"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a974f08b952447cec6f1935140d9808b1"><param name="Name" value="clearAndReset"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a5df13199f02cf478a436689d52924201"><param name="Name" value="commentOut"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a5f05968816a795e22da7693391a3cfd0"><param name="Name" value="commentOutSelection"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#aecb8674a39bdd57ade47788ae8a8d59c"><param name="Name" value="confirmDomNotBroken"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a3313bf84abc37a2945a601e11c30f1fa"><param name="Name" value="deleteEmptyRow"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a8e814e0d57891674498b80b847260a09"><param name="Name" value="deleteSelection"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#afe97fc2ebc690d23771508d46edf112e"><param name="Name" value="emitSelectedIndex"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a919ac48b25a56b44e3ecfa3a169ea5ac"><param name="Name" value="findIndexMatchingBlockNumber"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a9c3603b9e62a7737b8d442da4a16109d"><param name="Name" value="findTextRelativeToDuplicates"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a203ef559af2845620fc2370dee142c19"><param name="Name" value="GCPlainTextEdit"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a6d08a1314c9883f44b4d56720e891efc"><param name="Name" value="insertEmptyRow"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#aed3616e5adab461d83bc6ab1497128e2"><param name="Name" value="keyPressEvent"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#acd03f4cc1476abaefcd39f2ffda56b14"><param name="Name" value="m_comment"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a0146741d2b3f1588347a42670c066a9a"><param name="Name" value="m_cursorPositionChanged"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#ae1b01b7b7ec5277e739690b0d78e955b"><param name="Name" value="m_cursorPositionChanging"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#af1129116cfabe5d238eda145d4af7ca9"><param name="Name" value="m_deleteEmptyRow"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a8968b5e6b1e53fc7845fe3ed8fcd486e"><param name="Name" value="m_deleteSelection"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#adde2651f348372076e0c4b3ba369a69e"><param name="Name" value="m_insertEmptyRow"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#ae332a824ff21a3af1205e2b2c70c463e"><param name="Name" value="m_mouseDragEntered"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#aa57d1a3fbfdc807aa0f4c516691a1a4b"><param name="Name" value="m_savedBackground"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a3a5dd6e39ada30417394aba56db5e148"><param name="Name" value="m_savedForeground"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a0829e05665c288ead4360c892087a1c6"><param name="Name" value="m_textEditClicked"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a85c52c2ca4c71a17c16ebe35c09f80f7"><param name="Name" value="m_uncomment"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a1c4c9e285ce6803e23637b725cda37ea"><param name="Name" value="manualEditAccepted"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a017bf2a82d021857e40f73441e284dee"><param name="Name" value="mouseMoveEvent"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#ad57ab95dfda7825bedc9de5a06542086"><param name="Name" value="mouseReleaseEvent"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a0fc42217a4c4d583be07102f9f78d2fa"><param name="Name" value="selectedIndex"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#af658d66d1fe8c1885d708de16b115b0f"><param name="Name" value="setContent"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a701b29b6df41b2b22ac440df0a02cb7e"><param name="Name" value="setCursorPositionChanged"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#af5775259194019608d4298c1360e28e3"><param name="Name" value="showContextMenu"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#aebcdbcde36b0e666bf8b50cd837b52a5"><param name="Name" value="uncommentSelection"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a56df0b287c0440a3f8f0f749929227f2"><param name="Name" value="wrapText"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html"><param name="Name" value="GCRemoveItemsForm"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#ab1846c95a48ed0aa9bb31424e676e97e"><param name="Name" value="attributeActivated"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#af5b94438cd0f07969917d602a9f3fdb9"><param name="Name" value="deleteAttribute"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#a839e69e56f3815255f6fe70bedba01f0"><param name="Name" value="deleteElement"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#a70cbba0c04a4b06e8e13f8f362da77d8"><param name="Name" value="elementSelected"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#a8ef59eb50c10a50f70ef268110916d39"><param name="Name" value="GCRemoveItemsForm"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#a6b41305b673c7e3731a74cb730374d71"><param name="Name" value="m_currentAttribute"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#a0c42deed0a574b6d21ec89370d67b800"><param name="Name" value="m_currentElement"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#a661632f1baedfa3df6f04b00208bb510"><param name="Name" value="m_currentElementParent"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#a20b9814ff4fca122786893e68b954935"><param name="Name" value="m_deletedElements"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#adaf5121fa7808720aa7d5db709ca231a"><param name="Name" value="removeChildElement"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#abe4b3830f6e18376f9469df71ad775f9"><param name="Name" value="showAttributeHelp"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#a94f27d698fef7eab4f7c3c7042790239"><param name="Name" value="showElementHelp"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#af98dc858b7c8fcd672eca70fdb83b4e5"><param name="Name" value="ui"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#a71ee24e669eb14af40da8d40b20c55ef"><param name="Name" value="updateAttributeValues"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#a13bb482e400e0888c4ad5c5f6f70e7bb"><param name="Name" value="updateChildLists"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#a9cf2b70d83b8f13e0283a76ef62b47d2"><param name="Name" value="~GCRemoveItemsForm"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_restore_files_form.html"><param name="Name" value="GCRestoreFilesForm"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_restore_files_form.html#ac64c885e1af70bbaf270451d9c890bef"><param name="Name" value="deleteTempFile"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_restore_files_form.html#a0b736b8d4da5adb072e32ea188526634"><param name="Name" value="GCRestoreFilesForm"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_restore_files_form.html#a1ccac7c52c08f81cc661ecbb74a30af8"><param name="Name" value="loadFile"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_restore_files_form.html#a43caf2b6fc834ffb3ec72c9649cc25b0"><param name="Name" value="m_fileName"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_restore_files_form.html#ad4b91cbf9d8f022522bf5eb65e0d733b"><param name="Name" value="m_tempFiles"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_restore_files_form.html#a2fa86da1fb4177cac29b01118a671664"><param name="Name" value="next"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_restore_files_form.html#a7f4be81608f6cf13293ef57e81d1e373"><param name="Name" value="saveFile"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_restore_files_form.html#a7f82b4f42a5cf5f45ce887666c44b8f4"><param name="Name" value="ui"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_restore_files_form.html#a69ec217c50d53d5cb0cfbf7b7da56936"><param name="Name" value="~GCRestoreFilesForm"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html"><param name="Name" value="GCSearchForm"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a54e10465b10b96a915d2bffb6a8fbf5f"><param name="Name" value="caseSensitive"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a05b839f9c927b860cccc9864d81810ed"><param name="Name" value="findMatchingTreeItem"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a275c8071b3e054236f90d979da26d084"><param name="Name" value="foundItem"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#aff692b1a5bd5a47fb28120f4aebe122a"><param name="Name" value="gatherMatchingItems"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a110b3f9a1b4a0a088b167d7844844192"><param name="Name" value="GCSearchForm"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#ad1b4a72a71a8126eddfe87b18e8d9db9"><param name="Name" value="highlightFind"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a8abab4f358972221e3bbb134b13e7a54"><param name="Name" value="m_firstRun"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#aef50a27171e01f37f160f5eccdc59f97"><param name="Name" value="m_items"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a28e45726b9edc5533743a46d2ee9c94b"><param name="Name" value="m_previousIndex"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a976c41741e4031d762375d3fa76ec4ef"><param name="Name" value="m_savedBackground"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a15b8bbc665ba1bee97a28a50cc4b3588"><param name="Name" value="m_savedForeground"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a4f3b471510ab1984ae8195dc1daef55b"><param name="Name" value="m_searchFlags"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a34b908a5580bd822f09e3934173ee367"><param name="Name" value="m_searchUp"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a058912be3aa97e53f0375403f3032e1a"><param name="Name" value="m_text"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#afef6382925b6f52b9a691e673704ff45"><param name="Name" value="m_wasFound"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a8b7ab7e029baf683c4a62d17c38ca084"><param name="Name" value="resetCursor"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#aeeb87bec5d0a6c10ae253f926b2da3cf"><param name="Name" value="resetHighlights"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a615ff210a7851d38c0fe61d95e71e32a"><param name="Name" value="search"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#af9a02eaabfa0f1479a1c9557a9655327"><param name="Name" value="searchUp"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#aa400eafe741f5f1e24a62b2f01ac43d7"><param name="Name" value="ui"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a974d40643d08f9ae88b87ff1183708d8"><param name="Name" value="wholeWords"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a27023a33b05baafe5d41cfb738985688"><param name="Name" value="~GCSearchForm"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html"><param name="Name" value="GCTreeWidgetItem"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a91d71330acb400242d45b6d74c7e0f87"><param name="Name" value="attributeIncluded"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a584cad866bdbd94710d31eb77b804d84"><param name="Name" value="element"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a9ea36ae7110324b227abea2036063b96"><param name="Name" value="elementExcluded"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a76e60292eec635fd2e6df27a3e162e16"><param name="Name" value="excludeAttribute"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#ada99ae07bebffd9714be294cdd3d920b"><param name="Name" value="fixAttributeValues"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a62a31fad1e50915f6df144e23394abef"><param name="Name" value="fixedValue"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#af44c0d2c5eaa1c5bb3a6a1aace3e8c78"><param name="Name" value="gcChild"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a1125dbc55a8ba3e50662b8258cb35fdf"><param name="Name" value="gcParent"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#ab8ffe3b11f00edd90397b885bb58d4a4"><param name="Name" value="GCTreeWidgetItem"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a3f1c09758031e2a8fc1ac9336697b3d9"><param name="Name" value="includeAttribute"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#af0b5f0f5449f402c90e5ab7ff74acc77"><param name="Name" value="incrementAttribute"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#af6b48ae274cc4989811ef44944c8ad76"><param name="Name" value="index"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#ad9edbfc0129bb9052fe6ee2c7743e8c2"><param name="Name" value="init"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a197806cd712ae04b129acd1699674df5"><param name="Name" value="insertGcChild"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a2730fe898dbfde772fcd867fd8c28753"><param name="Name" value="m_element"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a928299c17b0bd1bbad2e63ed97b413f8"><param name="Name" value="m_elementExcluded"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a11d312b99b17859531883b56ef25da9e"><param name="Name" value="m_fixedValues"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a0b03fe8510a455946fccb04da1b0f7ac"><param name="Name" value="m_includedAttributes"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a2397437b510024a0177d84a3b9448752"><param name="Name" value="m_incrementedAttributes"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a5d5ade7d06d6ec3e1fbaa1e59a6b3b11"><param name="Name" value="m_index"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#adfdf99a49ad3681187addc9f520c995c"><param name="Name" value="m_verbose"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a3af8c66a690cd55986a38b996a375ba4"><param name="Name" value="name"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a831acd54bf1060e3ec45a8e46439385a"><param name="Name" value="rename"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#ab9be6bb99410543a6238c9ad48f2a9f7"><param name="Name" value="revertToFixedValues"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a6f023fc3090b3a774c5e3cc16e9d1361"><param name="Name" value="setDisplayText"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a4c1932884c3e7c0da8be9e2582e02f41"><param name="Name" value="setExcludeElement"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#abf57de97998e38563dc9020cdf4d8340"><param name="Name" value="setIncrementAttribute"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#af1f6be4d3badc00db1f92de2e7deb71f"><param name="Name" value="setIndex"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a557b0034fd98a444a7173d76a6320f4c"><param name="Name" value="setVerbose"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#acbd4573d56cc5c6d9bd58c461b797115"><param name="Name" value="toString"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a25756045870ecd285ef52173c2105e58"><param name="Name" value="goToSite"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a875e3999c9d91b5e0f59be8bdef54408"><param name="Name" value="hasActiveSession"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_xml_syntax_highlighter.html#a04ad665597f29fd32bff4a8134304460"><param name="Name" value="highlightBlock"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#ad1b4a72a71a8126eddfe87b18e8d9db9"><param name="Name" value="highlightFind"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_xml_syntax_highlighter.html#af73a444af9e82be5c29c70aca0295bd6"><param name="Name" value="highlightingRules"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ab9df1d178c7bea579a56f0d54aaa5d04"><param name="Name" value="highlightTextElement"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a3a96a13cb72f6f1adb831d529bcaaa73"><param name="Name" value="importXMLFromFile"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#afc599e54e8b71c07393f0d28ed3b594e"><param name="Name" value="importXMLToDatabase"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a3f1c09758031e2a8fc1ac9336697b3d9"><param name="Name" value="includeAttribute"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a581a8cf87b37e7a7c46e9e0f45cda955"><param name="Name" value="includedTreeWidgetItems"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#af0b5f0f5449f402c90e5ab7ff74acc77"><param name="Name" value="incrementAttribute"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#af6b48ae274cc4989811ef44944c8ad76"><param name="Name" value="index"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#a67e94586e09cbc305257fbcdd7b686e2aa675bd9dc6c7b7735b0c1c20954b8323"><param name="Name" value="Information"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#ad9edbfc0129bb9052fe6ee2c7743e8c2"><param name="Name" value="init"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a0b4673cb47ca2d83b09260af185c11fa"><param name="Name" value="initialise"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a6d08a1314c9883f44b4d56720e891efc"><param name="Name" value="insertEmptyRow"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ad0b1b4dca5f592684bf1b645b03019f8"><param name="Name" value="insertEmptyTableRow"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a197806cd712ae04b129acd1699674df5"><param name="Name" value="insertGcChild"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a5e4117a9b47ac0bd520d32fc54d5f1ed"><param name="Name" value="insertItem"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a05f810e337e427cf74c4a40adf5fec10"><param name="Name" value="insertSnippet"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a1baea9c0667aa8b610ec30076fcab84c"><param name="Name" value="instance"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#ae16d516cbefe58ccf9ef0e8ece4a394f"><param name="Name" value="isDocumentCompatible"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a2d20cd6ae4f1ba007fdc1367611b97e0"><param name="Name" value="isInitialised"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#ae570c403f1b6b7f85e6a5c46829f42a8"><param name="Name" value="isProfileEmpty"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a94559ea23489e360757db42c50d3a261"><param name="Name" value="isUniqueChildElement"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a36a2f054115387a5cc26b6296a6be304"><param name="Name" value="itemFound"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#ae7283f915c94209f23d636189a247f44"><param name="Name" value="itemPositionRelativeToIdenticalSiblings"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#ae79022f5265210c71c2a80eb662e3a81"><param name="Name" value="keyPressEvent"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#ae79022f5265210c71c2a80eb662e3a81"><param name="Name" value="GCDomTreeWidget"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#aed3616e5adab461d83bc6ab1497128e2"><param name="Name" value="GCPlainTextEdit"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#ac1ff852b7a9503c5a10abf4c54166d23"><param name="Name" value="knownAttributeKeys"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a6c4eabd4f39a1c23ab320bb0dbc855d4"><param name="Name" value="knownElements"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#ac5c57277f9476ab74cfe13fbcee52f15"><param name="Name" value="knownRootElements"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a30d5bbea06462c5ed0f76ad8a68c4b08"><param name="Name" value="lastError"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a196b8033760262f46f02ea7305927a90"><param name="Name" value="lastUserSelectedDirectory"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_restore_files_form.html#a1ccac7c52c08f81cc661ecbb74a30af8"><param name="Name" value="loadFile"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a410751a037c83e683c8cdce8a4187af0"><param name="Name" value="m_activeAttribute"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ac8635b617ee51b89542b6e18ff8fb74b"><param name="Name" value="m_activeAttributeName"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#adae36caf107df31e4b5f6034ea492a6d"><param name="Name" value="m_activeItem"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ab189a92721e1e696604ad682f887b248"><param name="Name" value="m_activeProfileLabel"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a5ca6b2a5d0989d615eec6b4b4dd4c911"><param name="Name" value="m_associatedElementsToUpdate"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a872738e9d562ec8bbbd68de2c72b4db2"><param name="Name" value="m_attributeKeysToUpdate"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a9f6934ff1b463cf92980430c42aa24c4"><param name="Name" value="m_attributeValuesToUpdate"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a9a9dafc912b0cd757eb883e1ae1626c5"><param name="Name" value="m_busyImporting"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#aea79f874dfb65f03e3eacf6f4b9249d1"><param name="Name" value="m_busyIterating"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a422f55429472dbce52d6b42e614dd29c"><param name="Name" value="m_comboBoxes"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#acd03f4cc1476abaefcd39f2ffda56b14"><param name="Name" value="m_comment"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a1f2c86d1441294f4b89f532b30d5d77b"><param name="Name" value="m_commentNode"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a055a8954ff21c53bdbd7821f95ff0439"><param name="Name" value="m_comments"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#a6b41305b673c7e3731a74cb730374d71"><param name="Name" value="m_currentAttribute"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#aeaf7b7d60ad0b500e01c889a262264e0"><param name="Name" value="m_currentCombo"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#a0c42deed0a574b6d21ec89370d67b800"><param name="Name" value="m_currentElement"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#a661632f1baedfa3df6f04b00208bb510"><param name="Name" value="m_currentElementParent"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#ab6235df88f0d5069e5a72f61338ff247"><param name="Name" value="m_currentRoot"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a191019f0a17620e4041d6f32f16cc0f9"><param name="Name" value="m_currentXMLFileName"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a0146741d2b3f1588347a42670c066a9a"><param name="Name" value="m_cursorPositionChanged"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#ae1b01b7b7ec5277e739690b0d78e955b"><param name="Name" value="m_cursorPositionChanging"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a56bb2d6eac07d62004877747c8159047"><param name="Name" value="m_dbMap"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#a20b9814ff4fca122786893e68b954935"><param name="Name" value="m_deletedElements"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#af1129116cfabe5d238eda145d4af7ca9"><param name="Name" value="m_deleteEmptyRow"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a8968b5e6b1e53fc7845fe3ed8fcd486e"><param name="Name" value="m_deleteSelection"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a0a34fc06df2ef79f374e8cfab858ac8a"><param name="Name" value="m_domDoc"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a2730fe898dbfde772fcd867fd8c28753"><param name="Name" value="m_element"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a294060184a7a0b92781572542e1683f5"><param name="Name" value="m_elementAttributesToUpdate"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a4f44e6f991f97c2fec41cc1dcec4b6a1"><param name="Name" value="m_elementChildrenToUpdate"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a928299c17b0bd1bbad2e63ed97b413f8"><param name="Name" value="m_elementExcluded"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a32c916d480a1ccb37cfddb00b0fbfe7e"><param name="Name" value="m_elementsToUpdate"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a6e80a3c5685a5b6a332d2a741bb137d4"><param name="Name" value="m_fileContentsChanged"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_restore_files_form.html#a43caf2b6fc834ffb3ec72c9649cc25b0"><param name="Name" value="m_fileName"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a8abab4f358972221e3bbb134b13e7a54"><param name="Name" value="m_firstRun"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a11d312b99b17859531883b56ef25da9e"><param name="Name" value="m_fixedValues"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a55592a187faa5c1f608bc47329d5eabf"><param name="Name" value="m_hasActiveSession"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a0b03fe8510a455946fccb04da1b0f7ac"><param name="Name" value="m_includedAttributes"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a2397437b510024a0177d84a3b9448752"><param name="Name" value="m_incrementedAttributes"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a5d5ade7d06d6ec3e1fbaa1e59a6b3b11"><param name="Name" value="m_index"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a4caad12f0ad91344a0de6d06b41919a9"><param name="Name" value="m_initialised"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#adde2651f348372076e0c4b3ba369a69e"><param name="Name" value="m_insertEmptyRow"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a1f885cd748643da2a9691cd05938bf88"><param name="Name" value="m_instance"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#af60c78d32f7f3a6dbab441160bd6bbc0"><param name="Name" value="m_isEmpty"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a245feb32955f1a588c8791c19fa1175c"><param name="Name" value="m_itemBeingManipulated"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#af63242c3e3f659e696e30690318ff585"><param name="Name" value="m_items"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#af63242c3e3f659e696e30690318ff585"><param name="Name" value="GCDomTreeWidget"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#aef50a27171e01f37f160f5eccdc59f97"><param name="Name" value="GCSearchForm"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#ab1f5e2343458e4ea772471e90d8e79e3"><param name="Name" value="m_knownAttributeKeys"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#ab2c74f6aec483a54d24a0510edf8b7df"><param name="Name" value="m_knownElements"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a76ebbbeb95a2e7ac6d41cebbf56ba56a"><param name="Name" value="m_lastErrorMsg"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#ae332a824ff21a3af1205e2b2c70c463e"><param name="Name" value="m_mouseDragEntered"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#aa4b83aaec03a15839852f68f55f8a7ca"><param name="Name" value="m_newAssociatedElementsToAdd"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#aac4be7752029d4f3d8f0fe8622838ec7"><param name="Name" value="m_newAttributeAdded"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#acef790beb7382b591bd06210b938b85b"><param name="Name" value="m_newAttributeKeysToAdd"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#aca28233df7223d15b06d364aaea21504"><param name="Name" value="m_newAttributeValuesToAdd"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#ad70e1e2938899dc44d98b7f894fe6503"><param name="Name" value="m_newElementAttributesToAdd"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#ac0bf6d01ed91170b3da873faee93b61c"><param name="Name" value="m_newElementChildrenToAdd"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a1fe2471f7a1377ed3abc6e71e4ff7002"><param name="Name" value="m_newElementsToAdd"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#af1f994f11996e20bda4babc78c5e8c54"><param name="Name" value="m_parentItem"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a28e45726b9edc5533743a46d2ee9c94b"><param name="Name" value="m_previousIndex"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a2e8b1323df0e92e9f88eace0e61f488b"><param name="Name" value="m_progressLabel"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a9cf30ebc1622f56fd7005b431dc55c8b"><param name="Name" value="m_records"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_message_dialog.html#a3dc1c133a41023214eda0e18be6ad6fe"><param name="Name" value="m_remember"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#aa57d1a3fbfdc807aa0f4c516691a1a4b"><param name="Name" value="m_savedBackground"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#aa57d1a3fbfdc807aa0f4c516691a1a4b"><param name="Name" value="GCPlainTextEdit"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a976c41741e4031d762375d3fa76ec4ef"><param name="Name" value="GCSearchForm"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a3a5dd6e39ada30417394aba56db5e148"><param name="Name" value="m_savedForeground"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a3a5dd6e39ada30417394aba56db5e148"><param name="Name" value="GCPlainTextEdit"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a15b8bbc665ba1bee97a28a50cc4b3588"><param name="Name" value="GCSearchForm"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a27d6358696982fa978ebb2f133612f07"><param name="Name" value="m_saveTimer"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a4f3b471510ab1984ae8195dc1daef55b"><param name="Name" value="m_searchFlags"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a34b908a5580bd822f09e3934173ee367"><param name="Name" value="m_searchUp"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a62c97a152f0bdab0e979c5a75b682ca6"><param name="Name" value="m_sessionDB"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ac23954938d57ff0ae86e87f12832e077"><param name="Name" value="m_signalMapper"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ad06d3bea9e4676a868242659695c7854"><param name="Name" value="m_spinner"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a3666a204cc013b263084dbbc6ae7ef50"><param name="Name" value="m_stringListSeparator"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_restore_files_form.html#ad4b91cbf9d8f022522bf5eb65e0d733b"><param name="Name" value="m_tempFiles"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a058912be3aa97e53f0375403f3032e1a"><param name="Name" value="m_text"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a0829e05665c288ead4360c892087a1c6"><param name="Name" value="m_textEditClicked"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#ae2e761c2c0a3477e5e18c97cb9d0a160"><param name="Name" value="m_treeItemActivated"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a85c52c2ca4c71a17c16ebe35c09f80f7"><param name="Name" value="m_uncomment"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a4174fc7da01c3492740d57059efc46f8"><param name="Name" value="m_unsorted"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#adfdf99a49ad3681187addc9f520c995c"><param name="Name" value="m_verbose"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#afef6382925b6f52b9a691e673704ff45"><param name="Name" value="m_wasFound"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#aa1ad191e86d9c7d4ef5d77bc61d71a04"><param name="Name" value="m_wasTreeItemActivated"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a1c4c9e285ce6803e23637b725cda37ea"><param name="Name" value="manualEditAccepted"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a7bcb145540df569caeca3119cfebc23c"><param name="Name" value="matchesRootName"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a017bf2a82d021857e40f73441e284dee"><param name="Name" value="mouseMoveEvent"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_combo_box.html#a20358fcd497e5d179c3513d6829a1d84"><param name="Name" value="mousePressEvent"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#ad57ab95dfda7825bedc9de5a06542086"><param name="Name" value="mouseReleaseEvent"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a3af8c66a690cd55986a38b996a375ba4"><param name="Name" value="name"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#abf195046fd00e629b2ce5e3bd6bcf90d"><param name="Name" value="newAssociatedElementsToAdd"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a605ca53123f28467df39cabeb3aa65cd"><param name="Name" value="newAttributeKeysToAdd"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#af06d87d433f9402667f1cd654ad4b422"><param name="Name" value="newAttributeValuesToAdd"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a640ca9bd78b7da0796fdfb82fefce8b6"><param name="Name" value="newElementAttributesToAdd"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a89c14c3740c7cb57c937ef8db99b4af1"><param name="Name" value="newElementChildrenToAdd"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#afdedbc674698c019ebd2a3938a239661"><param name="Name" value="newElementsToAdd"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#adf595e3fd0b8fd927539d24314dc397c"><param name="Name" value="newXMLFile"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_restore_files_form.html#a2fa86da1fb4177cac29b01118a671664"><param name="Name" value="next"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#a67e94586e09cbc305257fbcdd7b686e2a54bba077357d6db019fb791266e133f0"><param name="Name" value="NoIcon"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#ac1db082c29062fe6508ba03bf76bea44a7de67bd6b388b96a468fcf8246dfdece"><param name="Name" value="OKCancel"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#ac1db082c29062fe6508ba03bf76bea44a3baa10aa8947d81b9001802c55131570"><param name="Name" value="OKOnly"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#ae502984b5b0df091887e926e8d8e9dde"><param name="Name" value="openConnection"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#aed2d7c6593f793b627cabaf983265609"><param name="Name" value="openXMLFile"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#aed5be623bb18a1b7b33225444a60177d"><param name="Name" value="operator="></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a97583835f9987b1c94ff05802ccfe42f"><param name="Name" value="ORGANISATION"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a111a8a18426af853afba3612d9233f80"><param name="Name" value="parentTreeAlreadyContainsElement"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="struct_xml_syntax_highlighter_1_1_highlighting_rule.html#a1d748dc2b7323243931cce07be1a1321"><param name="Name" value="pattern"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_items_form.html#adb0a667a7eb7608940ea52ccd448f618"><param name="Name" value="populateCombo"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#adb7b683f80318e457454a4e909206a0d"><param name="Name" value="populateCommentList"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a06ee56d0aa9348302dbb8d3f4e5bab44"><param name="Name" value="populateFromDatabase"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#aedb1674171df6e0141f4611584421290"><param name="Name" value="processDOMDoc"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a2d4fd28d80f3af95e7c33d98ae6da917"><param name="Name" value="processElement"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a2d4fd28d80f3af95e7c33d98ae6da917"><param name="Name" value="GCBatchProcessorHelper"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#aa4a4f03fd4c9c32fa2f9f2fe76757ec5"><param name="Name" value="GCDomTreeWidget"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a8b2b7a3504dbd628825fbc4f0da5ec7f"><param name="Name" value="processElementFromDatabase"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a1b36c2c67dd5529bc2e587248e7e38dc"><param name="Name" value="queryResetDOM"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#accabf0586f717d2b02fc0490ab096135"><param name="Name" value="queryRestoreFiles"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a7c9e5ee02a20bd23c3bb56de4cb5c1b5"><param name="Name" value="querySetActiveSession"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#a67e94586e09cbc305257fbcdd7b686e2ae66d6709c87ccb0832b1456e2b4ad895"><param name="Name" value="Question"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a47e244aafa167892e8ae827f2eb1a9f0"><param name="Name" value="readSettings"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ae048b7515af0a92c4322292b199b475c"><param name="Name" value="rebuild"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a0ac81800aa6d507dd17cbffa6814a632"><param name="Name" value="rebuildTreeWidget"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a6fbf551a825c0fca13926449be4a5215"><param name="Name" value="removeAttribute"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a657f2885b6741f8ac229939f77e7dd73"><param name="Name" value="removeChildElement"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a657f2885b6741f8ac229939f77e7dd73"><param name="Name" value="GCDataBaseInterface"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#adaf5121fa7808720aa7d5db709ca231a"><param name="Name" value="GCRemoveItemsForm"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a86dcb92e64a35e3fb72fa58a4bacc3b9"><param name="Name" value="removeDatabase"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a86dcb92e64a35e3fb72fa58a4bacc3b9"><param name="Name" value="GCDataBaseInterface"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#a0fc44e9d2efb407cc0964295920b2432"><param name="Name" value="GCDBSessionManager"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ad7a031f282d1e7c6fd2b1885a9865512"><param name="Name" value="GCMainWindow"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#ae83a3f427a341bbf2230bd6e6fc6b306"><param name="Name" value="removeDatabaseConnection"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a3a4e3ca8a97fd798c18e7e79060ad7c4"><param name="Name" value="removeDuplicatesFromFields"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#ad8aa20de89390f0cc2a1b64270a831b3"><param name="Name" value="removeElement"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a2586e4d2823be535fe9064df61a5fe5d"><param name="Name" value="removeFromList"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a49e9214d4089dbf7314780c714411d25"><param name="Name" value="removeItem"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#af2afe8d9934ab0cd82a4a928d9346527"><param name="Name" value="removeItemsFromDB"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#adbace3a2d395dae9cd915238556a6f77"><param name="Name" value="removeRootElement"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a445d66652988cbbe57efa65e8cae0659"><param name="Name" value="removeWindowInfo"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a831acd54bf1060e3ec45a8e46439385a"><param name="Name" value="rename"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#aa29b6318dabd688411b9cc02328e16a3"><param name="Name" value="renameItem"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a0badfb9fc7250c5186fb9575019c335f"><param name="Name" value="replaceItemsWithComment"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#add2dc0347405ffb60c4ba057009ead46"><param name="Name" value="reset"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a8b7ab7e029baf683c4a62d17c38ca084"><param name="Name" value="resetCursor"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a39a36e147dc71a12eb96e76333857b01"><param name="Name" value="resetDOM"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#aeeb87bec5d0a6c10ae253f926b2da3cf"><param name="Name" value="resetHighlights"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#abb789d55b6d10407642d01e9e4a4583a"><param name="Name" value="resetTableWidget"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#ab9be6bb99410543a6238c9ad48f2a9f7"><param name="Name" value="revertToFixedValues"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#af70ce22ef830a0a546262ff8566cd731"><param name="Name" value="rootName"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#aca41e24d89f334fdaf245bc45c7570ac"><param name="Name" value="saveDatabaseFile"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_restore_files_form.html#a7f4be81608f6cf13293ef57e81d1e373"><param name="Name" value="saveFile"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a8c3d05ede224832af88709a5a7a5a187"><param name="Name" value="saveSettings"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ab5084b86ba4071820291342d44c99f34"><param name="Name" value="saveTempFile"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a5eb9ad6f8cec8f76c355ed380c6b0ae7"><param name="Name" value="saveXMLFile"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a4815f2eda2b9f3b8a60927c09664a109"><param name="Name" value="saveXMLFileAs"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a615ff210a7851d38c0fe61d95e71e32a"><param name="Name" value="search"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#aee59a2ca287fe1568461f6f896453586"><param name="Name" value="searchDocument"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#af9a02eaabfa0f1479a1c9557a9655327"><param name="Name" value="searchUp"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#ac4e5a25619ee77bc9307d3428bfd345d"><param name="Name" value="selectActiveDatabase"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#ac3369526551f07200d9a9da5b9e0bb06"><param name="Name" value="selectAllAttributes"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#af83f36bd1ae7a8943e4121852d5d146d"><param name="Name" value="selectAllElements"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a4333c95bd76118a3036ff16a804c4fb1"><param name="Name" value="selectAttribute"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a0fc42217a4c4d583be07102f9f78d2fa"><param name="Name" value="selectedIndex"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a2664ef207a6442aa39b648d822549ad3"><param name="Name" value="selectElement"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a29bd5591054036ef5d6073a606716df3"><param name="Name" value="setActiveCommentValue"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a176952c9ba2fbc90809f9d64ea14a69f"><param name="Name" value="setActiveDatabase"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a176952c9ba2fbc90809f9d64ea14a69f"><param name="Name" value="GCDataBaseInterface"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#ad1385c04f368fae53f88c77558444777"><param name="Name" value="GCDBSessionManager"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#ae61a0ae85b5d250c49ebc8cfc6c24d09"><param name="Name" value="setAllCheckStates"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a7bcd409950b7e72202426ac0c42c9476"><param name="Name" value="setContent"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a7bcd409950b7e72202426ac0c42c9476"><param name="Name" value="GCDomTreeWidget"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#af658d66d1fe8c1885d708de16b115b0f"><param name="Name" value="GCPlainTextEdit"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ac608d3a5f42de58ffbfd5622738a882e"><param name="Name" value="setCurrentComboBox"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a7ed5e2b17b2368c4f55ac612af705a43"><param name="Name" value="setCurrentItemFromIndex"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a701b29b6df41b2b22ac440df0a02cb7e"><param name="Name" value="setCursorPositionChanged"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#af8956f0867d1a9f674158562ab9e4c01"><param name="Name" value="setDatabaseList"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a6f023fc3090b3a774c5e3cc16e9d1361"><param name="Name" value="setDisplayText"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a4c1932884c3e7c0da8be9e2582e02f41"><param name="Name" value="setExcludeElement"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#abf57de97998e38563dc9020cdf4d8340"><param name="Name" value="setIncrementAttribute"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#af1f6be4d3badc00db1f92de2e7deb71f"><param name="Name" value="setIndex"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a4f24b217759717a6f55a7d35855799b9"><param name="Name" value="setLastUserSelectedDirectory"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_message_dialog.html#a13616f9ec02d00e1932a7972d86e78ef"><param name="Name" value="setRememberUserChoice"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a6395acc08160e411395f96a88793eacc"><param name="Name" value="setShowHelpButtons"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a6395acc08160e411395f96a88793eacc"><param name="Name" value="GCGlobalSpace"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a8e045afa7bbd54c36e4333276949ab4a"><param name="Name" value="GCMainWindow"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a821fc62f1e29b67b3f6b00cd50de3bc8"><param name="Name" value="setShowTreeItemsVerbose"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a821fc62f1e29b67b3f6b00cd50de3bc8"><param name="Name" value="GCDomTreeWidget"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a58bc4fea7a061440f9ef2dd0aca8aba5"><param name="Name" value="GCGlobalSpace"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#adf609981435db58a9601d5778a89bf23"><param name="Name" value="GCMainWindow"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a73649b4503afb0a70dad6df8afc370cc"><param name="Name" value="setStatusBarMessage"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#acef6c7004aad36d4ae2a75103df3b4fb"><param name="Name" value="setTextEditContent"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#ac4760bf9e6fb7eb7de5422aabd36724f"><param name="Name" value="setUseDarkTheme"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#ae1113a0102d8f554fc3e88700848692a"><param name="Name" value="setUseWindowSettings"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#a557b0034fd98a444a7173d76a6320f4c"><param name="Name" value="setVerbose"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#af982a7e2548ba830d51e023eed0c4f21"><param name="Name" value="setWindowGeometry"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#af9d06b8378fc54a5a6bbd2b3d96f2c33"><param name="Name" value="setWindowState"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#abe4b3830f6e18376f9469df71ad775f9"><param name="Name" value="showAttributeHelp"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#af5775259194019608d4298c1360e28e3"><param name="Name" value="showContextMenu"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ac0ba5847872c29e83ab2aa3e95b752ac"><param name="Name" value="showElementHelp"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#ac0ba5847872c29e83ab2aa3e95b752ac"><param name="Name" value="GCMainWindow"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#a94f27d698fef7eab4f7c3c7042790239"><param name="Name" value="GCRemoveItemsForm"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#afc7761e374a7c541d9b52a52b0776652"><param name="Name" value="showEmptyProfileHelp"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#ab118b3a133686167617eb955029fd44e"><param name="Name" value="showErrorMessageBox"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_items_form.html#a77a5d358714e991462308e284899d592"><param name="Name" value="showHelp"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_items_form.html#a77a5d358714e991462308e284899d592"><param name="Name" value="GCAddItemsForm"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#a5fff5f528fbbc09a6074858f6daa2030"><param name="Name" value="GCAddSnippetsForm"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#a55bed32bbc9ab99802833daaf651333d"><param name="Name" value="GCDBSessionManager"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a981753e55f0f77f981f67ccb1ad4ecf1"><param name="Name" value="showHelpButtons"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#aa2bdc0c49fb38e59d1eb4ca76f8811f0"><param name="Name" value="showMainHelp"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#ad9a35f311bda4dd28f5cf155c5efc818"><param name="Name" value="showTreeItemsVerbose"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#a340d1273aa75e0210e68fdc9a53ec3e5"><param name="Name" value="snippetAdded"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_batch_processor_helper.html#a8e686e34927c73bc365717a0e93ad5bb"><param name="Name" value="sortRecords"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a6dba63ebf0254f80928fac0bba575666"><param name="Name" value="startSaveTimer"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a1a0995f4f7862ff52931c55e6e758467"><param name="Name" value="stepDown"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a30fa18f1e58f98b8191d2fb02170b845"><param name="Name" value="stepUp"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a99cf9e444a1c33195c4a4d06ae4a87ff"><param name="Name" value="switchActiveDatabase"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_xml_syntax_highlighter.html#a1fcb0bfb24a59eab6dc608c9c0011c5e"><param name="Name" value="tagFormat"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#acf792c0d5231b399710b5aaeb8b63b5a"><param name="Name" value="toggleAddElementWidgets"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a6cd086334f363b2d0038c815e54c2b69"><param name="Name" value="toString"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a6cd086334f363b2d0038c815e54c2b69"><param name="Name" value="GCDomTreeWidget"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_tree_widget_item.html#acbd4573d56cc5c6d9bd58c461b797115"><param name="Name" value="GCTreeWidgetItem"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_items_form.html#a23e55d515a2e55bb8419651e998e04ab"><param name="Name" value="ui"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_items_form.html#a23e55d515a2e55bb8419651e998e04ab"><param name="Name" value="GCAddItemsForm"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#a5762eeaa57f901bb723076c603613a6e"><param name="Name" value="GCAddSnippetsForm"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#a5f0bc1d3c8ae1a2f3e54cd2c62a50a49"><param name="Name" value="GCDBSessionManager"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_help_dialog.html#acb573cc3f97344f58745d1c7357a3346"><param name="Name" value="GCHelpDialog"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a9054f31f7d35a094e5ed51187ad67bfa"><param name="Name" value="GCMainWindow"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_message_dialog.html#ac3f8aff96554cd213b05e309dd11f50f"><param name="Name" value="GCMessageDialog"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#af98dc858b7c8fcd672eca70fdb83b4e5"><param name="Name" value="GCRemoveItemsForm"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_restore_files_form.html#a7f82b4f42a5cf5f45ce887666c44b8f4"><param name="Name" value="GCRestoreFilesForm"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#aa400eafe741f5f1e24a62b2f01ac43d7"><param name="Name" value="GCSearchForm"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a145789e080e7657474e4cc030ad5c0ff"><param name="Name" value="uncheckExpandAll"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#aebcdbcde36b0e666bf8b50cd837b52a5"><param name="Name" value="uncommentSelection"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#ae4f158875b5a8a109d301f19ce5d21ae"><param name="Name" value="updateAttributeValues"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#ae4f158875b5a8a109d301f19ce5d21ae"><param name="Name" value="GCDataBaseInterface"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#a71ee24e669eb14af40da8d40b20c55ef"><param name="Name" value="GCRemoveItemsForm"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#ac1e711455f6d0d89ebd045a30b3db05f"><param name="Name" value="updateCheckStates"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#a13bb482e400e0888c4ad5c5f6f70e7bb"><param name="Name" value="updateChildLists"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a3c48be220d42b4c026a481336d6cd113"><param name="Name" value="updateComment"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#abc13d0cb75b233fd83575bfef575ff19"><param name="Name" value="updateElementAttributes"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_data_base_interface.html#a91a60134bfb21a3f49d826340bebb852"><param name="Name" value="updateElementChildren"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a878e910094344db60e353a36561edabf"><param name="Name" value="updateIndices"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#a1ec3ed3851e25adf1fac93fb42a4a8a7"><param name="Name" value="updateItemNames"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a9cdd0b3db63d5727c3a23b904d68440d"><param name="Name" value="useDarkTheme"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a9cdd0b3db63d5727c3a23b904d68440d"><param name="Name" value="GCGlobalSpace"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#aede653ff750a72083aebfe0dae87e5f9"><param name="Name" value="GCMainWindow"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#ae6f97d25f38a6b35c49e6e67ce4afaca"><param name="Name" value="userAccepted"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#ae04d4bcc98792c58ed75cf3dda4e359f"><param name="Name" value="useWindowSettings"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#a67e94586e09cbc305257fbcdd7b686e2ab454bae3ed7cef63f273c303aea6c4c3"><param name="Name" value="Warning"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a974d40643d08f9ae88b87ff1183708d8"><param name="Name" value="wholeWords"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#abacd37e11506d915bca210f75d78bbe5"><param name="Name" value="windowGeometry"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_global_space.html#a895abb4bce9684d90cf2aa241605f7b9"><param name="Name" value="windowState"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_plain_text_edit.html#a56df0b287c0440a3f8f0f749929227f2"><param name="Name" value="wrapText"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_xml_syntax_highlighter.html"><param name="Name" value="XmlSyntaxHighlighter"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="struct_xml_syntax_highlighter_1_1_highlighting_rule.html"><param name="Name" value="XmlSyntaxHighlighter::HighlightingRule"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="struct_xml_syntax_highlighter_1_1_highlighting_rule.html#aa30355002822d408ee7dc1e28e0767fc"><param name="Name" value="format"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="struct_xml_syntax_highlighter_1_1_highlighting_rule.html#a1d748dc2b7323243931cce07be1a1321"><param name="Name" value="pattern"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_xml_syntax_highlighter.html"><param name="Name" value="XmlSyntaxHighlighter"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_xml_syntax_highlighter.html#a640cff54ce24e9fc078fba3e51d5b094"><param name="Name" value="attributeContentFormat"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_xml_syntax_highlighter.html#a57bf567feed0060e4f33996468f04182"><param name="Name" value="attributeFormat"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_xml_syntax_highlighter.html#ab6dfd4f1b8abcbb56f47a8e40a08396e"><param name="Name" value="commentEndExpression"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_xml_syntax_highlighter.html#a983c1d73bc90833e10da0ee56d81badc"><param name="Name" value="commentFormat"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_xml_syntax_highlighter.html#ad6ff9de80faf0bb402715a18367be229"><param name="Name" value="commentStartExpression"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_xml_syntax_highlighter.html#a04ad665597f29fd32bff4a8134304460"><param name="Name" value="highlightBlock"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_xml_syntax_highlighter.html#af73a444af9e82be5c29c70aca0295bd6"><param name="Name" value="highlightingRules"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_xml_syntax_highlighter.html#a1fcb0bfb24a59eab6dc608c9c0011c5e"><param name="Name" value="tagFormat"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="class_xml_syntax_highlighter.html#a5217c25d000e2acebcc4eb47b41fd22b"><param name="Name" value="XmlSyntaxHighlighter"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="namespace_g_c_message_space.html#ac1db082c29062fe6508ba03bf76bea44ab2defe87f3e886edf34f537f4ac8c282"><param name="Name" value="YesNo"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_items_form.html#adbcd4fa77a2c1c345fd08e2333a45102"><param name="Name" value="~GCAddItemsForm"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_add_snippets_form.html#a3a56853da9df0a69b7dfc0de3c762d9e"><param name="Name" value="~GCAddSnippetsForm"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_d_b_session_manager.html#a95698026afd73f32557483f3fc19b419"><param name="Name" value="~GCDBSessionManager"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_dom_tree_widget.html#aca9ba75d3798606da3f4e86c2a4b7113"><param name="Name" value="~GCDomTreeWidget"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_help_dialog.html#ae8e5aa465ea3bd2fa4d922b0cc09cfdc"><param name="Name" value="~GCHelpDialog"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_main_window.html#a1b9394727a4790a926fae15973f9e629"><param name="Name" value="~GCMainWindow"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_message_dialog.html#ae8f647f3c0a75c154f451d0a4fd6bd9d"><param name="Name" value="~GCMessageDialog"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_remove_items_form.html#a9cf2b70d83b8f13e0283a76ef62b47d2"><param name="Name" value="~GCRemoveItemsForm"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_restore_files_form.html#a69ec217c50d53d5cb0cfbf7b7da56936"><param name="Name" value="~GCRestoreFilesForm"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="class_g_c_search_form.html#a27023a33b05baafe5d41cfb738985688"><param name="Name" value="~GCSearchForm"></OBJECT>
+</UL>
+</BODY>
+</HTML>
