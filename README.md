@@ -1,6 +1,8 @@
 XML Mill
 =========
-Please make use of "runXMLMill.sh" to start this application.
+If you are interested in the executable itself, please grab it from SourceForge:
+
+http://sourceforge.net/projects/xmlmill/
 
 
 HELP
@@ -14,9 +16,9 @@ From where you will also be able to access an introductory video:
 http://goblincoding.com/xmlmill/xmlmillfeatures/
 
 
-TROUBLESHOOTING
-================
-If you encounter the following error:
+TROUBLESHOOTING THE APPLICATION ON UBUNTU
+=========================================
+If you encounter the following error after having downloaded and extracted the tar ball from SourceForge (remember to start the application with the "runXMLMill.sh" script):
 
 "This application failed to start because it could not find or load the Qt platform plugin “xcb”.Available platform plugins are: xcb.Reinstalling the application may fix this problem.
 Aborted (core dumped)"
