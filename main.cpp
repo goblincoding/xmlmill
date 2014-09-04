@@ -31,14 +31,14 @@
 #include <QTextStream>
 #include <QSettings>
 
-#include "gcmainwindow.h"
-#include "utils/gcglobalspace.h"
+#include "mainwindow.h"
+#include "utils/globalspace.h"
 
 /*--------------------------------------------------------------------------------------*/
 
 QString styleSheet()
 {
-  QFile file( ":resources/StyleSheet.txt" );
+  QFile file( ":resources/dark.txt" );
   file.open( QIODevice::ReadOnly | QIODevice::Text );
   QTextStream stream( &file );
   QString style = stream.readAll();
@@ -49,16 +49,16 @@ QString styleSheet()
 
 /*--------------------------------------------------------------------------------------*/
 
-int main( int argc, char* argv[] )
+int main( int ar, char* argv[] )
 {
-  QApplication a( argc, argv );
+  QApplication a( ar, argv );
 
-  if( GCGlobalSpace::useDarkTheme() )
+  if( GlobalSpace::useDarkTheme() )
   {
     a.setStyleSheet( styleSheet() );
   }
 
-  GCMainWindow w;
+  MainWindow w;
   w.show();
 
   return a.exec();

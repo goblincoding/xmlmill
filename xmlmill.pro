@@ -38,55 +38,55 @@ TARGET = XMLMill
 TEMPLATE = app
 
 SOURCES += main.cpp\
-    db/gcdatabaseinterface.cpp \
-    gcmainwindow.cpp \
-    db/gcbatchprocessorhelper.cpp \    
+    db/dbinterface.cpp \
+    mainwindow.cpp \
+    db/batchprocesshelper.cpp \
     xml/xmlsyntaxhighlighter.cpp \
-    utils/gccombobox.cpp \
-    utils/gcmessagespace.cpp \
-    forms/gchelpdialog.cpp \
-    forms/gcsearchform.cpp \
-    forms/gcadditemsform.cpp \
-    forms/gcremoveitemsform.cpp \
-    db/gcdbsessionmanager.cpp \
-    forms/gcrestorefilesform.cpp \
-    utils/gcglobalspace.cpp \
-    utils/gcdomtreewidget.cpp \
-    utils/gctreewidgetitem.cpp \
-    forms/gcaddsnippetsform.cpp \
-    utils/gcplaintextedit.cpp
+    utils/combobox.cpp \
+    utils/messagespace.cpp \
+    forms/helpdialog.cpp \
+    forms/searchform.cpp \
+    forms/additemsform.cpp \
+    forms/removeitemsform.cpp \
+    db/dbsessionmanager.cpp \
+    forms/restorefilesform.cpp \
+    utils/globalspace.cpp \
+    utils/domtreewidget.cpp \
+    utils/treewidgetitem.cpp \
+    forms/addsnippetsform.cpp \
+    utils/plaintextedit.cpp
 
 HEADERS  += \
-    db/gcdatabaseinterface.h \
-    gcmainwindow.h \
-    db/gcbatchprocessorhelper.h \
+    db/dbinterface.h \
+    mainwindow.h \
+    db/batchprocesshelper.h \
     xml/xmlsyntaxhighlighter.h \
-    utils/gccombobox.h \
-    utils/gcmessagespace.h \
-    forms/gchelpdialog.h \
-    forms/gcsearchform.h \
-    forms/gcadditemsform.h \
-    forms/gcremoveitemsform.h \
-    db/gcdbsessionmanager.h \
-    forms/gcrestorefilesform.h \
-    utils/gcglobalspace.h \
-    utils/gcdomtreewidget.h \
-    utils/gctreewidgetitem.h \
-    forms/gcaddsnippetsform.h \
-    utils/gcplaintextedit.h
+    utils/combobox.h \
+    utils/messagespace.h \
+    forms/helpdialog.h \
+    forms/searchform.h \
+    forms/additemsform.h \
+    forms/removeitemsform.h \
+    db/dbsessionmanager.h \
+    forms/restorefilesform.h \
+    utils/globalspace.h \
+    utils/domtreewidget.h \
+    utils/treewidgetitem.h \
+    forms/addsnippetsform.h \
+    utils/plaintextedit.h
 
 FORMS    += \
-    gcmainwindow.ui \
-    forms/gcmessagedialog.ui \
-    forms/gchelpdialog.ui \
-    forms/gcsearchform.ui \
-    forms/gcremoveitemsform.ui \
-    forms/gcadditemsform.ui \
-    db/gcdbsessionmanager.ui \
-    forms/gcrestorefilesform.ui \
-    forms/gcaddsnippetsform.ui
+    mainwindow.ui \
+    forms/messagedialog.ui \
+    forms/helpdialog.ui \
+    forms/searchform.ui \
+    forms/removeitemsform.ui \
+    forms/additemsform.ui \
+    db/dbsessionmanager.ui \
+    forms/restorefilesform.ui \
+    forms/addsnippetsform.ui
 
 RESOURCES += \
-    resources/gcresources.qrc
+    resources/resources.qrc
 
 win32:RC_FILE = resources/appicon/goblinappico.rc
