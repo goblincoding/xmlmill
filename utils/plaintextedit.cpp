@@ -29,7 +29,7 @@
 
 #include "plaintextedit.h"
 #include "xml/xmlsyntaxhighlighter.h"
-#include "utils/globalspace.h"
+#include "utils/globalsettings.h"
 #include "utils/messagespace.h"
 
 #include <QMenu>
@@ -69,7 +69,7 @@ PlainTextEdit::PlainTextEdit(QWidget *parent)
       m_cursorPositionChanging(false), m_cursorPositionChanged(false),
       m_mouseDragEntered(false), m_textEditClicked(false) {
   setAcceptDrops(false);
-  setFont(QFont(GlobalSpace::FONT, GlobalSpace::FONTSIZE));
+  setFont(QFont(GlobalSettings::FONT, GlobalSettings::FONTSIZE));
   setCenterOnScroll(true);
   setTextInteractionFlags(Qt::TextSelectableByMouse |
                           Qt::TextSelectableByKeyboard);

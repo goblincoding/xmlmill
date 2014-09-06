@@ -31,7 +31,7 @@
 #include "treewidgetitem.h"
 #include "db/dbinterface.h"
 #include "utils/messagespace.h"
-#include "utils/globalspace.h"
+#include "utils/globalsettings.h"
 
 #include <QApplication>
 #include <QDomDocument>
@@ -46,7 +46,7 @@ DomTreeWidget::DomTreeWidget(QWidget *parent)
     : QTreeWidget(parent), m_activeItem(NULL), m_domDoc(new QDomDocument),
       m_commentNode(), m_isEmpty(true), m_busyIterating(false),
       m_itemBeingManipulated(false), m_items(), m_comments() {
-  setFont(QFont(GlobalSpace::FONT, GlobalSpace::FONTSIZE));
+  setFont(QFont(GlobalSettings::FONT, GlobalSettings::FONTSIZE));
   setSelectionMode(QAbstractItemView::SingleSelection);
   setDragDropMode(QAbstractItemView::InternalMove);
 

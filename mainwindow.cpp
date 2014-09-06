@@ -39,7 +39,7 @@
 #include "utils/treewidgetitem.h"
 #include "utils/combobox.h"
 #include "utils/messagespace.h"
-#include "utils/globalspace.h"
+#include "utils/globalsettings.h"
 
 #include <QDesktopServices>
 #include <QSignalMapper>
@@ -83,9 +83,9 @@ MainWindow::MainWindow(QWidget *parent)
       m_fileContentsChanged(false), m_comboBoxes() {
   ui->setupUi(this);
   ui->showEmptyProfileHelpButton->setVisible(false);
-  ui->tableWidget->setFont(QFont(GlobalSpace::FONT, GlobalSpace::FONTSIZE));
+  ui->tableWidget->setFont(QFont(GlobalSettings::FONT, GlobalSettings::FONTSIZE));
   ui->tableWidget->horizontalHeader()->setFont(
-      QFont(GlobalSpace::FONT, GlobalSpace::FONTSIZE));
+      QFont(GlobalSettings::FONT, GlobalSettings::FONTSIZE));
 
   /* XML File related. */
   connect(ui->actionNew, SIGNAL(triggered()), this, SLOT(newXMLFile()));
@@ -460,7 +460,7 @@ bool MainWindow::openXMLFile() {
 
   /* Start off where the user finished last. */
   QString fileName = QFileDialog::getOpenFileName(
-      this, "Open File", GlobalSpace::lastUserSelectedDirectory(),
+      this, "Open File", GlobalSettings::lastUserSelectedDirectory(),
       "XML Files (*.*)");
 
   /* If the user cancelled, we don't want to continue. */
@@ -567,7 +567,7 @@ bool MainWindow::openXMLFile() {
   /* Save whatever directory the user ended up in. */
   QFileInfo fileInfo(fileName);
   QString finalDirectory = fileInfo.dir().path();
-  GlobalSpace::setLastUserSelectedDirectory(finalDirectory);
+  GlobalSettings::setLastUserSelectedDirectory(finalDirectory);
   return true;
 }
 
@@ -616,7 +616,7 @@ bool MainWindow::saveXMLFile() {
 
 bool MainWindow::saveXMLFileAs() {
   QString file = QFileDialog::getSaveFileName(
-      this, "Save As", GlobalSpace::lastUserSelectedDirectory(),
+      this, "Save As", GlobalSettings::lastUserSelectedDirectory(),
       "XML Files (*.*)");
 
   /* If the user clicked "OK". */
@@ -626,7 +626,7 @@ bool MainWindow::saveXMLFileAs() {
     /* Save the last visited directory. */
     QFileInfo fileInfo(m_currentXMLFileName);
     QString finalDirectory = fileInfo.dir().path();
-    GlobalSpace::setLastUserSelectedDirectory(finalDirectory);
+    GlobalSettings::setLastUserSelectedDirectory(finalDirectory);
 
     return saveXMLFile();
   } else {
@@ -1061,14 +1061,14 @@ void MainWindow::useDarkTheme(bool dark) {
 /*----------------------------------------------------------------------------*/
 
 void MainWindow::setShowHelpButtons(bool show) {
-  GlobalSpace::setShowHelpButtons(show);
+  GlobalSettings::setShowHelpButtons(show);
   ui->showAddElementHelpButton->setVisible(show);
 }
 
 /*----------------------------------------------------------------------------*/
 
 void MainWindow::setShowTreeItemsVerbose(bool verbose) {
-  GlobalSpace::setShowTreeItemsVerbose(verbose);
+  GlobalSettings::setShowTreeItemsVerbose(verbose);
   ui->treeWidget->setShowTreeItemsVerbose(verbose);
 }
 
@@ -1211,37 +1211,37 @@ void MainWindow::toggleAddElementWidgets() {
 /*----------------------------------------------------------------------------*/
 
 void MainWindow::readSettings() {
-  restoreGeometry(GlobalSpace::windowGeometry());
-  restoreState(GlobalSpace::windowState());
+  restoreGeometry(GlobalSettings::windowGeometry());
+  restoreState(GlobalSettings::windowState());
 
-  setShowHelpButtons(GlobalSpace::showHelpButtons());
-  setShowTreeItemsVerbose(GlobalSpace::showTreeItemsVerbose());
+  setShowHelpButtons(GlobalSettings::showHelpButtons());
+  setShowTreeItemsVerbose(GlobalSettings::showTreeItemsVerbose());
 
   ui->actionRememberWindowGeometry->setChecked(
-      GlobalSpace::useWindowSettings());
-  ui->actionUseDarkTheme->setChecked(GlobalSpace::useDarkTheme());
-  ui->actionShowHelpButtons->setChecked(GlobalSpace::showHelpButtons());
+      GlobalSettings::useWindowSettings());
+  ui->actionUseDarkTheme->setChecked(GlobalSettings::useDarkTheme());
+  ui->actionShowHelpButtons->setChecked(GlobalSettings::showHelpButtons());
 }
 
 /*----------------------------------------------------------------------------*/
 
 void MainWindow::saveSettings() {
   if (ui->actionRememberWindowGeometry->isChecked()) {
-    GlobalSpace::setWindowGeometry(saveGeometry());
-    GlobalSpace::setWindowState(saveState());
+    GlobalSettings::setWindowGeometry(saveGeometry());
+    GlobalSettings::setWindowState(saveState());
   } else {
-    GlobalSpace::removeWindowInfo();
+    GlobalSettings::removeWindowInfo();
   }
 
-  GlobalSpace::setUseDarkTheme(ui->actionUseDarkTheme->isChecked());
-  GlobalSpace::setUseWindowSettings(
+  GlobalSettings::setUseDarkTheme(ui->actionUseDarkTheme->isChecked());
+  GlobalSettings::setUseWindowSettings(
       ui->actionRememberWindowGeometry->isChecked());
 }
 
 /*----------------------------------------------------------------------------*/
 
 void MainWindow::queryRestoreFiles() {
-  QString dbName = GlobalSpace::DB_NAME;
+  QString dbName = GlobalSettings::DB_NAME;
   QStringList tempFiles =
       QDir::current().entryList(QDir::Files).filter(QString("%1_temp").arg(
           dbName.remove(".db")));
@@ -1264,7 +1264,7 @@ void MainWindow::queryRestoreFiles() {
 /*----------------------------------------------------------------------------*/
 
 void MainWindow::saveTempFile() {
-  QString dbName = GlobalSpace::DB_NAME;
+  QString dbName = GlobalSettings::DB_NAME;
   QFile file(
       QDir::currentPath() +
       QString("/%1_%2_temp").arg(m_currentXMLFileName.split("/").last()).arg(
@@ -1283,7 +1283,7 @@ void MainWindow::saveTempFile() {
 /*----------------------------------------------------------------------------*/
 
 void MainWindow::deleteTempFile() {
-  QString dbName = GlobalSpace::DB_NAME;
+  QString dbName = GlobalSettings::DB_NAME;
   QFile file(
       QDir::currentPath() +
       QString("/%1_%2_temp").arg(m_currentXMLFileName.split("/").last()).arg(

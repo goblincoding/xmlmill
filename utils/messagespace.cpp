@@ -29,7 +29,7 @@
 
 #include "messagespace.h"
 #include "ui_messagedialog.h"
-#include "utils/globalspace.h"
+#include "utils/globalsettings.h"
 
 #include <QSettings>
 #include <QDialog>
@@ -141,7 +141,7 @@ private:
 namespace MessageSpace {
 /* Hides our "member" variables. */
 namespace {
-QSettings settings(GlobalSpace::ORGANISATION, GlobalSpace::APPLICATION);
+QSettings settings(GlobalSettings::ORGANISATION, GlobalSettings::APPLICATION);
 bool settingsInitialised(false);
 }
 

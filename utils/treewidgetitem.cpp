@@ -27,7 +27,7 @@
  *                    <http://www.gnu.org/licenses/>
  */
 #include "treewidgetitem.h"
-#include "globalspace.h"
+#include "globalsettings.h"
 
 /*----------------------------------------------------------------------------*/
 
@@ -45,7 +45,7 @@ void TreeWidgetItem::init(QDomElement element, int index) {
   m_element = element;
   m_elementExcluded = false;
   m_index = index;
-  m_verbose = GlobalSpace::showTreeItemsVerbose();
+  m_verbose = GlobalSettings::showTreeItemsVerbose();
 
   QDomNamedNodeMap attributes = m_element.attributes();
 

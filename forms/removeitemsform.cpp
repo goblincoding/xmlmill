@@ -31,7 +31,7 @@
 #include "ui_removeitemsform.h"
 #include "db/dbinterface.h"
 #include "utils/messagespace.h"
-#include "utils/globalspace.h"
+#include "utils/globalsettings.h"
 #include "utils/treewidgetitem.h"
 
 #include <QMessageBox>
@@ -42,8 +42,8 @@ RemoveItemsForm::RemoveItemsForm(QWidget *parent)
     : QDialog(parent), ui(new Ui::RemoveItemsForm), m_currentElement(""),
       m_currentElementParent(""), m_currentAttribute(""), m_deletedElements() {
   ui->setupUi(this);
-  ui->showAttributeHelpButton->setVisible(GlobalSpace::showHelpButtons());
-  ui->showElementHelpButton->setVisible(GlobalSpace::showHelpButtons());
+  ui->showAttributeHelpButton->setVisible(GlobalSettings::showHelpButtons());
+  ui->showElementHelpButton->setVisible(GlobalSettings::showHelpButtons());
 
   connect(ui->showElementHelpButton, SIGNAL(clicked()), this,
           SLOT(showElementHelp()));

@@ -29,7 +29,7 @@
 
 #include "dbinterface.h"
 #include "batchprocesshelper.h"
-#include "../utils/globalspace.h"
+#include "../utils/globalsettings.h"
 
 #include <QDomDocument>
 #include <QStringList>
@@ -108,7 +108,7 @@ DataBaseInterface *DataBaseInterface::instance() {
 DataBaseInterface::DataBaseInterface() : m_sessionDB(), m_lastErrorMsg("") {
 
   if (!openConnection()) {
-    m_lastErrorMsg = QString("Failed to load the database: \n %1").arg(GlobalSpace::DB_NAME);
+    m_lastErrorMsg = QString("Failed to load the database: \n %1").arg(GlobalSettings::DB_NAME);
   }
 }
 
@@ -1078,7 +1078,7 @@ bool DataBaseInterface::removeDuplicatesFromFields() const {
 /*----------------------------------------------------------------------------*/
 
 bool DataBaseInterface::openConnection() {
-  const QString &dbName = GlobalSpace::DB_NAME;
+  const QString &dbName = GlobalSettings::DB_NAME;
 
   m_sessionDB = QSqlDatabase::addDatabase("QSQLITE", dbName);
 

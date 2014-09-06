@@ -49,11 +49,11 @@ SOURCES += main.cpp\
     forms/additemsform.cpp \
     forms/removeitemsform.cpp \
     forms/restorefilesform.cpp \
-    utils/globalspace.cpp \
     utils/domtreewidget.cpp \
     utils/treewidgetitem.cpp \
     forms/addsnippetsform.cpp \
-    utils/plaintextedit.cpp
+    utils/plaintextedit.cpp \
+    utils/globalsettings.cpp
 
 HEADERS  += \
     db/dbinterface.h \
@@ -67,11 +67,11 @@ HEADERS  += \
     forms/additemsform.h \
     forms/removeitemsform.h \
     forms/restorefilesform.h \
-    utils/globalspace.h \
     utils/domtreewidget.h \
     utils/treewidgetitem.h \
     forms/addsnippetsform.h \
-    utils/plaintextedit.h
+    utils/plaintextedit.h \
+    utils/globalsettings.h
 
 FORMS    += \
     mainwindow.ui \

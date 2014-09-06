@@ -31,7 +31,7 @@
 #include "ui_restorefilesform.h"
 #include "xml/xmlsyntaxhighlighter.h"
 #include "db/dbinterface.h"
-#include "utils/globalspace.h"
+#include "utils/globalsettings.h"
 #include "utils/messagespace.h"
 
 #include <QFile>
@@ -46,7 +46,7 @@ RestoreFilesForm::RestoreFilesForm(const QStringList &tempFiles,
     : QDialog(parent), ui(new Ui::RestoreFilesForm), m_tempFiles(tempFiles),
       m_fileName("") {
   ui->setupUi(this);
-  ui->plainTextEdit->setFont(QFont(GlobalSpace::FONT, GlobalSpace::FONTSIZE));
+  ui->plainTextEdit->setFont(QFont(GlobalSettings::FONT, GlobalSettings::FONTSIZE));
   setAttribute(Qt::WA_DeleteOnClose);
 
   connect(ui->saveButton, SIGNAL(clicked()), this, SLOT(saveFile()));
@@ -70,7 +70,7 @@ RestoreFilesForm::~RestoreFilesForm() { delete ui; }
 
 void RestoreFilesForm::saveFile() {
   QString fileName = QFileDialog::getSaveFileName(
-      this, "Save As", GlobalSpace::lastUserSelectedDirectory(),
+      this, "Save As", GlobalSettings::lastUserSelectedDirectory(),
       "XML Files (*.*)");
 
   /* If the user clicked "OK". */
@@ -93,7 +93,7 @@ void RestoreFilesForm::saveFile() {
       /* Save the last visited directory. */
       QFileInfo fileInfo(fileName);
       QString finalDirectory = fileInfo.dir().path();
-      GlobalSpace::setLastUserSelectedDirectory(finalDirectory);
+      GlobalSettings::setLastUserSelectedDirectory(finalDirectory);
     }
   }
 }
@@ -128,7 +128,7 @@ void RestoreFilesForm::next() {
 
 void RestoreFilesForm::loadFile(const QString &fileName) {
   QFile file(fileName);
-  QString dbName = GlobalSpace::DB_NAME;
+  QString dbName = GlobalSettings::DB_NAME;
 
   if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
     QString displayName = fileName;

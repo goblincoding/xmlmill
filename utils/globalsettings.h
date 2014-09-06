@@ -36,7 +36,7 @@
 
 /// Contains values and functions used throughout the application.
 
-namespace GlobalSpace {
+namespace GlobalSettings {
 /*----------------------------------------------------------------------------*/
 
 /*! Used when saving and loading settings to registry/XML/ini. */
@@ -117,7 +117,7 @@ const int FONTSIZE = 10;
 
 /*----------------------------------------------------------------------------*/
 
-const QString DB_NAME = "profiles.db";
+const QString DB_NAME = "profiles";
 }
 
 #endif // GLOBALS_H

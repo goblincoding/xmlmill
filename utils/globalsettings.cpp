@@ -27,13 +27,13 @@
  *                    <http://www.gnu.org/licenses/>
  */
 
-#include "utils/globalspace.h"
+#include "utils/globalsettings.h"
 #include <QSettings>
 #include <QDir>
 
 /*----------------------------------------------------------------------------*/
 
-namespace GlobalSpace {
+namespace GlobalSettings {
 namespace {
 const QString HELP = "showHelpButtons";
 const QString VERBOSE = "showTreeItemsVerbose";
@@ -47,77 +47,77 @@ const QString SAVE_WINDOW = "saveWindowInformation";
 /*----------------------------------------------------------------------------*/
 
 bool showHelpButtons() {
-  QSettings settings(GlobalSpace::ORGANISATION, GlobalSpace::APPLICATION);
+  QSettings settings(GlobalSettings::ORGANISATION, GlobalSettings::APPLICATION);
   return settings.value(HELP, true).toBool();
 }
 
 /*----------------------------------------------------------------------------*/
 
 void setShowHelpButtons(bool show) {
-  QSettings settings(GlobalSpace::ORGANISATION, GlobalSpace::APPLICATION);
+  QSettings settings(GlobalSettings::ORGANISATION, GlobalSettings::APPLICATION);
   settings.setValue(HELP, show);
 }
 
 /*----------------------------------------------------------------------------*/
 
 bool showTreeItemsVerbose() {
-  QSettings settings(GlobalSpace::ORGANISATION, GlobalSpace::APPLICATION);
+  QSettings settings(GlobalSettings::ORGANISATION, GlobalSettings::APPLICATION);
   return settings.value(VERBOSE, false).toBool();
 }
 
 /*----------------------------------------------------------------------------*/
 
 void setShowTreeItemsVerbose(bool show) {
-  QSettings settings(GlobalSpace::ORGANISATION, GlobalSpace::APPLICATION);
+  QSettings settings(GlobalSettings::ORGANISATION, GlobalSettings::APPLICATION);
   settings.setValue(VERBOSE, show);
 }
 
 /*----------------------------------------------------------------------------*/
 
 QString lastUserSelectedDirectory() {
-  QSettings settings(GlobalSpace::ORGANISATION, GlobalSpace::APPLICATION);
-  return settings.value(GlobalSpace::LAST_DIR, QDir::homePath()).toString();
+  QSettings settings(GlobalSettings::ORGANISATION, GlobalSettings::APPLICATION);
+  return settings.value(GlobalSettings::LAST_DIR, QDir::homePath()).toString();
 }
 
 /*----------------------------------------------------------------------------*/
 
 void setLastUserSelectedDirectory(const QString &dir) {
-  QSettings settings(GlobalSpace::ORGANISATION, GlobalSpace::APPLICATION);
+  QSettings settings(GlobalSettings::ORGANISATION, GlobalSettings::APPLICATION);
   settings.setValue(LAST_DIR, dir);
 }
 
 /*----------------------------------------------------------------------------*/
 
 QByteArray windowGeometry() {
-  QSettings settings(GlobalSpace::ORGANISATION, GlobalSpace::APPLICATION);
+  QSettings settings(GlobalSettings::ORGANISATION, GlobalSettings::APPLICATION);
   return settings.value(GEOMETRY).toByteArray();
 }
 
 /*----------------------------------------------------------------------------*/
 
 void setWindowGeometry(const QByteArray &geometry) {
-  QSettings settings(GlobalSpace::ORGANISATION, GlobalSpace::APPLICATION);
+  QSettings settings(GlobalSettings::ORGANISATION, GlobalSettings::APPLICATION);
   settings.setValue(GEOMETRY, geometry);
 }
 
 /*----------------------------------------------------------------------------*/
 
 QByteArray windowState() {
-  QSettings settings(GlobalSpace::ORGANISATION, GlobalSpace::APPLICATION);
+  QSettings settings(GlobalSettings::ORGANISATION, GlobalSettings::APPLICATION);
   return settings.value(STATE).toByteArray();
 }
 
 /*----------------------------------------------------------------------------*/
 
 void setWindowState(const QByteArray &state) {
-  QSettings settings(GlobalSpace::ORGANISATION, GlobalSpace::APPLICATION);
+  QSettings settings(GlobalSettings::ORGANISATION, GlobalSettings::APPLICATION);
   settings.setValue(STATE, state);
 }
 
 /*----------------------------------------------------------------------------*/
 
 void removeWindowInfo() {
-  QSettings settings(GlobalSpace::ORGANISATION, GlobalSpace::APPLICATION);
+  QSettings settings(GlobalSettings::ORGANISATION, GlobalSettings::APPLICATION);
 
   if (settings.contains(GEOMETRY)) {
     settings.remove(GEOMETRY);
@@ -131,28 +131,28 @@ void removeWindowInfo() {
 /*----------------------------------------------------------------------------*/
 
 bool useDarkTheme() {
-  QSettings settings(GlobalSpace::ORGANISATION, GlobalSpace::APPLICATION);
+  QSettings settings(GlobalSettings::ORGANISATION, GlobalSettings::APPLICATION);
   return settings.value(USE_DARK, false).toBool();
 }
 
 /*----------------------------------------------------------------------------*/
 
 void setUseDarkTheme(bool use) {
-  QSettings settings(GlobalSpace::ORGANISATION, GlobalSpace::APPLICATION);
+  QSettings settings(GlobalSettings::ORGANISATION, GlobalSettings::APPLICATION);
   settings.setValue(USE_DARK, use);
 }
 
 /*----------------------------------------------------------------------------*/
 
 bool useWindowSettings() {
-  QSettings settings(GlobalSpace::ORGANISATION, GlobalSpace::APPLICATION);
+  QSettings settings(GlobalSettings::ORGANISATION, GlobalSettings::APPLICATION);
   return settings.value(SAVE_WINDOW, true).toBool();
 }
 
 /*----------------------------------------------------------------------------*/
 
 void setUseWindowSettings(bool use) {
-  QSettings settings(GlobalSpace::ORGANISATION, GlobalSpace::APPLICATION);
+  QSettings settings(GlobalSettings::ORGANISATION, GlobalSettings::APPLICATION);
   settings.setValue(SAVE_WINDOW, use);
 }
 }

@@ -32,7 +32,7 @@
 #include "db/dbinterface.h"
 #include "utils/combobox.h"
 #include "utils/messagespace.h"
-#include "utils/globalspace.h"
+#include "utils/globalsettings.h"
 #include "utils/treewidgetitem.h"
 
 #include <QCheckBox>
@@ -51,13 +51,13 @@ AddSnippetsForm::AddSnippetsForm(const QString &elementName,
     : QDialog(parent), ui(new Ui::AddSnippetsForm), m_parentItem(parentItem),
       m_treeItemActivated(false) {
   ui->setupUi(this);
-  ui->tableWidget->setFont(QFont(GlobalSpace::FONT, GlobalSpace::FONTSIZE));
+  ui->tableWidget->setFont(QFont(GlobalSettings::FONT, GlobalSettings::FONTSIZE));
   ui->tableWidget->horizontalHeader()->setFont(
-      QFont(GlobalSpace::FONT, GlobalSpace::FONTSIZE));
+      QFont(GlobalSettings::FONT, GlobalSettings::FONTSIZE));
 
   ui->tableWidget->setColumnWidth(INCRCOLUMN, 40); // restricted for checkbox
   ui->treeWidget->setColumnWidth(0, 50);           // restricted for checkbox
-  ui->showHelpButton->setVisible(GlobalSpace::showHelpButtons());
+  ui->showHelpButton->setVisible(GlobalSettings::showHelpButtons());
 
   ui->treeWidget->populateFromDatabase(elementName);
   ui->treeWidget->setAllCheckStates(Qt::Checked);

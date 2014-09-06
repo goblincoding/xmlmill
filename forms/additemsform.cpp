@@ -31,7 +31,7 @@
 #include "ui_additemsform.h"
 #include "db/dbinterface.h"
 #include "utils/messagespace.h"
-#include "utils/globalspace.h"
+#include "utils/globalsettings.h"
 #include "utils/treewidgetitem.h"
 
 #include <QMessageBox>
@@ -45,7 +45,7 @@ const QString CREATE_NEW = "Create New Element";
 AddItemsForm::AddItemsForm(QWidget *parent)
     : QDialog(parent), ui(new Ui::AddItemsForm) {
   ui->setupUi(this);
-  ui->showHelpButton->setVisible(GlobalSpace::showHelpButtons());
+  ui->showHelpButton->setVisible(GlobalSettings::showHelpButtons());
 
   connect(ui->addNewButton, SIGNAL(clicked()), this,
           SLOT(addElementAndAttributes()));

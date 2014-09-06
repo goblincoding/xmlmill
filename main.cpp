@@ -33,7 +33,7 @@
 #include <QSettings>
 
 #include "mainwindow.h"
-#include "utils/globalspace.h"
+#include "utils/globalsettings.h"
 
 /*----------------------------------------------------------------------------*/
 
@@ -52,7 +52,7 @@ QString styleSheet() {
 int main(int ar, char *argv[]) {
   QApplication a(ar, argv);
 
-  if (GlobalSpace::useDarkTheme()) {
+  if (GlobalSettings::useDarkTheme()) {
     a.setStyleSheet(styleSheet());
   }
 
