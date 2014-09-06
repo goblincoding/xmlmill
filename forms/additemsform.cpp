@@ -76,9 +76,9 @@ void AddItemsForm::populateCombo() {
 
   /* It should not be possible to add the root element as a child to any other
    * element. */
-  QStringList elements(DataBaseInterface::instance()->knownElements());
+  QStringList elements(DB::instance()->knownElements());
 
-  foreach(QString root, DataBaseInterface::instance()->knownRootElements()) {
+  foreach(QString root, DB::instance()->knownRootElements()) {
     elements.removeAll(root);
   }
 
@@ -95,26 +95,26 @@ void AddItemsForm::addElementAndAttributes() {
   if (!element.isEmpty()) {
     QStringList attributes = ui->plainTextEdit->toPlainText().split("\n");
 
-    if (DataBaseInterface::instance()->knownElements().contains(element)) {
-      if (!DataBaseInterface::instance()->updateElementAttributes(element,
+    if (DB::instance()->knownElements().contains(element)) {
+      if (!DB::instance()->updateElementAttributes(element,
                                                                   attributes)) {
         MessageSpace::showErrorMessageBox(
-            this, DataBaseInterface::instance()->lastError());
+            this, DB::instance()->lastError());
       }
     } else {
-      if (!DataBaseInterface::instance()->addElement(element, QStringList(),
+      if (!DB::instance()->addElement(element, QStringList(),
                                                      attributes)) {
         MessageSpace::showErrorMessageBox(
-            this, DataBaseInterface::instance()->lastError());
+            this, DB::instance()->lastError());
       }
     }
 
     /* If the profile is empty, add the new element as a root element by
      * default. */
-    if (DataBaseInterface::instance()->isProfileEmpty()) {
-      if (!DataBaseInterface::instance()->addRootElement(element)) {
+    if (DB::instance()->isProfileEmpty()) {
+      if (!DB::instance()->addRootElement(element)) {
         MessageSpace::showErrorMessageBox(
-            this, DataBaseInterface::instance()->lastError());
+            this, DB::instance()->lastError());
       }
 
       ui->treeWidget->addItem(element);
@@ -122,10 +122,10 @@ void AddItemsForm::addElementAndAttributes() {
       /* If the profile isn't empty, the user must specify a parent element. */
       if (ui->treeWidget->currentItem()) {
         /* Also add it to the parent element's child list. */
-        if (!DataBaseInterface::instance()->updateElementChildren(
+        if (!DB::instance()->updateElementChildren(
                 ui->treeWidget->CurrentItem()->name(), QStringList(element))) {
           MessageSpace::showErrorMessageBox(
-              this, DataBaseInterface::instance()->lastError());
+              this, DB::instance()->lastError());
         }
 
         ui->treeWidget->insertItem(element, 0);
@@ -150,7 +150,7 @@ void AddItemsForm::comboValueChanged(const QString &element) {
     ui->lineEdit->setText(element);
     ui->lineEdit->setEnabled(false);
 
-    QStringList attributes = DataBaseInterface::instance()->attributes(element);
+    QStringList attributes = DB::instance()->attributes(element);
 
     ui->plainTextEdit->clear();
 

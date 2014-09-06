@@ -96,7 +96,7 @@ void RemoveItemsForm::elementSelected(TreeWidgetItem *item, int column) {
     }
 
     QStringList attributes =
-        DataBaseInterface::instance()->attributes(m_currentElement);
+        DB::instance()->attributes(m_currentElement);
 
     ui->comboBox->clear();
     ui->comboBox->addItems(attributes);
@@ -107,7 +107,7 @@ void RemoveItemsForm::elementSelected(TreeWidgetItem *item, int column) {
 
 void RemoveItemsForm::attributeActivated(const QString &attribute) {
   m_currentAttribute = attribute;
-  QStringList attributeValues = DataBaseInterface::instance()->attributeValues(
+  QStringList attributeValues = DB::instance()->attributeValues(
       m_currentElement, m_currentAttribute);
 
   ui->plainTextEdit->clear();
@@ -128,7 +128,7 @@ void RemoveItemsForm::deleteElement(const QString &element) {
   QString currentElement = (element.isEmpty()) ? m_currentElement : element;
 
   QStringList children =
-      DataBaseInterface::instance()->children(currentElement);
+      DB::instance()->children(currentElement);
   m_deletedElements.clear();
 
   /* Attributes and values must be removed before we can remove elements and we
@@ -137,7 +137,7 @@ void RemoveItemsForm::deleteElement(const QString &element) {
    * bottom up". */
   if (!children.isEmpty()) {
     foreach(QString child, children) {
-      if (DataBaseInterface::instance()->isUniqueChildElement(currentElement,
+      if (DB::instance()->isUniqueChildElement(currentElement,
                                                               child)) {
         deleteElement(child);
       }
@@ -147,30 +147,30 @@ void RemoveItemsForm::deleteElement(const QString &element) {
   /* Remove all the attributes (and their known values) associated with this
    * element. */
   QStringList attributes =
-      DataBaseInterface::instance()->attributes(currentElement);
+      DB::instance()->attributes(currentElement);
 
   foreach(QString attribute, attributes) {
-    if (!DataBaseInterface::instance()->removeAttribute(currentElement,
+    if (!DB::instance()->removeAttribute(currentElement,
                                                         attribute)) {
       MessageSpace::showErrorMessageBox(
-          this, DataBaseInterface::instance()->lastError());
+          this, DB::instance()->lastError());
     }
   }
 
   /* Now we can remove the element itself. */
-  if (!DataBaseInterface::instance()->removeElement(currentElement)) {
+  if (!DB::instance()->removeElement(currentElement)) {
     MessageSpace::showErrorMessageBox(
-        this, DataBaseInterface::instance()->lastError());
+        this, DB::instance()->lastError());
   } else {
     m_deletedElements.append(currentElement);
   }
 
   /* Check if the user removed a root element. */
-  if (DataBaseInterface::instance()->knownRootElements().contains(
+  if (DB::instance()->knownRootElements().contains(
           currentElement)) {
-    if (!DataBaseInterface::instance()->removeRootElement(currentElement)) {
+    if (!DB::instance()->removeRootElement(currentElement)) {
       MessageSpace::showErrorMessageBox(
-          this, DataBaseInterface::instance()->lastError());
+          this, DB::instance()->lastError());
     }
   }
 
@@ -186,12 +186,12 @@ void RemoveItemsForm::deleteElement(const QString &element) {
 
 void RemoveItemsForm::removeChildElement() {
   if (!m_currentElementParent.isEmpty()) {
-    if (!DataBaseInterface::instance()->removeChildElement(
+    if (!DB::instance()->removeChildElement(
             m_currentElementParent, m_currentElement)) {
       MessageSpace::showErrorMessageBox(
-          this, DataBaseInterface::instance()->lastError());
+          this, DB::instance()->lastError());
     } else {
-      if (DataBaseInterface::instance()->isUniqueChildElement(
+      if (DB::instance()->isUniqueChildElement(
               m_currentElementParent, m_currentElement)) {
         bool accepted = MessageSpace::userAccepted(
             "RemoveUnlistedElement", "Element not used",
@@ -232,10 +232,10 @@ void RemoveItemsForm::updateAttributeValues() {
   } else {
     /* All existing values will be replaced with whatever remained in the text
       edit by the time the user was done. */
-    if (!DataBaseInterface::instance()->updateAttributeValues(
+    if (!DB::instance()->updateAttributeValues(
             m_currentElement, m_currentAttribute, attributes, true)) {
       MessageSpace::showErrorMessageBox(
-          this, DataBaseInterface::instance()->lastError());
+          this, DB::instance()->lastError());
     } else {
       QMessageBox::information(this, "Success", "Done!");
     }
@@ -245,10 +245,10 @@ void RemoveItemsForm::updateAttributeValues() {
 /*----------------------------------------------------------------------------*/
 
 void RemoveItemsForm::deleteAttribute() {
-  if (!DataBaseInterface::instance()->removeAttribute(m_currentElement,
+  if (!DB::instance()->removeAttribute(m_currentElement,
                                                       m_currentAttribute)) {
     MessageSpace::showErrorMessageBox(
-        this, DataBaseInterface::instance()->lastError());
+        this, DB::instance()->lastError());
   } else {
     /* Purely for cosmetic effect - updates the tree item to reflect the correct
       node text when in "verbose" mode. */
@@ -261,18 +261,18 @@ void RemoveItemsForm::deleteAttribute() {
 /*----------------------------------------------------------------------------*/
 
 void RemoveItemsForm::updateChildLists() {
-  QStringList knownElements = DataBaseInterface::instance()->knownElements();
+  QStringList knownElements = DB::instance()->knownElements();
 
   foreach(QString element, knownElements) {
-    QStringList children = DataBaseInterface::instance()->children(element);
+    QStringList children = DB::instance()->children(element);
 
     if (!children.isEmpty()) {
       foreach(QString deletedElement, m_deletedElements) {
         if (children.contains(deletedElement)) {
-          if (!DataBaseInterface::instance()->removeChildElement(
+          if (!DB::instance()->removeChildElement(
                   element, deletedElement)) {
             MessageSpace::showErrorMessageBox(
-                this, DataBaseInterface::instance()->lastError());
+                this, DB::instance()->lastError());
           }
         }
       }

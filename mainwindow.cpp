@@ -225,7 +225,7 @@ void MainWindow::elementSelected(TreeWidgetItem *item, int column) {
     QDomElement element = item->element(); // shallow copy
     QString elementName = item->name();
     QStringList attributeNames =
-        DataBaseInterface::instance()->attributes(elementName);
+        DB::instance()->attributes(elementName);
 
     /* Add all the associated attribute names to the first column of the table
      * widget, create and populate combo boxes with the attributes' known values
@@ -248,7 +248,7 @@ void MainWindow::elementSelected(TreeWidgetItem *item, int column) {
       ui->tableWidget->setRowCount(i + 1);
       ui->tableWidget->setItem(i, 0, label);
 
-      attributeCombo->addItems(DataBaseInterface::instance()->attributeValues(
+      attributeCombo->addItems(DB::instance()->attributeValues(
           elementName, attributeNames.at(i)));
       attributeCombo->setEditable(true);
 
@@ -294,7 +294,7 @@ void MainWindow::elementSelected(TreeWidgetItem *item, int column) {
      * widget, of course). */
     ui->addElementComboBox->clear();
     ui->addElementComboBox->addItems(
-        DataBaseInterface::instance()->children(elementName));
+        DB::instance()->children(elementName));
 
     /* The following will be used to allow the user to add an element of the
      * current type to its parent (this should improve the user experience as
@@ -359,7 +359,7 @@ void MainWindow::attributeChanged(QTableWidgetItem *tableItem) {
     if (tableItem->text() != m_activeAttributeName) {
       /* Add the new attribute's name to the current element's list of
        * associated attributes. */
-      if (DataBaseInterface::instance()->updateElementAttributes(
+      if (DB::instance()->updateElementAttributes(
               treeItem->name(), QStringList(tableItem->text()))) {
         /* Is this a name change? */
         if (m_activeAttributeName != EMPTY) {
@@ -368,13 +368,13 @@ void MainWindow::attributeChanged(QTableWidgetItem *tableItem) {
           /* Retrieve the list of values associated with the previous name and
            * insert it against the new name. */
           QStringList attributeValues =
-              DataBaseInterface::instance()->attributeValues(
+              DB::instance()->attributeValues(
                   treeItem->name(), m_activeAttributeName);
 
-          if (!DataBaseInterface::instance()->updateAttributeValues(
+          if (!DB::instance()->updateAttributeValues(
                   treeItem->name(), tableItem->text(), attributeValues)) {
             MessageSpace::showErrorMessageBox(
-                this, DataBaseInterface::instance()->lastError());
+                this, DB::instance()->lastError());
           }
         } else {
           /* If this is an entirely new attribute, insert an "empty" row so that
@@ -387,7 +387,7 @@ void MainWindow::attributeChanged(QTableWidgetItem *tableItem) {
         }
       } else {
         MessageSpace::showErrorMessageBox(
-            this, DataBaseInterface::instance()->lastError());
+            this, DB::instance()->lastError());
       }
     }
 
@@ -431,14 +431,14 @@ void MainWindow::attributeValueChanged(const QString &value) {
 
     /* If we don't know about this value, we need to add it to the DB. */
     QStringList attributeValues =
-        DataBaseInterface::instance()->attributeValues(treeItem->name(),
+        DB::instance()->attributeValues(treeItem->name(),
                                                        currentAttributeName);
 
     if (!attributeValues.contains(value)) {
-      if (!DataBaseInterface::instance()->updateAttributeValues(
+      if (!DB::instance()->updateAttributeValues(
               treeItem->name(), currentAttributeName, QStringList(value))) {
         MessageSpace::showErrorMessageBox(
-            this, DataBaseInterface::instance()->lastError());
+            this, DB::instance()->lastError());
       }
     }
 
@@ -545,7 +545,7 @@ bool MainWindow::openXMLFile() {
 
         if (!ui->treeWidget->batchProcessSuccess()) {
           MessageSpace::showErrorMessageBox(
-              this, DataBaseInterface::instance()->lastError());
+              this, DB::instance()->lastError());
         } else {
           qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
           processDOMDoc();
@@ -694,7 +694,7 @@ bool MainWindow::importXMLToDatabase() {
 
   if (!ui->treeWidget->batchProcessSuccess()) {
     MessageSpace::showErrorMessageBox(
-        this, DataBaseInterface::instance()->lastError());
+        this, DB::instance()->lastError());
     deleteSpinner();
     return false;
   }
@@ -741,7 +741,7 @@ void MainWindow::addElementToDocument() {
     /* Add all the known attributes associated with this element name to the new
      * element. */
     QStringList attributes =
-        DataBaseInterface::instance()->attributes(elementName);
+        DB::instance()->attributes(elementName);
 
     for (int i = 0; i < attributes.size(); ++i) {
       treeItem->element().setAttribute(attributes.at(i), QString(""));
@@ -789,7 +789,7 @@ void MainWindow::insertSnippet(TreeWidgetItem *treeItem, QDomElement element) {
 /*----------------------------------------------------------------------------*/
 
 void MainWindow::removeItemsFromDB() {
-  if (DataBaseInterface::instance()->isProfileEmpty()) {
+  if (DB::instance()->isProfileEmpty()) {
     QMessageBox::warning(this, "Profile Empty",
                          "Active profile empty, nothing to remove.");
     return;
@@ -812,7 +812,7 @@ void MainWindow::removeItemsFromDB() {
 /*----------------------------------------------------------------------------*/
 
 void MainWindow::addItemsToDB() {
-  bool profileWasEmpty = DataBaseInterface::instance()->isProfileEmpty();
+  bool profileWasEmpty = DB::instance()->isProfileEmpty();
 
   /* Delete on close flag set (no clean-up needed). */
   AddItemsForm *form = new AddItemsForm(this);
@@ -823,7 +823,7 @@ void MainWindow::addItemsToDB() {
    */
   if (profileWasEmpty) {
     ui->addElementComboBox->addItems(
-        DataBaseInterface::instance()->knownRootElements());
+        DB::instance()->knownRootElements());
     toggleAddElementWidgets();
   }
 }
@@ -944,7 +944,7 @@ void MainWindow::resetDOM() {
 
   ui->addElementComboBox->clear();
   ui->addElementComboBox->addItems(
-      DataBaseInterface::instance()->knownRootElements());
+      DB::instance()->knownRootElements());
   toggleAddElementWidgets();
 
   ui->addSnippetButton->setEnabled(false);
@@ -1195,7 +1195,7 @@ void MainWindow::toggleAddElementWidgets() {
 
     /* Check if the element combo box is empty due to an empty profile
       being active. */
-    if (DataBaseInterface::instance()->isProfileEmpty()) {
+    if (DB::instance()->isProfileEmpty()) {
       ui->showEmptyProfileHelpButton->setVisible(true);
     } else {
       ui->showEmptyProfileHelpButton->setVisible(false);

@@ -93,7 +93,7 @@ void AddSnippetsForm::elementSelected(TreeWidgetItem *item, int column) {
      * the element selected. */
     QString elementName = item->name();
     QStringList attributeNames =
-        DataBaseInterface::instance()->attributes(elementName);
+        DB::instance()->attributes(elementName);
 
     /* Create and add the "increment" checkbox to the first column of the table
      * widget, add all the known attribute names to the cells in the second
@@ -124,7 +124,7 @@ void AddSnippetsForm::elementSelected(TreeWidgetItem *item, int column) {
       ui->tableWidget->setItem(i, LABELCOLUMN, label);
 
       ComboBox *attributeCombo = new ComboBox;
-      attributeCombo->addItems(DataBaseInterface::instance()->attributeValues(
+      attributeCombo->addItems(DB::instance()->attributeValues(
           elementName, attributeNames.at(i)));
       attributeCombo->setEditable(true);
       attributeCombo->setCurrentIndex(attributeCombo->findText(
@@ -264,7 +264,7 @@ void AddSnippetsForm::addSnippet() {
         }
 
         /* This call does nothing if the attribute value already exists. */
-        DataBaseInterface::instance()->updateAttributeValues(
+        DB::instance()->updateAttributeValues(
             elementName, attr.name(), QStringList(attributeValue));
       }
     }

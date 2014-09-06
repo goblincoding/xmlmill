@@ -31,18 +31,14 @@
 #define DATABASEINTERFACE_H
 
 #include <QObject>
-#include <QMap>
 #include <QtSql/QSqlQuery>
 
 class QDomDocument;
 
-/// Provides a Singleton interface to the SQLite databases used to profile XML
-/// documents.
-
-/**
-  This class is designed to set up and manage embedded SQLite databases used to
-  profile XML documents.  Databases created by this class will consist of three
-  tables:
+/** Provides a Singleton interface to the SQLite databases used to profile XML
+  documents. This class is designed to set up and manage embedded SQLite
+  databases used to profile XML documents.  Databases created by this class will
+  consist of three tables:
 
     * "xmlelements"   - accepts element names as unique primary keys and
   associates two fields with each record: "children" represents all the
@@ -66,12 +62,12 @@ class QDomDocument;
   been loaded into the database in question, the database will have all their
   root elements listed in this table.
 */
-class DataBaseInterface : public QObject {
+class DB : public QObject {
   Q_OBJECT
 
 public:
   /*! Singleton accessor. */
-  static DataBaseInterface *instance();
+  static DB *instance();
 
   /*! Batch process an entire DOM document.  This function processes an entire
      DOM document by adding new (or updating existing) elements with their
@@ -197,22 +193,21 @@ public:
      elements known to the the active database. */
   QStringList knownRootElements() const;
 
-
   /*! Returns the last known error message. */
   const QString &lastError() const;
 
 private:
-  static DataBaseInterface *m_instance;
+  static DB *m_instance;
 
   /*! Private constructor. */
-  DataBaseInterface();
+  DB();
 
   /*! Closes copy constructor Singleton "loophole" by making it inaccessible. */
-  DataBaseInterface(const DataBaseInterface &);
+  DB(const DB &);
 
   /*! Closes assignment operator Singleton "loophole" by making it inaccessible.
    */
-  DataBaseInterface &operator=(const DataBaseInterface &);
+  DB &operator=(const DB &);
 
   /*! Returns a list of known attributes. */
   QStringList knownAttributeKeys() const;
@@ -252,7 +247,7 @@ private:
   /*! Creates all the relevant database tables. */
   bool createTables() const;
 
-  QSqlDatabase m_sessionDB;
+  QSqlDatabase m_db;
   mutable QString m_lastErrorMsg;
 };
 

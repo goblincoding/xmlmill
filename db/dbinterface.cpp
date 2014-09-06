@@ -93,11 +93,11 @@ QString cleanAndJoinListElements(QStringList list) {
 
 /*--------------------------MEMBER FUNCTIONS---------------------------------*/
 
-DataBaseInterface *DataBaseInterface::m_instance = NULL;
+DB *DB::m_instance = NULL;
 
-DataBaseInterface *DataBaseInterface::instance() {
+DB *DB::instance() {
   if (!m_instance) {
-    m_instance = new DataBaseInterface;
+    m_instance = new DB;
   }
 
   return m_instance;
@@ -105,17 +105,18 @@ DataBaseInterface *DataBaseInterface::instance() {
 
 /*----------------------------------------------------------------------------*/
 
-DataBaseInterface::DataBaseInterface() : m_sessionDB(), m_lastErrorMsg("") {
+DB::DB() : m_db(), m_lastErrorMsg("") {
 
   if (!openConnection()) {
-    m_lastErrorMsg = QString("Failed to load the database: \n %1").arg(GlobalSettings::DB_NAME);
+    m_lastErrorMsg = QString("Failed to load the database: \n %1")
+                         .arg(GlobalSettings::DB_NAME);
   }
 }
 
 /*----------------------------------------------------------------------------*/
 
 bool
-DataBaseInterface::batchProcessDomDocument(const QDomDocument *domDoc) const {
+DB::batchProcessDomDocument(const QDomDocument *domDoc) const {
   BatchProcessorHelper helper(domDoc, SEPARATOR, knownElements(),
                               knownAttributeKeys());
 
@@ -126,7 +127,7 @@ DataBaseInterface::batchProcessDomDocument(const QDomDocument *domDoc) const {
     return false;
   }
 
-  QSqlQuery query(m_sessionDB);
+  QSqlQuery query(m_db);
 
   /* Batch insert all the new elements. */
   if (!query.prepare(INSERT_ELEMENT)) {
@@ -258,7 +259,7 @@ DataBaseInterface::batchProcessDomDocument(const QDomDocument *domDoc) const {
 
 /*----------------------------------------------------------------------------*/
 
-bool DataBaseInterface::addElement(const QString &element,
+bool DB::addElement(const QString &element,
                                    const QStringList &children,
                                    const QStringList &attributes) const {
   if (element.isEmpty()) {
@@ -296,13 +297,13 @@ bool DataBaseInterface::addElement(const QString &element,
 
 /*----------------------------------------------------------------------------*/
 
-bool DataBaseInterface::addRootElement(const QString &root) const {
+bool DB::addRootElement(const QString &root) const {
   if (root.isEmpty()) {
     m_lastErrorMsg = QString("Trying to add an empty root element name.");
     return false;
   }
 
-  QSqlQuery query(m_sessionDB);
+  QSqlQuery query(m_db);
 
   if (!query.prepare("SELECT * FROM rootelements WHERE root = ? ")) {
     m_lastErrorMsg =
@@ -348,7 +349,7 @@ bool DataBaseInterface::addRootElement(const QString &root) const {
 
 /*----------------------------------------------------------------------------*/
 
-bool DataBaseInterface::updateElementChildren(const QString &element,
+bool DB::updateElementChildren(const QString &element,
                                               const QStringList &children,
                                               bool replace) const {
   if (element.isEmpty()) {
@@ -398,7 +399,7 @@ bool DataBaseInterface::updateElementChildren(const QString &element,
 
 /*----------------------------------------------------------------------------*/
 
-bool DataBaseInterface::updateElementAttributes(const QString &element,
+bool DB::updateElementAttributes(const QString &element,
                                                 const QStringList &attributes,
                                                 bool replace) const {
   if (element.isEmpty()) {
@@ -451,7 +452,7 @@ bool DataBaseInterface::updateElementAttributes(const QString &element,
 
 /*----------------------------------------------------------------------------*/
 
-bool DataBaseInterface::updateAttributeValues(
+bool DB::updateAttributeValues(
     const QString &element, const QString &attribute,
     const QStringList &attributeValues, bool replace) const {
   if (element.isEmpty() || attribute.isEmpty()) {
@@ -526,7 +527,7 @@ bool DataBaseInterface::updateAttributeValues(
 
 /*----------------------------------------------------------------------------*/
 
-bool DataBaseInterface::removeElement(const QString &element) const {
+bool DB::removeElement(const QString &element) const {
   QSqlQuery query = selectElement(element);
 
   /* Only continue if we have an existing record. */
@@ -555,7 +556,7 @@ bool DataBaseInterface::removeElement(const QString &element) const {
 
 /*----------------------------------------------------------------------------*/
 
-bool DataBaseInterface::removeChildElement(const QString &element,
+bool DB::removeChildElement(const QString &element,
                                            const QString &child) const {
   QSqlQuery query = selectElement(element);
 
@@ -573,7 +574,7 @@ bool DataBaseInterface::removeChildElement(const QString &element,
 
 /*----------------------------------------------------------------------------*/
 
-bool DataBaseInterface::removeAttribute(const QString &element,
+bool DB::removeAttribute(const QString &element,
                                         const QString &attribute) const {
   QSqlQuery query = selectAttribute(attribute, element);
 
@@ -614,8 +615,8 @@ bool DataBaseInterface::removeAttribute(const QString &element,
 
 /*----------------------------------------------------------------------------*/
 
-bool DataBaseInterface::removeRootElement(const QString &element) const {
-  QSqlQuery query(m_sessionDB);
+bool DB::removeRootElement(const QString &element) const {
+  QSqlQuery query(m_db);
 
   if (!query.prepare("DELETE FROM rootelements WHERE root = ?")) {
     m_lastErrorMsg = QString("Prepare DELETE failed for root \"%1\": [%2]")
@@ -639,13 +640,13 @@ bool DataBaseInterface::removeRootElement(const QString &element) const {
 
 /*----------------------------------------------------------------------------*/
 
-bool DataBaseInterface::isProfileEmpty() const {
+bool DB::isProfileEmpty() const {
   return knownRootElements().isEmpty();
 }
 
 /*----------------------------------------------------------------------------*/
 
-bool DataBaseInterface::isUniqueChildElement(const QString &parentElement,
+bool DB::isUniqueChildElement(const QString &parentElement,
                                              const QString &element) const {
   QSqlQuery query = selectAllElements();
 
@@ -662,7 +663,7 @@ bool DataBaseInterface::isUniqueChildElement(const QString &parentElement,
 
 /*----------------------------------------------------------------------------*/
 
-bool DataBaseInterface::isDocumentCompatible(const QDomDocument *doc) const {
+bool DB::isDocumentCompatible(const QDomDocument *doc) const {
   BatchProcessorHelper helper(doc, SEPARATOR, knownElements(),
                               knownAttributeKeys());
 
@@ -723,7 +724,7 @@ bool DataBaseInterface::isDocumentCompatible(const QDomDocument *doc) const {
 
 /*----------------------------------------------------------------------------*/
 
-QStringList DataBaseInterface::knownElements() const {
+QStringList DB::knownElements() const {
   QSqlQuery query = selectAllElements();
 
   m_lastErrorMsg = "";
@@ -741,7 +742,7 @@ QStringList DataBaseInterface::knownElements() const {
 
 /*----------------------------------------------------------------------------*/
 
-QStringList DataBaseInterface::children(const QString &element) const {
+QStringList DB::children(const QString &element) const {
   QSqlQuery query = selectElement(element);
 
   /* There should be only one record corresponding to this element. */
@@ -763,7 +764,7 @@ QStringList DataBaseInterface::children(const QString &element) const {
 
 /*----------------------------------------------------------------------------*/
 
-QStringList DataBaseInterface::attributes(const QString &element) const {
+QStringList DB::attributes(const QString &element) const {
   QSqlQuery query = selectElement(element);
 
   /* There should be only one record corresponding to this element. */
@@ -784,7 +785,7 @@ QStringList DataBaseInterface::attributes(const QString &element) const {
 
 /*----------------------------------------------------------------------------*/
 
-QStringList DataBaseInterface::attributeValues(const QString &element,
+QStringList DB::attributeValues(const QString &element,
                                                const QString &attribute) const {
   QSqlQuery query = selectAttribute(attribute, element);
 
@@ -806,13 +807,13 @@ QStringList DataBaseInterface::attributeValues(const QString &element,
 
 /*----------------------------------------------------------------------------*/
 
-QStringList DataBaseInterface::knownRootElements() const {
-  return knownRootElements(m_sessionDB);
+QStringList DB::knownRootElements() const {
+  return knownRootElements(m_db);
 }
 
 /*----------------------------------------------------------------------------*/
 
-QStringList DataBaseInterface::knownRootElements(QSqlDatabase db) const {
+QStringList DB::knownRootElements(QSqlDatabase db) const {
   QSqlQuery query(db);
 
   if (!query.exec("SELECT * FROM rootelements")) {
@@ -835,7 +836,7 @@ QStringList DataBaseInterface::knownRootElements(QSqlDatabase db) const {
 
 /*----------------------------------------------------------------------------*/
 
-bool DataBaseInterface::containsKnownRootElement(const QString &dbName,
+bool DB::containsKnownRootElement(const QString &dbName,
                                                  const QString &root) const {
   /* In case the db name passed in consists of a path/to/file string. */
   QString dbConName =
@@ -861,11 +862,11 @@ bool DataBaseInterface::containsKnownRootElement(const QString &dbName,
 
 /*----------------------------------------------------------------------------*/
 
-const QString &DataBaseInterface::lastError() const { return m_lastErrorMsg; }
+const QString &DB::lastError() const { return m_lastErrorMsg; }
 
 /*----------------------------------------------------------------------------*/
 
-QStringList DataBaseInterface::knownAttributeKeys() const {
+QStringList DB::knownAttributeKeys() const {
   QSqlQuery query = selectAllAttributes();
 
   m_lastErrorMsg = "";
@@ -887,9 +888,9 @@ QStringList DataBaseInterface::knownAttributeKeys() const {
 
 /*----------------------------------------------------------------------------*/
 
-QSqlQuery DataBaseInterface::selectElement(const QString &element) const {
+QSqlQuery DB::selectElement(const QString &element) const {
   /* See if we already have this element in the DB. */
-  QSqlQuery query(m_sessionDB);
+  QSqlQuery query(m_db);
 
   if (!query.prepare("SELECT * FROM xmlelements WHERE element = ?")) {
     m_lastErrorMsg = QString("Prepare SELECT failed for element \"%1\": [%2]")
@@ -910,8 +911,8 @@ QSqlQuery DataBaseInterface::selectElement(const QString &element) const {
 
 /*----------------------------------------------------------------------------*/
 
-QSqlQuery DataBaseInterface::selectAllElements() const {
-  QSqlQuery query(m_sessionDB);
+QSqlQuery DB::selectAllElements() const {
+  QSqlQuery query(m_db);
 
   if (!query.exec("SELECT * FROM xmlelements")) {
     m_lastErrorMsg = QString("SELECT all root elements failed: [%1]")
@@ -924,9 +925,9 @@ QSqlQuery DataBaseInterface::selectAllElements() const {
 /*----------------------------------------------------------------------------*/
 
 QSqlQuery
-DataBaseInterface::selectAttribute(const QString &attribute,
+DB::selectAttribute(const QString &attribute,
                                    const QString &associatedElement) const {
-  QSqlQuery query(m_sessionDB);
+  QSqlQuery query(m_db);
 
   if (!query.prepare("SELECT * FROM xmlattributes "
                      "WHERE attribute = ? "
@@ -954,8 +955,8 @@ DataBaseInterface::selectAttribute(const QString &attribute,
 
 /*----------------------------------------------------------------------------*/
 
-QSqlQuery DataBaseInterface::selectAllAttributes() const {
-  QSqlQuery query(m_sessionDB);
+QSqlQuery DB::selectAllAttributes() const {
+  QSqlQuery query(m_db);
 
   if (!query.exec("SELECT * FROM xmlattributes")) {
     m_lastErrorMsg = QString("SELECT all attribute values failed: [%1]")
@@ -967,7 +968,7 @@ QSqlQuery DataBaseInterface::selectAllAttributes() const {
 
 /*----------------------------------------------------------------------------*/
 
-bool DataBaseInterface::removeDuplicatesFromFields() const {
+bool DB::removeDuplicatesFromFields() const {
   /* Remove duplicates and update the element records. */
   QStringList elementNames = knownElements();
   QString element("");
@@ -1077,38 +1078,43 @@ bool DataBaseInterface::removeDuplicatesFromFields() const {
 
 /*----------------------------------------------------------------------------*/
 
-bool DataBaseInterface::openConnection() {
+bool DB::openConnection() {
   const QString &dbName = GlobalSettings::DB_NAME;
 
-  m_sessionDB = QSqlDatabase::addDatabase("QSQLITE", dbName);
+  m_db = QSqlDatabase::addDatabase("QSQLITE", dbName);
 
-  if (m_sessionDB.isValid()) {
-    m_sessionDB.setDatabaseName(dbName);
+  if (m_db.isValid()) {
+    m_db.setDatabaseName(dbName);
 
-    if (!m_sessionDB.open()) {
+    if (!m_db.open()) {
       m_lastErrorMsg = QString("Failed to open database \"%1\": [%2].")
                            .arg(dbName)
-                           .arg(m_sessionDB.lastError().text());
+                           .arg(m_db.lastError().text());
       return false;
     }
   }
 
+  /* Check if no tables have been created yet */
+  if (m_db.tables().isEmpty()) {
+    return createTables();
+  }
+
   m_lastErrorMsg = "";
-  return createTables();
+  return true;
 }
 
 /*----------------------------------------------------------------------------*/
 
-bool DataBaseInterface::createTables() const {
+bool DB::createTables() const {
   /* DB connection will be open from openConnection() above so no need to do any
    * checks here. */
-  QSqlQuery query(m_sessionDB);
+  QSqlQuery query(m_db);
 
   if (!query.exec("CREATE TABLE xmlelements( element QString primary key, "
                   "children QString, attributes QString )")) {
     m_lastErrorMsg =
         QString("Failed to create elements table for \"%1\": [%2].")
-            .arg(m_sessionDB.connectionName())
+            .arg(m_db.connectionName())
             .arg(query.lastError().text());
     return false;
   }
@@ -1120,14 +1126,14 @@ bool DataBaseInterface::createTables() const {
           "FOREIGN KEY(associatedElement) REFERENCES xmlelements(element) )")) {
     m_lastErrorMsg =
         QString("Failed to create attribute values table for \"%1\": [%2]")
-            .arg(m_sessionDB.connectionName())
+            .arg(m_db.connectionName())
             .arg(query.lastError().text());
     return false;
   } else {
     if (!query.exec("CREATE UNIQUE INDEX attributeKey ON xmlattributes( "
                     "attribute, associatedElement)")) {
       m_lastErrorMsg = QString("Failed to create unique index for \"%1\": [%2]")
-                           .arg(m_sessionDB.connectionName())
+                           .arg(m_db.connectionName())
                            .arg(query.lastError().text());
       return false;
     }
@@ -1136,7 +1142,7 @@ bool DataBaseInterface::createTables() const {
   if (!query.exec("CREATE TABLE rootelements( root QString primary key )")) {
     m_lastErrorMsg =
         QString("Failed to create root elements table for \"%1\": [%2]")
-            .arg(m_sessionDB.connectionName())
+            .arg(m_db.connectionName())
             .arg(query.lastError().text());
     return false;
   }
