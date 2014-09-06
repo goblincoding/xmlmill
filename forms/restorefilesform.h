@@ -18,7 +18,8 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ *details.
  *
  * You should have received a copy of the GNU General Public License along with
  * this program (GNUGPL.txt).  If not, see
@@ -31,39 +32,40 @@
 
 #include <QDialog>
 
-namespace Ui
-{
-  class RestoreFilesForm;
+namespace Ui {
+class RestoreFilesForm;
 }
 
-/// Displays recovered files so that the user may decide whether or not he/she wants to save them.
-class RestoreFilesForm : public QDialog
-{
-Q_OBJECT
+/// Displays recovered files so that the user may decide whether or not he/she
+/// wants to save them.
+class RestoreFilesForm : public QDialog {
+  Q_OBJECT
 
 public:
   /*! Constructor. */
-  explicit RestoreFilesForm( const QStringList& tempFiles, QWidget* parent = 0 );
+  explicit RestoreFilesForm(const QStringList &tempFiles, QWidget *parent = 0);
 
   /*! Destructor. */
   ~RestoreFilesForm();
 
-  private slots:
-  /*! Connected to the "Save" button's "clicked()" signal.  Opens a file dialog to "Save As". */
+private slots:
+  /*! Connected to the "Save" button's "clicked()" signal.  Opens a file dialog
+   * to "Save As". */
   void saveFile();
 
-  /*! Connected to the "Discard" button's "clicked()" signal.  Deletes the current temp file at the
-      user's discretion. */
+  /*! Connected to the "Discard" button's "clicked()" signal.  Deletes the
+     current temp file at the user's discretion. */
   void deleteTempFile() const;
 
-  /*! Connected to the "Next" button's "clicked()" signal.  Loads the next temp file (if any). */
+  /*! Connected to the "Next" button's "clicked()" signal.  Loads the next temp
+   * file (if any). */
   void next();
 
 private:
   /*! Loads and displays the current temp file in the text edit. */
-  void loadFile( const QString& fileName );
+  void loadFile(const QString &fileName);
 
-  Ui::RestoreFilesForm* ui;
+  Ui::RestoreFilesForm *ui;
   QStringList m_tempFiles;
   QString m_fileName;
 };

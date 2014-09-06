@@ -18,7 +18,8 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ *details.
  *
  * You should have received a copy of the GNU General Public License along with
  * this program (GNUGPL.txt).  If not, see
@@ -29,23 +30,18 @@
 #include "helpdialog.h"
 #include "ui_helpdialog.h"
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-HelpDialog::HelpDialog( const QString& text, QWidget* parent )
-: QDialog( parent ),
-  ui     ( new Ui::HelpDialog )
-{
-  ui->setupUi( this );
-  ui->textBrowser->setHtml( text );
-  connect( ui->closeButton, SIGNAL( clicked() ), this, SLOT( close() ) );
-  setAttribute( Qt::WA_DeleteOnClose );
+HelpDialog::HelpDialog(const QString &text, QWidget *parent)
+    : QDialog(parent), ui(new Ui::HelpDialog) {
+  ui->setupUi(this);
+  ui->textBrowser->setHtml(text);
+  connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(close()));
+  setAttribute(Qt::WA_DeleteOnClose);
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-HelpDialog::~HelpDialog()
-{
-  delete ui;
-}
+HelpDialog::~HelpDialog() { delete ui; }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/

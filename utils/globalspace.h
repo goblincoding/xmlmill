@@ -18,7 +18,8 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ *details.
  *
  * You should have received a copy of the GNU General Public License along with
  * this program (GNUGPL.txt).  If not, see
@@ -35,80 +36,88 @@
 
 /// Contains values and functions used throughout the application.
 
-namespace GlobalSpace
-{
-  /*--------------------------------------------------------------------------------------*/
+namespace GlobalSpace {
+/*----------------------------------------------------------------------------*/
 
-  /*! Used when saving and loading settings to registry/XML/ini. */
-  const QString ORGANISATION = "GoblinCoding";
+/*! Used when saving and loading settings to registry/XML/ini. */
+const QString ORGANISATION = "GoblinCoding";
 
-  /*! Used when saving and loading settings to registry/XML/ini. */
-  const QString APPLICATION = "XML Mill";
+/*! Used when saving and loading settings to registry/XML/ini. */
+const QString APPLICATION = "XML Mill";
 
-  /*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-  /*! Used by various forms to determine whether or not they must display their "Help" tool buttons. */
-  bool showHelpButtons();
+/*! Used by various forms to determine whether or not they must display their
+ * "Help" tool buttons. */
+bool showHelpButtons();
 
-  /*! Saves the user's "Help" button preference to the registry/ini/xml. */
-  void setShowHelpButtons( bool show );
+/*! Saves the user's "Help" button preference to the registry/ini/xml. */
+void setShowHelpButtons(bool show);
 
-  /*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-  /*! Used by TreeWidgetItem to determine whether or not it should show its element as "verbose". */
-  bool showTreeItemsVerbose();
+/*! Used by TreeWidgetItem to determine whether or not it should show its
+ * element as "verbose". */
+bool showTreeItemsVerbose();
 
-  /*! Saves the user's tree item verbosity preference to the registry/ini/xml. */
-  void setShowTreeItemsVerbose( bool show );
+/*! Saves the user's tree item verbosity preference to the registry/ini/xml. */
+void setShowTreeItemsVerbose(bool show);
 
-  /*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-  /*! Returns the last directory that the user navigated to through dialogs, etc. */
-  QString lastUserSelectedDirectory();
+/*! Returns the last directory that the user navigated to through dialogs, etc.
+ */
+QString lastUserSelectedDirectory();
 
-  /*! Saves the last directory the user navigated to through dialogs, etc to the registry/ini/xml. */
-  void setLastUserSelectedDirectory( const QString& dir );
+/*! Saves the last directory the user navigated to through dialogs, etc to the
+ * registry/ini/xml. */
+void setLastUserSelectedDirectory(const QString &dir);
 
-  /*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-  /*! Returns the window geometry settings. */
-  QByteArray windowGeometry();
+/*! Returns the window geometry settings. */
+QByteArray windowGeometry();
 
-  /*! Saves the window geometry settings to the registry/ini/xml. */
-  void setWindowGeometry( const QByteArray& geometry );
+/*! Saves the window geometry settings to the registry/ini/xml. */
+void setWindowGeometry(const QByteArray &geometry);
 
-  /*! Returns the window state settings. */
-  QByteArray windowState();
+/*! Returns the window state settings. */
+QByteArray windowState();
 
-  /*! Saves the window state settings to the registry/ini/xml. */
-  void setWindowState( const QByteArray& state );
+/*! Saves the window state settings to the registry/ini/xml. */
+void setWindowState(const QByteArray &state);
 
-  /*! Deletes all saved window state and geometry information from the registry. */
-  void removeWindowInfo();
+/*! Deletes all saved window state and geometry information from the registry.
+ */
+void removeWindowInfo();
 
-  /*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-  /*! Returns "true" if the application needs to have the dark theme set. */
-  bool useDarkTheme();
+/*! Returns "true" if the application needs to have the dark theme set. */
+bool useDarkTheme();
 
-  /*! Saves the dark theme state to the registry/ini/xml. */
-  void setUseDarkTheme( bool use );
+/*! Saves the dark theme state to the registry/ini/xml. */
+void setUseDarkTheme(bool use);
 
-  /*! Returns "true" if the application needs to save window settings. */
-  bool useWindowSettings();
+/*! Returns "true" if the application needs to save window settings. */
+bool useWindowSettings();
 
-  /*! Saves the windows settings state to the registry/ini/xml. */
-  void setUseWindowSettings( bool use );
+/*! Saves the windows settings state to the registry/ini/xml. */
+void setUseWindowSettings(bool use);
 
-  /*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-  /*! Default font for displaying XML content (directly or via table and tree views). */
-  const QString FONT = "Courier New";
+/*! Default font for displaying XML content (directly or via table and tree
+ * views). */
+const QString FONT = "Courier New";
 
-  /*! Default font size for displaying XML content (directly or via table and tree views). */
-  const int FONTSIZE = 10;
+/*! Default font size for displaying XML content (directly or via table and tree
+ * views). */
+const int FONTSIZE = 10;
 
-  /*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
+
+const QString DB_NAME = "profiles.db";
 }
 
 #endif // GLOBALS_H

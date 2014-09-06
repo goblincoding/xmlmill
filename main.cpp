@@ -18,7 +18,8 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ *details.
  *
  * You should have received a copy of the GNU General Public License along with
  * this program (GNUGPL.txt).  If not, see
@@ -34,28 +35,25 @@
 #include "mainwindow.h"
 #include "utils/globalspace.h"
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-QString styleSheet()
-{
-  QFile file( ":resources/dark.txt" );
-  file.open( QIODevice::ReadOnly | QIODevice::Text );
-  QTextStream stream( &file );
+QString styleSheet() {
+  QFile file(":resources/dark.txt");
+  file.open(QIODevice::ReadOnly | QIODevice::Text);
+  QTextStream stream(&file);
   QString style = stream.readAll();
   file.close();
 
   return style;
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-int main( int ar, char* argv[] )
-{
-  QApplication a( ar, argv );
+int main(int ar, char *argv[]) {
+  QApplication a(ar, argv);
 
-  if( GlobalSpace::useDarkTheme() )
-  {
-    a.setStyleSheet( styleSheet() );
+  if (GlobalSpace::useDarkTheme()) {
+    a.setStyleSheet(styleSheet());
   }
 
   MainWindow w;
@@ -64,4 +62,4 @@ int main( int ar, char* argv[] )
   return a.exec();
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/

@@ -18,7 +18,8 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ *details.
  *
  * You should have received a copy of the GNU General Public License along with
  * this program (GNUGPL.txt).  If not, see
@@ -28,35 +29,31 @@
 
 #include "combobox.h"
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-ComboBox::ComboBox( QWidget* parent )
-: QComboBox( parent ) {}
+ComboBox::ComboBox(QWidget *parent) : QComboBox(parent) {}
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void ComboBox::mousePressEvent( QMouseEvent* e )
-{
-  QComboBox::mousePressEvent( e );
-  emit activated( currentIndex() );
+void ComboBox::mousePressEvent(QMouseEvent *e) {
+  QComboBox::mousePressEvent(e);
+  emit activated(currentIndex());
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void ComboBox::focusInEvent( QFocusEvent* e )
-{
-  QComboBox::focusInEvent( e );
-  emit activated( currentIndex() );
+void ComboBox::focusInEvent(QFocusEvent *e) {
+  QComboBox::focusInEvent(e);
+  emit activated(currentIndex());
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void ComboBox::focusOutEvent( QFocusEvent* e )
-{
+void ComboBox::focusOutEvent(QFocusEvent *e) {
   /* So that the user does not have to press "Enter" when manually changing or
     adding an attribute value. */
-  QComboBox::focusOutEvent( e );
-  emit currentIndexChanged( currentText() );
+  QComboBox::focusOutEvent(e);
+  emit currentIndexChanged(currentText());
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/

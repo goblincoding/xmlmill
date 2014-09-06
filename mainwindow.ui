@@ -228,7 +228,7 @@
      <x>0</x>
      <y>0</y>
      <width>1099</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDatabase">
@@ -251,12 +251,8 @@
      <addaction name="actionAddItems"/>
      <addaction name="actionRemoveItems"/>
     </widget>
-    <addaction name="actionSwitchSessionDatabase"/>
     <addaction name="separator"/>
     <addaction name="actionImportXMLToDatabase"/>
-    <addaction name="actionAddNewDatabase"/>
-    <addaction name="actionAddExistingDatabase"/>
-    <addaction name="actionRemoveDatabase"/>
     <addaction name="separator"/>
     <addaction name="menuAddItems"/>
     <addaction name="separator"/>
@@ -315,11 +311,7 @@
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
    <addaction name="separator"/>
-   <addaction name="actionSwitchSessionDatabase"/>
    <addaction name="actionImportXMLToDatabase"/>
-   <addaction name="actionAddExistingDatabase"/>
-   <addaction name="actionAddNewDatabase"/>
-   <addaction name="actionRemoveDatabase"/>
    <addaction name="separator"/>
    <addaction name="actionHelpContents"/>
    <addaction name="separator"/>

@@ -18,7 +18,8 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ *details.
  *
  * You should have received a copy of the GNU General Public License along with
  * this program (GNUGPL.txt).  If not, see
@@ -33,64 +34,56 @@
 #include <QMessageBox>
 #include <QTextBlock>
 
-/*-------------------------------- NON MEMBER FUNCTIONS --------------------------------*/
+/*-------------------------------- NON MEMBER FUNCTIONS
+ * --------------------------------*/
 
-bool lessThan( TreeWidgetItem* lhs, TreeWidgetItem* rhs )
-{
-  return ( lhs->index() < rhs->index() );
+bool lessThan(TreeWidgetItem *lhs, TreeWidgetItem *rhs) {
+  return (lhs->index() < rhs->index());
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-bool greaterThan( TreeWidgetItem* lhs, TreeWidgetItem* rhs )
-{
-  return ( lhs->index() > rhs->index() );
+bool greaterThan(TreeWidgetItem *lhs, TreeWidgetItem *rhs) {
+  return (lhs->index() > rhs->index());
 }
 
-/*---------------------------------- MEMBER FUNCTIONS ----------------------------------*/
+/*---------------------------------- MEMBER FUNCTIONS
+ * ----------------------------------*/
 
-SearchForm::SearchForm( const QList< TreeWidgetItem* >& items, QPlainTextEdit* textEdit, QWidget* parent )
-: QDialog          ( parent ),
-  ui               ( new Ui::SearchForm ),
-  m_text           ( textEdit ),
-  m_savedBackground(),
-  m_savedForeground(),
-  m_wasFound       ( false ),
-  m_searchUp       ( false ),
-  m_firstRun       ( true ),
-  m_previousIndex  ( -1 ),
-  m_searchFlags    ( 0 ),
-  m_items          ( items )
-{
-  ui->setupUi( this );
+SearchForm::SearchForm(const QList<TreeWidgetItem *> &items,
+                       QPlainTextEdit *textEdit, QWidget *parent)
+    : QDialog(parent), ui(new Ui::SearchForm), m_text(textEdit),
+      m_savedBackground(), m_savedForeground(), m_wasFound(false),
+      m_searchUp(false), m_firstRun(true), m_previousIndex(-1),
+      m_searchFlags(0), m_items(items) {
+  ui->setupUi(this);
   ui->lineEdit->setFocus();
-  //m_text->setText( docContents );
+  // m_text->setText( docContents );
 
-  connect( ui->searchButton, SIGNAL( clicked() ), this, SLOT( search() ) );
-  connect( ui->closeButton, SIGNAL( clicked() ), this, SLOT( close() ) );
+  connect(ui->searchButton, SIGNAL(clicked()), this, SLOT(search()));
+  connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(close()));
 
-  connect( ui->caseSensitiveCheckBox, SIGNAL( clicked() ), this, SLOT( caseSensitive() ) );
-  connect( ui->wholeWordsCheckBox, SIGNAL( clicked() ), this, SLOT( wholeWords() ) );
-  connect( ui->searchUpCheckBox, SIGNAL( clicked() ), this, SLOT( searchUp() ) );
+  connect(ui->caseSensitiveCheckBox, SIGNAL(clicked()), this,
+          SLOT(caseSensitive()));
+  connect(ui->wholeWordsCheckBox, SIGNAL(clicked()), this, SLOT(wholeWords()));
+  connect(ui->searchUpCheckBox, SIGNAL(clicked()), this, SLOT(searchUp()));
 
-  setAttribute( Qt::WA_DeleteOnClose );
+  setAttribute(Qt::WA_DeleteOnClose);
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-SearchForm::~SearchForm()
-{
+SearchForm::~SearchForm() {
   /* The QDomDocument m_doc points at is owned externally. */
   delete ui;
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void SearchForm::search()
-{
+void SearchForm::search() {
   m_firstRun = false;
   QString searchText = ui->lineEdit->text();
-  bool found = m_text->find( searchText, m_searchFlags );
+  bool found = m_text->find(searchText, m_searchFlags);
 
   /* The first time we enter this function, if the text does not exist
     within the document, "found" and "m_wasFound" will both be false.
@@ -98,192 +91,161 @@ void SearchForm::search()
     at least once so that, when we reach the end of the document and "found"
     is once more false, we can reset all indices and flags in order to start
     again from the beginning. */
-  if( ( ( found != m_wasFound ) && m_wasFound ) ||
-      ( !m_wasFound && m_searchUp ) )
-  {
+  if (((found != m_wasFound) && m_wasFound) || (!m_wasFound && m_searchUp)) {
     resetCursor();
-    found = m_text->find( searchText, m_searchFlags );
+    found = m_text->find(searchText, m_searchFlags);
   }
 
-  if( found )
-  {
+  if (found) {
     m_wasFound = true;
 
     /* Highlight the entire node (element, attributes and attribute values)
       in which the match was found. */
-    m_text->moveCursor( QTextCursor::StartOfLine );
-    m_text->moveCursor( QTextCursor::EndOfBlock, QTextCursor::KeepAnchor );
+    m_text->moveCursor(QTextCursor::StartOfLine);
+    m_text->moveCursor(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
 
     /* Find all tree widget items whose corresponding element node matches the
       highlighted text. */
     QString nodeText = m_text->textCursor().selectedText().trimmed();
-    QList< TreeWidgetItem* > matchingItems = gatherMatchingItems( nodeText );
+    QList<TreeWidgetItem *> matchingItems = gatherMatchingItems(nodeText);
 
-    if ( !matchingItems.empty() )
-    {
-      if( !m_searchUp )
-      {
+    if (!matchingItems.empty()) {
+      if (!m_searchUp) {
         /* Sort ascending. */
-        qSort( matchingItems.begin(), matchingItems.end(), lessThan );
-        findMatchingTreeItem( matchingItems, true );
-      }
-      else
-      {
+        qSort(matchingItems.begin(), matchingItems.end(), lessThan);
+        findMatchingTreeItem(matchingItems, true);
+      } else {
         /* Sort descending. */
-        qSort( matchingItems.begin(), matchingItems.end(), greaterThan );
-        findMatchingTreeItem( matchingItems, false );
+        qSort(matchingItems.begin(), matchingItems.end(), greaterThan);
+        findMatchingTreeItem(matchingItems, false);
       }
-    }
-    else
-    {
+    } else {
       highlightFind();
     }
-  }
-  else
-  {
-    QMessageBox::information( this, "Not Found", QString( "Can't find the text:\"%1\"" ).arg( searchText ) );
+  } else {
+    QMessageBox::information(
+        this, "Not Found",
+        QString("Can't find the text:\"%1\"").arg(searchText));
   }
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void SearchForm::resetCursor()
-{
+void SearchForm::resetCursor() {
   /* Reset cursor so that we may keep cycling through the document content. */
-  if( ui->searchUpCheckBox->isChecked() )
-  {
-    m_text->moveCursor( QTextCursor::End );
-    QMessageBox::information( this, "Reached Top", "Search reached top, continuing at bottom." );
+  if (ui->searchUpCheckBox->isChecked()) {
+    m_text->moveCursor(QTextCursor::End);
+    QMessageBox::information(this, "Reached Top",
+                             "Search reached top, continuing at bottom.");
     m_previousIndex = 9999999;
-  }
-  else
-  {
-    m_text->moveCursor( QTextCursor::Start );
-    QMessageBox::information( this, "Reached Bottom", "Search reached bottom, continuing at top." );
+  } else {
+    m_text->moveCursor(QTextCursor::Start);
+    QMessageBox::information(this, "Reached Bottom",
+                             "Search reached bottom, continuing at top.");
     m_previousIndex = -1;
   }
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void SearchForm::searchUp()
-{
-  /* If the user ticks the "Search Up" box before anything else, we need to set the
-    previous index to a large value to ensure we start at the very bottom. */
-  if( m_firstRun )
-  {
+void SearchForm::searchUp() {
+  /* If the user ticks the "Search Up" box before anything else, we need to set
+    the previous index to a large value to ensure we start at the very bottom. */
+  if (m_firstRun) {
     m_previousIndex = 9999999;
   }
 
-  if( ui->searchUpCheckBox->isChecked() )
-  {
+  if (ui->searchUpCheckBox->isChecked()) {
     m_searchFlags |= QTextDocument::FindBackward;
     m_searchUp = true;
-  }
-  else
-  {
+  } else {
     m_searchFlags ^= QTextDocument::FindBackward;
     m_searchUp = false;
   }
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void SearchForm::caseSensitive()
-{
+void SearchForm::caseSensitive() {
   /* Reset found flag every time the user changes the search options. */
   m_wasFound = false;
 
-  if( ui->caseSensitiveCheckBox->isChecked() )
-  {
+  if (ui->caseSensitiveCheckBox->isChecked()) {
     m_searchFlags |= QTextDocument::FindCaseSensitively;
-  }
-  else
-  {
+  } else {
     m_searchFlags ^= QTextDocument::FindCaseSensitively;
   }
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void SearchForm::wholeWords()
-{
+void SearchForm::wholeWords() {
   /* Reset found flag every time the user changes the search options. */
   m_wasFound = false;
 
-  if( ui->wholeWordsCheckBox->isChecked() )
-  {
+  if (ui->wholeWordsCheckBox->isChecked()) {
     m_searchFlags |= QTextDocument::FindWholeWords;
-  }
-  else
-  {
+  } else {
     m_searchFlags ^= QTextDocument::FindWholeWords;
   }
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-QList< TreeWidgetItem* > SearchForm::gatherMatchingItems( const QString& nodeText )
-{
-  QList< TreeWidgetItem* > matchingItems;
+QList<TreeWidgetItem *>
+SearchForm::gatherMatchingItems(const QString &nodeText) {
+  QList<TreeWidgetItem *> matchingItems;
 
-  for( int i = 0; i < m_items.size(); ++i )
-  {
-    TreeWidgetItem* treeItem = m_items.at( i );
+  for (int i = 0; i < m_items.size(); ++i) {
+    TreeWidgetItem *treeItem = m_items.at(i);
 
-    if( treeItem->toString() == nodeText )
-    {
-      matchingItems.append( treeItem );
+    if (treeItem->toString() == nodeText) {
+      matchingItems.append(treeItem);
     }
   }
 
   return matchingItems;
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void SearchForm::findMatchingTreeItem( const QList< TreeWidgetItem* > matchingItems, bool ascending )
-{
-  for( int i = 0; i < matchingItems.size(); ++i )
-  {
-    TreeWidgetItem* treeItem = matchingItems.at( i );
+void
+SearchForm::findMatchingTreeItem(const QList<TreeWidgetItem *> matchingItems,
+                                 bool ascending) {
+  for (int i = 0; i < matchingItems.size(); ++i) {
+    TreeWidgetItem *treeItem = matchingItems.at(i);
 
-    if( ( ascending && treeItem->index() > m_previousIndex ) ||
-        ( !ascending && treeItem->index() < m_previousIndex ) )
-    {
+    if ((ascending && treeItem->index() > m_previousIndex) ||
+        (!ascending && treeItem->index() < m_previousIndex)) {
       m_previousIndex = treeItem->index();
       resetHighlights();
-      emit foundItem( treeItem );
+      emit foundItem(treeItem);
       break;
     }
   }
 
-  if( ui->searchButton->text() == "Search" )
-  {
-    ui->searchButton->setText( "Next" );
+  if (ui->searchButton->text() == "Search") {
+    ui->searchButton->setText("Next");
   }
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void SearchForm::resetHighlights()
-{
-  QList< QTextEdit::ExtraSelection > extras = m_text->extraSelections();
+void SearchForm::resetHighlights() {
+  QList<QTextEdit::ExtraSelection> extras = m_text->extraSelections();
 
-  for( int i = 0; i < extras.size(); ++i )
-  {
-    extras[ i ].format.setProperty( QTextFormat::FullWidthSelection, true );
-    extras[ i ].format.setBackground( m_savedBackground );
-    extras[ i ].format.setForeground( m_savedForeground );
+  for (int i = 0; i < extras.size(); ++i) {
+    extras[i].format.setProperty(QTextFormat::FullWidthSelection, true);
+    extras[i].format.setBackground(m_savedBackground);
+    extras[i].format.setForeground(m_savedForeground);
   }
 
-  m_text->setExtraSelections( extras );
+  m_text->setExtraSelections(extras);
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void SearchForm::highlightFind()
-{
+void SearchForm::highlightFind() {
   /* First we reset all previous selections. */
   resetHighlights();
 
@@ -293,12 +255,12 @@ void SearchForm::highlightFind()
 
   QTextEdit::ExtraSelection extra;
   extra.cursor = m_text->textCursor();
-  extra.format.setBackground( QApplication::palette().highlight() );
-  extra.format.setForeground( QApplication::palette().highlightedText() );
+  extra.format.setBackground(QApplication::palette().highlight());
+  extra.format.setForeground(QApplication::palette().highlightedText());
 
-  QList< QTextEdit::ExtraSelection > extras;
+  QList<QTextEdit::ExtraSelection> extras;
   extras << extra;
-  m_text->setExtraSelections( extras );
+  m_text->setExtraSelections(extras);
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/

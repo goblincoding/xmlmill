@@ -18,7 +18,8 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ *details.
  *
  * You should have received a copy of the GNU General Public License along with
  * this program (GNUGPL.txt).  If not, see
@@ -32,9 +33,8 @@
 #include <QDialog>
 #include <QDomElement>
 
-namespace Ui
-{
-  class AddSnippetsForm;
+namespace Ui {
+class AddSnippetsForm;
 }
 
 class TreeWidgetItem;
@@ -42,72 +42,80 @@ class QTableWidgetItem;
 
 /// Allows the user to add whole snippets to the active document.
 
-/**
-  This form allows the user to add multiple XML snippets of the same structure to the current
-  document (with whichever default values the user specifies).  It furthermore allows for the
-  option to increment the default values for each snippet (i.e. if the user specifies "1" as
-  an attribute value with the option to increment, then the next snippet generated will have
-  "2" as the value for the same attribute and so on and so forth (strings will have the
-  incremented value appended to the name).  Only one element of each type can be inserted into
-  any specific snippet as it makes no sense to insert multiple elements of the same type - for
-  those use cases the user must create a smaller snippet subset.
+/** This form allows the user to add multiple XML snippets of the same structure
+  to the current document (with whichever default values the user specifies).
+  It furthermore allows for the option to increment the default values for each
+  snippet (i.e. if the user specifies "1" as an attribute value with the option
+  to increment, then the next snippet generated will have "2" as the value for
+  the same attribute and so on and so forth (strings will have the incremented
+  value appended to the name).  Only one element of each type can be inserted
+  into any specific snippet as it makes no sense to insert multiple elements of
+  the same type - for those use cases the user must create a smaller snippet
+  subset.
 
-  Also, the Qt::WA_DeleteOnClose flag is set for all instances of this form.  If you're
-  unfamiliar with Qt, this means that Qt will delete this widget as soon as the widget
-  accepts the close event (i.e. you don't need to worry about clean-up of dynamically
-  created instances of this object).
+  Also, the Qt::WA_DeleteOnClose flag is set for all instances of this form.  If
+  you're unfamiliar with Qt, this means that Qt will delete this widget as soon
+  as the widget accepts the close event (i.e. you don't need to worry about
+  clean-up of dynamically created instances of this object).
 */
-class AddSnippetsForm : public QDialog
-{
-Q_OBJECT
+class AddSnippetsForm : public QDialog {
+  Q_OBJECT
 
 public:
   /*! Constructor.
-      @param elementName - the name of the element that will form the basis of the snippet, i.e. this
-                           element will be at the top of the snippet's DOM hierarchy.
-      @param parentItem - the tree item and corresponding element in the active document to which the
-                          snippet will be added. */
-  explicit AddSnippetsForm( const QString& elementName, TreeWidgetItem* parentItem, QWidget* parent = 0 );
+      @param elementName - the name of the element that will form the basis of
+      the snippet, i.e. this element will be at the top of the snippet's DOM
+     hierarchy.
+      @param parentItem - the tree item and corresponding element in the active
+      document to which the snippet will be added. */
+  explicit AddSnippetsForm(const QString &elementName,
+                           TreeWidgetItem *parentItem, QWidget *parent = 0);
 
   /*! Destructor. */
   ~AddSnippetsForm();
 
 signals:
-  /*! Informs the listener that a new snippet has been added. The TreeWidgetItem thus emitted
-      is the item to which the snippet must be added and the QDomElement is the element corresponding
-      to this item.  As always, we depend on QDomElement's shallow copy constructor. The TreeWidgetItem
-      thus emitted is not owned by this class, but is the same one that was passed in as constructor argument. */
-  void snippetAdded( TreeWidgetItem* parent, QDomElement elementToAdd );
+  /*! Informs the listener that a new snippet has been added. The TreeWidgetItem
+   * thus emitted is the item to which the snippet must be added and the
+   * QDomElement is the element corresponding to this item.  As always, we
+   * depend on QDomElement's shallow copy constructor. The TreeWidgetItem thus
+   * emitted is not owned by this class, but is the same one that was passed in
+   * as constructor argument. */
+  void snippetAdded(TreeWidgetItem *parent, QDomElement elementToAdd);
 
-  private slots:
-  /*! Triggered when an element is selected in the tree widget.  This function populates the attributes
-      table with the known attributes and values associated with the selected element. */
-  void elementSelected( TreeWidgetItem* item, int column );
+private slots:
+  /*! Triggered when an element is selected in the tree widget.  This function
+   * populates the attributes table with the known attributes and values
+   * associated with the selected element. */
+  void elementSelected(TreeWidgetItem *item, int column);
 
-  /*! Triggered whenever a user clicks on an attribute in the attribute table, or changes an attribute's
-      "include" state. */
-  void attributeChanged( QTableWidgetItem* item ) const;
+  /*! Triggered whenever a user clicks on an attribute in the attribute table,
+   * or changes an attribute's "include" state. */
+  void attributeChanged(QTableWidgetItem *item) const;
 
   /*! Triggered whenever an attribute's value changes. */
   void attributeValueChanged() const;
 
-  /*! Triggered whenever the "Add" button is clicked.  This function builds the snippet(s) that must
-      be added to the active document and furthermore informs all listeners that a snippet has been added
-      via the "snippetAdded" signal. */
+  /*! Triggered whenever the "Add" button is clicked.  This function builds the
+   * snippet(s) that must be added to the active document and furthermore
+   * informs all listeners that a snippet has been added via the "snippetAdded"
+   * signal. */
   void addSnippet();
 
   /*! Displays help information for this form. */
   void showHelp();
 
 private:
-  /*! Whenever a user checks or unchecks an element to include or exclude it from the snippet being built,
-      the element's parent(s) and children need to be updated accordingly.  I.e. including/excluding an
-      element must also include/exclude all of its children (and their children, etc) as well as its parent
-      (and its parent's parent, etc), for a smooth and intuitive user experience. */
-  void updateCheckStates( TreeWidgetItem* item ) const;
+  /*! Whenever a user checks or unchecks an element to include or exclude it
+   * from the snippet being built, the element's parent(s) and children need to
+   * be updated accordingly.  I.e. including/excluding an element must also
+   * include/exclude all of its children (and their children, etc) as well as
+   * its parent (and its parent's parent, etc), for a smooth and intuitive user
+   * experience. */
+  void updateCheckStates(TreeWidgetItem *item) const;
 
-  Ui::AddSnippetsForm* ui;
-  TreeWidgetItem* m_parentItem;
+  Ui::AddSnippetsForm *ui;
+  TreeWidgetItem *m_parentItem;
   bool m_treeItemActivated;
 };
 

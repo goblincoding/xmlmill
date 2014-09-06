@@ -48,7 +48,6 @@ SOURCES += main.cpp\
     forms/searchform.cpp \
     forms/additemsform.cpp \
     forms/removeitemsform.cpp \
-    db/dbsessionmanager.cpp \
     forms/restorefilesform.cpp \
     utils/globalspace.cpp \
     utils/domtreewidget.cpp \
@@ -67,7 +66,6 @@ HEADERS  += \
     forms/searchform.h \
     forms/additemsform.h \
     forms/removeitemsform.h \
-    db/dbsessionmanager.h \
     forms/restorefilesform.h \
     utils/globalspace.h \
     utils/domtreewidget.h \
@@ -82,7 +80,6 @@ FORMS    += \
     forms/searchform.ui \
     forms/removeitemsform.ui \
     forms/additemsform.ui \
-    db/dbsessionmanager.ui \
     forms/restorefilesform.ui \
     forms/addsnippetsform.ui
 

@@ -73,10 +73,6 @@ public:
   /*! Singleton accessor. */
   static DataBaseInterface *instance();
 
-  /*! \warning Call this function before using this interface for the first time
-     to ensure that the known databases were initialised successfully. */
-  bool isInitialised() const;
-
   /*! Batch process an entire DOM document.  This function processes an entire
      DOM document by adding new (or updating existing) elements with their
      corresponding first level children and associated attributes and known
@@ -201,27 +197,9 @@ public:
      elements known to the the active database. */
   QStringList knownRootElements() const;
 
-  /*! Returns a list of all known database connections. */
-  QStringList connectionList() const;
 
   /*! Returns the last known error message. */
   const QString &lastError() const;
-
-  /*! Returns the active database session if one exists, or an empty string if
-     not.
-      \sa hasActiveSession */
-  QString activeSessionName() const;
-
-public slots:
-  /*! Sets the database connection corresponding to "dbName" as the active
-   * database. */
-  bool setActiveDatabase(const QString &dbName);
-
-  /*! Adds "dbName" to the list of known database connections. */
-  bool addDatabase(const QString &dbName);
-
-  /*! Removes "dbName" from the list of known database connections. */
-  bool removeDatabase(const QString &dbName);
 
 private:
   static DataBaseInterface *m_instance;
@@ -269,19 +247,13 @@ private:
 
   /*! Opens the database connection corresponding to "dbConName".  This function
      will also close current sessions (if any) before opening the new one. */
-  bool openConnection(const QString &dbConName);
+  bool openConnection();
 
   /*! Creates all the relevant database tables. */
   bool createTables() const;
 
-  /*! Saves the list of known databases to a text file. */
-  void saveDatabaseFile() const;
-
   QSqlDatabase m_sessionDB;
   mutable QString m_lastErrorMsg;
-  bool m_hasActiveSession;
-  bool m_initialised;
-  QMap<QString /*connection name*/, QString /*file name*/> m_dbMap;
 };
 
 #endif // DATABASEINTERFACE_H

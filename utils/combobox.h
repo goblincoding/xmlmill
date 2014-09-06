@@ -18,7 +18,8 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ *details.
  *
  * You should have received a copy of the GNU General Public License along with
  * this program (GNUGPL.txt).  If not, see
@@ -33,28 +34,27 @@
 
 /// A custom combo box providing additional user selection information.
 
-/** The only reason this class exists is so that we may know when a combo box is activated.
-    Initially I understood that the "activated" signal is emitted when a user clicks on
-    a QComboBox (e.g. when the dropdown is expanded), but it turns out that this is not the
-    case.
-*/
-class ComboBox : public QComboBox
-{
-Q_OBJECT
+/** The only reason this class exists is so that we may know when a combo box is
+ * activated. Initially I understood that the "activated" signal is emitted when
+ * a user clicks on a QComboBox (e.g. when the dropdown is expanded), but it
+ * turns out that this is not the case. */
+class ComboBox : public QComboBox {
+  Q_OBJECT
 
 public:
   /*! Constructor. */
-  explicit ComboBox( QWidget* parent = 0 );
+  explicit ComboBox(QWidget *parent = 0);
 
 protected:
   /*! Re-eimplemented from QComboBox to emit the activated(int) signal. */
-  void mousePressEvent( QMouseEvent* e );
+  void mousePressEvent(QMouseEvent *e);
 
   /*! Re-eimplemented from QComboBox to emit the activated(int) signal. */
-  void focusInEvent( QFocusEvent* e );
+  void focusInEvent(QFocusEvent *e);
 
-  /*! Re-eimplemented from QComboBox to emit the currentIndexChanged(QString) signal. */
-  void focusOutEvent( QFocusEvent* e );
+  /*! Re-eimplemented from QComboBox to emit the currentIndexChanged(QString)
+   * signal. */
+  void focusOutEvent(QFocusEvent *e);
 };
 
 #endif // COMBOBOX_H

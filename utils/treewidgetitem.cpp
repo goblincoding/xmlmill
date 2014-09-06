@@ -18,7 +18,8 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ *details.
  *
  * You should have received a copy of the GNU General Public License along with
  * this program (GNUGPL.txt).  If not, see
@@ -28,24 +29,19 @@
 #include "treewidgetitem.h"
 #include "globalspace.h"
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-TreeWidgetItem::TreeWidgetItem( QDomElement element )
-{
-  init( element, -1 );
+TreeWidgetItem::TreeWidgetItem(QDomElement element) { init(element, -1); }
+
+/*----------------------------------------------------------------------------*/
+
+TreeWidgetItem::TreeWidgetItem(QDomElement element, int index) {
+  init(element, index);
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-TreeWidgetItem::TreeWidgetItem( QDomElement element, int index )
-{
-  init( element, index );
-}
-
-/*--------------------------------------------------------------------------------------*/
-
-void TreeWidgetItem::init( QDomElement element, int index )
-{
+void TreeWidgetItem::init(QDomElement element, int index) {
   m_element = element;
   m_elementExcluded = false;
   m_index = index;
@@ -53,266 +49,214 @@ void TreeWidgetItem::init( QDomElement element, int index )
 
   QDomNamedNodeMap attributes = m_element.attributes();
 
-  for( int i = 0; i < attributes.size(); ++i )
-  {
-    m_includedAttributes.append( attributes.item( i ).toAttr().name() );
+  for (int i = 0; i < attributes.size(); ++i) {
+    m_includedAttributes.append(attributes.item(i).toAttr().name());
   }
 
   setDisplayText();
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void TreeWidgetItem::setDisplayText()
-{
-  if( m_verbose )
-  {
-    setText( 0, toString() );
-    setToolTip( 0, "" );
-  }
-  else
-  {
-    setText( 0, m_element.tagName() );
-    setToolTip( 0, toString() );
+void TreeWidgetItem::setDisplayText() {
+  if (m_verbose) {
+    setText(0, toString());
+    setToolTip(0, "");
+  } else {
+    setText(0, m_element.tagName());
+    setToolTip(0, toString());
   }
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-TreeWidgetItem* TreeWidgetItem::Parent() const
-{
-  return dynamic_cast< TreeWidgetItem* >( parent() );
+TreeWidgetItem *TreeWidgetItem::Parent() const {
+  return dynamic_cast<TreeWidgetItem *>(parent());
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-TreeWidgetItem* TreeWidgetItem::Child( int index ) const
-{
-  return dynamic_cast< TreeWidgetItem* >( child( index ) );
+TreeWidgetItem *TreeWidgetItem::Child(int index) const {
+  return dynamic_cast<TreeWidgetItem *>(child(index));
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-QDomElement TreeWidgetItem::element() const
-{
-  return m_element;
-}
+QDomElement TreeWidgetItem::element() const { return m_element; }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void TreeWidgetItem::setExcludeElement( bool exclude )
-{
-  if( Parent() )
-  {
-    if( exclude )
-    {
-      Parent()->element().removeChild( m_element );
-    }
-    else
-    {
-      Parent()->element().appendChild( m_element );
+void TreeWidgetItem::setExcludeElement(bool exclude) {
+  if (Parent()) {
+    if (exclude) {
+      Parent()->element().removeChild(m_element);
+    } else {
+      Parent()->element().appendChild(m_element);
     }
   }
 
   m_elementExcluded = exclude;
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-bool TreeWidgetItem::elementExcluded() const
-{
-  return m_elementExcluded;
-}
+bool TreeWidgetItem::elementExcluded() const { return m_elementExcluded; }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void TreeWidgetItem::excludeAttribute( const QString& attribute )
-{
-  m_element.removeAttribute( attribute );
-  m_includedAttributes.removeAll( attribute );
+void TreeWidgetItem::excludeAttribute(const QString &attribute) {
+  m_element.removeAttribute(attribute);
+  m_includedAttributes.removeAll(attribute);
   m_includedAttributes.sort();
   setDisplayText();
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void TreeWidgetItem::includeAttribute( const QString& attribute, const QString& value )
-{
-  m_element.setAttribute( attribute, value );
-  m_includedAttributes.append( attribute );
+void TreeWidgetItem::includeAttribute(const QString &attribute,
+                                      const QString &value) {
+  m_element.setAttribute(attribute, value);
+  m_includedAttributes.append(attribute);
   m_includedAttributes.removeDuplicates();
   m_includedAttributes.sort();
   setDisplayText();
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-bool TreeWidgetItem::attributeIncluded( const QString& attribute ) const
-{
-  return m_includedAttributes.contains( attribute );
+bool TreeWidgetItem::attributeIncluded(const QString &attribute) const {
+  return m_includedAttributes.contains(attribute);
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void TreeWidgetItem::setIncrementAttribute( const QString& attribute, bool increment )
-{
-  if( increment )
-  {
-    m_incrementedAttributes.append( attribute );
-  }
-  else
-  {
-    m_incrementedAttributes.removeAll( attribute );
+void TreeWidgetItem::setIncrementAttribute(const QString &attribute,
+                                           bool increment) {
+  if (increment) {
+    m_incrementedAttributes.append(attribute);
+  } else {
+    m_incrementedAttributes.removeAll(attribute);
   }
 
   m_incrementedAttributes.sort();
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-bool TreeWidgetItem::incrementAttribute( const QString& attribute ) const
-{
-  return m_incrementedAttributes.contains( attribute );
+bool TreeWidgetItem::incrementAttribute(const QString &attribute) const {
+  return m_incrementedAttributes.contains(attribute);
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void TreeWidgetItem::fixAttributeValues()
-{
+void TreeWidgetItem::fixAttributeValues() {
   m_fixedValues.clear();
 
   QDomNamedNodeMap attributes = m_element.attributes();
 
-  for( int i = 0; i < attributes.size(); ++i )
-  {
-    QDomAttr attribute = attributes.item( i ).toAttr();
-    m_fixedValues.insert( attribute.name(), attribute.value() );
+  for (int i = 0; i < attributes.size(); ++i) {
+    QDomAttr attribute = attributes.item(i).toAttr();
+    m_fixedValues.insert(attribute.name(), attribute.value());
   }
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-QString TreeWidgetItem::fixedValue( const QString& attribute ) const
-{
-  return m_fixedValues.value( attribute, QString() );
+QString TreeWidgetItem::fixedValue(const QString &attribute) const {
+  return m_fixedValues.value(attribute, QString());
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void TreeWidgetItem::revertToFixedValues()
-{
-  foreach( QString attribute, m_fixedValues.keys() )
-  {
-    m_element.setAttribute( attribute, m_fixedValues.value( attribute ) );
+void TreeWidgetItem::revertToFixedValues() {
+  foreach(QString attribute, m_fixedValues.keys()) {
+    m_element.setAttribute(attribute, m_fixedValues.value(attribute));
   }
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-QString TreeWidgetItem::toString() const
-{
-  QString text( "<" );
+QString TreeWidgetItem::toString() const {
+  QString text("<");
   text += m_element.tagName();
 
   QDomNamedNodeMap attributes = m_element.attributes();
 
   /* For elements with no attributes (e.g. <element/>). */
-  if( attributes.isEmpty() &&
-      m_element.childNodes().isEmpty() )
-  {
+  if (attributes.isEmpty() && m_element.childNodes().isEmpty()) {
     text += "/>";
     return text;
   }
 
-  if( !attributes.isEmpty() )
-  {
-    for( int i = 0; i < attributes.size(); ++i )
-    {
+  if (!attributes.isEmpty()) {
+    for (int i = 0; i < attributes.size(); ++i) {
       text += " ";
 
-      QString attribute = attributes.item( i ).toAttr().name();
+      QString attribute = attributes.item(i).toAttr().name();
       text += attribute;
       text += "=\"";
 
-      QString attributeValue = attributes.item( i ).toAttr().value();
+      QString attributeValue = attributes.item(i).toAttr().value();
       text += attributeValue;
       text += "\"";
     }
 
     /* For elements without children but with attributes. */
-    if( m_element.firstChild().isNull() )
-    {
+    if (m_element.firstChild().isNull()) {
       text += "/>";
-    }
-    else
-    {
+    } else {
       /* For elements with children and attributes. */
       text += ">";
     }
-  }
-  else
-  {
+  } else {
     text += ">";
   }
 
   return text;
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void TreeWidgetItem::setIndex( int index )
-{
-  m_index = index;
-}
+void TreeWidgetItem::setIndex(int index) { m_index = index; }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-int TreeWidgetItem::index() const
-{
-  return m_index;
-}
+int TreeWidgetItem::index() const { return m_index; }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void TreeWidgetItem::rename( const QString& newName )
-{
-  m_element.setTagName( newName );
+void TreeWidgetItem::rename(const QString &newName) {
+  m_element.setTagName(newName);
   setDisplayText();
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-QString TreeWidgetItem::name() const
-{
-  if( !m_element.isNull() )
-  {
+QString TreeWidgetItem::name() const {
+  if (!m_element.isNull()) {
     return m_element.tagName();
   }
 
-  return QString( "" );
+  return QString("");
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void TreeWidgetItem::setVerbose( bool verbose )
-{
+void TreeWidgetItem::setVerbose(bool verbose) {
   m_verbose = verbose;
   setDisplayText();
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
-void TreeWidgetItem::insertGcChild( int index, TreeWidgetItem* item )
-{
-  QTreeWidgetItem::insertChild( index + 1, item );
+void TreeWidgetItem::insertGcChild(int index, TreeWidgetItem *item) {
+  QTreeWidgetItem::insertChild(index + 1, item);
 
   QDomElement siblingElement = m_element.firstChildElement();
   int counter = 0;
 
-  while( !siblingElement.isNull() )
-  {
-    if( counter == index )
-    {
+  while (!siblingElement.isNull()) {
+    if (counter == index) {
       break;
     }
 
@@ -320,7 +264,7 @@ void TreeWidgetItem::insertGcChild( int index, TreeWidgetItem* item )
     siblingElement = siblingElement.nextSiblingElement();
   }
 
-  m_element.insertAfter( item->element(), siblingElement );
+  m_element.insertAfter(item->element(), siblingElement);
 }
 
-/*--------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
