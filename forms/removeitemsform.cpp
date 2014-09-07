@@ -97,10 +97,10 @@ void RemoveItemsForm::elementSelected(TreeWidgetItem *item, int column) {
       ui->deleteElementButton->setEnabled(true);
     }
 
-    QStringList attributes = m_db.attributes(m_currentElement);
+//    QStringList attributes = m_db.attributes(m_currentElement);
 
-    ui->comboBox->clear();
-    ui->comboBox->addItems(attributes);
+//    ui->comboBox->clear();
+//    ui->comboBox->addItems(attributes);
   }
 }
 
@@ -128,28 +128,28 @@ void RemoveItemsForm::deleteElement(const QString &element) {
    * (set in "elementSelected"). */
   QString currentElement = (element.isEmpty()) ? m_currentElement : element;
 
-  QStringList children = m_db.children(currentElement);
+  //QStringList children = m_db.children(currentElement);
   m_deletedElements.clear();
 
   /* Attributes and values must be removed before we can remove elements and we
    * must also ensure that children are removed before their parents.  To
    * achieve this, we need to ensure that we clean the element tree from "the
    * bottom up". */
-  if (!children.isEmpty()) {
-    foreach(QString child, children) {
-      if (m_db.isUniqueChildElement(currentElement, child)) {
-        deleteElement(child);
-      }
-    }
-  }
+//  if (!children.isEmpty()) {
+//    foreach(QString child, children) {
+//      if (m_db.isUniqueChildElement(currentElement, child)) {
+//        deleteElement(child);
+//      }
+//    }
+//  }
 
   /* Remove all the attributes (and their known values) associated with this
    * element. */
-  QStringList attributes = m_db.attributes(currentElement);
+//  QStringList attributes = m_db.attributes(currentElement);
 
-  foreach(QString attribute, attributes) {
-    m_db.removeAttribute(currentElement, attribute);
-  }
+//  foreach(QString attribute, attributes) {
+//    m_db.removeAttribute(currentElement, attribute);
+//  }
 
   /* Now we can remove the element itself. */
   //  if (!m_db.removeElement(currentElement)) {
@@ -175,21 +175,21 @@ void RemoveItemsForm::deleteElement(const QString &element) {
 
 void RemoveItemsForm::removeChildElement() {
   if (!m_currentElementParent.isEmpty()) {
-    m_db.removeChildElement(m_currentElementParent, m_currentElement);
+//    m_db.removeChildElement(m_currentElementParent, m_currentElement);
 
-    if (m_db.isUniqueChildElement(m_currentElementParent, m_currentElement)) {
-      bool accepted = MessageSpace::userAccepted(
-          "RemoveUnlistedElement", "Element not used",
-          QString("\"%1\" is not assigned to any other element (i.e. "
-                  "it isn't used anywhere else in the profile).\n"
-                  "Would you like to remove the element completely?")
-              .arg(m_currentElement),
-          MessageSpace::YesNo, MessageSpace::No, MessageSpace::Question);
+//    if (m_db.isUniqueChildElement(m_currentElementParent, m_currentElement)) {
+//      bool accepted = MessageSpace::userAccepted(
+//          "RemoveUnlistedElement", "Element not used",
+//          QString("\"%1\" is not assigned to any other element (i.e. "
+//                  "it isn't used anywhere else in the profile).\n"
+//                  "Would you like to remove the element completely?")
+//              .arg(m_currentElement),
+//          MessageSpace::YesNo, MessageSpace::No, MessageSpace::Question);
 
-      if (accepted) {
-        deleteElement();
-      }
-    }
+//      if (accepted) {
+//        deleteElement();
+//      }
+//    }
 
     ui->comboBox->clear();
     ui->plainTextEdit->clear();
@@ -224,7 +224,7 @@ void RemoveItemsForm::updateAttributeValues() {
 /*----------------------------------------------------------------------------*/
 
 void RemoveItemsForm::deleteAttribute() {
-  m_db.removeAttribute(m_currentElement, m_currentAttribute);
+  //m_db.removeAttribute(m_currentElement, m_currentAttribute);
 
   /* Purely for cosmetic effect - updates the tree item to reflect the correct
     node text when in "verbose" mode. */
@@ -235,19 +235,19 @@ void RemoveItemsForm::deleteAttribute() {
 /*----------------------------------------------------------------------------*/
 
 void RemoveItemsForm::updateChildLists() {
-  QStringList knownElements = m_db.knownElements();
+//  QStringList knownElements = m_db.knownElements();
 
-  foreach(QString element, knownElements) {
-    QStringList children = m_db.children(element);
+//  foreach(QString element, knownElements) {
+//    QStringList children = m_db.children(element);
 
-    if (!children.isEmpty()) {
-      foreach(QString deletedElement, m_deletedElements) {
-        if (children.contains(deletedElement)) {
-          m_db.removeChildElement(element, deletedElement);
-        }
-      }
-    }
-  }
+//    if (!children.isEmpty()) {
+//      foreach(QString deletedElement, m_deletedElements) {
+//        if (children.contains(deletedElement)) {
+//          m_db.removeChildElement(element, deletedElement);
+//        }
+//      }
+//    }
+//  }
 }
 
 /*----------------------------------------------------------------------------*/

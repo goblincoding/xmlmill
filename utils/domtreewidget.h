@@ -30,6 +30,8 @@
 #ifndef DOMTREEWIDGET_H
 #define DOMTREEWIDGET_H
 
+#include "db/dbinterface.h"
+
 #include <QTreeWidget>
 #include <QDomComment>
 
@@ -120,11 +122,11 @@ public:
 
   /*! Returns true if the underlying DOM document is compatible with the active
    * DB session. */
-  bool documentCompatible() const;
+  bool documentCompatible();
 
   /*! Returns true if batch processing of DOM content to the active DB was
    * successful. */
-  bool batchProcessSuccess() const;
+  bool batchProcessSuccess();
 
   /*! Rebuild the tree to conform to updated DOM content.
       \sa processNextElement */
@@ -297,6 +299,7 @@ private:
   void removeFromList(TreeWidgetItem *item);
 
   TreeWidgetItem *m_activeItem;
+  DB m_db;
   QDomDocument *m_domDoc;
   QDomComment m_commentNode;
   bool m_isEmpty;

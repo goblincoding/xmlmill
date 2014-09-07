@@ -214,115 +214,115 @@ void MainWindow::elementChanged(TreeWidgetItem *item, int column) {
 void MainWindow::elementSelected(TreeWidgetItem *item, int column) {
   Q_UNUSED(column);
 
-  if (item) {
-    /* This flag is set to prevent the functionality in "attributeChanged"
-     * (which is triggered by the population of the table widget) from being
-     * executed until this function exits. */
-    m_wasTreeItemActivated = true;
+//  if (item) {
+//    /* This flag is set to prevent the functionality in "attributeChanged"
+//     * (which is triggered by the population of the table widget) from being
+//     * executed until this function exits. */
+//    m_wasTreeItemActivated = true;
 
-    resetTableWidget();
+//    resetTableWidget();
 
-    QDomElement element = item->element(); // shallow copy
-    QString elementName = item->name();
-    QStringList attributeNames = m_db.attributes(elementName);
+//    QDomElement element = item->element(); // shallow copy
+//    QString elementName = item->name();
+//    QStringList attributeNames = m_db.attributes(elementName);
 
-    /* Add all the associated attribute names to the first column of the table
-     * widget, create and populate combo boxes with the attributes' known values
-     * and insert the combo boxes into the second column of the table widget.
-     * Finally, insert an "empty" row so that the user may add additional
-     * attributes and values to the current element. */
-    for (int i = 0; i < attributeNames.count(); ++i) {
-      ComboBox *attributeCombo = new ComboBox;
-      QTableWidgetItem *label = new QTableWidgetItem(attributeNames.at(i));
-      label->setFlags(label->flags() | Qt::ItemIsUserCheckable);
+//    /* Add all the associated attribute names to the first column of the table
+//     * widget, create and populate combo boxes with the attributes' known values
+//     * and insert the combo boxes into the second column of the table widget.
+//     * Finally, insert an "empty" row so that the user may add additional
+//     * attributes and values to the current element. */
+//    for (int i = 0; i < attributeNames.count(); ++i) {
+//      ComboBox *attributeCombo = new ComboBox;
+//      QTableWidgetItem *label = new QTableWidgetItem(attributeNames.at(i));
+//      label->setFlags(label->flags() | Qt::ItemIsUserCheckable);
 
-      if (item->attributeIncluded(attributeNames.at(i))) {
-        label->setCheckState(Qt::Checked);
-        attributeCombo->setEnabled(true);
-      } else {
-        label->setCheckState(Qt::Unchecked);
-        attributeCombo->setEnabled(false);
-      }
+//      if (item->attributeIncluded(attributeNames.at(i))) {
+//        label->setCheckState(Qt::Checked);
+//        attributeCombo->setEnabled(true);
+//      } else {
+//        label->setCheckState(Qt::Unchecked);
+//        attributeCombo->setEnabled(false);
+//      }
 
-      ui->tableWidget->setRowCount(i + 1);
-      ui->tableWidget->setItem(i, 0, label);
+//      ui->tableWidget->setRowCount(i + 1);
+//      ui->tableWidget->setItem(i, 0, label);
 
-      attributeCombo->addItems(
-          m_db.attributeValues(elementName, attributeNames.at(i)));
-      attributeCombo->setEditable(true);
+//      attributeCombo->addItems(
+//          m_db.attributeValues(elementName, attributeNames.at(i)));
+//      attributeCombo->setEditable(true);
 
-      /* If we are still in the process of building the document, the attribute
-       * value will be empty since it has never been set before.  For this
-       * particular case, calling "findText" will result in a null pointer
-       * exception being thrown so we need to cater for this possibility here.
-       */
-      QString attributeValue = element.attribute(attributeNames.at(i));
+//      /* If we are still in the process of building the document, the attribute
+//       * value will be empty since it has never been set before.  For this
+//       * particular case, calling "findText" will result in a null pointer
+//       * exception being thrown so we need to cater for this possibility here.
+//       */
+//      QString attributeValue = element.attribute(attributeNames.at(i));
 
-      if (!attributeValue.isEmpty()) {
-        attributeCombo->setCurrentIndex(
-            attributeCombo->findText(attributeValue));
-      } else {
-        attributeCombo->setCurrentIndex(-1);
-      }
+//      if (!attributeValue.isEmpty()) {
+//        attributeCombo->setCurrentIndex(
+//            attributeCombo->findText(attributeValue));
+//      } else {
+//        attributeCombo->setCurrentIndex(-1);
+//      }
 
-      /* Attempting the connection before we've set the current index above
-       * causes the "attributeValueChanged" slot to be called prematurely,
-       * resulting in a segmentation fault due to value conflicts/missing values
-       * (in short, we can't do the connect before we set the current index
-       * above). */
-      connect(attributeCombo, SIGNAL(currentIndexChanged(QString)), this,
-              SLOT(attributeValueChanged(QString)));
+//      /* Attempting the connection before we've set the current index above
+//       * causes the "attributeValueChanged" slot to be called prematurely,
+//       * resulting in a segmentation fault due to value conflicts/missing values
+//       * (in short, we can't do the connect before we set the current index
+//       * above). */
+//      connect(attributeCombo, SIGNAL(currentIndexChanged(QString)), this,
+//              SLOT(attributeValueChanged(QString)));
 
-      ui->tableWidget->setCellWidget(i, 1, attributeCombo);
-      m_comboBoxes.insert(attributeCombo, i);
+//      ui->tableWidget->setCellWidget(i, 1, attributeCombo);
+//      m_comboBoxes.insert(attributeCombo, i);
 
-      /* This will point the current combo box member to the combo that's been
-       * activated in the table widget (used in "attributeValueChanged" to
-       * obtain the row number the combo box appears in in the table widget,
-       * etc, etc). */
-      connect(attributeCombo, SIGNAL(activated(int)), m_signalMapper,
-              SLOT(map()));
-      m_signalMapper->setMapping(attributeCombo, attributeCombo);
-    }
+//      /* This will point the current combo box member to the combo that's been
+//       * activated in the table widget (used in "attributeValueChanged" to
+//       * obtain the row number the combo box appears in in the table widget,
+//       * etc, etc). */
+//      connect(attributeCombo, SIGNAL(activated(int)), m_signalMapper,
+//              SLOT(map()));
+//      m_signalMapper->setMapping(attributeCombo, attributeCombo);
+//    }
 
-    /* Add the "empty" row as described above. */
-    insertEmptyTableRow();
+//    /* Add the "empty" row as described above. */
+//    insertEmptyTableRow();
 
-    /* Populate the "add child element" combo box with the known first level
-     * children of the current highlighted element (highlighted in the tree
-     * widget, of course). */
-    ui->addElementComboBox->clear();
-    ui->addElementComboBox->addItems(m_db.children(elementName));
+//    /* Populate the "add child element" combo box with the known first level
+//     * children of the current highlighted element (highlighted in the tree
+//     * widget, of course). */
+//    ui->addElementComboBox->clear();
+//    ui->addElementComboBox->addItems(m_db.children(elementName));
 
-    /* The following will be used to allow the user to add an element of the
-     * current type to its parent (this should improve the user experience as
-     * they do not have to explicitly navigate back up to a parent when adding
-     * multiple items of the same type). We also don't want the user to add a
-     * document root element to itself by accident. */
-    if (!ui->treeWidget->matchesRootName(elementName)) {
-      ui->addElementComboBox->addItem(QString("[%1]").arg(elementName));
-    }
+//    /* The following will be used to allow the user to add an element of the
+//     * current type to its parent (this should improve the user experience as
+//     * they do not have to explicitly navigate back up to a parent when adding
+//     * multiple items of the same type). We also don't want the user to add a
+//     * document root element to itself by accident. */
+//    if (!ui->treeWidget->matchesRootName(elementName)) {
+//      ui->addElementComboBox->addItem(QString("[%1]").arg(elementName));
+//    }
 
-    toggleAddElementWidgets();
-    highlightTextElement(item);
+//    toggleAddElementWidgets();
+//    highlightTextElement(item);
 
-    /* The user must not be allowed to add an entire document as a "snippet". */
-    if (ui->treeWidget->matchesRootName(
-            ui->addElementComboBox->currentText())) {
-      ui->addSnippetButton->setEnabled(false);
-      ui->addChildElementButton->setText("Add Root");
-    } else {
-      ui->addSnippetButton->setEnabled(true);
-      ui->addChildElementButton->setText("Add Child");
-    }
+//    /* The user must not be allowed to add an entire document as a "snippet". */
+//    if (ui->treeWidget->matchesRootName(
+//            ui->addElementComboBox->currentText())) {
+//      ui->addSnippetButton->setEnabled(false);
+//      ui->addChildElementButton->setText("Add Root");
+//    } else {
+//      ui->addSnippetButton->setEnabled(true);
+//      ui->addChildElementButton->setText("Add Child");
+//    }
 
-    ui->commentLineEdit->setText(ui->treeWidget->activeCommentValue());
+//    ui->commentLineEdit->setText(ui->treeWidget->activeCommentValue());
 
-    /* Unset flag. */
-    m_wasTreeItemActivated = false;
-  } else if (ui->treeWidget->empty()) {
-    resetDOM();
-  }
+//    /* Unset flag. */
+//    m_wasTreeItemActivated = false;
+//  } else if (ui->treeWidget->empty()) {
+//    resetDOM();
+//  }
 }
 
 /*----------------------------------------------------------------------------*/
@@ -357,8 +357,8 @@ void MainWindow::attributeChanged(QTableWidgetItem *tableItem) {
     if (tableItem->text() != m_activeAttributeName) {
       /* Add the new attribute's name to the current element's list of
        * associated attributes. */
-      m_db.updateElementAttributes(treeItem->name(),
-                                   QStringList(tableItem->text()));
+//      m_db.updateElementAttributes(treeItem->name(),
+//                                   QStringList(tableItem->text()));
 
       /* Is this a name change? */
       if (m_activeAttributeName != EMPTY) {
@@ -528,12 +528,12 @@ bool MainWindow::openXMLFile() {
       if (accepted) {
         QTimer timer;
         timer.singleShot(1000, this, SLOT(createSpinner()));
-        qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+        //qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 
         if (!ui->treeWidget->batchProcessSuccess()) {
           // TODO - Review!
         } else {
-          qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+          //qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
           processDOMDoc();
         }
 
@@ -676,7 +676,7 @@ void MainWindow::importXMLFromFile() {
 
 bool MainWindow::importXMLToDatabase() {
   createSpinner();
-  qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+  //qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 
   if (!ui->treeWidget->batchProcessSuccess()) {
     // TODO - Review!
@@ -725,11 +725,11 @@ void MainWindow::addElementToDocument() {
 
     /* Add all the known attributes associated with this element name to the new
      * element. */
-    QStringList attributes = m_db.attributes(elementName);
+//    QStringList attributes = m_db.attributes(elementName);
 
-    for (int i = 0; i < attributes.size(); ++i) {
-      treeItem->element().setAttribute(attributes.at(i), QString(""));
-    }
+//    for (int i = 0; i < attributes.size(); ++i) {
+//      treeItem->element().setAttribute(attributes.at(i), QString(""));
+//    }
 
     setTextEditContent(treeItem);
     elementSelected(treeItem, 0);
@@ -887,34 +887,30 @@ void MainWindow::forgetMessagePreferences() {
 
 void MainWindow::createSpinner() {
   /* Clean-up must be handled in the calling function, but just in case. */
-  if (m_spinner || m_progressLabel) {
-    deleteSpinner();
-  }
+//  if (m_spinner || m_progressLabel) {
+//    deleteSpinner();
+//  }
 
-  m_progressLabel = new QLabel(this, Qt::Popup);
-  m_progressLabel->move(window()->frameGeometry().topLeft() +
-                        window()->rect().center() -
-                        m_progressLabel->rect().center());
+//  m_progressLabel = new QLabel(this, Qt::Popup);
+//  m_progressLabel->move(window()->frameGeometry().topLeft() +
+//                        window()->rect().center() -
+//                        m_progressLabel->rect().center());
 
-  m_spinner = new QMovie(":/resources/spinner.gif");
-  m_spinner->start();
+//  m_spinner = new QMovie(":/resources/spinner.gif");
+//  m_spinner->start();
 
-  m_progressLabel->setMovie(m_spinner);
-  m_progressLabel->show();
+//  m_progressLabel->setMovie(m_spinner);
+//  m_progressLabel->show();
 }
 
 /*----------------------------------------------------------------------------*/
 
 void MainWindow::deleteSpinner() {
-  if (m_spinner) {
-    delete m_spinner;
-    m_spinner = NULL;
-  }
+  delete m_spinner;
+  m_spinner = NULL;
 
-  if (m_progressLabel) {
-    delete m_progressLabel;
-    m_progressLabel = NULL;
-  }
+  delete m_progressLabel;
+  m_progressLabel = NULL;
 }
 
 /*----------------------------------------------------------------------------*/

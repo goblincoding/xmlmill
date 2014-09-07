@@ -77,13 +77,14 @@ void AddItemsForm::populateCombo() {
 
   /* It should not be possible to add the root element as a child to any other
    * element. */
-  QStringList elements(m_db.knownElements());
+  //  QStringList elements(m_db.knownElements());
 
-  foreach(QString root, m_db.knownRootElements()) { elements.removeAll(root); }
+  //  foreach(QString root, m_db.knownRootElements()) {
+  // elements.removeAll(root); }
 
-  ui->comboBox->addItem(CREATE_NEW);
-  ui->comboBox->addItems(elements);
-  comboValueChanged(CREATE_NEW);
+  //  ui->comboBox->addItem(CREATE_NEW);
+  //  ui->comboBox->addItems(elements);
+  //  comboValueChanged(CREATE_NEW);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -94,11 +95,11 @@ void AddItemsForm::addElementAndAttributes() {
   if (!element.isEmpty()) {
     QStringList attributes = ui->plainTextEdit->toPlainText().split("\n");
 
-    if (m_db.knownElements().contains(element)) {
-      m_db.updateElementAttributes(element, attributes);
-    } else {
-      m_db.addElement(element, QStringList(), attributes);
-    }
+    //    if (m_db.knownElements().contains(element)) {
+    //      m_db.updateElementAttributes(element, attributes);
+    //    } else {
+    //      m_db.addElement(element, QStringList(), attributes);
+    //    }
 
     /* If the profile is empty, add the new element as a root element by
      * default. */
@@ -109,8 +110,8 @@ void AddItemsForm::addElementAndAttributes() {
       /* If the profile isn't empty, the user must specify a parent element. */
       if (ui->treeWidget->currentItem()) {
         /* Also add it to the parent element's child list. */
-        m_db.updateElementChildren(ui->treeWidget->CurrentItem()->name(),
-                                   QStringList(element));
+        //        m_db.updateElementChildren(ui->treeWidget->CurrentItem()->name(),
+        //                                   QStringList(element));
 
         ui->treeWidget->insertItem(element, 0);
       } else {
@@ -134,17 +135,17 @@ void AddItemsForm::comboValueChanged(const QString &element) {
     ui->lineEdit->setText(element);
     ui->lineEdit->setEnabled(false);
 
-    QStringList attributes = m_db.attributes(element);
+    //    QStringList attributes = m_db.attributes(element);
 
-    ui->plainTextEdit->clear();
+    //    ui->plainTextEdit->clear();
 
-    foreach(QString value, attributes) {
-      ui->plainTextEdit->insertPlainText(QString("%1\n").arg(value));
-    }
-  } else {
-    ui->lineEdit->setEnabled(true);
-    ui->lineEdit->clear();
-    ui->plainTextEdit->clear();
+    //    foreach(QString value, attributes) {
+    //      ui->plainTextEdit->insertPlainText(QString("%1\n").arg(value));
+    //    }
+    //  } else {
+    //    ui->lineEdit->setEnabled(true);
+    //    ui->lineEdit->clear();
+    //    ui->plainTextEdit->clear();
   }
 }
 

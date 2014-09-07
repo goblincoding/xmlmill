@@ -94,62 +94,62 @@ void AddSnippetsForm::elementSelected(TreeWidgetItem *item, int column) {
     /* Populate the table widget with the attributes and values associated with
      * the element selected. */
     QString elementName = item->name();
-    QStringList attributeNames = m_db.attributes(elementName);
+    //QStringList attributeNames = m_db.attributes(elementName);
 
     /* Create and add the "increment" checkbox to the first column of the table
      * widget, add all the known attribute names to the cells in the second
      * column of the table widget, create and populate combo boxes with the
      * values associated with the attributes in question and insert the combo
      * boxes into the third column of the table widget. */
-    for (int i = 0; i < attributeNames.count(); ++i) {
-      ui->tableWidget->setRowCount(i + 1);
+//    for (int i = 0; i < attributeNames.count(); ++i) {
+//      ui->tableWidget->setRowCount(i + 1);
 
-      QCheckBox *checkBox = new QCheckBox;
+//      QCheckBox *checkBox = new QCheckBox;
 
-      /* Overrides main style sheet. */
-      checkBox->setStyleSheet("QCheckBox{ padding-right: 1px; }"
-                              "QCheckBox::indicator{ subcontrol-position: "
-                              "center; width: 15px; height: 15px; }");
+//      /* Overrides main style sheet. */
+//      checkBox->setStyleSheet("QCheckBox{ padding-right: 1px; }"
+//                              "QCheckBox::indicator{ subcontrol-position: "
+//                              "center; width: 15px; height: 15px; }");
 
-      ui->tableWidget->setCellWidget(i, INCRCOLUMN, checkBox);
-      connect(checkBox, SIGNAL(clicked()), this, SLOT(attributeValueChanged()));
+//      ui->tableWidget->setCellWidget(i, INCRCOLUMN, checkBox);
+//      connect(checkBox, SIGNAL(clicked()), this, SLOT(attributeValueChanged()));
 
-      QDomAttr attribute =
-          item->element().attributeNode(attributeNames.at(i)).toAttr();
-      checkBox->setChecked(item->incrementAttribute(attribute.name()));
+//      QDomAttr attribute =
+//          item->element().attributeNode(attributeNames.at(i)).toAttr();
+//      checkBox->setChecked(item->incrementAttribute(attribute.name()));
 
-      /* Items are editable by default, disable this option. */
-      QTableWidgetItem *label = new QTableWidgetItem(attributeNames.at(i));
-      label->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable |
-                      Qt::ItemIsUserCheckable);
-      ui->tableWidget->setItem(i, LABELCOLUMN, label);
+//      /* Items are editable by default, disable this option. */
+//      QTableWidgetItem *label = new QTableWidgetItem(attributeNames.at(i));
+//      label->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable |
+//                      Qt::ItemIsUserCheckable);
+//      ui->tableWidget->setItem(i, LABELCOLUMN, label);
 
-      ComboBox *attributeCombo = new ComboBox;
-      attributeCombo->addItems(
-          m_db.attributeValues(elementName, attributeNames.at(i)));
-      attributeCombo->setEditable(true);
-      attributeCombo->setCurrentIndex(attributeCombo->findText(
-          item->element().attribute(attributeNames.at(i))));
+//      ComboBox *attributeCombo = new ComboBox;
+//      attributeCombo->addItems(
+//          m_db.attributeValues(elementName, attributeNames.at(i)));
+//      attributeCombo->setEditable(true);
+//      attributeCombo->setCurrentIndex(attributeCombo->findText(
+//          item->element().attribute(attributeNames.at(i))));
 
-      connect(attributeCombo, SIGNAL(currentIndexChanged(QString)), this,
-              SLOT(attributeValueChanged()));
+//      connect(attributeCombo, SIGNAL(currentIndexChanged(QString)), this,
+//              SLOT(attributeValueChanged()));
 
-      if (item->attributeIncluded(attributeNames.at(i))) {
-        label->setCheckState(Qt::Checked);
-        attributeCombo->setEnabled(true);
-      } else {
-        label->setCheckState(Qt::Unchecked);
-        attributeCombo->setEnabled(false);
-      }
+//      if (item->attributeIncluded(attributeNames.at(i))) {
+//        label->setCheckState(Qt::Checked);
+//        attributeCombo->setEnabled(true);
+//      } else {
+//        label->setCheckState(Qt::Unchecked);
+//        attributeCombo->setEnabled(false);
+//      }
 
-      ui->tableWidget->setCellWidget(i, COMBOCOLUMN, attributeCombo);
+//      ui->tableWidget->setCellWidget(i, COMBOCOLUMN, attributeCombo);
 
-      if (item->checkState(0) == Qt::Unchecked) {
-        ui->tableWidget->setEnabled(false);
-      } else {
-        ui->tableWidget->setEnabled(true);
-      }
-    }
+//      if (item->checkState(0) == Qt::Unchecked) {
+//        ui->tableWidget->setEnabled(false);
+//      } else {
+//        ui->tableWidget->setEnabled(true);
+//      }
+//    }
 
     updateCheckStates(item);
 
