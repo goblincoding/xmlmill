@@ -30,6 +30,8 @@
 #ifndef ADDITEMSFORM_H
 #define ADDITEMSFORM_H
 
+#include "db/dbinterface.h"
+
 #include <QDialog>
 
 namespace Ui {
@@ -77,6 +79,7 @@ private:
   void populateCombo();
 
   Ui::AddItemsForm *ui;
+  DB m_db;
 };
 
 #endif // ADDITEMSFORM_H

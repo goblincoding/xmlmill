@@ -30,6 +30,8 @@
 #ifndef ADDSNIPPETSFORM_H
 #define ADDSNIPPETSFORM_H
 
+#include "db/dbinterface.h"
+
 #include <QDialog>
 #include <QDomElement>
 
@@ -116,6 +118,7 @@ private:
 
   Ui::AddSnippetsForm *ui;
   TreeWidgetItem *m_parentItem;
+  DB m_db;
   bool m_treeItemActivated;
 };
 

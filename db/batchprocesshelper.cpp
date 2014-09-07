@@ -34,7 +34,7 @@
 /*--------------------------------- MEMBER FUNCTIONS
  * ----------------------------------*/
 
-BatchProcessorHelper::BatchProcessorHelper(const QDomDocument *domDoc,
+BatchProcessHelper::BatchProcessHelper(const QDomDocument *domDoc,
                                            const QString &stringListSeparator,
                                            const QStringList &knownElements,
                                            const QStringList &knownAttributes)
@@ -56,7 +56,7 @@ BatchProcessorHelper::BatchProcessorHelper(const QDomDocument *domDoc,
 
 /*----------------------------------------------------------------------------*/
 
-void BatchProcessorHelper::processElement(const QDomElement &parentElement) {
+void BatchProcessHelper::processElement(const QDomElement &parentElement) {
   QDomElement element = parentElement.firstChildElement();
 
   while (!element.isNull()) {
@@ -68,7 +68,7 @@ void BatchProcessorHelper::processElement(const QDomElement &parentElement) {
 
 /*----------------------------------------------------------------------------*/
 
-void BatchProcessorHelper::createRecord(const QDomElement &element) {
+void BatchProcessHelper::createRecord(const QDomElement &element) {
   ElementRecord record;
 
   /* Stick the attributes and their corresponding values into the record map. */
@@ -101,7 +101,7 @@ void BatchProcessorHelper::createRecord(const QDomElement &element) {
 
 /*----------------------------------------------------------------------------*/
 
-void BatchProcessorHelper::sortRecords() {
+void BatchProcessHelper::sortRecords() {
   /* We inserted every element in the DOM doc into the unsorted map and will
    * almost definitely have duplicates.  Since the DB requires unique element
    * entries (elements are the primary keys), we iterate through the unique keys
@@ -161,7 +161,7 @@ void BatchProcessorHelper::sortRecords() {
 
 /*----------------------------------------------------------------------------*/
 
-void BatchProcessorHelper::createVariantLists() {
+void BatchProcessHelper::createVariantLists() {
   /* First see which of the records we created from the DOM doc are completely
     new and which ones we have prior knowledge of. */
   QList<QString> elementNames = m_records.keys();
@@ -269,72 +269,72 @@ void BatchProcessorHelper::createVariantLists() {
 
 /*----------------------------------------------------------------------------*/
 
-const QVariantList &BatchProcessorHelper::newElementsToAdd() const {
+const QVariantList &BatchProcessHelper::newElementsToAdd() const {
   return m_newElementsToAdd;
 }
 
 /*----------------------------------------------------------------------------*/
 
-const QVariantList &BatchProcessorHelper::newElementChildrenToAdd() const {
+const QVariantList &BatchProcessHelper::newElementChildrenToAdd() const {
   return m_newElementChildrenToAdd;
 }
 
 /*----------------------------------------------------------------------------*/
 
-const QVariantList &BatchProcessorHelper::newElementAttributesToAdd() const {
+const QVariantList &BatchProcessHelper::newElementAttributesToAdd() const {
   return m_newElementAttributesToAdd;
 }
 
 /*----------------------------------------------------------------------------*/
 
-const QVariantList &BatchProcessorHelper::elementsToUpdate() const {
+const QVariantList &BatchProcessHelper::elementsToUpdate() const {
   return m_elementsToUpdate;
 }
 
 /*----------------------------------------------------------------------------*/
 
-const QVariantList &BatchProcessorHelper::elementChildrenToUpdate() const {
+const QVariantList &BatchProcessHelper::elementChildrenToUpdate() const {
   return m_elementChildrenToUpdate;
 }
 
 /*----------------------------------------------------------------------------*/
 
-const QVariantList &BatchProcessorHelper::elementAttributesToUpdate() const {
+const QVariantList &BatchProcessHelper::elementAttributesToUpdate() const {
   return m_elementAttributesToUpdate;
 }
 
 /*----------------------------------------------------------------------------*/
 
-const QVariantList &BatchProcessorHelper::newAttributeKeysToAdd() const {
+const QVariantList &BatchProcessHelper::newAttributeKeysToAdd() const {
   return m_newAttributeKeysToAdd;
 }
 
 /*----------------------------------------------------------------------------*/
 
-const QVariantList &BatchProcessorHelper::newAssociatedElementsToAdd() const {
+const QVariantList &BatchProcessHelper::newAssociatedElementsToAdd() const {
   return m_newAssociatedElementsToAdd;
 }
 /*----------------------------------------------------------------------------*/
 
-const QVariantList &BatchProcessorHelper::newAttributeValuesToAdd() const {
+const QVariantList &BatchProcessHelper::newAttributeValuesToAdd() const {
   return m_newAttributeValuesToAdd;
 }
 
 /*----------------------------------------------------------------------------*/
 
-const QVariantList &BatchProcessorHelper::attributeKeysToUpdate() const {
+const QVariantList &BatchProcessHelper::attributeKeysToUpdate() const {
   return m_attributeKeysToUpdate;
 }
 
 /*----------------------------------------------------------------------------*/
 
-const QVariantList &BatchProcessorHelper::associatedElementsToUpdate() const {
+const QVariantList &BatchProcessHelper::associatedElementsToUpdate() const {
   return m_associatedElementsToUpdate;
 }
 
 /*----------------------------------------------------------------------------*/
 
-const QVariantList &BatchProcessorHelper::attributeValuesToUpdate() const {
+const QVariantList &BatchProcessHelper::attributeValuesToUpdate() const {
   return m_attributeValuesToUpdate;
 }
 

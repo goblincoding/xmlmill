@@ -54,7 +54,7 @@ class QDomElement;
     * Call the getters to
  * retrieve the bind variable lists. This class has also been specifically
  * designed to be used in conjunction with DatabaseInterface. */
-class BatchProcessorHelper {
+class BatchProcessHelper {
 public:
   /*! Constructor @param domDoc - the DOM document from which all information
    * will be extracted.
@@ -74,7 +74,7 @@ public:
    * @param knownAttributes - the list of attributes known to
    * the active database, if empty, all the attributes in the DOM will be
    * assumed to be new.  */
-  BatchProcessorHelper(const QDomDocument *domDoc,
+  BatchProcessHelper(const QDomDocument *domDoc,
                        const QString &stringSeparator,
                        const QStringList &knownElements,
                        const QStringList &knownAttributes);

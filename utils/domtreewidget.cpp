@@ -255,13 +255,13 @@ bool DomTreeWidget::matchesRootName(const QString &elementName) const {
 /*----------------------------------------------------------------------------*/
 
 bool DomTreeWidget::documentCompatible() const {
-  return DB::instance()->isDocumentCompatible(m_domDoc);
+  return true;//TODO - Review! m_db.isDocumentCompatible(m_domDoc);
 }
 
 /*----------------------------------------------------------------------------*/
 
 bool DomTreeWidget::batchProcessSuccess() const {
-  return DB::instance()->batchProcessDomDocument(m_domDoc);
+  return true;//TODO - Review! m_db.batchProcessDomDocument(m_domDoc);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -397,12 +397,12 @@ void DomTreeWidget::populateFromDatabase(const QString &baseElementName) {
   if (baseElementName.isEmpty()) {
     /* It is possible that there may be multiple document types saved to this *
      * profile. */
-    foreach(QString element,
-            DB::instance()->knownRootElements()) {
-      m_isEmpty = true; // forces the new item to be added to the invisible root
-      addItem(element);
-      processElementFromDatabase(element);
-    }
+//    foreach(QString element,
+//            DB::instance()->knownRootElements()) {
+//      m_isEmpty = true; // forces the new item to be added to the invisible root
+//      addItem(element);
+//      processElementFromDatabase(element);
+//    }
   } else {
     addItem(baseElementName);
     processElementFromDatabase(baseElementName);
@@ -415,24 +415,24 @@ void DomTreeWidget::populateFromDatabase(const QString &baseElementName) {
 /*----------------------------------------------------------------------------*/
 
 void DomTreeWidget::processElementFromDatabase(const QString &element) {
-  QStringList children = DB::instance()->children(element);
+//  QStringList children = DB::instance()->children(element);
 
-  foreach(QString child, children) {
-    addItem(child);
+//  foreach(QString child, children) {
+//    addItem(child);
 
-    /* Since it isn't illegal to have elements with children of the same name,
-     * we cannot block it in the DB, however, if we DO have elements with
-     * children of the same name, this recursive call enters an infinite loop,
-     * so we need to make sure that doesn't happen. */
-    TreeWidgetItem *newItem = CurrentItem();
+//    /* Since it isn't illegal to have elements with children of the same name,
+//     * we cannot block it in the DB, however, if we DO have elements with
+//     * children of the same name, this recursive call enters an infinite loop,
+//     * so we need to make sure that doesn't happen. */
+//    TreeWidgetItem *newItem = CurrentItem();
 
-    if (!parentTreeAlreadyContainsElement(newItem, child)) {
-      processElementFromDatabase(child);
-    } else {
-      setCurrentItem(
-          m_activeItem->parent()); // required to enforce sibling relationships
-    }
-  }
+//    if (!parentTreeAlreadyContainsElement(newItem, child)) {
+//      processElementFromDatabase(child);
+//    } else {
+//      setCurrentItem(
+//          m_activeItem->parent()); // required to enforce sibling relationships
+//    }
+//  }
 
   setCurrentItem(
       m_activeItem->parent()); // required to enforce sibling relationships
@@ -477,12 +477,12 @@ void DomTreeWidget::insertItem(const QString &elementName, int index,
 
   /* Create all the possible attributes for the element here, they can be
    * changed later on. */
-  QStringList attributeNames =
-      DB::instance()->attributes(elementName);
+//  QStringList attributeNames =
+//      DB::instance()->attributes(elementName);
 
-  for (int i = 0; i < attributeNames.count(); ++i) {
-    element.setAttribute(attributeNames.at(i), "");
-  }
+//  for (int i = 0; i < attributeNames.count(); ++i) {
+//    element.setAttribute(attributeNames.at(i), "");
+//  }
 
   TreeWidgetItem *item = new TreeWidgetItem(element, m_items.size());
   m_items.append(item);
@@ -669,8 +669,8 @@ void DomTreeWidget::dropEvent(QDropEvent *event) {
       }
 
       /* Update the database to reflect the re-parenting. */
-      DB::instance()->updateElementChildren(
-          parent->name(), QStringList(m_activeItem->name()));
+//      DB::instance()->updateElementChildren(
+//          parent->name(), QStringList(m_activeItem->name()));
     }
 
     expandItem(parent);
@@ -752,28 +752,28 @@ void DomTreeWidget::renameItem() {
      * exists in the database, yet it will obviously add the element if it
      * doesn't.  In the latter case, the children  and attributes associated
      * with the old name will be assigned to the new element in the process. */
-    QStringList attributes = DB::instance()->attributes(oldName);
-    QStringList children = DB::instance()->children(oldName);
+//    QStringList attributes = DB::instance()->attributes(oldName);
+//    QStringList children = DB::instance()->children(oldName);
 
-    if (!DB::instance()->addElement(newName, children,
-                                                   attributes)) {
-      MessageSpace::showErrorMessageBox(
-          this, DB::instance()->lastError());
-    }
+//    if (!DB::instance()->addElement(newName, children,
+//                                                   attributes)) {
+//      MessageSpace::showErrorMessageBox(
+//          this, DB::instance()->lastError());
+//    }
 
     /* If we are, in fact, dealing with a new element, we also want the new
      * element's associated attributes to be updated with the known values of
      * these attributes. */
-    foreach(QString attribute, attributes) {
-      QStringList attributeValues =
-          DB::instance()->attributeValues(oldName, attribute);
+//    foreach(QString attribute, attributes) {
+//      QStringList attributeValues =
+//          DB::instance()->attributeValues(oldName, attribute);
 
-      if (!DB::instance()->updateAttributeValues(
-              newName, attribute, attributeValues)) {
-        MessageSpace::showErrorMessageBox(
-            this, DB::instance()->lastError());
-      }
-    }
+//      if (!DB::instance()->updateAttributeValues(
+//              newName, attribute, attributeValues)) {
+//        MessageSpace::showErrorMessageBox(
+//            this, DB::instance()->lastError());
+//      }
+//    }
 
     emitGcCurrentItemChanged(m_activeItem, 0);
   }
@@ -845,8 +845,8 @@ void DomTreeWidget::stepUp() {
                                             parentItem->element());
 
         /* Update the database to reflect the re-parenting. */
-        DB::instance()->updateElementChildren(
-            grandParent->name(), QStringList(m_activeItem->name()));
+//        DB::instance()->updateElementChildren(
+//            grandParent->name(), QStringList(m_activeItem->name()));
       }
 
       updateIndices();
@@ -879,8 +879,8 @@ void DomTreeWidget::stepDown() {
                                           siblingItem->element().firstChild());
 
       /* Update the database to reflect the re-parenting. */
-      DB::instance()->updateElementChildren(
-          siblingItem->name(), QStringList(m_activeItem->name()));
+//      DB::instance()->updateElementChildren(
+//          siblingItem->name(), QStringList(m_activeItem->name()));
 
       updateIndices();
       emitGcCurrentItemChanged(m_activeItem, 0);

@@ -29,7 +29,6 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "db/dbinterface.h"
 #include "forms/additemsform.h"
 #include "forms/removeitemsform.h"
 #include "forms/helpdialog.h"
@@ -78,12 +77,13 @@ MainWindow::MainWindow(QWidget *parent)
       m_signalMapper(new QSignalMapper(this)), m_activeAttribute(NULL),
       m_currentCombo(NULL), m_saveTimer(NULL), m_activeProfileLabel(NULL),
       m_progressLabel(NULL), m_spinner(NULL), m_currentXMLFileName(""),
-      m_activeAttributeName(""), m_wasTreeItemActivated(false),
+      m_activeAttributeName(""), m_db(), m_wasTreeItemActivated(false),
       m_newAttributeAdded(false), m_busyImporting(false),
       m_fileContentsChanged(false), m_comboBoxes() {
   ui->setupUi(this);
   ui->showEmptyProfileHelpButton->setVisible(false);
-  ui->tableWidget->setFont(QFont(GlobalSettings::FONT, GlobalSettings::FONTSIZE));
+  ui->tableWidget->setFont(
+      QFont(GlobalSettings::FONT, GlobalSettings::FONTSIZE));
   ui->tableWidget->horizontalHeader()->setFont(
       QFont(GlobalSettings::FONT, GlobalSettings::FONTSIZE));
 
@@ -160,6 +160,8 @@ MainWindow::MainWindow(QWidget *parent)
   connect(m_signalMapper, SIGNAL(mapped(QWidget *)), this,
           SLOT(setCurrentComboBox(QWidget *)));
 
+  // TODO - connect DB action signal to error handling slot!!!
+
   readSettings();
 
   /* Wait for the event loop to be initialised before calling this function. */
@@ -194,9 +196,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
 /*----------------------------------------------------------------------------*/
 
-void MainWindow::initialise() {
-  queryRestoreFiles();
-}
+void MainWindow::initialise() { queryRestoreFiles(); }
 
 /*----------------------------------------------------------------------------*/
 
@@ -224,8 +224,7 @@ void MainWindow::elementSelected(TreeWidgetItem *item, int column) {
 
     QDomElement element = item->element(); // shallow copy
     QString elementName = item->name();
-    QStringList attributeNames =
-        DB::instance()->attributes(elementName);
+    QStringList attributeNames = m_db.attributes(elementName);
 
     /* Add all the associated attribute names to the first column of the table
      * widget, create and populate combo boxes with the attributes' known values
@@ -248,8 +247,8 @@ void MainWindow::elementSelected(TreeWidgetItem *item, int column) {
       ui->tableWidget->setRowCount(i + 1);
       ui->tableWidget->setItem(i, 0, label);
 
-      attributeCombo->addItems(DB::instance()->attributeValues(
-          elementName, attributeNames.at(i)));
+      attributeCombo->addItems(
+          m_db.attributeValues(elementName, attributeNames.at(i)));
       attributeCombo->setEditable(true);
 
       /* If we are still in the process of building the document, the attribute
@@ -293,8 +292,7 @@ void MainWindow::elementSelected(TreeWidgetItem *item, int column) {
      * children of the current highlighted element (highlighted in the tree
      * widget, of course). */
     ui->addElementComboBox->clear();
-    ui->addElementComboBox->addItems(
-        DB::instance()->children(elementName));
+    ui->addElementComboBox->addItems(m_db.children(elementName));
 
     /* The following will be used to allow the user to add an element of the
      * current type to its parent (this should improve the user experience as
@@ -359,35 +357,28 @@ void MainWindow::attributeChanged(QTableWidgetItem *tableItem) {
     if (tableItem->text() != m_activeAttributeName) {
       /* Add the new attribute's name to the current element's list of
        * associated attributes. */
-      if (DB::instance()->updateElementAttributes(
-              treeItem->name(), QStringList(tableItem->text()))) {
-        /* Is this a name change? */
-        if (m_activeAttributeName != EMPTY) {
-          treeItem->excludeAttribute(m_activeAttributeName);
+      m_db.updateElementAttributes(treeItem->name(),
+                                   QStringList(tableItem->text()));
 
-          /* Retrieve the list of values associated with the previous name and
-           * insert it against the new name. */
-          QStringList attributeValues =
-              DB::instance()->attributeValues(
-                  treeItem->name(), m_activeAttributeName);
+      /* Is this a name change? */
+      if (m_activeAttributeName != EMPTY) {
+        treeItem->excludeAttribute(m_activeAttributeName);
 
-          if (!DB::instance()->updateAttributeValues(
-                  treeItem->name(), tableItem->text(), attributeValues)) {
-            MessageSpace::showErrorMessageBox(
-                this, DB::instance()->lastError());
-          }
-        } else {
-          /* If this is an entirely new attribute, insert an "empty" row so that
-           * the user may add even more attributes if he/she wishes to do so. */
-          m_newAttributeAdded = true;
-          tableItem->setFlags(tableItem->flags() | Qt::ItemIsUserCheckable);
-          tableItem->setCheckState(Qt::Checked);
-          insertEmptyTableRow();
-          m_newAttributeAdded = false;
-        }
+        /* Retrieve the list of values associated with the previous name and
+         * insert it against the new name. */
+        QStringList attributeValues =
+            m_db.attributeValues(treeItem->name(), m_activeAttributeName);
+
+        m_db.updateAttributeValues(treeItem->name(), tableItem->text(),
+                                   attributeValues);
       } else {
-        MessageSpace::showErrorMessageBox(
-            this, DB::instance()->lastError());
+        /* If this is an entirely new attribute, insert an "empty" row so that
+         * the user may add even more attributes if he/she wishes to do so. */
+        m_newAttributeAdded = true;
+        tableItem->setFlags(tableItem->flags() | Qt::ItemIsUserCheckable);
+        tableItem->setCheckState(Qt::Checked);
+        insertEmptyTableRow();
+        m_newAttributeAdded = false;
       }
     }
 
@@ -431,15 +422,11 @@ void MainWindow::attributeValueChanged(const QString &value) {
 
     /* If we don't know about this value, we need to add it to the DB. */
     QStringList attributeValues =
-        DB::instance()->attributeValues(treeItem->name(),
-                                                       currentAttributeName);
+        m_db.attributeValues(treeItem->name(), currentAttributeName);
 
     if (!attributeValues.contains(value)) {
-      if (!DB::instance()->updateAttributeValues(
-              treeItem->name(), currentAttributeName, QStringList(value))) {
-        MessageSpace::showErrorMessageBox(
-            this, DB::instance()->lastError());
-      }
+      m_db.updateAttributeValues(treeItem->name(), currentAttributeName,
+                                             QStringList(value));
     }
 
     treeItem->includeAttribute(currentAttributeName, value);
@@ -544,8 +531,7 @@ bool MainWindow::openXMLFile() {
         qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 
         if (!ui->treeWidget->batchProcessSuccess()) {
-          MessageSpace::showErrorMessageBox(
-              this, DB::instance()->lastError());
+          // TODO - Review!
         } else {
           qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
           processDOMDoc();
@@ -693,8 +679,7 @@ bool MainWindow::importXMLToDatabase() {
   qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 
   if (!ui->treeWidget->batchProcessSuccess()) {
-    MessageSpace::showErrorMessageBox(
-        this, DB::instance()->lastError());
+    // TODO - Review!
     deleteSpinner();
     return false;
   }
@@ -740,8 +725,7 @@ void MainWindow::addElementToDocument() {
 
     /* Add all the known attributes associated with this element name to the new
      * element. */
-    QStringList attributes =
-        DB::instance()->attributes(elementName);
+    QStringList attributes = m_db.attributes(elementName);
 
     for (int i = 0; i < attributes.size(); ++i) {
       treeItem->element().setAttribute(attributes.at(i), QString(""));
@@ -789,7 +773,7 @@ void MainWindow::insertSnippet(TreeWidgetItem *treeItem, QDomElement element) {
 /*----------------------------------------------------------------------------*/
 
 void MainWindow::removeItemsFromDB() {
-  if (DB::instance()->isProfileEmpty()) {
+  if (m_db.isProfileEmpty()) {
     QMessageBox::warning(this, "Profile Empty",
                          "Active profile empty, nothing to remove.");
     return;
@@ -812,7 +796,7 @@ void MainWindow::removeItemsFromDB() {
 /*----------------------------------------------------------------------------*/
 
 void MainWindow::addItemsToDB() {
-  bool profileWasEmpty = DB::instance()->isProfileEmpty();
+  bool profileWasEmpty = m_db.isProfileEmpty();
 
   /* Delete on close flag set (no clean-up needed). */
   AddItemsForm *form = new AddItemsForm(this);
@@ -822,8 +806,7 @@ void MainWindow::addItemsToDB() {
    * time, make sure that we set the newly added root elements to the dropdown.
    */
   if (profileWasEmpty) {
-    ui->addElementComboBox->addItems(
-        DB::instance()->knownRootElements());
+    ui->addElementComboBox->addItems(m_db.knownRootElements());
     toggleAddElementWidgets();
   }
 }
@@ -943,8 +926,7 @@ void MainWindow::resetDOM() {
   resetTableWidget();
 
   ui->addElementComboBox->clear();
-  ui->addElementComboBox->addItems(
-      DB::instance()->knownRootElements());
+  ui->addElementComboBox->addItems(m_db.knownRootElements());
   toggleAddElementWidgets();
 
   ui->addSnippetButton->setEnabled(false);
@@ -1195,7 +1177,7 @@ void MainWindow::toggleAddElementWidgets() {
 
     /* Check if the element combo box is empty due to an empty profile
       being active. */
-    if (DB::instance()->isProfileEmpty()) {
+    if (m_db.isProfileEmpty()) {
       ui->showEmptyProfileHelpButton->setVisible(true);
     } else {
       ui->showEmptyProfileHelpButton->setVisible(false);
@@ -1242,9 +1224,8 @@ void MainWindow::saveSettings() {
 
 void MainWindow::queryRestoreFiles() {
   QString dbName = GlobalSettings::DB_NAME;
-  QStringList tempFiles =
-      QDir::current().entryList(QDir::Files).filter(QString("%1_temp").arg(
-          dbName.remove(".db")));
+  QStringList tempFiles = QDir::current().entryList(QDir::Files).filter(
+      QString("%1_temp").arg(dbName.remove(".db")));
 
   if (!tempFiles.empty()) {
     QMessageBox::StandardButton accept = QMessageBox::information(
@@ -1265,10 +1246,10 @@ void MainWindow::queryRestoreFiles() {
 
 void MainWindow::saveTempFile() {
   QString dbName = GlobalSettings::DB_NAME;
-  QFile file(
-      QDir::currentPath() +
-      QString("/%1_%2_temp").arg(m_currentXMLFileName.split("/").last()).arg(
-          dbName.remove(".db")));
+  QFile file(QDir::currentPath() +
+             QString("/%1_%2_temp")
+                 .arg(m_currentXMLFileName.split("/").last())
+                 .arg(dbName.remove(".db")));
 
   /* Since this is an attempt at auto-saving, we aim for a "best case" scenario
    * and don't display error messages if encountered. */
@@ -1284,10 +1265,10 @@ void MainWindow::saveTempFile() {
 
 void MainWindow::deleteTempFile() {
   QString dbName = GlobalSettings::DB_NAME;
-  QFile file(
-      QDir::currentPath() +
-      QString("/%1_%2_temp").arg(m_currentXMLFileName.split("/").last()).arg(
-          dbName.remove(".db")));
+  QFile file(QDir::currentPath() +
+             QString("/%1_%2_temp")
+                 .arg(m_currentXMLFileName.split("/").last())
+                 .arg(dbName.remove(".db")));
 
   file.remove();
 }

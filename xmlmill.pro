@@ -37,6 +37,8 @@ QT       += core xml sql widgets
 TARGET = XMLMill
 TEMPLATE = app
 
+CONFIG += c++11
+
 SOURCES += main.cpp\
     db/dbinterface.cpp \
     mainwindow.cpp \

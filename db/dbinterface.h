@@ -33,12 +33,10 @@
 #include <QObject>
 #include <QtSql/QSqlQuery>
 
-class QDomDocument;
-
-/** Provides a Singleton interface to the SQLite databases used to profile XML
-  documents. This class is designed to set up and manage embedded SQLite
-  databases used to profile XML documents.  Databases created by this class will
-  consist of three tables:
+/** Provides an interface to the SQLite database used to profile XML
+  documents. This class is designed to set up and manage an embedded SQLite
+  database used to profile XML documents.  The database consists of three
+  tables:
 
     * "xmlelements"   - accepts element names as unique primary keys and
   associates two fields with each record: "children" represents all the
@@ -60,20 +58,36 @@ class QDomDocument;
     * "rootelements" - consists of a single field containing all known root
   elements stored in a specific database.  If more than one XML profile has
   been loaded into the database in question, the database will have all their
-  root elements listed in this table.
-*/
+  root elements listed in this table. */
+
+class QDomDocument;
+class BatchProcessHelper;
+
 class DB : public QObject {
   Q_OBJECT
 
 public:
-  /*! Singleton accessor. */
-  static DB *instance();
+  /*! Constructor. */
+  DB();
+
+  /*! There is no need for this class to be copyable. */
+  DB(const DB &) = delete;
+
+  /*! There is no need for this class to be assignable. */
+  DB &operator=(const DB &) = delete;
+
+  enum class ActionStatus { Failed, Critical };
 
   /*! Batch process an entire DOM document.  This function processes an entire
      DOM document by adding new (or updating existing) elements with their
      corresponding first level children and associated attributes and known
      attribute values to the active database in batches. */
-  bool batchProcessDomDocument(const QDomDocument *domDoc) const;
+  void batchProcessDomDocument(const QDomDocument *domDoc);
+
+  /*! Marks an element as a known document root element. This function does
+     nothing if the root already exists in the relevant table.
+      @param root - the name of the unique root element */
+  void addRootElement(const QString &root);
 
   /*! Adds a single new element to the active database. This function does
      nothing if an element with the same name already exists.
@@ -82,13 +96,8 @@ public:
      names
       @param attributes - a list of all the element's associated attribute
      names. */
-  bool addElement(const QString &element, const QStringList &children,
-                  const QStringList &attributes) const;
-
-  /*! Marks an element as a known document root element. This function does
-     nothing if the root already exists in the relevant table.
-      @param root - the name of the unique root element */
-  bool addRootElement(const QString &root) const;
+  void addElement(const QString &element, const QStringList &children,
+                  const QStringList &attributes);
 
   /*! Updates the list of known first level children associated with "element"
      by appending the new children to the existing list (nothing is deleted). If
@@ -99,9 +108,8 @@ public:
      names
       @param replace - if true, the child list is replaced, if false, "children"
      is merged with the existing list. */
-  bool updateElementChildren(const QString &element,
-                             const QStringList &children,
-                             bool replace = false) const;
+  void updateElementChildren(const QString &element,
+                             const QStringList &children, bool replace = false);
 
   /*! Updates the list of known attributes associated with "element" by
      appending the new attributes to the existing list (nothing is deleted).  If
@@ -112,9 +120,9 @@ public:
      element
       @param replace - if true, the attribute list is replaced, if false,
      "attributes" is merged with the existing list. */
-  bool updateElementAttributes(const QString &element,
+  void updateElementAttributes(const QString &element,
                                const QStringList &attributes,
-                               bool replace = false) const;
+                               bool replace = false);
 
   /*! Updates the list of known attribute values that is associated with
      "element" and its corresponding "attribute" by appending the new attribute
@@ -126,35 +134,30 @@ public:
      the attribute
       @param replace - if true, the attribute value list is replaced, if false,
      "attributeValues" is merged with the existing list. */
-  bool updateAttributeValues(const QString &element, const QString &attribute,
+  void updateAttributeValues(const QString &element, const QString &attribute,
                              const QStringList &attributeValues,
                              bool replace = false) const;
 
   /*! Removes "element" from the active database. */
-  bool removeElement(const QString &element) const;
+  void removeElement(const QString &element);
 
   /*! Removes "element" from the list of known root elements for the active
    * database. */
-  bool removeRootElement(const QString &element) const;
+  void removeRootElement(const QString &element) const;
 
   /*! Removes "child" from the list of first level element children associated
      with "element" in the active database. */
-  bool removeChildElement(const QString &element, const QString &child) const;
+  void removeChildElement(const QString &element, const QString &child);
 
   /*! Removes "attribute" from the list of attributes associated with "element"
       in the active database. */
-  bool removeAttribute(const QString &element, const QString &attribute) const;
-
-  /*! Returns "true" if an active database session exists, "false" if not.
-      \sa activeSessionName() */
-  bool hasActiveSession() const;
+  void removeAttribute(const QString &element, const QString &attribute);
 
   /*! Returns "true" if the active database is empty, "false" if not. */
   bool isProfileEmpty() const;
 
   /*! Returns "true" if the database named "dbName" knows about "root". */
-  bool containsKnownRootElement(const QString &dbName,
-                                const QString &root) const;
+  bool containsKnownRootElement(const QString &root) const;
 
   /*! Returns true if "element" is a child of "parentElement" only (i.e. it
      doesn't exist in any other first level child list). */
@@ -164,7 +167,7 @@ public:
   /*! Recursively scans the "doc"'s element hierarchy to ensure that all the
      document's elements, element relationships and attributes are known to the
      active profile. */
-  bool isDocumentCompatible(const QDomDocument *doc) const;
+  bool isDocumentCompatible(const QDomDocument *doc);
 
   /*! Returns a sorted (case sensitive, ascending) list of all the element names
      known to the current database connection (the active session). */
@@ -173,15 +176,14 @@ public:
   /*! Returns a sorted (case sensitive, ascending) list of all the first level
      children associated with "element" in the active database, or an empty
      QStringList if unsuccessful/none exist. */
-  QStringList children(const QString &element) const;
+  QStringList children(const QString &element);
 
   /*! Returns an UNSORTED list of all the attribute names associated with
      "element" in the active database (the reason this list is unsorted is that
      all the other lists are used to populate combo boxes, where ordering makes
      sense, but this particular list is used to populate a table), or an empty
-     QStringList if unsuccessful/none exist.
-     */
-  QStringList attributes(const QString &element) const;
+     QStringList if unsuccessful/none exist. */
+  QStringList attributes(const QString &element);
 
   /*! Returns a sorted (case sensitive, ascending) list of all the attribute
      values associated with "element" and its corresponding "attribute" in the
@@ -196,25 +198,16 @@ public:
   /*! Returns the last known error message. */
   const QString &lastError() const;
 
+signals:
+  void dbActionStatus(ActionStatus status, const QString &msg) const;
+
 private:
-  static DB *m_instance;
-
-  /*! Private constructor. */
-  DB();
-
-  /*! Closes copy constructor Singleton "loophole" by making it inaccessible. */
-  DB(const DB &);
-
-  /*! Closes assignment operator Singleton "loophole" by making it inaccessible.
-   */
-  DB &operator=(const DB &);
-
   /*! Returns a list of known attributes. */
   QStringList knownAttributeKeys() const;
 
   /*! Selects "element" from the database.  The active query for the command is
      returned (the function does not care whether or not the record exists). */
-  QSqlQuery selectElement(const QString &element) const;
+  QSqlQuery selectElement(const QString &element);
 
   /*! Selects all the known elements from the database and returns the active
    * query. */
@@ -230,25 +223,38 @@ private:
    * query. */
   QSqlQuery selectAllAttributes() const;
 
-  /*! Overloaded for private use. */
-  QStringList knownRootElements(QSqlDatabase db) const;
+  /*! Checks if DB is valid and open and creates an "empty" query. */
+  QSqlQuery createQuery();
 
   /*! Removes all duplicates that may have been introduced during batch
      processing. After batch processing a DOM document, we concatenate new
      values to existing values in the record fields.  This function removes
      all duplicates that may have been introduced in this way by consolidating
      the values and updating the records. */
-  bool removeDuplicatesFromFields() const;
+  void removeDuplicatesFromFields();
+
+  void removeDuplicateElementChildren(QSqlQuery &query, const QString &element);
+  void removeDuplicateElementAttributes(QSqlQuery &query,
+                                        const QString &element);
+  void removeDuplicateAttributeValues(QSqlQuery &query,
+                                      const QString &associatedElement,
+                                      const QString &attribute);
 
   /*! Opens the database connection corresponding to "dbConName".  This function
      will also close current sessions (if any) before opening the new one. */
-  bool openConnection();
+  void openConnection();
 
   /*! Creates all the relevant database tables. */
-  bool createTables() const;
+  void createTables();
 
+  void batchProcessNewElements(BatchProcessHelper &helper);
+  void batchUpdateExistingElementChildren(BatchProcessHelper &helper);
+  void batchUpdateExistingElementAttributes(BatchProcessHelper &helper);
+  void batchProcessNewAttributeValues(BatchProcessHelper &helper);
+  void batchUpdateExistingAttributeValues(BatchProcessHelper &helper);
+
+private:
   QSqlDatabase m_db;
-  mutable QString m_lastErrorMsg;
 };
 
 #endif // DATABASEINTERFACE_H

@@ -29,7 +29,6 @@
 
 #include "addsnippetsform.h"
 #include "ui_addsnippetsform.h"
-#include "db/dbinterface.h"
 #include "utils/combobox.h"
 #include "utils/messagespace.h"
 #include "utils/globalsettings.h"
@@ -49,9 +48,10 @@ const int INCRCOLUMN = 2;
 AddSnippetsForm::AddSnippetsForm(const QString &elementName,
                                  TreeWidgetItem *parentItem, QWidget *parent)
     : QDialog(parent), ui(new Ui::AddSnippetsForm), m_parentItem(parentItem),
-      m_treeItemActivated(false) {
+      m_db(), m_treeItemActivated(false) {
   ui->setupUi(this);
-  ui->tableWidget->setFont(QFont(GlobalSettings::FONT, GlobalSettings::FONTSIZE));
+  ui->tableWidget->setFont(
+      QFont(GlobalSettings::FONT, GlobalSettings::FONTSIZE));
   ui->tableWidget->horizontalHeader()->setFont(
       QFont(GlobalSettings::FONT, GlobalSettings::FONTSIZE));
 
@@ -70,6 +70,8 @@ AddSnippetsForm::AddSnippetsForm(const QString &elementName,
           SLOT(attributeChanged(QTableWidgetItem *)));
   connect(ui->treeWidget, SIGNAL(CurrentItemSelected(TreeWidgetItem *, int)),
           this, SLOT(elementSelected(TreeWidgetItem *, int)));
+
+  // TODO - connect db action signal to error handler.
 
   setAttribute(Qt::WA_DeleteOnClose);
 }
@@ -92,8 +94,7 @@ void AddSnippetsForm::elementSelected(TreeWidgetItem *item, int column) {
     /* Populate the table widget with the attributes and values associated with
      * the element selected. */
     QString elementName = item->name();
-    QStringList attributeNames =
-        DB::instance()->attributes(elementName);
+    QStringList attributeNames = m_db.attributes(elementName);
 
     /* Create and add the "increment" checkbox to the first column of the table
      * widget, add all the known attribute names to the cells in the second
@@ -124,8 +125,8 @@ void AddSnippetsForm::elementSelected(TreeWidgetItem *item, int column) {
       ui->tableWidget->setItem(i, LABELCOLUMN, label);
 
       ComboBox *attributeCombo = new ComboBox;
-      attributeCombo->addItems(DB::instance()->attributeValues(
-          elementName, attributeNames.at(i)));
+      attributeCombo->addItems(
+          m_db.attributeValues(elementName, attributeNames.at(i)));
       attributeCombo->setEditable(true);
       attributeCombo->setCurrentIndex(attributeCombo->findText(
           item->element().attribute(attributeNames.at(i))));
@@ -264,8 +265,8 @@ void AddSnippetsForm::addSnippet() {
         }
 
         /* This call does nothing if the attribute value already exists. */
-        DB::instance()->updateAttributeValues(
-            elementName, attr.name(), QStringList(attributeValue));
+        m_db.updateAttributeValues(elementName, attr.name(),
+                                   QStringList(attributeValue));
       }
     }
 

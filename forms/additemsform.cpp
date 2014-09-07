@@ -29,7 +29,6 @@
 
 #include "additemsform.h"
 #include "ui_additemsform.h"
-#include "db/dbinterface.h"
 #include "utils/messagespace.h"
 #include "utils/globalsettings.h"
 #include "utils/treewidgetitem.h"
@@ -43,7 +42,7 @@ const QString CREATE_NEW = "Create New Element";
 /*----------------------------------------------------------------------------*/
 
 AddItemsForm::AddItemsForm(QWidget *parent)
-    : QDialog(parent), ui(new Ui::AddItemsForm) {
+    : QDialog(parent), ui(new Ui::AddItemsForm), m_db() {
   ui->setupUi(this);
   ui->showHelpButton->setVisible(GlobalSettings::showHelpButtons());
 
@@ -61,6 +60,8 @@ AddItemsForm::AddItemsForm(QWidget *parent)
     ui->treeWidget->setCurrentItem(ui->treeWidget->topLevelItem(0));
   }
 
+  // TODO - connect db action status signal to error handler!
+
   ui->lineEdit->setFocus();
   setAttribute(Qt::WA_DeleteOnClose);
 }
@@ -76,11 +77,9 @@ void AddItemsForm::populateCombo() {
 
   /* It should not be possible to add the root element as a child to any other
    * element. */
-  QStringList elements(DB::instance()->knownElements());
+  QStringList elements(m_db.knownElements());
 
-  foreach(QString root, DB::instance()->knownRootElements()) {
-    elements.removeAll(root);
-  }
+  foreach(QString root, m_db.knownRootElements()) { elements.removeAll(root); }
 
   ui->comboBox->addItem(CREATE_NEW);
   ui->comboBox->addItems(elements);
@@ -95,38 +94,23 @@ void AddItemsForm::addElementAndAttributes() {
   if (!element.isEmpty()) {
     QStringList attributes = ui->plainTextEdit->toPlainText().split("\n");
 
-    if (DB::instance()->knownElements().contains(element)) {
-      if (!DB::instance()->updateElementAttributes(element,
-                                                                  attributes)) {
-        MessageSpace::showErrorMessageBox(
-            this, DB::instance()->lastError());
-      }
+    if (m_db.knownElements().contains(element)) {
+      m_db.updateElementAttributes(element, attributes);
     } else {
-      if (!DB::instance()->addElement(element, QStringList(),
-                                                     attributes)) {
-        MessageSpace::showErrorMessageBox(
-            this, DB::instance()->lastError());
-      }
+      m_db.addElement(element, QStringList(), attributes);
     }
 
     /* If the profile is empty, add the new element as a root element by
      * default. */
-    if (DB::instance()->isProfileEmpty()) {
-      if (!DB::instance()->addRootElement(element)) {
-        MessageSpace::showErrorMessageBox(
-            this, DB::instance()->lastError());
-      }
-
+    if (m_db.isProfileEmpty()) {
+      m_db.addRootElement(element);
       ui->treeWidget->addItem(element);
     } else {
       /* If the profile isn't empty, the user must specify a parent element. */
       if (ui->treeWidget->currentItem()) {
         /* Also add it to the parent element's child list. */
-        if (!DB::instance()->updateElementChildren(
-                ui->treeWidget->CurrentItem()->name(), QStringList(element))) {
-          MessageSpace::showErrorMessageBox(
-              this, DB::instance()->lastError());
-        }
+        m_db.updateElementChildren(ui->treeWidget->CurrentItem()->name(),
+                                   QStringList(element));
 
         ui->treeWidget->insertItem(element, 0);
       } else {
@@ -150,7 +134,7 @@ void AddItemsForm::comboValueChanged(const QString &element) {
     ui->lineEdit->setText(element);
     ui->lineEdit->setEnabled(false);
 
-    QStringList attributes = DB::instance()->attributes(element);
+    QStringList attributes = m_db.attributes(element);
 
     ui->plainTextEdit->clear();
 

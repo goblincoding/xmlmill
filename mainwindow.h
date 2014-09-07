@@ -30,6 +30,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "db/dbinterface.h"
+
 #include <QMainWindow>
 #include <QHash>
 #include <QDomElement>
@@ -38,7 +40,6 @@ namespace Ui {
 class MainWindow;
 }
 
-class DBSessionManager;
 class TreeWidgetItem;
 class QSignalMapper;
 class QTableWidgetItem;
@@ -397,6 +398,7 @@ private:
       \sa queryRestorefiles */
   void deleteTempFile();
 
+private:
   Ui::MainWindow *ui;
   QSignalMapper *m_signalMapper;
   QTableWidgetItem *m_activeAttribute;
@@ -407,6 +409,9 @@ private:
   QMovie *m_spinner;
   QString m_currentXMLFileName;
   QString m_activeAttributeName;
+
+  DB m_db;
+
   bool m_wasTreeItemActivated;
   bool m_newAttributeAdded;
   bool m_busyImporting;

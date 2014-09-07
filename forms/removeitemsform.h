@@ -30,6 +30,8 @@
 #ifndef REMOVEITEMSFORM_H
 #define REMOVEITEMSFORM_H
 
+#include "db/dbinterface.h"
+
 #include <QDialog>
 #include <QList>
 
@@ -111,6 +113,8 @@ private:
   QString m_currentElementParent;
   QString m_currentAttribute;
   QList<QString> m_deletedElements;
+
+  DB m_db;
 };
 
 #endif // REMOVEITEMSFORM_H
