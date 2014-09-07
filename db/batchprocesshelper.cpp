@@ -31,13 +31,12 @@
 
 #include <QDomDocument>
 
-/*--------------------------------- MEMBER FUNCTIONS
- * ----------------------------------*/
+/*----------------------------------------------------------------------------*/
 
 BatchProcessHelper::BatchProcessHelper(const QDomDocument *domDoc,
-                                           const QString &stringListSeparator,
-                                           const QStringList &knownElements,
-                                           const QStringList &knownAttributes)
+                                       const QString &stringListSeparator,
+                                       const QStringList &knownElements,
+                                       const QStringList &knownAttributes)
     : m_stringListSeparator(stringListSeparator),
       m_knownElements(knownElements), m_knownAttributeKeys(knownAttributes),
       m_newElementsToAdd(), m_newElementChildrenToAdd(),

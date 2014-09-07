@@ -74,10 +74,9 @@ public:
    * @param knownAttributes - the list of attributes known to
    * the active database, if empty, all the attributes in the DOM will be
    * assumed to be new.  */
-  BatchProcessHelper(const QDomDocument *domDoc,
-                       const QString &stringSeparator,
-                       const QStringList &knownElements,
-                       const QStringList &knownAttributes);
+  BatchProcessHelper(const QDomDocument *domDoc, const QString &stringSeparator,
+                     const QStringList &knownElements,
+                     const QStringList &knownAttributes);
 
   /*! Returns a list of all the new element names that should be added to the
      database.
