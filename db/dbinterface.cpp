@@ -86,7 +86,7 @@ DB::DB() : m_db() {
 
 /*----------------------------------------------------------------------------*/
 
-void DB::batchProcessDomDocument(const QDomDocument *domDoc) {
+void DB::processDomDocument(const QDomDocument *domDoc) {
   assert(domDoc && !domDoc->isNull() &&
          "DB: Attempting to batch process a NULL DOM Document");
 
@@ -104,7 +104,7 @@ void DB::batchProcessDomDocument(const QDomDocument *domDoc) {
       QString error = QString("Prepare batch INSERT elements failed: [%1]")
                           .arg(query.lastError().text());
 
-      emit dbActionStatus(ActionStatus::Failed, error);
+      emit result(Result::Failed, error);
       return;
     }
 
@@ -114,7 +114,7 @@ void DB::batchProcessDomDocument(const QDomDocument *domDoc) {
     if (!query.execBatch()) {
       QString error = QString("Batch INSERT or REPLACE elements failed: [%1]")
                           .arg(query.lastError().text());
-      emit dbActionStatus(ActionStatus::Failed, error);
+      emit result(Result::Failed, error);
     }
   }
 }
@@ -128,7 +128,7 @@ void DB::addElement(const QString &element, const QString &parent,
   assert(!root.isEmpty() && "DB::addElement - root string empty");
 
   if (!element.isEmpty() && !parent.isEmpty() && !root.isEmpty()) {
-    QSqlQuery query = selectElement(root, element);
+    QSqlQuery query = selectElement(root, parent, element);
 
     /* If we don't have an existing record, add it. */
     if (!query.first()) {
@@ -139,7 +139,7 @@ void DB::addElement(const QString &element, const QString &parent,
             QString("Prepare INSERT element failed for element \"%1\": [%2]")
                 .arg(element)
                 .arg(query.lastError().text());
-        emit dbActionStatus(ActionStatus::Failed, error);
+        emit result(Result::Failed, error);
         return;
       }
 
@@ -152,7 +152,7 @@ void DB::addElement(const QString &element, const QString &parent,
             QString("INSERT element failed for element \"%1\": [%2]")
                 .arg(element)
                 .arg(query.lastError().text());
-        emit dbActionStatus(ActionStatus::Failed, error);
+        emit result(Result::Failed, error);
       }
     }
   }
@@ -161,16 +161,22 @@ void DB::addElement(const QString &element, const QString &parent,
 /*----------------------------------------------------------------------------*/
 
 void DB::addRootElement(const QString &root) {
+  assert(!root.isEmpty() &&
+         "DB::addRootElement - attempting to add an empty root name");
+
+  /* Since we are dealing with a single column table, it is faster (and much
+   * less complicated) to simply overwrite an existing record if it exists, than
+   * to first query its existence before inserting a new record. */
   if (!root.isEmpty()) {
     QSqlQuery query = createQuery();
 
-    /* First see if we perhaps know of this root element already. */
-    if (!query.prepare("SELECT * FROM rootelements WHERE root = ? ")) {
+    if (!query.prepare(
+            "INSERT or REPLACE INTO rootelements ( root ) VALUES( ? )")) {
       QString error =
-          QString("Prepare SELECT root element failed for root \"%1\": [%2]")
+          QString("Prepare INSERT root element failed for root \"%1\": [%2]")
               .arg(root)
               .arg(query.lastError().text());
-      emit dbActionStatus(ActionStatus::Failed, error);
+      emit result(Result::Failed, error);
       return;
     }
 
@@ -178,83 +184,10 @@ void DB::addRootElement(const QString &root) {
 
     if (!query.exec()) {
       QString error =
-          QString("SELECT root element failed for root \"%1\": [%2]")
+          QString("INSERT root element failed for element \"%1\": [%2]")
               .arg(root)
               .arg(query.lastError().text());
-      emit dbActionStatus(ActionStatus::Failed, error);
-      return;
-    }
-
-    /* Make sure we aren't trying to insert a known root element. */
-    if (!query.first()) {
-      if (!query.prepare("INSERT INTO rootelements ( root ) VALUES( ? )")) {
-        QString error =
-            QString("Prepare INSERT root element failed for root \"%1\": [%2]")
-                .arg(root)
-                .arg(query.lastError().text());
-        emit dbActionStatus(ActionStatus::Failed, error);
-        return;
-      }
-
-      query.addBindValue(root);
-
-      if (!query.exec()) {
-        QString error =
-            QString("INSERT root element failed for element \"%1\": [%2]")
-                .arg(root)
-                .arg(query.lastError().text());
-        emit dbActionStatus(ActionStatus::Failed, error);
-      }
-    }
-  }
-}
-
-/*----------------------------------------------------------------------------*/
-
-void DB::updateElementAttributes(const QString &associatedRoot,
-                                 const QString &element,
-                                 const QStringList &attributes, bool replace) {
-  if (!element.isEmpty()) {
-    QSqlQuery query = selectElement(associatedRoot, element);
-
-    /* Update the existing record (if we have one). */
-    if (query.first()) {
-      QStringList allAttributes;
-
-//      if (!replace) {
-//        allAttributes.append(
-//            query.record().field("attributes").value().toString().split(
-//                SEPARATOR));
-//      }
-
-      /* Add it here so that we append the new attributes to the end of the
-       * list.
-       */
-      allAttributes.append(attributes);
-
-      if (!query.prepare(UPDATE_ATTRIBUTES)) {
-        QString error = QString("Prepare UPDATE element attribute failed for "
-                                "element \"%1\": [%2]")
-                            .arg(element)
-                            .arg(query.lastError().text());
-        emit dbActionStatus(ActionStatus::Failed, error);
-        return;
-      }
-
-      //query.addBindValue(cleanAndJoinListElements(allAttributes));
-      query.addBindValue(element);
-      query.addBindValue(associatedRoot);
-
-      if (!query.exec()) {
-        QString error =
-            QString("UPDATE attribute failed for element \"%1\": [%2]")
-                .arg(element)
-                .arg(query.lastError().text());
-        emit dbActionStatus(ActionStatus::Failed, error);
-      }
-    } else {
-      QString error = QString("No element \"%1\" exists.").arg(element);
-      emit dbActionStatus(ActionStatus::Failed, error);
+      emit result(Result::Failed, error);
     }
   }
 }
@@ -277,30 +210,30 @@ void DB::updateAttributeValues(const QString &element, const QString &attribute,
                                 "element \"%1\": [%2]")
                             .arg(element)
                             .arg(query.lastError().text());
-        emit dbActionStatus(ActionStatus::Failed, error);
+        emit result(Result::Failed, error);
         return;
       }
 
       query.addBindValue(attribute);
       query.addBindValue(element);
-      //query.addBindValue(cleanAndJoinListElements(attributeValues));
+      // query.addBindValue(cleanAndJoinListElements(attributeValues));
 
       if (!query.exec()) {
         QString error =
             QString("INSERT attribute failed for element \"%1\": [%2]")
                 .arg(element)
                 .arg(query.lastError().text());
-        emit dbActionStatus(ActionStatus::Failed, error);
+        emit result(Result::Failed, error);
         return;
       }
     } else {
       QStringList existingValues(attributeValues);
 
-//      if (!replace) {
-//        existingValues.append(
-//            query.record().field("attributeValues").value().toString().split(
-//                SEPARATOR));
-//      }
+      //      if (!replace) {
+      //        existingValues.append(
+      //            query.record().field("attributeValues").value().toString().split(
+      //                SEPARATOR));
+      //      }
 
       /* The reason for not using concatenated values here is that we don't
         simply want to add all the supposed new values, we want to make sure
@@ -312,11 +245,11 @@ void DB::updateAttributeValues(const QString &element, const QString &attribute,
                             .arg(element)
                             .arg(attribute)
                             .arg(query.lastError().text());
-        emit dbActionStatus(ActionStatus::Failed, error);
+        emit result(Result::Failed, error);
         return;
       }
 
-      //query.addBindValue(cleanAndJoinListElements(existingValues));
+      // query.addBindValue(cleanAndJoinListElements(existingValues));
       query.addBindValue(attribute);
       query.addBindValue(element);
 
@@ -326,7 +259,7 @@ void DB::updateAttributeValues(const QString &element, const QString &attribute,
                             .arg(element)
                             .arg(attribute)
                             .arg(query.lastError().text());
-        emit dbActionStatus(ActionStatus::Failed, error);
+        emit result(Result::Failed, error);
       }
     }
   }
@@ -334,85 +267,31 @@ void DB::updateAttributeValues(const QString &element, const QString &attribute,
 
 /*----------------------------------------------------------------------------*/
 
-void DB::removeElement(const QString &associatedRoot, const QString &element) {
-  QSqlQuery query = selectElement(associatedRoot, element);
+void DB::removeElement(const QString &element, const QString&parent, const QString &root) {
+  QSqlQuery query = selectElement(element, parent, root);
 
   /* Only continue if we have an existing record. */
   if (query.first()) {
-    if (!query.prepare("DELETE FROM xml WHERE element = ?")) {
+    if (!query.prepare("DELETE FROM xml WHERE element = ? AND parent = ? AND root = ?")) {
       QString error =
           QString("Prepare DELETE element failed for element \"%1\": [%3]")
               .arg(element)
               .arg(query.lastError().text());
-      emit dbActionStatus(ActionStatus::Failed, error);
+      emit result(Result::Failed, error);
       return;
     }
 
     query.addBindValue(element);
-    query.addBindValue(associatedRoot);
+    query.addBindValue(parent);
+    query.addBindValue(root);
 
     if (!query.exec()) {
       QString error = QString("DELETE element failed for element \"%1\": [%3]")
                           .arg(element)
                           .arg(query.lastError().text());
-      emit dbActionStatus(ActionStatus::Failed, error);
+      emit result(Result::Failed, error);
     }
   }
-}
-
-/*----------------------------------------------------------------------------*/
-
-void DB::removeChildElement(const QString &associatedRoot,
-                            const QString &element, const QString &child) {
-  QSqlQuery query = selectElement(associatedRoot, element);
-
-  /* Update the existing record (if we have one). */
-//  if (query.first()) {
-//    QStringList allChildren(
-//        query.record().field("children").value().toString().split(SEPARATOR));
-//    allChildren.removeAll(child);
-//    updateElementChildren(associatedRoot, element, allChildren, true);
-//  }
-}
-
-/*----------------------------------------------------------------------------*/
-
-void DB::removeAttribute(const QString &associatedRoot, const QString &element,
-                         const QString &attribute) {
-  QSqlQuery query = selectAttribute(attribute, element);
-
-  /* Only continue if we have an existing record. */
-  if (query.first()) {
-    if (!query.prepare("DELETE FROM xmlattributes "
-                       "WHERE attribute = ? "
-                       "AND associatedElement = ?")) {
-      QString error = QString("Prepare DELETE attribute failed for element "
-                              "\"%1\" and attribute \"%2\": [%3]")
-                          .arg(element)
-                          .arg(attribute)
-                          .arg(query.lastError().text());
-      emit dbActionStatus(ActionStatus::Failed, error);
-      return;
-    }
-
-    query.addBindValue(attribute);
-    query.addBindValue(element);
-
-    if (!query.exec()) {
-      QString error = QString("DELETE attribute failed for element \"%1\" and "
-                              "attribute [%2]: [%3]")
-                          .arg(element)
-                          .arg(attribute)
-                          .arg(query.lastError().text());
-      emit dbActionStatus(ActionStatus::Failed, error);
-      return;
-    }
-  }
-
-  query = selectElement(associatedRoot, element);
-  QStringList allAttributes = attributes(associatedRoot, element);
-  allAttributes.removeAll(attribute);
-  updateElementAttributes(associatedRoot, element, allAttributes, true);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -424,7 +303,7 @@ void DB::removeRootElement(const QString &root) const {
     QString error = QString("Prepare DELETE failed for root \"%1\": [%2]")
                         .arg(root)
                         .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
+    emit result(Result::Failed, error);
     return;
   }
 
@@ -434,7 +313,7 @@ void DB::removeRootElement(const QString &root) const {
     QString error = QString("DELETE root element failed for root \"%1\": [%2]")
                         .arg(root)
                         .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
+    emit result(Result::Failed, error);
   }
 }
 
@@ -450,11 +329,12 @@ bool DB::isUniqueChildElement(const QString &associatedRoot,
   QSqlQuery query = selectAllElements(associatedRoot);
 
   while (query.next()) {
-//    if (query.record().field("element").value().toString() != parentElement &&
-//        query.record().value("children").toString().split(SEPARATOR).contains(
-//            element)) {
-//      return false;
-//    }
+    //    if (query.record().field("element").value().toString() !=
+    // parentElement &&
+    //        query.record().value("children").toString().split(SEPARATOR).contains(
+    //            element)) {
+    //      return false;
+    //    }
   }
 
   return true;
@@ -470,22 +350,23 @@ QStringList DB::knownElements(const QString &associatedRoot) const {
     elementNames.append(query.record().field("element").value().toString());
   }
 
-  //cleanList(elementNames);
+  // cleanList(elementNames);
   elementNames.sort();
   return elementNames;
 }
 
 /*----------------------------------------------------------------------------*/
 
-QStringList DB::children(const QString &associatedRoot,
-                         const QString &element) {
-  QSqlQuery query = selectElement(associatedRoot, element);
+QStringList DB::children(const QString &element,
+                         const QString &parent,
+                         const QString &root) {
+  QSqlQuery query = selectElement(element, parent, root);
 
   /* There should be only one record corresponding to this element. */
   if (!query.first()) {
-    QString error = QString("ActionStatus::Failed to obtain the list of "
+    QString error = QString("Result::Failed to obtain the list of "
                             "children for element \"%1\"").arg(element);
-    emit dbActionStatus(ActionStatus::Failed, error);
+    emit result(Result::Failed, error);
     return QStringList();
   }
 
@@ -498,15 +379,16 @@ QStringList DB::children(const QString &associatedRoot,
 
 /*----------------------------------------------------------------------------*/
 
-QStringList DB::attributes(const QString &associatedRoot,
-                           const QString &element) {
-  QSqlQuery query = selectElement(associatedRoot, element);
+QStringList DB::attributes(const QString &element,
+                           const QString &parent,
+                           const QString &root) {
+  QSqlQuery query = selectElement(element, parent, root);
 
   /* There should be only one record corresponding to this element. */
   if (!query.first()) {
-    QString error = QString("ActionStatus::Failed to obtain the list of "
+    QString error = QString("Result::Failed to obtain the list of "
                             "attributes for element \"%1\"").arg(element);
-    emit dbActionStatus(ActionStatus::Failed, error);
+    emit result(Result::Failed, error);
     return QStringList();
   }
 
@@ -525,9 +407,9 @@ QStringList DB::attributeValues(const QString &element,
   /* There should be only one record corresponding to this element. */
   if (!query.first()) {
     QString error =
-        QString("ActionStatus::Failed to obtain the list of attribute values "
+        QString("Result::Failed to obtain the list of attribute values "
                 "for attribute \"%1\"").arg(attribute);
-    emit dbActionStatus(ActionStatus::Failed, error);
+    emit result(Result::Failed, error);
     return QStringList();
   }
 
@@ -546,7 +428,7 @@ QStringList DB::knownRootElements() const {
   if (!query.exec("SELECT * FROM rootelements")) {
     QString error = QString("SELECT all root elements failed: [%1]")
                         .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
+    emit result(Result::Failed, error);
     return QStringList();
   }
 
@@ -556,7 +438,7 @@ QStringList DB::knownRootElements() const {
     rootElements.append(query.record().field("root").value().toString());
   }
 
-  //cleanList(rootElements);
+  // cleanList(rootElements);
   return rootElements;
 }
 
@@ -587,26 +469,26 @@ QStringList DB::knownAttributeKeys() const {
 
 /*----------------------------------------------------------------------------*/
 
-QSqlQuery DB::selectElement(const QString &associatedRoot,
-                            const QString &element) {
-  /* See if we already have this element in the DB. */
+QSqlQuery DB::selectElement(const QString &element, const QString &parent,
+                            const QString &root) {
   QSqlQuery query = createQuery();
 
-  if (!query.prepare("SELECT * FROM xml WHERE element = ? AND root = ?")) {
+  if (!query.prepare("SELECT * FROM xml WHERE element = ? AND parent = ? AND root = ?")) {
     QString error = QString("Prepare SELECT failed for element \"%1\": [%2]")
                         .arg(element)
                         .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
+    emit result(Result::Failed, error);
   }
 
   query.addBindValue(element);
-  query.addBindValue(associatedRoot);
+  query.addBindValue(parent);
+  query.addBindValue(root);
 
   if (!query.exec()) {
     QString error = QString("SELECT element failed for element \"%1\": [%2]")
                         .arg(element)
                         .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
+    emit result(Result::Failed, error);
   }
 
   return query;
@@ -621,7 +503,7 @@ QSqlQuery DB::selectAllElements(const QString &associatedRoot) const {
     QString error = QString("Prepare SELECT failed for root \"%1\": [%2]")
                         .arg(associatedRoot)
                         .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
+    emit result(Result::Failed, error);
   }
 
   query.addBindValue(associatedRoot);
@@ -629,7 +511,7 @@ QSqlQuery DB::selectAllElements(const QString &associatedRoot) const {
   if (!query.exec()) {
     QString error = QString("SELECT all root elements failed: [%1]")
                         .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
+    emit result(Result::Failed, error);
   }
 
   return query;
@@ -649,7 +531,7 @@ QSqlQuery DB::selectAttribute(const QString &attribute,
                         .arg(attribute)
                         .arg(associatedElement)
                         .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
+    emit result(Result::Failed, error);
   }
 
   query.addBindValue(attribute);
@@ -661,7 +543,7 @@ QSqlQuery DB::selectAttribute(const QString &attribute,
                         .arg(attribute)
                         .arg(associatedElement)
                         .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
+    emit result(Result::Failed, error);
   }
 
   return query;
@@ -675,7 +557,7 @@ QSqlQuery DB::selectAllAttributes() const {
   if (!query.exec("SELECT * FROM xmlattributes")) {
     QString error = QString("SELECT all attribute values failed: [%1]")
                         .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
+    emit result(Result::Failed, error);
   }
 
   return query;
@@ -695,134 +577,6 @@ QSqlQuery DB::createQuery() {
 
 /*----------------------------------------------------------------------------*/
 
-void DB::removeDuplicatesFromFields(const QString &root) {
-  /* Remove duplicates and update the element records. */
-  QStringList elementNames = knownElements(root);
-
-  for (int i = 0; i < elementNames.size(); ++i) {
-    const QString &element = elementNames.at(i);
-    QSqlQuery query = selectElement(root, element);
-
-    /* Not checking for query validity since the table may still be empty when
-      this funciton gets called (i.e. there is a potentially valid reason for
-      cases where no valid records exist). */
-    if (query.first()) {
-      removeDuplicateElementChildren(query, root, element);
-      removeDuplicateElementAttributes(query, root, element);
-      qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
-    }
-  }
-
-  /* Remove duplicates and update the attribute values records. */
-  QStringList attributeKeys = knownAttributeKeys();
-
-  for (int i = 0; i < attributeKeys.size(); ++i) {
-    QString attribute = attributeKeys.at(i).split("!").at(0);
-    QString associatedElement = attributeKeys.at(i).split("!").at(1);
-    QSqlQuery query = selectAttribute(attribute, associatedElement);
-
-    /* Not checking for query validity since the table may still be empty when
-      this funciton gets called (i.e. there is a potentially valid reason for
-      cases where no valid records exist). So, does a record for this attribute
-      exist? */
-    if (query.first()) {
-      removeDuplicateAttributeValues(query, associatedElement, attribute);
-      qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
-    }
-  }
-}
-
-/*----------------------------------------------------------------------------*/
-
-void DB::removeDuplicateElementChildren(QSqlQuery &query, const QString &root,
-                                        const QString &element) {
-//  QStringList allChildren(
-//      query.record().field("children").value().toString().split(SEPARATOR));
-
-  if (!query.prepare(UPDATE_CHILDREN)) {
-    QString error = QString("Prepare UPDATE element children failed for "
-                            "element \"%1\": [%2]")
-                        .arg(element)
-                        .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
-    return;
-  }
-
-  //query.addBindValue(cleanAndJoinListElements(allChildren));
-  query.addBindValue(element);
-  query.addBindValue(root);
-
-  if (!query.exec()) {
-    QString error = QString("UPDATE children failed for element \"%1\": [%2]")
-                        .arg(element)
-                        .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
-  }
-}
-
-/*----------------------------------------------------------------------------*/
-
-void DB::removeDuplicateElementAttributes(QSqlQuery &query, const QString &root,
-                                          const QString &element) {
-//  QStringList allAttributes(
-//      query.record().field("attributes").value().toString().split(SEPARATOR));
-
-  if (!query.prepare(UPDATE_ATTRIBUTES)) {
-    QString error = QString("Prepare UPDATE element attributes failed for "
-                            "element \"%1\": [%2]")
-                        .arg(element)
-                        .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
-    return;
-  }
-
-  //query.addBindValue(cleanAndJoinListElements(allAttributes));
-  query.addBindValue(element);
-  query.addBindValue(root);
-
-  if (!query.exec()) {
-    QString error = QString("UPDATE attributes failed for element \"%1\": [%2]")
-                        .arg(element)
-                        .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
-  }
-}
-
-/*----------------------------------------------------------------------------*/
-
-void DB::removeDuplicateAttributeValues(QSqlQuery &query,
-                                        const QString &associatedElement,
-                                        const QString &attribute) {
-//  QStringList allValues(
-//      query.record().field("attributeValues").value().toString().split(
-//          SEPARATOR));
-
-  if (!query.prepare(UPDATE_ATTRIBUTEVALUES)) {
-    QString error = QString("Prepare UPDATE attribute values failed for "
-                            "element \"%1\" and attribute \"%2\": [%3]")
-                        .arg(associatedElement)
-                        .arg(attribute)
-                        .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
-    return;
-  }
-
-  //query.addBindValue(cleanAndJoinListElements(allValues));
-  query.addBindValue(attribute);
-  query.addBindValue(associatedElement);
-
-  if (!query.exec()) {
-    QString error = QString("UPDATE attribute values failed for element "
-                            "\"%1\" and attribute \"%2\": [%3]")
-                        .arg(associatedElement)
-                        .arg(attribute)
-                        .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
-  }
-}
-
-/*----------------------------------------------------------------------------*/
-
 void DB::openConnection() {
   const QString &dbName = GlobalSettings::DB_NAME;
 
@@ -838,12 +592,11 @@ void DB::openConnection() {
   }
 
   if (!m_db.open()) {
-    QString error =
-        QString("ActionStatus::Failed to open database \"%1\": [%2].")
-            .arg(dbName)
-            .arg(m_db.lastError().text());
+    QString error = QString("Result::Failed to open database \"%1\": [%2].")
+                        .arg(dbName)
+                        .arg(m_db.lastError().text());
 
-    emit dbActionStatus(ActionStatus::Critical, error);
+    emit result(Result::Critical, error);
   }
 }
 
@@ -870,7 +623,7 @@ void DB::createRootTable() {
                             "table for \"%1\": [%2]")
                         .arg(m_db.connectionName())
                         .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
+    emit result(Result::Failed, error);
   }
 }
 
@@ -888,10 +641,10 @@ void DB::createXmlTable() {
                   "UNIQUE(value, attribute, element, parent, root), "
                   "FOREIGN KEY( root ) REFERENCES rootelements( root ) )")) {
     QString error =
-        QString("ActionStatus::Failed to create XML table for \"%1\": [%2].")
+        QString("Result::Failed to create XML table for \"%1\": [%2].")
             .arg(m_db.connectionName())
             .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Critical, error);
+    emit result(Result::Critical, error);
   }
 }
 

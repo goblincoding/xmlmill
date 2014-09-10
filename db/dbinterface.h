@@ -34,25 +34,17 @@
 #include <QSqlQuery>
 
 /** Provides an interface to the SQLite database used to profile XML
-  documents. This database consists of three tables:
+  documents. This database consists of two tables:
 
     * "rootelements" - consists of a single field containing all known root
   elements (representing unique document styles/types).
 
-    * "xml"   - accepts an element name as primary key and references
-  the unique root element (document type) it is known to be associated with as
-  foreign key. Two additional fields are associates with each record: "children"
-  represents all the first level children of the element in question and
-  "attributes" contain all the attributes known to be associated with the
-  element.
-
-    * "xmlattributes" - accepts an attribute name as primary key and references
-  the unique element it is known to be associated with as foreign key.  Only one
-  additional field exists for each record: "attributevalues" contains all the
-  values ever associated with this particular attribute when assigned to the
-  specific element it references as foreign key.  In other words, if element "x"
-  is known to have had attribute "y" associated with it, then "attributevalues"
-  will contain all the values ever assigned to "y" when associated with "x". */
+    * "xml" - each record consists of a value, associated attribute, associated
+  element, the element's parent and the document's root element name. It is
+  possible to have only a trio of element, parent and root (since not all
+  elements have attributes) and each record must be unique. This table
+  furthermore references the "rootelements" table's "root" column as foreign
+  key. */
 
 class QDomDocument;
 
@@ -69,31 +61,28 @@ public:
   /*! There is no need for this class to be assignable. */
   DB &operator=(const DB &) = delete;
 
-  /*! Used to communicate DB errors via the \sa dbActionStatus signal. */
-  enum class ActionStatus {
+  /*! Used to communicate DB errors via the \sa result signal. */
+  enum class Result {
     Failed,  /*!< Generally used to communicate DB query failures. */
     Critical /*!< Used to communinicate DB creation failures. */
   };
 
-  /*! Batch process an entire DOM document. This function processes an entire
-     DOM document by adding new (or updating existing) elements with their
-     corresponding first level children, associated attributes and known
-     attribute values to the active database. */
-  void batchProcessDomDocument(const QDomDocument *domDoc);
+  /*! Processes an entire DOM document, inserting new and replacing
+   * existing records in the database. */
+  void processDomDocument(const QDomDocument *domDoc);
 
-  /*! Adds a new known document root element. Root elements are representative
-     of their associated document type.  This function does nothing if the root
-     already exists in the relevant table. */
+  /*! Adds a new root element (document type). Root elements are representative
+   * of their associated document types and the corresponding XML "style". This
+   * function does nothing if the root already exists in the relevant table. */
   void addRootElement(const QString &root);
 
   /*! Adds a single new element to the active database. This function does
-     nothing if an element with the same name already exists.
-     @param associatedRoot - the root element of the associated document type
+     nothing if an element with the same name already exists. The "value" and
+     "attribute" fields' values are defaulted to empty strings (if you
      @param element - the unique element name
-     @param children - a list of the element's first level child elements'
-     names
-     @param attributes - a list of all the element's associated attribute
-     names. */
+     @param parent - the name of the element's parent
+     @param root - the name of the root element of the associated document type
+     */
   void addElement(const QString &element, const QString &parent,
                   const QString &root);
 
@@ -111,20 +100,6 @@ public:
                              const QString &element,
                              const QStringList &children, bool replace);
 
-  /*! Updates the list of known attributes associated with "element"
-   * if "replace" is true, the existing values are replaced by those in the
-     parameter list, otherwise the new attributes are simply appended to the
-     existing list.
-     @param associatedRoot - the root element of the associated document type
-     @param element - the unique name of the element to be updated
-     @param attributes - a list of the attribute names associated with the
-     element
-     @param replace - if true, the attribute list is replaced, if false,
-     "attributes" is merged with the existing list. */
-  void updateElementAttributes(const QString &associatedRoot,
-                               const QString &element,
-                               const QStringList &attributes, bool replace);
-
   /*! Updates the list of known attribute values that is associated with
      "element" and its corresponding "attribute", if "replace" is true, the
      existing values are replaced by those in the parameter list
@@ -138,24 +113,14 @@ public:
                              const QStringList &attributeValues,
                              bool replace) const;
 
-  /*! Removes the "element" associated with "associatedRoot" from the active
+  /*! Removes the "element" that has "parent" in document "root" from the active
    * database. */
-  void removeElement(const QString &associatedRoot, const QString &element);
+  void removeElement(const QString &element, const QString &parent,
+                     const QString &root);
 
   /*! Removes "root" (a specific document type) from the list of known root
    * elements for the active database. */
   void removeRootElement(const QString &root) const;
-
-  /*! Removes "child" from the list of first level element children associated
-     with "element" and the "associatedRoot" document type from the active
-     database. */
-  void removeChildElement(const QString &associatedRoot, const QString &element,
-                          const QString &child);
-
-  /*! Removes "attribute" from the list of attributes associated with "element"
-     and the "associatedRoot" document type from the active database.  */
-  void removeAttribute(const QString &associatedRoot, const QString &element,
-                       const QString &attribute);
 
   /*! Returns "true" if the active database is empty, "false" if not. */
   bool isProfileEmpty() const;
@@ -177,7 +142,7 @@ public:
   /*! Returns a sorted (case sensitive, ascending) list of all the first level
      children associated with "element" and the "associatedRoot" document type,
      or an empty QStringList if unsuccessful/none exist. */
-  QStringList children(const QString &associatedRoot, const QString &element);
+  QStringList children(const QString &element, const QString &parent, const QString &root);
 
   /*! Returns an UNSORTED list of all the attribute names associated with
      "element" and the "associatedRoot" document type in the database (the
@@ -185,7 +150,7 @@ public:
      populate combo boxes, where ordering makes sense, but this particular list
      is used to populate a table), or an empty QStringList if unsuccessful/none
      exist. */
-  QStringList attributes(const QString &associatedRoot, const QString &element);
+  QStringList attributes(const QString &element, const QString &parent, const QString &root);
 
   /*! Returns a sorted (case sensitive, ascending) list of all the attribute
      values associated with "element" and its corresponding "attribute" in the
@@ -198,7 +163,7 @@ public:
   QStringList knownRootElements() const;
 
 signals:
-  void dbActionStatus(ActionStatus status, const QString &error) const;
+  void result(Result status, const QString &error) const;
 
 private:
   /*! Returns a list of known attributes. */
@@ -207,8 +172,8 @@ private:
   /*! Selects "element" from the "associatedRoot" document type from the
      database.  The active query for the command is returned (the function does
      not care whether or not the record exists). */
-  QSqlQuery selectElement(const QString &associatedRoot,
-                          const QString &element);
+  QSqlQuery selectElement(const QString &element, const QString &parent,
+                          const QString &root);
 
   /*! Selects all the known elements from the "associatedRoot" document type
      from the database and returns the active query. */
@@ -226,24 +191,6 @@ private:
 
   /*! Checks if DB is valid and open and creates an "empty" query. */
   QSqlQuery createQuery();
-
-  /*! Removes all duplicates that may have been introduced during batch
-     processing. After batch processing a DOM document, we concatenate new
-     values to existing values in the record fields.  This function removes
-     all duplicates that may have been introduced in this way by consolidating
-     the values and updating the records.
-     \sa removeDuplicateElementChildren
-     \sa removeDuplicateElementAttributes
-     \sa removeDuplicateAttributeValues */
-  void removeDuplicatesFromFields(const QString &root);
-
-  void removeDuplicateElementChildren(QSqlQuery &query, const QString &root,
-                                      const QString &element);
-  void removeDuplicateElementAttributes(QSqlQuery &query, const QString &root,
-                                        const QString &element);
-  void removeDuplicateAttributeValues(QSqlQuery &query,
-                                      const QString &associatedElement,
-                                      const QString &attribute);
 
   /*! Opens the database connection corresponding to "dbConName".  This function
      will also close current sessions (if any) before opening the new one. */

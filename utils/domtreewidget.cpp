@@ -255,7 +255,7 @@ bool DomTreeWidget::matchesRootName(const QString &elementName) const {
 /*----------------------------------------------------------------------------*/
 
 bool DomTreeWidget::batchProcessSuccess() {
-  m_db.batchProcessDomDocument(m_domDoc);
+  m_db.processDomDocument(m_domDoc);
   return true; // TODO - Review! ;
 }
 
