@@ -1,4 +1,4 @@
-/* Copyright (c) 2012 - 2013 by William Hallatt.
+/* Copyright (c) 2012 - 2015 by William Hallatt.
  *
  * This file forms part of "XML Mill".
  *
@@ -19,7 +19,7 @@
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
- *details.
+ * details.
  *
  * You should have received a copy of the GNU General Public License along with
  * this program (GNUGPL.txt).  If not, see
@@ -45,6 +45,9 @@ public:
   /*! Constructor @param domDoc - the DOM document from which all information
    * will be extracted. */
   BatchProcessHelper(const QDomDocument *domDoc);
+
+  /*! Binds the batch values to 'query' (which must have been prepared
+   * before hand).*/
   void bindValues(QSqlQuery& query);
 
 private:

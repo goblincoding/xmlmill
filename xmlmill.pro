@@ -1,4 +1,4 @@
-# Copyright (c) 2012 - 2013 by William Hallatt.
+# Copyright (c) 2012 - 2015 by William Hallatt.
 #
 # This file forms part of "XML Mill".
 #

@@ -1,4 +1,4 @@
-/* Copyright (c) 2012 - 2013 by William Hallatt.
+/* Copyright (c) 2012 - 2015 by William Hallatt.
  *
  * This file forms part of "XML Mill".
  *
@@ -19,7 +19,7 @@
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
- *details.
+ * details.
  *
  * You should have received a copy of the GNU General Public License along with
  * this program (GNUGPL.txt).  If not, see
@@ -94,7 +94,8 @@ public:
      names
      @param attributes - a list of all the element's associated attribute
      names. */
-  void addElement(const QString &element, const QString &parent, const QString &root);
+  void addElement(const QString &element, const QString &parent,
+                  const QString &root);
 
   /*! Updates the list of known first level children associated with "element",
      if "replace" is true, the existing values are replaced by those in the
