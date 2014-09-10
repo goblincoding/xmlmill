@@ -254,12 +254,6 @@ bool DomTreeWidget::matchesRootName(const QString &elementName) const {
 
 /*----------------------------------------------------------------------------*/
 
-bool DomTreeWidget::documentCompatible() {
-  return m_db.isDocumentCompatible(m_domDoc);
-}
-
-/*----------------------------------------------------------------------------*/
-
 bool DomTreeWidget::batchProcessSuccess() {
   m_db.batchProcessDomDocument(m_domDoc);
   return true; // TODO - Review! ;

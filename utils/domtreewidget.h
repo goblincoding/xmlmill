@@ -120,10 +120,6 @@ public:
       \sa rootName */
   bool matchesRootName(const QString &elementName) const;
 
-  /*! Returns true if the underlying DOM document is compatible with the active
-   * DB session. */
-  bool documentCompatible();
-
   /*! Returns true if batch processing of DOM content to the active DB was
    * successful. */
   bool batchProcessSuccess();

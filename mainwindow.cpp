@@ -526,38 +526,29 @@ bool MainWindow::openXMLFile() {
   m_fileContentsChanged = false; // at first load, nothing has changed
 
   if (!m_busyImporting) {
-    /* If the user is opening an XML file of a kind that isn't supported by the
-     * current active DB, we need to warn him/her of this fact and provide them
-     * with a couple of options. */
-    if (!ui->treeWidget->documentCompatible()) {
-      bool accepted = MessageSpace::userAccepted(
-          "QueryImportXML", "Import document?",
-          "Encountered unknown relationships - import differences to active "
-          "profile?",
-          MessageSpace::YesNo, MessageSpace::No, MessageSpace::Question);
+    bool accepted = MessageSpace::userAccepted(
+        "QueryImportXML", "Import document?",
+        "Encountered unknown relationships - import differences to active "
+        "profile?",
+        MessageSpace::YesNo, MessageSpace::No, MessageSpace::Question);
 
-      if (accepted) {
-        QTimer timer;
-        timer.singleShot(1000, this, SLOT(createSpinner()));
-        // qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+    if (accepted) {
+      QTimer timer;
+      timer.singleShot(1000, this, SLOT(createSpinner()));
+      // qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 
-        if (!ui->treeWidget->batchProcessSuccess()) {
-          // TODO - Review!
-        } else {
-          // qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
-          processDOMDoc();
-        }
-
-        deleteSpinner();
+      if (!ui->treeWidget->batchProcessSuccess()) {
+        // TODO - Review!
       } else {
-        /* If the user decided to rather abort the import, reset everything. */
-        resetDOM();
-        m_currentXMLFileName = "";
+        // qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+        processDOMDoc();
       }
+
+      deleteSpinner();
     } else {
-      /* If the user selected a database that knows of this particular XML
-       * profile, simply process the document. */
-      processDOMDoc();
+      /* If the user decided to rather abort the import, reset everything. */
+      resetDOM();
+      m_currentXMLFileName = "";
     }
   }
 

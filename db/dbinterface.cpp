@@ -33,26 +33,18 @@
 
 #include <QDomDocument>
 #include <QApplication>
-#include <QtSql/QSqlDatabase>
-#include <QtSql/QSqlError>
-#include <QtSql/QSqlRecord>
-#include <QtSql/QSqlField>
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlRecord>
+#include <QSqlField>
 
 #include <assert.h>
 
 /*----------------------------------------------------------------------------*/
 
-/* Have a look at "createTables" to see how the DB is set up. */
-static const QLatin1String INSERT_ELEMENT("INSERT INTO xmlelements( "
-                                          "element, "
-                                          "associatedRoot, "
-                                          "children, "
-                                          "attributes ) "
-                                          "VALUES( ?, ?, ?, ? )");
-
 /* The second '?' represents our string SEPARATOR. And the IFNULL checks are to
  * ensure that we correctly apply the update to potentially empty lists. */
-static const QLatin1String UPDATE_CHILDREN("UPDATE xmlelements "
+static const QLatin1String UPDATE_CHILDREN("UPDATE xml "
                                            "SET children = ( IFNULL( ?, \"\" ) "
                                            "|| IFNULL( ?, \"\" ) "
                                            "|| IFNULL( children, \"\" ) ) "
@@ -60,7 +52,7 @@ static const QLatin1String UPDATE_CHILDREN("UPDATE xmlelements "
                                            "AND associatedRoot = ?");
 
 static const QLatin1String
-UPDATE_ATTRIBUTES("UPDATE xmlelements "
+UPDATE_ATTRIBUTES("UPDATE xml "
                   "SET attributes = ( IFNULL( ?, \"\" ) "
                   "|| IFNULL( ?, \"\" ) "
                   "|| IFNULL( attributes, \"\" )  ) "
@@ -83,31 +75,6 @@ UPDATE_ATTRIBUTEVALUES("UPDATE xmlattributes "
 
 /*----------------------------------------------------------------------------*/
 
-/* The database tables have fields containing strings of strings. For example,
-  the "xmlelements" table maps a unique element against a list of all associated
-  attribute values.  Since these values have to be entered into a single record,
-  the easiest way is to insert a single (possibly massive) string containing all
-  the associated attributes. To ensure that we can later extract the individual
-  attributes again, we separate them with a sequence that should (theoretically)
-  never be encountered.  This is that sequence. */
-static const QString SEPARATOR("~!@");
-
-/*--------------------------NON-MEMBER UTILITY FUNCTIONS---------------------*/
-
-void cleanList(QStringList &list) {
-  list.removeDuplicates();
-  list.removeAll("");
-}
-
-/*----------------------------------------------------------------------------*/
-
-QString cleanAndJoinListElements(QStringList list) {
-  cleanList(list);
-  return list.join(SEPARATOR);
-}
-
-/*--------------------------MEMBER FUNCTIONS---------------------------------*/
-
 DB::DB() : m_db() {
   openConnection();
 
@@ -120,50 +87,54 @@ DB::DB() : m_db() {
 /*----------------------------------------------------------------------------*/
 
 void DB::batchProcessDomDocument(const QDomDocument *domDoc) {
-  assert(domDoc && !domDoc->isNull());
+  assert(domDoc && !domDoc->isNull() &&
+         "DB: Attempting to batch process a NULL DOM Document");
 
   if (domDoc && !domDoc->isNull()) {
     QString root = domDoc->documentElement().tagName();
     addRootElement(root);
+
     qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 
-    BatchProcessHelper helper(domDoc, SEPARATOR, knownElements(root),
-                              knownAttributeKeys());
+    QSqlQuery query = createQuery();
 
-    /* Batch insert all the new elements. */
-    batchInsertNewElements(helper, root);
-    qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+    if (!query.prepare("INSERT OR REPLACE INTO xml( "
+                       "value, attribute, element, parent, root ) "
+                       "VALUES( ?, ?, ?, ?, ? )")) {
+      QString error = QString("Prepare batch INSERT elements failed: [%1]")
+                          .arg(query.lastError().text());
 
-    /* Batch update all the existing elements. */
-    batchUpdateExistingElementChildren(helper, root);
-    qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+      emit dbActionStatus(ActionStatus::Failed, error);
+      return;
+    }
 
-    batchUpdateExistingElementAttributes(helper, root);
-    qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+    BatchProcessHelper helper(domDoc);
+    helper.bindValues(query);
 
-    /* Batch insert all the new attribute values. */
-    batchInsertNewAttributeValues(helper);
-    qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
-
-    /* Batch update all the existing attribute values. */
-    batchUpdateExistingAttributeValues(helper);
-    qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
-
-    removeDuplicatesFromFields(root);
+    if (!query.execBatch()) {
+      QString error = QString("Batch INSERT or REPLACE elements failed: [%1]")
+                          .arg(query.lastError().text());
+      emit dbActionStatus(ActionStatus::Failed, error);
+    }
   }
 }
 
 /*----------------------------------------------------------------------------*/
 
-void DB::addElement(const QString &associatedRoot, const QString &element,
-                    const QStringList &children,
-                    const QStringList &attributes) {
-  if (!element.isEmpty()) {
-    QSqlQuery query = selectElement(associatedRoot, element);
+void DB::addElement(const QString &element, const QString &parent,
+                    const QString &root) {
+  assert(!element.isEmpty() && "DB::addElement - element string empty");
+  assert(!parent.isEmpty() && "DB::addElement - parent string empty");
+  assert(!root.isEmpty() && "DB::addElement - root string empty");
+
+  if (!element.isEmpty() && !parent.isEmpty() && !root.isEmpty()) {
+    QSqlQuery query = selectElement(root, element);
 
     /* If we don't have an existing record, add it. */
     if (!query.first()) {
-      if (!query.prepare(INSERT_ELEMENT)) {
+      if (!query.prepare(
+              "INSERT INTO xml( value, attribute, element, parent, root ) "
+              "VALUES( \"\", \"\", ?, ?, ? )")) {
         QString error =
             QString("Prepare INSERT element failed for element \"%1\": [%2]")
                 .arg(element)
@@ -173,9 +144,8 @@ void DB::addElement(const QString &associatedRoot, const QString &element,
       }
 
       query.addBindValue(element);
-      query.addBindValue(associatedRoot);
-      query.addBindValue(cleanAndJoinListElements(children));
-      query.addBindValue(cleanAndJoinListElements(attributes));
+      query.addBindValue(parent);
+      query.addBindValue(root);
 
       if (!query.exec()) {
         QString error =
@@ -241,223 +211,6 @@ void DB::addRootElement(const QString &root) {
 
 /*----------------------------------------------------------------------------*/
 
-void DB::batchInsertNewElements(BatchProcessHelper &helper,
-                                const QString &associatedRoot) {
-  QSqlQuery query = createQuery();
-
-  if (!query.prepare(INSERT_ELEMENT)) {
-    QString error = QString("Prepare batch INSERT elements failed: [%1]")
-                        .arg(query.lastError().text());
-
-    emit dbActionStatus(ActionStatus::Failed, error);
-    return;
-  }
-
-  /* Since we're doing batch updates we need to ensure that all the variant
-    lists we provide have exactly the same size. */
-  QVariantList associatedRootList;
-
-  for (int i = 0; i < helper.newElementsToAdd().count(); ++i) {
-    associatedRootList << associatedRoot;
-  }
-
-  query.addBindValue(helper.newElementsToAdd());
-  query.addBindValue(associatedRootList);
-  query.addBindValue(helper.newElementChildrenToAdd());
-  query.addBindValue(helper.newElementAttributesToAdd());
-
-  if (!query.execBatch()) {
-    QString error = QString("Batch INSERT elements failed: [%1]")
-                        .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
-  }
-}
-
-/*----------------------------------------------------------------------------*/
-
-void DB::batchUpdateExistingElementChildren(BatchProcessHelper &helper,
-                                            const QString &associatedRoot) {
-  QSqlQuery query = createQuery();
-
-  /* Concatenate new values to existing. */
-  if (!query.prepare(UPDATE_CHILDREN)) {
-    QString error =
-        QString("Prepare batch UPDATE element children failed: [%1]")
-            .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
-    return;
-  }
-
-  /* Since we're doing batch updates we need to ensure that all the variant
-    lists we provide have exactly the same size.  We furthermore require that
-    the concatenation of new and old values are done in a way that includes
-    our SEPARATOR string (which is why the separator list below). */
-  QVariantList separatorList;
-  QVariantList associatedRootList;
-
-  for (int i = 0; i < helper.elementsToUpdate().size(); ++i) {
-    separatorList << SEPARATOR;
-    associatedRootList << associatedRoot;
-  }
-
-  query.addBindValue(helper.elementChildrenToUpdate());
-  query.addBindValue(separatorList);
-  query.addBindValue(helper.elementsToUpdate());
-  query.addBindValue(associatedRootList);
-
-  if (!query.execBatch()) {
-    QString error = QString("Batch UPDATE element children failed: [%1]")
-                        .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
-  }
-}
-
-/*----------------------------------------------------------------------------*/
-
-void DB::batchUpdateExistingElementAttributes(BatchProcessHelper &helper,
-                                              const QString &associatedRoot) {
-  QSqlQuery query = createQuery();
-
-  if (!query.prepare(UPDATE_ATTRIBUTES)) {
-    QString error =
-        QString("Prepare batch UPDATE element attributes failed: [%1]")
-            .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
-    return;
-  }
-
-  /* Since we're doing batch updates we need to ensure that all the variant
-    lists we provide have exactly the same size.  We furthermore require that
-    the concatenation of new and old values are done in a way that includes
-    our SEPARATOR string (which is why the separator list below). */
-  QVariantList separatorList;
-  QVariantList associatedRootList;
-
-  for (int i = 0; i < helper.elementsToUpdate().size(); ++i) {
-    separatorList << SEPARATOR;
-    associatedRootList << associatedRoot;
-  }
-
-  query.addBindValue(helper.elementAttributesToUpdate());
-  query.addBindValue(separatorList);
-  query.addBindValue(helper.elementsToUpdate());
-  query.addBindValue(associatedRootList);
-
-  if (!query.execBatch()) {
-    QString error = QString("Batch UPDATE element attributes failed: [%1]")
-                        .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
-  }
-}
-
-/*----------------------------------------------------------------------------*/
-
-void DB::batchInsertNewAttributeValues(BatchProcessHelper &helper) {
-  QSqlQuery query = createQuery();
-
-  if (!query.prepare(INSERT_ATTRIBUTEVALUES)) {
-    QString error =
-        QString("Prepare batch INSERT attribute values failed: [%1]")
-            .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
-    return;
-  }
-
-  query.addBindValue(helper.newAttributeKeysToAdd());
-  query.addBindValue(helper.newAssociatedElementsToAdd());
-  query.addBindValue(helper.newAttributeValuesToAdd());
-
-  if (!query.execBatch()) {
-    QString error = QString("Batch INSERT attribute values failed: [%1]")
-                        .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
-  }
-}
-
-/*----------------------------------------------------------------------------*/
-
-void DB::batchUpdateExistingAttributeValues(BatchProcessHelper &helper) {
-  QSqlQuery query = createQuery();
-
-  if (!query.prepare(UPDATE_ATTRIBUTEVALUES)) {
-    QString error =
-        QString("Prepare batch UPDATE attribute values failed: [%1]")
-            .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
-    return;
-  }
-
-  /* Since we're doing batch updates we need to ensure that all the variant
-    lists we provide have exactly the same size.  We furthermore require that
-    the concatenation of new and old values are done in a way that includes
-    our SEPARATOR string (which is why the separator list below). */
-  QVariantList separatorList;
-
-  for (int i = 0; i < helper.attributeKeysToUpdate().size(); ++i) {
-    separatorList << SEPARATOR;
-  }
-
-  query.addBindValue(helper.attributeValuesToUpdate());
-  query.addBindValue(separatorList);
-  query.addBindValue(helper.attributeKeysToUpdate());
-  query.addBindValue(helper.associatedElementsToUpdate());
-
-  if (!query.execBatch()) {
-    QString error = QString("Batch UPDATE attribute values failed: [%1]")
-                        .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Failed, error);
-  }
-}
-
-/*----------------------------------------------------------------------------*/
-
-void DB::updateElementChildren(const QString &associatedRoot,
-                               const QString &element,
-                               const QStringList &children, bool replace) {
-  if (!element.isEmpty()) {
-    QSqlQuery query = selectElement(associatedRoot, element);
-
-    /* Update the existing record (if we have one). */
-    if (query.first()) {
-      QStringList allChildren(children);
-
-      /* If we're not replacing, we're simply adding. */
-      if (!replace) {
-        allChildren.append(
-            query.record().field("children").value().toString().split(
-                SEPARATOR));
-      }
-
-      if (!query.prepare(UPDATE_CHILDREN)) {
-        QString error = QString("Prepare UPDATE element children failed for "
-                                "element \"%1\": [%2]")
-                            .arg(element)
-                            .arg(query.lastError().text());
-        emit dbActionStatus(ActionStatus::Failed, error);
-        return;
-      }
-
-      query.addBindValue(cleanAndJoinListElements(allChildren));
-      query.addBindValue(element);
-      query.addBindValue(associatedRoot);
-
-      if (!query.exec()) {
-        QString error =
-            QString("UPDATE children failed for element \"%1\": [%2]")
-                .arg(element)
-                .arg(query.lastError().text());
-        emit dbActionStatus(ActionStatus::Failed, error);
-      }
-    } else {
-      QString error =
-          QString("No knowledge of element \"%1\", add it first.").arg(element);
-      emit dbActionStatus(ActionStatus::Failed, error);
-    }
-  }
-}
-
-/*----------------------------------------------------------------------------*/
-
 void DB::updateElementAttributes(const QString &associatedRoot,
                                  const QString &element,
                                  const QStringList &attributes, bool replace) {
@@ -468,11 +221,11 @@ void DB::updateElementAttributes(const QString &associatedRoot,
     if (query.first()) {
       QStringList allAttributes;
 
-      if (!replace) {
-        allAttributes.append(
-            query.record().field("attributes").value().toString().split(
-                SEPARATOR));
-      }
+//      if (!replace) {
+//        allAttributes.append(
+//            query.record().field("attributes").value().toString().split(
+//                SEPARATOR));
+//      }
 
       /* Add it here so that we append the new attributes to the end of the
        * list.
@@ -488,7 +241,7 @@ void DB::updateElementAttributes(const QString &associatedRoot,
         return;
       }
 
-      query.addBindValue(cleanAndJoinListElements(allAttributes));
+      //query.addBindValue(cleanAndJoinListElements(allAttributes));
       query.addBindValue(element);
       query.addBindValue(associatedRoot);
 
@@ -530,7 +283,7 @@ void DB::updateAttributeValues(const QString &element, const QString &attribute,
 
       query.addBindValue(attribute);
       query.addBindValue(element);
-      query.addBindValue(cleanAndJoinListElements(attributeValues));
+      //query.addBindValue(cleanAndJoinListElements(attributeValues));
 
       if (!query.exec()) {
         QString error =
@@ -543,11 +296,11 @@ void DB::updateAttributeValues(const QString &element, const QString &attribute,
     } else {
       QStringList existingValues(attributeValues);
 
-      if (!replace) {
-        existingValues.append(
-            query.record().field("attributeValues").value().toString().split(
-                SEPARATOR));
-      }
+//      if (!replace) {
+//        existingValues.append(
+//            query.record().field("attributeValues").value().toString().split(
+//                SEPARATOR));
+//      }
 
       /* The reason for not using concatenated values here is that we don't
         simply want to add all the supposed new values, we want to make sure
@@ -563,7 +316,7 @@ void DB::updateAttributeValues(const QString &element, const QString &attribute,
         return;
       }
 
-      query.addBindValue(cleanAndJoinListElements(existingValues));
+      //query.addBindValue(cleanAndJoinListElements(existingValues));
       query.addBindValue(attribute);
       query.addBindValue(element);
 
@@ -586,7 +339,7 @@ void DB::removeElement(const QString &associatedRoot, const QString &element) {
 
   /* Only continue if we have an existing record. */
   if (query.first()) {
-    if (!query.prepare("DELETE FROM xmlelements WHERE element = ?")) {
+    if (!query.prepare("DELETE FROM xml WHERE element = ?")) {
       QString error =
           QString("Prepare DELETE element failed for element \"%1\": [%3]")
               .arg(element)
@@ -614,12 +367,12 @@ void DB::removeChildElement(const QString &associatedRoot,
   QSqlQuery query = selectElement(associatedRoot, element);
 
   /* Update the existing record (if we have one). */
-  if (query.first()) {
-    QStringList allChildren(
-        query.record().field("children").value().toString().split(SEPARATOR));
-    allChildren.removeAll(child);
-    updateElementChildren(associatedRoot, element, allChildren, true);
-  }
+//  if (query.first()) {
+//    QStringList allChildren(
+//        query.record().field("children").value().toString().split(SEPARATOR));
+//    allChildren.removeAll(child);
+//    updateElementChildren(associatedRoot, element, allChildren, true);
+//  }
 }
 
 /*----------------------------------------------------------------------------*/
@@ -697,74 +450,11 @@ bool DB::isUniqueChildElement(const QString &associatedRoot,
   QSqlQuery query = selectAllElements(associatedRoot);
 
   while (query.next()) {
-    if (query.record().field("element").value().toString() != parentElement &&
-        query.record().value("children").toString().split(SEPARATOR).contains(
-            element)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-/*----------------------------------------------------------------------------*/
-
-bool DB::isDocumentCompatible(const QDomDocument *doc) {
-  QString root = doc->documentElement().tagName();
-
-  BatchProcessHelper helper(doc, SEPARATOR, knownElements(root),
-                            knownAttributeKeys());
-
-  qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
-
-  /* If there are any new elements or attributes to add, the document is
-    incompatible (not checking for new attribute values since new values
-    don't affect XML relationships, i.e. it isn't important enough to
-    import entire documents each time an unknown value is encountered)
-    */
-  if (!helper.newAssociatedElementsToAdd().isEmpty() ||
-      !helper.newAttributeKeysToAdd().isEmpty() ||
-      !helper.newElementAttributesToAdd().isEmpty() ||
-      !helper.newElementChildrenToAdd().isEmpty() ||
-      !helper.newElementsToAdd().isEmpty()) {
-    return false;
-  }
-
-  /* If there are no new items, we may still have previously unknown
-    relationships which we need to check.  This is slightly more
-    involved than simply checking for empty lists.
-    Also remember that the lists returned by BatchProcessHelper are all
-    synchronised with regards to their indices (which is the only reason
-    why we can loop through the lists like this). */
-  for (int i = 0; i < helper.elementsToUpdate().size(); ++i) {
-    /* If any new element children were added, we have an incompatible document.
-     */
-    QStringList knownChildren =
-        children(root, helper.elementsToUpdate().at(i).toString());
-    QStringList allChildren =
-        QStringList()
-        << knownChildren
-        << helper.elementChildrenToUpdate().at(i).toString().split(SEPARATOR);
-    cleanList(allChildren);
-
-    /* Check for larger since we only care about added items. */
-    if (allChildren.size() > knownChildren.size()) {
-      return false;
-    }
-
-    /* If any new attributes were added, we also have an incompatible document.
-     */
-    QStringList knownAttributes =
-        attributes(root, helper.elementsToUpdate().at(i).toString());
-    QStringList allAttributes =
-        QStringList()
-        << knownAttributes
-        << helper.elementAttributesToUpdate().at(i).toString().split(SEPARATOR);
-    cleanList(allAttributes);
-
-    if (allAttributes.size() > knownAttributes.size()) {
-      return false;
-    }
+//    if (query.record().field("element").value().toString() != parentElement &&
+//        query.record().value("children").toString().split(SEPARATOR).contains(
+//            element)) {
+//      return false;
+//    }
   }
 
   return true;
@@ -780,7 +470,7 @@ QStringList DB::knownElements(const QString &associatedRoot) const {
     elementNames.append(query.record().field("element").value().toString());
   }
 
-  cleanList(elementNames);
+  //cleanList(elementNames);
   elementNames.sort();
   return elementNames;
 }
@@ -799,9 +489,9 @@ QStringList DB::children(const QString &associatedRoot,
     return QStringList();
   }
 
-  QStringList children =
+  QStringList children; /*=
       query.record().value("children").toString().split(SEPARATOR);
-  cleanList(children);
+  cleanList(children);*/
   children.sort();
   return children;
 }
@@ -820,9 +510,9 @@ QStringList DB::attributes(const QString &associatedRoot,
     return QStringList();
   }
 
-  QStringList attributes =
+  QStringList attributes; /*=
       query.record().value("attributes").toString().split(SEPARATOR);
-  cleanList(attributes);
+  cleanList(attributes);*/
   return attributes;
 }
 
@@ -841,9 +531,9 @@ QStringList DB::attributeValues(const QString &element,
     return QStringList();
   }
 
-  QStringList attributeValues =
+  QStringList attributeValues; /*=
       query.record().value("attributeValues").toString().split(SEPARATOR);
-  cleanList(attributeValues);
+  cleanList(attributeValues);*/
   attributeValues.sort();
   return attributeValues;
 }
@@ -866,7 +556,7 @@ QStringList DB::knownRootElements() const {
     rootElements.append(query.record().field("root").value().toString());
   }
 
-  cleanList(rootElements);
+  //cleanList(rootElements);
   return rootElements;
 }
 
@@ -902,8 +592,7 @@ QSqlQuery DB::selectElement(const QString &associatedRoot,
   /* See if we already have this element in the DB. */
   QSqlQuery query = createQuery();
 
-  if (!query.prepare(
-          "SELECT * FROM xmlelements WHERE element = ? AND root = ?")) {
+  if (!query.prepare("SELECT * FROM xml WHERE element = ? AND root = ?")) {
     QString error = QString("Prepare SELECT failed for element \"%1\": [%2]")
                         .arg(element)
                         .arg(query.lastError().text());
@@ -928,7 +617,7 @@ QSqlQuery DB::selectElement(const QString &associatedRoot,
 QSqlQuery DB::selectAllElements(const QString &associatedRoot) const {
   QSqlQuery query(m_db);
 
-  if (!query.prepare("SELECT * FROM xmlelements WHERE root = ?")) {
+  if (!query.prepare("SELECT * FROM xml WHERE root = ?")) {
     QString error = QString("Prepare SELECT failed for root \"%1\": [%2]")
                         .arg(associatedRoot)
                         .arg(query.lastError().text());
@@ -999,7 +688,9 @@ QSqlQuery DB::createQuery() {
     openConnection();
   }
 
-  return QSqlQuery(m_db);
+  QSqlQuery query(m_db);
+  query.setForwardOnly(true);
+  return query;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -1045,8 +736,8 @@ void DB::removeDuplicatesFromFields(const QString &root) {
 
 void DB::removeDuplicateElementChildren(QSqlQuery &query, const QString &root,
                                         const QString &element) {
-  QStringList allChildren(
-      query.record().field("children").value().toString().split(SEPARATOR));
+//  QStringList allChildren(
+//      query.record().field("children").value().toString().split(SEPARATOR));
 
   if (!query.prepare(UPDATE_CHILDREN)) {
     QString error = QString("Prepare UPDATE element children failed for "
@@ -1057,7 +748,7 @@ void DB::removeDuplicateElementChildren(QSqlQuery &query, const QString &root,
     return;
   }
 
-  query.addBindValue(cleanAndJoinListElements(allChildren));
+  //query.addBindValue(cleanAndJoinListElements(allChildren));
   query.addBindValue(element);
   query.addBindValue(root);
 
@@ -1073,8 +764,8 @@ void DB::removeDuplicateElementChildren(QSqlQuery &query, const QString &root,
 
 void DB::removeDuplicateElementAttributes(QSqlQuery &query, const QString &root,
                                           const QString &element) {
-  QStringList allAttributes(
-      query.record().field("attributes").value().toString().split(SEPARATOR));
+//  QStringList allAttributes(
+//      query.record().field("attributes").value().toString().split(SEPARATOR));
 
   if (!query.prepare(UPDATE_ATTRIBUTES)) {
     QString error = QString("Prepare UPDATE element attributes failed for "
@@ -1085,7 +776,7 @@ void DB::removeDuplicateElementAttributes(QSqlQuery &query, const QString &root,
     return;
   }
 
-  query.addBindValue(cleanAndJoinListElements(allAttributes));
+  //query.addBindValue(cleanAndJoinListElements(allAttributes));
   query.addBindValue(element);
   query.addBindValue(root);
 
@@ -1102,9 +793,9 @@ void DB::removeDuplicateElementAttributes(QSqlQuery &query, const QString &root,
 void DB::removeDuplicateAttributeValues(QSqlQuery &query,
                                         const QString &associatedElement,
                                         const QString &attribute) {
-  QStringList allValues(
-      query.record().field("attributeValues").value().toString().split(
-          SEPARATOR));
+//  QStringList allValues(
+//      query.record().field("attributeValues").value().toString().split(
+//          SEPARATOR));
 
   if (!query.prepare(UPDATE_ATTRIBUTEVALUES)) {
     QString error = QString("Prepare UPDATE attribute values failed for "
@@ -1116,7 +807,7 @@ void DB::removeDuplicateAttributeValues(QSqlQuery &query,
     return;
   }
 
-  query.addBindValue(cleanAndJoinListElements(allValues));
+  //query.addBindValue(cleanAndJoinListElements(allValues));
   query.addBindValue(attribute);
   query.addBindValue(associatedElement);
 
@@ -1161,66 +852,46 @@ void DB::openConnection() {
 void DB::createTables() {
   /* DB connection will be open from openConnection() so no need to do any
    * checks here. */
-  QSqlQuery query = createQuery();
+  createRootTable();
+  createXmlTable();
+}
 
+/*----------------------------------------------------------------------------*/
+
+void DB::createRootTable() {
   /* The rootelements table is used as a unique DOM document type
    * identifier, the assumption being that a specific root element
    * refers to a specific XML document type/style. */
+  QSqlQuery query = createQuery();
+
   if (!query.exec(
-          "CREATE TABLE rootelements( root VARCHAR(30) primary key )")) {
+          "CREATE TABLE rootelements( root VARCHAR(50) PRIMARY KEY )")) {
     QString error = QString("Failed to create root elements "
                             "table for \"%1\": [%2]")
                         .arg(m_db.connectionName())
                         .arg(query.lastError().text());
     emit dbActionStatus(ActionStatus::Failed, error);
   }
+}
 
-  if (!query.exec(
-          "CREATE TABLE xmlelements( element VARCHAR(30) NOT NULL, "
-          "associatedRoot VARCHAR(30) NOT NULL, "
-          "children BLOB, "
-          "attributes BLOB, "
-          "UNIQUE(element, associatedRoot), "
-          "FOREIGN KEY(associatedRoot) REFERENCES rootelements(root) )")) {
+/*----------------------------------------------------------------------------*/
+
+void DB::createXmlTable() {
+  QSqlQuery query = createQuery();
+
+  if (!query.exec("CREATE TABLE xml( "
+                  "value BLOB NOT NULL, "
+                  "attribute VARCHAR(50) NOT NULL, "
+                  "element VARCHAR(50) NOT NULL, "
+                  "parent VARCHAR(50) NOT NULL, "
+                  "root VARCHAR(50) NOT NULL, "
+                  "UNIQUE(value, attribute, element, parent, root), "
+                  "FOREIGN KEY( root ) REFERENCES rootelements( root ) )")) {
     QString error =
-        QString(
-            "ActionStatus::Failed to create elements table for \"%1\": [%2].")
+        QString("ActionStatus::Failed to create XML table for \"%1\": [%2].")
             .arg(m_db.connectionName())
             .arg(query.lastError().text());
     emit dbActionStatus(ActionStatus::Critical, error);
-    return;
-  } else {
-    if (!query.exec("CREATE UNIQUE INDEX elementKey ON xmlelements( "
-                    "element, associatedRoot)")) {
-      QString error = QString("Failed to create unique index for \"%1\": [%2]")
-                          .arg(m_db.connectionName())
-                          .arg(query.lastError().text());
-      emit dbActionStatus(ActionStatus::Critical, error);
-      return;
-    }
-  }
-
-  if (!query.exec("CREATE TABLE xmlattributes( attribute VARCHAR(30) NOT NULL, "
-                  "associatedElement VARCHAR(30) NOT NULL, "
-                  "attributeValues BLOB, "
-                  "UNIQUE(attribute, associatedElement), "
-                  "FOREIGN KEY(associatedElement) REFERENCES "
-                  "xmlelements(elementKey) )")) {
-    QString error = QString("Failed to create attribute values "
-                            "table for \"%1\": [%2]")
-                        .arg(m_db.connectionName())
-                        .arg(query.lastError().text());
-    emit dbActionStatus(ActionStatus::Critical, error);
-    return;
-  } else {
-    if (!query.exec("CREATE UNIQUE INDEX attributeKey ON xmlattributes( "
-                    "attribute, associatedElement)")) {
-      QString error = QString("Failed to create unique index for \"%1\": [%2]")
-                          .arg(m_db.connectionName())
-                          .arg(query.lastError().text());
-      emit dbActionStatus(ActionStatus::Critical, error);
-      return;
-    }
   }
 }
 

@@ -31,7 +31,7 @@
 #define DATABASEINTERFACE_H
 
 #include <QObject>
-#include <QtSql/QSqlQuery>
+#include <QSqlQuery>
 
 /** Provides an interface to the SQLite database used to profile XML
   documents. This database consists of three tables:
@@ -39,7 +39,7 @@
     * "rootelements" - consists of a single field containing all known root
   elements (representing unique document styles/types).
 
-    * "xmlelements"   - accepts an element name as primary key and references
+    * "xml"   - accepts an element name as primary key and references
   the unique root element (document type) it is known to be associated with as
   foreign key. Two additional fields are associates with each record: "children"
   represents all the first level children of the element in question and
@@ -55,7 +55,6 @@
   will contain all the values ever assigned to "y" when associated with "x". */
 
 class QDomDocument;
-class BatchProcessHelper;
 
 class DB : public QObject {
   Q_OBJECT
@@ -79,12 +78,7 @@ public:
   /*! Batch process an entire DOM document. This function processes an entire
      DOM document by adding new (or updating existing) elements with their
      corresponding first level children, associated attributes and known
-     attribute values to the active database.
-     \sa batchInsertNewElements
-     \sa batchUpdateExistingElementChildren
-     \sa batchUpdateExistingElementAttributes
-     \sa batchInsertNewAttributeValues
-     \sa batchUpdateExistingAttributeValues */
+     attribute values to the active database. */
   void batchProcessDomDocument(const QDomDocument *domDoc);
 
   /*! Adds a new known document root element. Root elements are representative
@@ -100,8 +94,7 @@ public:
      names
      @param attributes - a list of all the element's associated attribute
      names. */
-  void addElement(const QString &associatedRoot, const QString &element,
-                  const QStringList &children, const QStringList &attributes);
+  void addElement(const QString &element, const QString &parent, const QString &root);
 
   /*! Updates the list of known first level children associated with "element",
      if "replace" is true, the existing values are replaced by those in the
@@ -175,11 +168,6 @@ public:
   bool isUniqueChildElement(const QString &associatedRoot,
                             const QString &parentElement,
                             const QString &element) const;
-
-  /*! Recursively scans the "doc"'s element hierarchy to ensure that all the
-     document's elements, element relationships and attributes are known to the
-     active profile. */
-  bool isDocumentCompatible(const QDomDocument *doc);
 
   /*! Returns a sorted (case sensitive, ascending) list of all the element names
      known to the database with "associatedRoot" (the document "type"). */
@@ -262,15 +250,8 @@ private:
 
   /*! Creates all the relevant database tables. */
   void createTables();
-
-  void batchInsertNewElements(BatchProcessHelper &helper,
-                              const QString &associatedRoot);
-  void batchUpdateExistingElementChildren(BatchProcessHelper &helper,
-                                          const QString &associatedRoot);
-  void batchUpdateExistingElementAttributes(BatchProcessHelper &helper,
-                                            const QString &associatedRoot);
-  void batchInsertNewAttributeValues(BatchProcessHelper &helper);
-  void batchUpdateExistingAttributeValues(BatchProcessHelper &helper);
+  void createRootTable();
+  void createXmlTable();
 
 private:
   QSqlDatabase m_db;
