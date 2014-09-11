@@ -48,8 +48,7 @@ BatchProcessHelper::BatchProcessHelper(const QDomDocument *domDoc)
 
 /*----------------------------------------------------------------------------*/
 
-void BatchProcessHelper::bindValues(QSqlQuery &query)
-{
+void BatchProcessHelper::bindValues(QSqlQuery &query) {
   query.addBindValue(m_attributeValues);
   query.addBindValue(m_attributes);
   query.addBindValue(m_elements);
@@ -59,16 +58,31 @@ void BatchProcessHelper::bindValues(QSqlQuery &query)
 
 /*----------------------------------------------------------------------------*/
 
+/* Inline helper function. */
+QList<QDomElement> children(const QDomElement &element) {
+  QList<QDomElement> list;
+  QDomElement child = element.firstChildElement();
+
+  while (!child.isNull()) {
+    list.append(child);
+    child = child.nextSiblingElement();
+  }
+
+  return list;
+}
+
+/*----------------------------------------------------------------------------*/
+
 void BatchProcessHelper::traverseDocument(const QDomElement &parentElement) {
   assert(!parentElement.isNull() &&
          "BatchProcessHelper: parent element is NULL");
 
-  QDomElement element = parentElement.firstChildElement();
+  QList<QDomElement> toVisit = children(parentElement);
 
-  while (!element.isNull()) {
+  while (!toVisit.isEmpty()) {
+    QDomElement element = toVisit.takeFirst();
     processElement(element);
-    traverseDocument(element);
-    element = element.nextSiblingElement();
+    toVisit << children(element);
   }
 }
 
@@ -79,11 +93,7 @@ void BatchProcessHelper::processElement(const QDomElement &element) {
          "BatchProcessHelper: attempting to process a NULL element");
 
   QVariant elementName = element.tagName();
-
-  /* The way the recursive calls are handled, we know that whichever
-   * element gets passed as argument has an element as parent. */
   QVariant parentName = element.parentNode().toElement().tagName();
-
   QDomNamedNodeMap attributeNodes = element.attributes();
 
   if (attributeNodes.isEmpty()) {
@@ -113,7 +123,7 @@ void BatchProcessHelper::processElement(const QDomElement &element) {
 /*----------------------------------------------------------------------------*/
 
 void BatchProcessHelper::createVariantLists() {
-  foreach(XmlRecord record, m_records) {
+  foreach(const XmlRecord& record, m_records) {
     m_attributeValues << record.m_value;
     m_attributes << record.m_attribute;
     m_elements << record.m_element;
