@@ -86,12 +86,12 @@ DB::DB() : m_db() {
 
 /*----------------------------------------------------------------------------*/
 
-void DB::processDomDocument(const QDomDocument *domDoc) {
-  assert(domDoc && !domDoc->isNull() &&
-         "DB: Attempting to batch process a NULL DOM Document");
+void DB::processDomDocument(const QDomDocument &domDoc) {
+  //  assert(domDoc.isNull() &&
+  //         "DB: Attempting to batch process a NULL DOM Document");
 
-  if (domDoc && !domDoc->isNull()) {
-    QString root = domDoc->documentElement().tagName();
+  if (!domDoc.isNull()) {
+    QString root = domDoc.documentElement().tagName();
     addRootElement(root);
 
     qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
@@ -267,12 +267,14 @@ void DB::updateAttributeValues(const QString &element, const QString &attribute,
 
 /*----------------------------------------------------------------------------*/
 
-void DB::removeElement(const QString &element, const QString&parent, const QString &root) {
+void DB::removeElement(const QString &element, const QString &parent,
+                       const QString &root) {
   QSqlQuery query = selectElement(element, parent, root);
 
   /* Only continue if we have an existing record. */
   if (query.first()) {
-    if (!query.prepare("DELETE FROM xml WHERE element = ? AND parent = ? AND root = ?")) {
+    if (!query.prepare(
+            "DELETE FROM xml WHERE element = ? AND parent = ? AND root = ?")) {
       QString error =
           QString("Prepare DELETE element failed for element \"%1\": [%3]")
               .arg(element)
@@ -357,8 +359,7 @@ QStringList DB::knownElements(const QString &associatedRoot) const {
 
 /*----------------------------------------------------------------------------*/
 
-QStringList DB::children(const QString &element,
-                         const QString &parent,
+QStringList DB::children(const QString &element, const QString &parent,
                          const QString &root) {
   QSqlQuery query = selectElement(element, parent, root);
 
@@ -379,8 +380,7 @@ QStringList DB::children(const QString &element,
 
 /*----------------------------------------------------------------------------*/
 
-QStringList DB::attributes(const QString &element,
-                           const QString &parent,
+QStringList DB::attributes(const QString &element, const QString &parent,
                            const QString &root) {
   QSqlQuery query = selectElement(element, parent, root);
 
@@ -473,7 +473,8 @@ QSqlQuery DB::selectElement(const QString &element, const QString &parent,
                             const QString &root) {
   QSqlQuery query = createQuery();
 
-  if (!query.prepare("SELECT * FROM xml WHERE element = ? AND parent = ? AND root = ?")) {
+  if (!query.prepare(
+          "SELECT * FROM xml WHERE element = ? AND parent = ? AND root = ?")) {
     QString error = QString("Prepare SELECT failed for element \"%1\": [%2]")
                         .arg(element)
                         .arg(query.lastError().text());

@@ -44,11 +44,11 @@ class BatchProcessHelper {
 public:
   /*! Constructor @param domDoc - the DOM document from which all information
    * will be extracted. */
-  BatchProcessHelper(const QDomDocument *domDoc);
+  BatchProcessHelper(const QDomDocument &domDoc);
 
   /*! Binds the batch values to 'query' (which must have been prepared
    * before hand).*/
-  void bindValues(QSqlQuery& query);
+  void bindValues(QSqlQuery &query);
 
 private:
   /*! Walk the DOM tree.*/
@@ -64,7 +64,7 @@ private:
   void createVariantLists();
 
 private:
-  const QDomDocument *m_domDoc;
+  const QDomDocument &m_domDoc;
   QVariant m_rootName;
 
   QVariantList m_attributeValues;

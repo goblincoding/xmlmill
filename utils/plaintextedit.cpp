@@ -64,8 +64,8 @@ void removeDuplicates(QList<int> &indices) {
 
 PlainTextEdit::PlainTextEdit(QWidget *parent)
     : QPlainTextEdit(parent), m_savedBackground(), m_savedForeground(),
-      m_comment(NULL), m_uncomment(NULL), m_deleteSelection(NULL),
-      m_deleteEmptyRow(NULL), m_insertEmptyRow(NULL),
+      m_comment(nullptr), m_uncomment(nullptr), m_deleteSelection(nullptr),
+      m_deleteEmptyRow(nullptr), m_insertEmptyRow(nullptr),
       m_cursorPositionChanging(false), m_cursorPositionChanged(false),
       m_mouseDragEntered(false), m_textEditClicked(false) {
   setAcceptDrops(false);

@@ -31,7 +31,7 @@
 #define DATABASEINTERFACE_H
 
 #include <QObject>
-#include <QSqlQuery>
+#include <QtSql/QSqlQuery>
 
 /** Provides an interface to the SQLite database used to profile XML
   documents. This database consists of two tables:
@@ -69,7 +69,7 @@ public:
 
   /*! Processes an entire DOM document, inserting new and replacing
    * existing records in the database. */
-  void processDomDocument(const QDomDocument *domDoc);
+  void processDomDocument(const QDomDocument &domDoc);
 
   /*! Adds a new root element (document type). Root elements are representative
    * of their associated document types and the corresponding XML "style". This

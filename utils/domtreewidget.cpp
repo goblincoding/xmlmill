@@ -42,7 +42,7 @@
 /*----------------------------------------------------------------------------*/
 
 DomTreeWidget::DomTreeWidget(QWidget *parent)
-    : QTreeWidget(parent), m_activeItem(NULL), m_db(),
+    : QTreeWidget(parent), m_activeItem(nullptr), m_db(),
       m_domDoc(new QDomDocument), m_commentNode(), m_isEmpty(true),
       m_busyIterating(false), m_itemBeingManipulated(false), m_items(),
       m_comments() {
@@ -255,7 +255,7 @@ bool DomTreeWidget::matchesRootName(const QString &elementName) const {
 /*----------------------------------------------------------------------------*/
 
 bool DomTreeWidget::batchProcessSuccess() {
-  m_db.processDomDocument(m_domDoc);
+  m_db.processDomDocument(*m_domDoc);
   return true; // TODO - Review! ;
 }
 
@@ -308,7 +308,7 @@ void DomTreeWidget::appendSnippet(TreeWidgetItem *parentItem,
 void DomTreeWidget::replaceItemsWithComment(const QList<int> &indices,
                                             const QString &comment) {
   QList<TreeWidgetItem *> itemsToDelete;
-  TreeWidgetItem *commentParentItem = NULL;
+  TreeWidgetItem *commentParentItem = nullptr;
 
   for (int i = 0; i < m_items.size(); ++i) {
     TreeWidgetItem *item = m_items.at(i);
@@ -348,7 +348,7 @@ void DomTreeWidget::replaceItemsWithComment(const QList<int> &indices,
     TreeWidgetItem *item = itemsToDelete.at(i);
     removeFromList(item);
     delete item;
-    item = NULL;
+    item = nullptr;
   }
 
   /* Create a comment node with the combined text of all the item nodes that
@@ -571,7 +571,7 @@ void DomTreeWidget::updateIndices() {
 /*----------------------------------------------------------------------------*/
 
 TreeWidgetItem *DomTreeWidget::ItemFromNode(QDomNode element) {
-  TreeWidgetItem *parentItem = NULL;
+  TreeWidgetItem *parentItem = nullptr;
 
   if (!element.isNull()) {
     for (int i = 0; i < m_items.size(); ++i) {
@@ -638,7 +638,7 @@ void DomTreeWidget::dropEvent(QDropEvent *event) {
         parent->element().appendChild(m_activeItem->element());
       } else if (indicatorPos == QAbstractItemView::AboveItem ||
                  indicatorPos == QAbstractItemView::BelowItem) {
-        TreeWidgetItem *sibling = NULL;
+        TreeWidgetItem *sibling = nullptr;
         int pos = parent->indexOfChild(m_activeItem);
 
         if (pos > 0) {
@@ -711,7 +711,7 @@ void DomTreeWidget::emitGcCurrentItemSelected(QTreeWidgetItem *item,
     setCurrentItem(item, column);
 
     if (m_activeItem) {
-      /* Returns NULL object if not a comment. */
+      /* Returns nullptr object if not a comment. */
       m_commentNode = m_activeItem->element().previousSibling().toComment();
     }
 
@@ -727,7 +727,7 @@ void DomTreeWidget::emitGcCurrentItemChanged(QTreeWidgetItem *item,
     setCurrentItem(item, column);
 
     if (m_activeItem) {
-      /* Returns NULL object if not a comment. */
+      /* Returns nullptr object if not a comment. */
       m_commentNode = m_activeItem->element().previousSibling().toComment();
     }
 

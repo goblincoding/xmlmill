@@ -35,12 +35,12 @@
 
 /*----------------------------------------------------------------------------*/
 
-BatchProcessHelper::BatchProcessHelper(const QDomDocument *domDoc)
+BatchProcessHelper::BatchProcessHelper(const QDomDocument &domDoc)
     : m_domDoc(domDoc), m_rootName(""), m_attributeValues(), m_attributes(),
       m_elements(), m_parents(), m_root(), m_records() {
-  assert(m_domDoc && "BatchProcessHelper: DOM Doc ptr is NULL");
+  //assert(m_domDoc.isNull() && "BatchProcessHelper: DOM Doc is NULL");
 
-  QDomElement root = m_domDoc->documentElement();
+  QDomElement root = m_domDoc.documentElement();
   m_rootName = root.tagName();
   traverseDocument(root);
   createVariantLists();
@@ -123,7 +123,7 @@ void BatchProcessHelper::processElement(const QDomElement &element) {
 /*----------------------------------------------------------------------------*/
 
 void BatchProcessHelper::createVariantLists() {
-  foreach(const XmlRecord& record, m_records) {
+  foreach(const XmlRecord & record, m_records) {
     m_attributeValues << record.m_value;
     m_attributes << record.m_attribute;
     m_elements << record.m_element;

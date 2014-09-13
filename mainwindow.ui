@@ -21,206 +21,7 @@
    <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="centralLayout">
-    <item>
-     <widget class="QFrame" name="frame">
-      <property name="frameShape">
-       <enum>QFrame::Box</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Sunken</enum>
-      </property>
-      <layout class="QVBoxLayout" name="mainFrameLayout">
-       <item>
-        <layout class="QHBoxLayout" name="elementComboLayout">
-         <item>
-          <widget class="QComboBox" name="addElementComboBox">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="addSnippetButton">
-           <property name="toolTip">
-            <string>Add an entire snippet to the document.</string>
-           </property>
-           <property name="whatsThis">
-            <string>Add an entire snippet to the document.</string>
-           </property>
-           <property name="text">
-            <string>Add Snippet</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="addChildElementButton">
-           <property name="toolTip">
-            <string>Add a new element to the document.</string>
-           </property>
-           <property name="whatsThis">
-            <string>Add a new element to the document.</string>
-           </property>
-           <property name="text">
-            <string>Add Element</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="showAddElementHelpButton">
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="resources/resources.qrc">
-             <normaloff>:/resources/helpicon.png</normaloff>:/resources/helpicon.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="showEmptyProfileHelpButton">
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="resources/resources.qrc">
-             <normaloff>:/resources/emptyprofilehelpicon.png</normaloff>:/resources/emptyprofilehelpicon.png</iconset>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="addCommentLayout">
-         <item>
-          <widget class="QLineEdit" name="commentLineEdit">
-           <property name="toolTip">
-            <string>Add an XML comment to the current element.</string>
-           </property>
-           <property name="whatsThis">
-            <string>Add an XML comment to the current element.</string>
-           </property>
-           <property name="placeholderText">
-            <string>Add comment...</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QSplitter" name="splitter">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <widget class="DomTreeWidget" name="treeWidget">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>1</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="editTriggers">
-           <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
-          </property>
-          <property name="alternatingRowColors">
-           <bool>true</bool>
-          </property>
-          <property name="autoExpandDelay">
-           <number>2</number>
-          </property>
-          <property name="indentation">
-           <number>12</number>
-          </property>
-          <property name="animated">
-           <bool>true</bool>
-          </property>
-          <attribute name="headerVisible">
-           <bool>true</bool>
-          </attribute>
-          <column>
-           <property name="text">
-            <string notr="true">Document Elements:</string>
-           </property>
-          </column>
-         </widget>
-         <widget class="QTableWidget" name="tableWidget">
-          <property name="alternatingRowColors">
-           <bool>true</bool>
-          </property>
-          <property name="cornerButtonEnabled">
-           <bool>false</bool>
-          </property>
-          <property name="columnCount">
-           <number>2</number>
-          </property>
-          <attribute name="horizontalHeaderVisible">
-           <bool>true</bool>
-          </attribute>
-          <attribute name="horizontalHeaderCascadingSectionResizes">
-           <bool>true</bool>
-          </attribute>
-          <attribute name="horizontalHeaderStretchLastSection">
-           <bool>true</bool>
-          </attribute>
-          <attribute name="verticalHeaderVisible">
-           <bool>false</bool>
-          </attribute>
-          <attribute name="verticalHeaderHighlightSections">
-           <bool>false</bool>
-          </attribute>
-          <column>
-           <property name="text">
-            <string>Attributes:</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Values:</string>
-           </property>
-          </column>
-         </widget>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="removeElementLayout">
-         <item>
-          <widget class="QCheckBox" name="expandAllCheckBox">
-           <property name="text">
-            <string>Expand All</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
-    </item>
-   </layout>
+   <layout class="QHBoxLayout" name="centralLayout"/>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -248,15 +49,12 @@
      <property name="title">
       <string>Edit &amp;Profile</string>
      </property>
-     <addaction name="actionAddItems"/>
-     <addaction name="actionRemoveItems"/>
     </widget>
     <addaction name="separator"/>
     <addaction name="actionImportXMLToDatabase"/>
     <addaction name="separator"/>
     <addaction name="menuAddItems"/>
     <addaction name="separator"/>
-    <addaction name="actionFind"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -277,7 +75,6 @@
     </property>
     <addaction name="actionRememberWindowGeometry"/>
     <addaction name="actionShowHelpButtons"/>
-    <addaction name="actionShowTreeElementsVerbose"/>
     <addaction name="actionUseDarkTheme"/>
     <addaction name="separator"/>
     <addaction name="actionForgetPreferences"/>
@@ -317,130 +114,6 @@
    <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <widget class="QDockWidget" name="dockWidget">
-   <property name="features">
-    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
-   </property>
-   <property name="windowTitle">
-    <string>Document:</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>2</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents">
-    <layout class="QVBoxLayout" name="dockWidgetMainLayout">
-     <item>
-      <widget class="QFrame" name="dockWidgetFrame">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
-       </property>
-       <layout class="QVBoxLayout" name="dockWidgetFrameLayout">
-        <item>
-         <widget class="PlainTextEdit" name="dockWidgetTextEdit">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="verticalScrollBarPolicy">
-           <enum>Qt::ScrollBarAsNeeded</enum>
-          </property>
-          <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAsNeeded</enum>
-          </property>
-          <property name="textInteractionFlags">
-           <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="dockWidgetHorizontalLayout">
-          <item>
-           <widget class="QCheckBox" name="wrapTextCheckBox">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Wrap Text</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="dockWidgetHorizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-  </widget>
-  <action name="actionAddNewDatabase">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/resources/adddatabase.png</normaloff>:/resources/adddatabase.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Create New Profile</string>
-   </property>
-   <property name="toolTip">
-    <string>Create a new profile and add it to the list of known profiles.</string>
-   </property>
-   <property name="whatsThis">
-    <string>Create a new profile and add it to the list of known profiles.</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+D</string>
-   </property>
-  </action>
-  <action name="actionAddExistingDatabase">
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/resources/opendatabase.png</normaloff>:/resources/opendatabase.png</iconset>
-   </property>
-   <property name="text">
-    <string>Add E&amp;xisting Profile</string>
-   </property>
-   <property name="toolTip">
-    <string>Add an existing profile to the list of known profiles.</string>
-   </property>
-   <property name="whatsThis">
-    <string>Add an existing profile to the list of known profiles.</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+E</string>
-   </property>
-  </action>
   <action name="actionOpen">
    <property name="icon">
     <iconset resource="resources/resources.qrc">
@@ -477,45 +150,6 @@
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="actionRemoveDatabase">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/resources/removedatabase.png</normaloff>:/resources/removedatabase.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Remove Profile</string>
-   </property>
-   <property name="toolTip">
-    <string>Remove a profile from the list of known profiles.</string>
-   </property>
-   <property name="whatsThis">
-    <string>Remove a profile from the list of known profiles.</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+R</string>
-   </property>
-  </action>
-  <action name="actionSwitchSessionDatabase">
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/resources/switch.png</normaloff>:/resources/switch.png</iconset>
-   </property>
-   <property name="text">
-    <string>S&amp;witch Profile</string>
-   </property>
-   <property name="toolTip">
-    <string>Switch to a different profile.</string>
-   </property>
-   <property name="whatsThis">
-    <string>Switch to a different profile.</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+S</string>
-   </property>
-  </action>
   <action name="actionSaveAs">
    <property name="enabled">
     <bool>false</bool>
@@ -546,26 +180,6 @@
    </property>
    <property name="shortcutContext">
     <enum>Qt::WindowShortcut</enum>
-   </property>
-  </action>
-  <action name="actionSuperUserMode">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>&amp;Super User Mode</string>
-   </property>
-   <property name="toolTip">
-    <string>Super user mode allows you to edit the active database.</string>
-   </property>
-   <property name="whatsThis">
-    <string>Super user mode allows you to edit the active database.</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+U</string>
    </property>
   </action>
   <action name="actionExit">
@@ -657,58 +271,6 @@
     <string>Ctrl+Shift+C</string>
    </property>
   </action>
-  <action name="actionFind">
-   <property name="text">
-    <string>&amp;Find in Document</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+F</string>
-   </property>
-  </action>
-  <action name="actionRemoveItems">
-   <property name="text">
-    <string>Remove Items</string>
-   </property>
-   <property name="toolTip">
-    <string>Remove elements, attributes and values from the active profile.</string>
-   </property>
-   <property name="whatsThis">
-    <string>Remove elements, attributes and values from the active profile.</string>
-   </property>
-  </action>
-  <action name="actionAddItems">
-   <property name="text">
-    <string>Add Items</string>
-   </property>
-   <property name="toolTip">
-    <string>Add elements and attributes to the active profile.</string>
-   </property>
-   <property name="statusTip">
-    <string/>
-   </property>
-   <property name="whatsThis">
-    <string>Add elements and attributes to the active profile.</string>
-   </property>
-  </action>
-  <action name="actionInsertSnippet">
-   <property name="text">
-    <string>&amp;Insert Snippet</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+I</string>
-   </property>
-  </action>
-  <action name="actionEditItems">
-   <property name="text">
-    <string>Edit Items</string>
-   </property>
-   <property name="toolTip">
-    <string>Edit elements and attributes in the active profile.</string>
-   </property>
-   <property name="whatsThis">
-    <string>Edit elements and attributes in the active profile.</string>
-   </property>
-  </action>
   <action name="actionRememberWindowGeometry">
    <property name="checkable">
     <bool>true</bool>
@@ -742,39 +304,8 @@
     <string>Show Help Buttons</string>
    </property>
   </action>
-  <action name="actionShowTreeElementsVerbose">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Show Tree Elements Verbose</string>
-   </property>
-  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <customwidgets>
-  <customwidget>
-   <class>DomTreeWidget</class>
-   <extends>QTreeWidget</extends>
-   <header location="global">utils/domtreewidget.h</header>
-  </customwidget>
-  <customwidget>
-   <class>PlainTextEdit</class>
-   <extends>QPlainTextEdit</extends>
-   <header location="global">utils/plaintextedit.h</header>
-  </customwidget>
- </customwidgets>
- <tabstops>
-  <tabstop>addElementComboBox</tabstop>
-  <tabstop>addChildElementButton</tabstop>
-  <tabstop>treeWidget</tabstop>
-  <tabstop>tableWidget</tabstop>
-  <tabstop>expandAllCheckBox</tabstop>
-  <tabstop>dockWidgetTextEdit</tabstop>
- </tabstops>
  <resources>
   <include location="resources/resources.qrc"/>
  </resources>

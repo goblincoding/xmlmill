@@ -37,7 +37,11 @@ QT       += core xml sql widgets
 TARGET = XMLMill
 TEMPLATE = app
 
+# This is supposed to be sufficient for Qt5, but does not
+# seem to work (still getting compiler warnings), hence
+# the QMAKE_CXXFLAGS addition
 CONFIG += c++11
+QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += main.cpp\
     db/dbinterface.cpp \
