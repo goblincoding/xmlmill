@@ -97,6 +97,7 @@ void DB::processDomDocument(const QDomDocument &domDoc) {
     qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 
     QSqlQuery query = createQuery();
+    m_db.transaction();
 
     if (!query.prepare("INSERT OR REPLACE INTO xml( "
                        "value, attribute, element, parent, root ) "
@@ -116,6 +117,8 @@ void DB::processDomDocument(const QDomDocument &domDoc) {
                           .arg(query.lastError().text());
       emit result(Result::Failed, error);
     }
+
+    m_db.commit();
   }
 }
 
