@@ -43,6 +43,7 @@ class QSignalMapper;
 class QTimer;
 class QLabel;
 class QMovie;
+class DomModel;
 
 /*! \mainpage Goblin Coding's XML Mill
  *
@@ -255,6 +256,7 @@ private:
   QString m_currentXMLFileName;
 
   DB m_db;
+  DomModel* m_model;
 
   bool m_fileContentsChanged;
 };

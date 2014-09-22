@@ -59,7 +59,10 @@ SOURCES += main.cpp\
     utils/treewidgetitem.cpp \
     forms/addsnippetsform.cpp \
     utils/plaintextedit.cpp \
-    utils/globalsettings.cpp
+    utils/globalsettings.cpp \
+    model/domitem.cpp \
+    delegate/domdelegate.cpp \
+    model/dommodel.cpp
 
 HEADERS  += \
     db/dbinterface.h \
@@ -77,7 +80,10 @@ HEADERS  += \
     utils/treewidgetitem.h \
     forms/addsnippetsform.h \
     utils/plaintextedit.h \
-    utils/globalsettings.h
+    utils/globalsettings.h \
+    delegate/domdelegate.h \
+    model/domitem.h \
+    model/dommodel.h
 
 FORMS    += \
     mainwindow.ui \

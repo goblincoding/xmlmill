@@ -21,7 +21,11 @@
    <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="centralLayout"/>
+   <layout class="QHBoxLayout" name="centralLayout">
+    <item>
+     <widget class="QTreeView" name="treeView"/>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

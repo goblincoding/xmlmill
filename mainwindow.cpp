@@ -39,6 +39,8 @@
 #include "utils/combobox.h"
 #include "utils/messagespace.h"
 #include "utils/globalsettings.h"
+#include "model/dommodel.h"
+#include "delegate/domdelegate.h"
 
 #include <QDesktopServices>
 #include <QSignalMapper>
@@ -101,6 +103,11 @@ MainWindow::MainWindow(QWidget *parent)
   // TODO - connect DB action signal to error handling slot!!!
 
   readSettings();
+
+  ui->treeView->setItemDelegate(new DomDelegate(this));
+
+  m_model = new DomModel(QDomDocument(), this);
+  ui->treeView->setModel(m_model);
 
   /* Wait for the event loop to be initialised before calling this function. */
   QTimer::singleShot(0, this, SLOT(queryRestoreFiles()));
