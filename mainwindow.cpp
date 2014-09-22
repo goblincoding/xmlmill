@@ -43,8 +43,6 @@
 #include "delegate/domdelegate.h"
 
 #include <QDesktopServices>
-#include <QSignalMapper>
-#include <QTextBlock>
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QTextStream>
@@ -160,13 +158,31 @@ QString MainWindow::getOpenFileName() {
 
 /*----------------------------------------------------------------------------*/
 
-void MainWindow::openFile() {
+void MainWindow::openFile(const QString& fileName) {
   if (!saveAndContinue("Save document before continuing?")) {
     return;
   }
 
-  m_currentXMLFileName = getOpenFileName();
-  m_fileContentsChanged = false; // at first load, nothing has changed
+  if(!fileName.isEmpty()){
+    QString xmlErr("");
+    int line(-1);
+    int col(-1);
+    QDomDocument domDoc;
+
+    if (m_domDoc.setContent(&source, &reader, &xmlErr, &line, &col)) {
+      /* Enable file save options. */
+      ui->actionCloseFile->setEnabled(true);
+      ui->actionSave->setEnabled(true);
+      ui->actionSaveAs->setEnabled(true);
+
+      m_currentXMLFileName = fileName;
+      m_fileContentsChanged = false; // at first load, nothing has changed
+    } else {
+      QString error("%1: line [%2], column [%3]").arg(xmlErr).arg(line).arg(col);
+
+
+    }
+  }
 }
 
 /*----------------------------------------------------------------------------*/
@@ -245,50 +261,44 @@ void MainWindow::closeFile() {
 
 /*----------------------------------------------------------------------------*/
 
-void MainWindow::importXMLFromFile() {
-  QString fileName = getOpenFileName();
+QString MainWindow::readFile(const QString& fileName) {
+
 
   if (!fileName.isEmpty()) {
     QFile file(fileName);
-
-    /* This application isn't optimised for dealing with very large XML files
-     * (the
-     * entire point is that this suite should provide the functionality
-     * necessary
-     * for the manual manipulation of, e.g. XML config files normally set up by
-     * hand via copy and paste exercises), if this file is too large to be
-     * handled
-     * comfortably, we need to let the user know and also make sure that we
-     * don't
-     * try to set the DOM content as text in the QTextEdit (QTextEdit is
-     * optimised
-     * for paragraphs). */
-    qint64 fileSize = file.size();
-
-    if (fileSize > DOMWARNING) {
-      QMessageBox::warning(this, "Large file!", "The file you just opened is "
-                                                "pretty large. Response times "
-                                                "may be slow.");
-    }
 
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
       QTextStream inStream(&file);
       QString fileContent(inStream.readAll());
       file.close();
-      importXMLToDatabase(fileContent);
 
-      QMessageBox::StandardButtons accepted = QMessageBox::question(
-          this, "Edit file", "Also open file for editing?",
-          QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-
-      if (accepted == QMessageBox::Yes) {
-        loadFile();
-      }
+      return fileContent;
     } else {
       QString errorMsg = QString("Failed to open file \"%1\": [%2]")
                              .arg(fileName)
                              .arg(file.errorString());
       MessageSpace::showErrorMessageBox(this, errorMsg);
+    }
+  }
+
+  return QString();
+}
+
+/*----------------------------------------------------------------------------*/
+
+void MainWindow::importXMLFromFile() {
+  QString fileName = getOpenFileName();
+  QString content = readFile(fileName);
+
+  if (!content.isEmpty()) {
+    importXMLToDatabase(fileContent);
+
+    QMessageBox::StandardButtons accepted = QMessageBox::question(
+        this, "Edit file", "Also open file for editing?",
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+
+    if (accepted == QMessageBox::Yes) {
+      openFile(fileName);
     }
   }
 }
@@ -303,8 +313,9 @@ void MainWindow::importXMLToDatabase(const QString &xml) {
   QString xmlErr("");
   int line(-1);
   int col(-1);
+  QDomDocument domDoc;
 
-  if (m_domDoc.setContent(&source, &reader, &xmlErr, &line, &col)) {
+  if (domDoc.setContent(&source, &reader, &xmlErr, &line, &col)) {
     createSpinner();
     qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
     m_db.processDomDocument(m_domDoc);
@@ -493,23 +504,6 @@ void MainWindow::setShowHelpButtons(bool show) {
 
 void MainWindow::setShowTreeItemsVerbose(bool verbose) {
   GlobalSettings::setShowTreeItemsVerbose(verbose);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void MainWindow::loadFile() {
-  /* Enable file save options. */
-  ui->actionCloseFile->setEnabled(true);
-  ui->actionSave->setEnabled(true);
-  ui->actionSaveAs->setEnabled(true);
-
-  /* Generally-speaking, we want the file contents changed flag to be set
-   * whenever the text edit content is set (this is done, not surprisingly, in
-   * "setTextEditContent" above).  However, whenever a DOM document is processed
-   * for the first time, nothing is changed in it, so to avoid the annoying
-   * "Save File" queries when nothing has been done yet, we unset the flag here.
-   */
-  m_fileContentsChanged = false;
 }
 
 /*----------------------------------------------------------------------------*/

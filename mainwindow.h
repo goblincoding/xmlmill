@@ -93,7 +93,7 @@ private slots:
       \sa saveXMLFileAs
       \sa closeXMLFile
       \sa importXMLFromFile */
-  void openFile();
+  void openFile(const QString &fileName);
 
   /*! Triggered whenever the user decides to create a new XML file.
       \sa openXMLFile
@@ -200,7 +200,7 @@ private slots:
 private:
   /*! Kicks off a recursive DOM tree traversal to populate the tree widget and
    * element maps with the information contained in the active DOM document. */
-  void loadFile();
+  QString readFile(const QString &fileName);
 
   /*! Displays a message in the status bar. */
   void setStatusBarMessage(const QString &message);

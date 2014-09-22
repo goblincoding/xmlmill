@@ -97,18 +97,18 @@ QString DomItem::toString() const {
 
 QString DomItem::elementString() const {
   QString text("<");
-  text += m_element.tagName();
+  text += m_domNode.nodeName();
 
-  QDomNamedNodeMap attributes = m_element.attributes();
+  QDomNamedNodeMap attributeMap = m_domNode.attributes();
 
   /* For elements with no attributes (e.g. <element/>). */
-  if (attributes.isEmpty() && m_element.childNodes().isEmpty()) {
+  if (attributeMap.isEmpty() && m_domNode.childNodes().isEmpty()) {
     text += "/>";
     return text;
   }
 
-  if (!attributes.isEmpty()) {
-    for (int i = 0; i < attributes.size(); ++i) {
+  if (!attributeMap.isEmpty()) {
+    for (int i = 0; i < attributeMap.size(); ++i) {
       QDomNode attribute = attributeMap.item(i);
       text += " ";
       text += attribute.nodeName();
@@ -118,7 +118,7 @@ QString DomItem::elementString() const {
     }
 
     /* For elements without children but with attributes. */
-    if (m_element.firstChild().isNull()) {
+    if (m_domNode.firstChild().isNull()) {
       text += "/>";
     } else {
       /* For elements with children and attributes. */
