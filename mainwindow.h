@@ -43,6 +43,9 @@ class MainWindow;
 }
 
 class QTimer;
+class QLabel;
+class QMovie;
+class DomModel;
 
 /*! \mainpage Goblin Coding's XML Mill
  *
@@ -249,6 +252,10 @@ private:
   QTimer *m_saveTimer;
   QString m_currentXMLFileName;
   QThread m_dbThread;
+
+  DB m_db;
+  DomModel* m_model;
+
   bool m_fileContentsChanged;
   bool m_importedXmlFromFile;
 };

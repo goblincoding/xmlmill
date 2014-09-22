@@ -60,6 +60,9 @@ SOURCES += main.cpp\
     forms/addsnippetsform.cpp \
     utils/plaintextedit.cpp \
     utils/globalsettings.cpp \
+    model/domitem.cpp \
+    delegate/domdelegate.cpp \
+    model/dommodel.cpp
     ../QtWaitingSpinner/QtWaitingSpinner.cpp
 
 HEADERS  += \
@@ -79,6 +82,9 @@ HEADERS  += \
     forms/addsnippetsform.h \
     utils/plaintextedit.h \
     utils/globalsettings.h \
+    delegate/domdelegate.h \
+    model/domitem.h \
+    model/dommodel.h
     ../QtWaitingSpinner/QtWaitingSpinner.h
 
 FORMS    += \
