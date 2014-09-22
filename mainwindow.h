@@ -34,16 +34,17 @@
 
 #include <QDomDocument>
 #include <QMainWindow>
+#include <QThread>
 
 namespace Ui {
 class MainWindow;
 }
 
-class QSignalMapper;
 class QTimer;
 class QLabel;
 class QMovie;
 class DomModel;
+class QtWaitingSpinner;
 
 /*! \mainpage Goblin Coding's XML Mill
  *
@@ -80,6 +81,12 @@ public:
 
   /*! Destructor. */
   ~MainWindow();
+
+public slots:
+  void handleDBResult(DB::Result result, const QString &msg);
+
+signals:
+  void processDocumentXml(const QString &domDoc);
 
 protected:
   /*! Re-implemented from QMainWindow.  Queries user to save before closing and
@@ -195,8 +202,6 @@ private slots:
       \sa deleteTempFile */
   void queryRestoreFiles();
 
-  void showSpinner();
-
 private:
   /*! Kicks off a recursive DOM tree traversal to populate the tree widget and
    * element maps with the information contained in the active DOM document. */
@@ -225,20 +230,6 @@ private:
       \sa resetDOM */
   bool saveAndContinue(const QString &resetReason);
 
-  /*! Imports the DOM content to the active database.
-      \sa importXMLFromFile */
-  void importXMLToDatabase(const QString &xml);
-
-  /*! Creates and displays a "loading" style spinner for use during expensive
-     operations. The calling function is responsible for clean-up (preferably
-     through calling deleteSpinner() ).
-      \sa deleteSpinner */
-  void createSpinner();
-
-  /*! Deletes the "busy loading" spinner.
-      \sa createSpinner */
-  void deleteSpinner();
-
   /*! Delete the auto-recover temporary file every time the user changes or
      explicitly saves the active file.
       \sa saveTempFile
@@ -247,16 +238,20 @@ private:
 
   QString getOpenFileName();
 
+  void setUpDBThread();
+
 private:
   Ui::MainWindow *ui;
+  QtWaitingSpinner *m_spinner;
   QDomDocument m_domDoc;
+  QDomDocument m_tmpDomDoc;
   QTimer *m_saveTimer;
-  QMovie *m_spinner;
-  QLabel *m_progressLabel;
   QString m_currentXMLFileName;
+  QString m_importedXmlFileName;
+  QThread m_dbThread;
 
   DB m_db;
-  DomModel* m_model;
+  DomModel *m_model;
 
   bool m_fileContentsChanged;
 };

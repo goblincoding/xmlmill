@@ -62,7 +62,9 @@ SOURCES += main.cpp\
     utils/globalsettings.cpp \
     model/domitem.cpp \
     delegate/domdelegate.cpp \
-    model/dommodel.cpp
+    model/dommodel.cpp \
+    utils/QtWaitingSpinner.cpp
+    ../QtWaitingSpinner/QtWaitingSpinner.cpp
 
 HEADERS  += \
     db/dbinterface.h \
@@ -83,7 +85,9 @@ HEADERS  += \
     utils/globalsettings.h \
     delegate/domdelegate.h \
     model/domitem.h \
-    model/dommodel.h
+    model/dommodel.h \
+    utils/QtWaitingSpinner.h
+    ../QtWaitingSpinner/QtWaitingSpinner.h
 
 FORMS    += \
     mainwindow.ui \

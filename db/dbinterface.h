@@ -46,8 +46,6 @@
   furthermore references the "rootelements" table's "root" column as foreign
   key. */
 
-class QDomDocument;
-
 class DB : public QObject {
   Q_OBJECT
 
@@ -63,13 +61,14 @@ public:
 
   /*! Used to communicate DB errors via the \sa result signal. */
   enum class Result {
-    Failed,  /*!< Generally used to communicate DB query failures. */
-    Critical /*!< Used to communinicate DB creation failures. */
+    ImportSuccess, /*!< The DOM Document import was successful. */
+    Failed,        /*!< Generally used to communicate DB query failures. */
+    Critical       /*!< Used to communinicate DB creation failures. */
   };
 
   /*! Processes an entire DOM document, inserting new and replacing
    * existing records in the database. */
-  void processDomDocument(const QDomDocument &domDoc);
+  void processDocumentXml(const QString &xml);
 
   /*! Adds a new root element (document type). Root elements are representative
    * of their associated document types and the corresponding XML "style". This
@@ -142,7 +141,8 @@ public:
   /*! Returns a sorted (case sensitive, ascending) list of all the first level
      children associated with "element" and the "associatedRoot" document type,
      or an empty QStringList if unsuccessful/none exist. */
-  QStringList children(const QString &element, const QString &parent, const QString &root);
+  QStringList children(const QString &element, const QString &parent,
+                       const QString &root);
 
   /*! Returns an UNSORTED list of all the attribute names associated with
      "element" and the "associatedRoot" document type in the database (the
@@ -150,7 +150,8 @@ public:
      populate combo boxes, where ordering makes sense, but this particular list
      is used to populate a table), or an empty QStringList if unsuccessful/none
      exist. */
-  QStringList attributes(const QString &element, const QString &parent, const QString &root);
+  QStringList attributes(const QString &element, const QString &parent,
+                         const QString &root);
 
   /*! Returns a sorted (case sensitive, ascending) list of all the attribute
      values associated with "element" and its corresponding "attribute" in the
@@ -163,7 +164,7 @@ public:
   QStringList knownRootElements() const;
 
 signals:
-  void result(Result status, const QString &error) const;
+  void result(DB::Result status, const QString &error) const;
 
 private:
   /*! Returns a list of known attributes. */

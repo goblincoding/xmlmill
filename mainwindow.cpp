@@ -29,6 +29,7 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "db/dbinterface.h"
 #include "forms/additemsform.h"
 #include "forms/removeitemsform.h"
 #include "forms/helpdialog.h"
@@ -39,6 +40,7 @@
 #include "utils/combobox.h"
 #include "utils/messagespace.h"
 #include "utils/globalsettings.h"
+#include "utils/QtWaitingSpinner.h"
 #include "model/dommodel.h"
 #include "delegate/domdelegate.h"
 
@@ -62,14 +64,12 @@
 const QString EMPTY("---");
 const QString LEFTRIGHTBRACKETS("\\[|\\]");
 
-const qint64 DOMWARNING(262144); // 0.25MB or ~7 500 lines
-
 /*----------------------------------------------------------------------------*/
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), m_saveTimer(nullptr),
-      m_spinner(nullptr), m_progressLabel(nullptr), m_currentXMLFileName(""),
-      m_db(), m_fileContentsChanged(false) {
+      m_currentXMLFileName(""), m_importedXmlFileName(""), m_dbThread(),
+      m_fileContentsChanged(false) {
   ui->setupUi(this);
 
   /* XML File related. */
@@ -98,9 +98,10 @@ MainWindow::MainWindow(QWidget *parent)
   connect(ui->actionImportXMLToDatabase, SIGNAL(triggered()), this,
           SLOT(importXMLFromFile()));
 
-  // TODO - connect DB action signal to error handling slot!!!
-
   readSettings();
+
+  m_spinner = new QtWaitingSpinner(Qt::ApplicationModal, this, true);
+  setUpDBThread();
 
   ui->treeView->setItemDelegate(new DomDelegate(this));
 
@@ -113,7 +114,40 @@ MainWindow::MainWindow(QWidget *parent)
 
 /*----------------------------------------------------------------------------*/
 
-MainWindow::~MainWindow() { delete ui; }
+MainWindow::~MainWindow() {
+  delete ui;
+  delete m_spinner;
+
+  m_dbThread.quit();
+  m_dbThread.wait();
+}
+
+/*----------------------------------------------------------------------------*/
+
+void MainWindow::handleDBResult(DB::Result result, const QString &msg) {
+  m_spinner->stop();
+
+  switch (result) {
+  case DB::Result::ImportSuccess: {
+    QMessageBox::StandardButtons accepted = QMessageBox::question(
+        this, "Edit file", "Also open file for editing?",
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+
+    if (accepted == QMessageBox::Yes) {
+      openFile(m_importedXmlFileName);
+    }
+    break;
+  }
+  case DB::Result::Failed: {
+    MessageSpace::showErrorMessageBox(this, msg);
+    break;
+  }
+  case DB::Result::Critical: {
+    MessageSpace::showErrorMessageBox(this, msg);
+    this->close();
+  }
+  }
+}
 
 /*----------------------------------------------------------------------------*/
 
@@ -157,31 +191,36 @@ QString MainWindow::getOpenFileName() {
 }
 
 /*----------------------------------------------------------------------------*/
+void MainWindow::setUpDBThread() {
+  /* Required for the cross-thread signal/slot communication. */
+  qRegisterMetaType<DB::Result>("DB::Result");
 
-void MainWindow::openFile(const QString& fileName) {
+  DB *db = new DB;
+  db->moveToThread(&m_dbThread);
+  connect(&m_dbThread, &QThread::finished, db, &QObject::deleteLater);
+  connect(this, &MainWindow::processDocumentXml, db, &DB::processDocumentXml);
+  connect(db, &DB::result, this, &MainWindow::handleDBResult);
+  m_dbThread.start();
+}
+
+/*----------------------------------------------------------------------------*/
+
+void MainWindow::openFile(const QString &fileName) {
   if (!saveAndContinue("Save document before continuing?")) {
     return;
   }
 
-  if(!fileName.isEmpty()){
-    QString xmlErr("");
-    int line(-1);
-    int col(-1);
-    QDomDocument domDoc;
+  if (!fileName.isEmpty()) {
+    m_domDoc.clear();
+    m_domDoc.appendChild(m_tmpDomDoc.documentElement().cloneNode());
 
-    if (m_domDoc.setContent(&source, &reader, &xmlErr, &line, &col)) {
-      /* Enable file save options. */
-      ui->actionCloseFile->setEnabled(true);
-      ui->actionSave->setEnabled(true);
-      ui->actionSaveAs->setEnabled(true);
+    /* Enable file save options. */
+    ui->actionCloseFile->setEnabled(true);
+    ui->actionSave->setEnabled(true);
+    ui->actionSaveAs->setEnabled(true);
 
-      m_currentXMLFileName = fileName;
-      m_fileContentsChanged = false; // at first load, nothing has changed
-    } else {
-      QString error("%1: line [%2], column [%3]").arg(xmlErr).arg(line).arg(col);
-
-
-    }
+    m_currentXMLFileName = fileName;
+    m_fileContentsChanged = false; // at first load, nothing has changed
   }
 }
 
@@ -261,9 +300,7 @@ void MainWindow::closeFile() {
 
 /*----------------------------------------------------------------------------*/
 
-QString MainWindow::readFile(const QString& fileName) {
-
-
+QString MainWindow::readFile(const QString &fileName) {
   if (!fileName.isEmpty()) {
     QFile file(fileName);
 
@@ -271,7 +308,6 @@ QString MainWindow::readFile(const QString& fileName) {
       QTextStream inStream(&file);
       QString fileContent(inStream.readAll());
       file.close();
-
       return fileContent;
     } else {
       QString errorMsg = QString("Failed to open file \"%1\": [%2]")
@@ -288,40 +324,25 @@ QString MainWindow::readFile(const QString& fileName) {
 
 void MainWindow::importXMLFromFile() {
   QString fileName = getOpenFileName();
-  QString content = readFile(fileName);
+  QString xml = readFile(fileName);
+  m_importedXmlFileName = "";
 
-  if (!content.isEmpty()) {
-    importXMLToDatabase(fileContent);
+  if (!xml.isEmpty()) {
+    QXmlInputSource source;
+    source.setData(xml);
+    QXmlSimpleReader reader;
 
-    QMessageBox::StandardButtons accepted = QMessageBox::question(
-        this, "Edit file", "Also open file for editing?",
-        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+    QString xmlErr("");
+    int line(-1);
+    int col(-1);
 
-    if (accepted == QMessageBox::Yes) {
-      openFile(fileName);
+    if (m_tmpDomDoc.setContent(&source, &reader, &xmlErr, &line, &col)) {
+      m_importedXmlFileName = fileName;
+      m_spinner->start();
+      emit processDocumentXml(xml);
+    } else {
+      // ERROR HANDLING TO ADD
     }
-  }
-}
-
-/*----------------------------------------------------------------------------*/
-
-void MainWindow::importXMLToDatabase(const QString &xml) {
-  QXmlInputSource source;
-  source.setData(xml);
-  QXmlSimpleReader reader;
-
-  QString xmlErr("");
-  int line(-1);
-  int col(-1);
-  QDomDocument domDoc;
-
-  if (domDoc.setContent(&source, &reader, &xmlErr, &line, &col)) {
-    createSpinner();
-    qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
-    m_db.processDomDocument(m_domDoc);
-    deleteSpinner();
-  } else {
-    // ERROR HANDLING TO ADD
   }
 }
 
@@ -329,7 +350,8 @@ void MainWindow::importXMLToDatabase(const QString &xml) {
 
 void MainWindow::searchDocument() {
   /* Delete on close flag set (no clean-up needed). */
-  //  SearchForm *form = new SearchForm(ui->treeWidget->allTreeWidgetItems(),
+  //  SearchForm *form = new
+  // SearchForm(ui->treeWidget->allTreeWidgetItems(),
   //                                    ui->dockWidgetTextEdit, this);
   //  connect(form, SIGNAL(foundItem(TreeWidgetItem *)), this,
   //          SLOT(itemFound(TreeWidgetItem *)));
@@ -344,53 +366,12 @@ void MainWindow::forgetMessagePreferences() {
 
 /*----------------------------------------------------------------------------*/
 
-void MainWindow::createSpinner() {
-  /* Clean-up should be handled in the calling function, but just in case. */
-  if (m_spinner || m_progressLabel) {
-    deleteSpinner();
-  }
-
-  m_progressLabel = new QLabel(this, Qt::Popup);
-  m_progressLabel->move(window()->frameGeometry().topLeft() +
-                        window()->rect().center() -
-                        m_progressLabel->rect().center());
-
-  m_spinner = new QMovie(":/resources/spinner.gif");
-  m_progressLabel->setMovie(m_spinner);
-
-  /* Delay the display as it could happen that the spinner gets created and
-   * subsequently destroyed very shortly after each other (the process we are
-   * monitoring might very well be executing faster than expected). */
-  QTimer timer;
-  timer.singleShot(1000, this, SLOT(showSpinner()));
-}
-
-/*----------------------------------------------------------------------------*/
-
-void MainWindow::deleteSpinner() {
-  delete m_spinner;
-  m_spinner = nullptr;
-
-  delete m_progressLabel;
-  m_progressLabel = nullptr;
-}
-
-/*----------------------------------------------------------------------------*/
-
-void MainWindow::showSpinner() {
-  if (m_spinner && m_progressLabel) {
-    m_spinner->start();
-    m_progressLabel->show();
-  }
-}
-
-/*----------------------------------------------------------------------------*/
-
 void MainWindow::resetDOM() {
   m_domDoc.clear();
   m_fileContentsChanged = false;
 
-  /* The timer will be reactivated as soon as work starts again on a legitimate
+  /* The timer will be reactivated as soon as work starts again on a
+   * legitimate
    * document and the user saves it for the first time. */
   if (m_saveTimer) {
     m_saveTimer->stop();
@@ -400,8 +381,10 @@ void MainWindow::resetDOM() {
 /*----------------------------------------------------------------------------*/
 
 bool MainWindow::saveAndContinue(const QString &resetReason) {
-  /* There are a number of places and opportunities for "resetDOM" to be called,
-   * if there is an active document, check if it's content has changed since the
+  /* There are a number of places and opportunities for "resetDOM" to be
+   * called,
+   * if there is an active document, check if it's content has changed since
+   * the
    * last time it had changed and make sure we don't accidentally delete
    * anything. */
   if (m_fileContentsChanged) {
@@ -588,7 +571,8 @@ void MainWindow::saveTempFile() {
                  .arg(m_currentXMLFileName.split("/").last())
                  .arg(dbName.remove(".db")));
 
-  /* Since this is an attempt at auto-saving, we aim for a "best case" scenario
+  /* Since this is an attempt at auto-saving, we aim for a "best case"
+   * scenario
    * and don't display error messages if encountered. */
   if (file.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
     QTextStream outStream(&file);
