@@ -34,15 +34,15 @@
 
 #include <QDomDocument>
 #include <QMainWindow>
+#include <QThread>
+
+#include "/home/william/QtWaitingSpinner/QtWaitingSpinner.h"
 
 namespace Ui {
 class MainWindow;
 }
 
-class QSignalMapper;
 class QTimer;
-class QLabel;
-class QMovie;
 
 /*! \mainpage Goblin Coding's XML Mill
  *
@@ -79,6 +79,12 @@ public:
 
   /*! Destructor. */
   ~MainWindow();
+
+public slots:
+  void handleDBResult(DB::Result result, const QString &msg);
+
+signals:
+  void processDocumentXml(const QString &domDoc);
 
 protected:
   /*! Re-implemented from QMainWindow.  Queries user to save before closing and
@@ -194,8 +200,6 @@ private slots:
       \sa deleteTempFile */
   void queryRestoreFiles();
 
-  void showSpinner();
-
 private:
   /*! Kicks off a recursive DOM tree traversal to populate the tree widget and
    * element maps with the information contained in the active DOM document. */
@@ -228,16 +232,6 @@ private:
       \sa importXMLFromFile */
   void importXMLToDatabase(const QString &xml);
 
-  /*! Creates and displays a "loading" style spinner for use during expensive
-     operations. The calling function is responsible for clean-up (preferably
-     through calling deleteSpinner() ).
-      \sa deleteSpinner */
-  void createSpinner();
-
-  /*! Deletes the "busy loading" spinner.
-      \sa createSpinner */
-  void deleteSpinner();
-
   /*! Delete the auto-recover temporary file every time the user changes or
      explicitly saves the active file.
       \sa saveTempFile
@@ -246,17 +240,17 @@ private:
 
   QString getOpenFileName();
 
+  void setUpDBThread();
+
 private:
   Ui::MainWindow *ui;
+  QtWaitingSpinner *m_spinner;
   QDomDocument m_domDoc;
   QTimer *m_saveTimer;
-  QMovie *m_spinner;
-  QLabel *m_progressLabel;
   QString m_currentXMLFileName;
-
-  DB m_db;
-
+  QThread m_dbThread;
   bool m_fileContentsChanged;
+  bool m_importedXmlFromFile;
 };
 
 #endif // MAINWINDOW_H

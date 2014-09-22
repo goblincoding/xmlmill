@@ -29,6 +29,7 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "db/dbinterface.h"
 #include "forms/additemsform.h"
 #include "forms/removeitemsform.h"
 #include "forms/helpdialog.h"
@@ -68,8 +69,8 @@ const qint64 DOMWARNING(262144); // 0.25MB or ~7 500 lines
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), m_saveTimer(nullptr),
-      m_spinner(nullptr), m_progressLabel(nullptr), m_currentXMLFileName(""),
-      m_db(), m_fileContentsChanged(false) {
+      m_currentXMLFileName(""), m_dbThread(), m_fileContentsChanged(false),
+      m_importedXmlFromFile(false) {
   ui->setupUi(this);
 
   /* XML File related. */
@@ -102,13 +103,53 @@ MainWindow::MainWindow(QWidget *parent)
 
   readSettings();
 
+  m_spinner = new QtWaitingSpinner(this, Qt::ApplicationModal, true);
+  setUpDBThread();
+
   /* Wait for the event loop to be initialised before calling this function. */
   QTimer::singleShot(0, this, SLOT(queryRestoreFiles()));
 }
 
 /*----------------------------------------------------------------------------*/
 
-MainWindow::~MainWindow() { delete ui; }
+MainWindow::~MainWindow() {
+  delete ui;
+  delete m_spinner;
+
+  m_dbThread.quit();
+  m_dbThread.wait();
+}
+
+/*----------------------------------------------------------------------------*/
+
+void MainWindow::handleDBResult(DB::Result result, const QString &msg) {
+  m_spinner->finish();
+
+  switch (result) {
+  case DB::Result::Success: {
+    if (m_importedXmlFromFile) {
+      QMessageBox::StandardButtons accepted = QMessageBox::question(
+          this, "Edit file", "Also open file for editing?",
+          QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+
+      if (accepted == QMessageBox::Yes) {
+        loadFile();
+      }
+    }
+    break;
+  }
+  case DB::Result::Failed: {
+    MessageSpace::showErrorMessageBox(this, msg);
+    break;
+  }
+  case DB::Result::Critical: {
+    MessageSpace::showErrorMessageBox(this, msg);
+    this->close();
+  }
+  }
+
+  m_importedXmlFromFile = false;
+}
 
 /*----------------------------------------------------------------------------*/
 
@@ -149,6 +190,20 @@ QString MainWindow::getOpenFileName() {
   }
 
   return fileName;
+}
+
+/*----------------------------------------------------------------------------*/
+
+void MainWindow::setUpDBThread() {
+  /* Required for the cross-thread signal/slot communication. */
+  qRegisterMetaType<DB::Result>("DB::Result");
+
+  DB *db = new DB;
+  db->moveToThread(&m_dbThread);
+  connect(&m_dbThread, &QThread::finished, db, &QObject::deleteLater);
+  connect(this, &MainWindow::processDocumentXml, db, &DB::processDocumentXml);
+  connect(db, &DB::result, this, &MainWindow::handleDBResult);
+  m_dbThread.start();
 }
 
 /*----------------------------------------------------------------------------*/
@@ -244,11 +299,13 @@ void MainWindow::importXMLFromFile() {
   if (!fileName.isEmpty()) {
     QFile file(fileName);
 
-    /* This application isn't optimised for dealing with very large XML files
+    /* This application isn't optimised for dealing with very large XML
+     * files
      * (the
      * entire point is that this suite should provide the functionality
      * necessary
-     * for the manual manipulation of, e.g. XML config files normally set up by
+     * for the manual manipulation of, e.g. XML config files normally set up
+     * by
      * hand via copy and paste exercises), if this file is too large to be
      * handled
      * comfortably, we need to let the user know and also make sure that we
@@ -256,27 +313,23 @@ void MainWindow::importXMLFromFile() {
      * try to set the DOM content as text in the QTextEdit (QTextEdit is
      * optimised
      * for paragraphs). */
-    qint64 fileSize = file.size();
+    //    qint64 fileSize = file.size();
 
-    if (fileSize > DOMWARNING) {
-      QMessageBox::warning(this, "Large file!", "The file you just opened is "
-                                                "pretty large. Response times "
-                                                "may be slow.");
-    }
+    //    if (fileSize > DOMWARNING) {
+    //      QMessageBox::warning(this, "Large file!", "The file you just opened
+    // is "
+    //                                                "pretty large. Response
+    // times "
+    //                                                "may be slow.");
+    //    }
 
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
       QTextStream inStream(&file);
       QString fileContent(inStream.readAll());
       file.close();
+
+      m_importedXmlFromFile = true;
       importXMLToDatabase(fileContent);
-
-      QMessageBox::StandardButtons accepted = QMessageBox::question(
-          this, "Edit file", "Also open file for editing?",
-          QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-
-      if (accepted == QMessageBox::Yes) {
-        loadFile();
-      }
     } else {
       QString errorMsg = QString("Failed to open file \"%1\": [%2]")
                              .arg(fileName)
@@ -298,10 +351,8 @@ void MainWindow::importXMLToDatabase(const QString &xml) {
   int col(-1);
 
   if (m_domDoc.setContent(&source, &reader, &xmlErr, &line, &col)) {
-    createSpinner();
-    qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
-    m_db.processDomDocument(m_domDoc);
-    deleteSpinner();
+    m_spinner->start();
+    emit processDocumentXml(xml);
   } else {
     // ERROR HANDLING TO ADD
   }
@@ -311,7 +362,8 @@ void MainWindow::importXMLToDatabase(const QString &xml) {
 
 void MainWindow::searchDocument() {
   /* Delete on close flag set (no clean-up needed). */
-  //  SearchForm *form = new SearchForm(ui->treeWidget->allTreeWidgetItems(),
+  //  SearchForm *form = new
+  // SearchForm(ui->treeWidget->allTreeWidgetItems(),
   //                                    ui->dockWidgetTextEdit, this);
   //  connect(form, SIGNAL(foundItem(TreeWidgetItem *)), this,
   //          SLOT(itemFound(TreeWidgetItem *)));
@@ -326,53 +378,12 @@ void MainWindow::forgetMessagePreferences() {
 
 /*----------------------------------------------------------------------------*/
 
-void MainWindow::createSpinner() {
-  /* Clean-up should be handled in the calling function, but just in case. */
-  if (m_spinner || m_progressLabel) {
-    deleteSpinner();
-  }
-
-  m_progressLabel = new QLabel(this, Qt::Popup);
-  m_progressLabel->move(window()->frameGeometry().topLeft() +
-                        window()->rect().center() -
-                        m_progressLabel->rect().center());
-
-  m_spinner = new QMovie(":/resources/spinner.gif");
-  m_progressLabel->setMovie(m_spinner);
-
-  /* Delay the display as it could happen that the spinner gets created and
-   * subsequently destroyed very shortly after each other (the process we are
-   * monitoring might very well be executing faster than expected). */
-  QTimer timer;
-  timer.singleShot(1000, this, SLOT(showSpinner()));
-}
-
-/*----------------------------------------------------------------------------*/
-
-void MainWindow::deleteSpinner() {
-  delete m_spinner;
-  m_spinner = nullptr;
-
-  delete m_progressLabel;
-  m_progressLabel = nullptr;
-}
-
-/*----------------------------------------------------------------------------*/
-
-void MainWindow::showSpinner() {
-  if (m_spinner && m_progressLabel) {
-    m_spinner->start();
-    m_progressLabel->show();
-  }
-}
-
-/*----------------------------------------------------------------------------*/
-
 void MainWindow::resetDOM() {
   m_domDoc.clear();
   m_fileContentsChanged = false;
 
-  /* The timer will be reactivated as soon as work starts again on a legitimate
+  /* The timer will be reactivated as soon as work starts again on a
+   * legitimate
    * document and the user saves it for the first time. */
   if (m_saveTimer) {
     m_saveTimer->stop();
@@ -382,8 +393,10 @@ void MainWindow::resetDOM() {
 /*----------------------------------------------------------------------------*/
 
 bool MainWindow::saveAndContinue(const QString &resetReason) {
-  /* There are a number of places and opportunities for "resetDOM" to be called,
-   * if there is an active document, check if it's content has changed since the
+  /* There are a number of places and opportunities for "resetDOM" to be
+   * called,
+   * if there is an active document, check if it's content has changed since
+   * the
    * last time it had changed and make sure we don't accidentally delete
    * anything. */
   if (m_fileContentsChanged) {
@@ -497,10 +510,13 @@ void MainWindow::loadFile() {
   ui->actionSaveAs->setEnabled(true);
 
   /* Generally-speaking, we want the file contents changed flag to be set
-   * whenever the text edit content is set (this is done, not surprisingly, in
-   * "setTextEditContent" above).  However, whenever a DOM document is processed
+   * whenever the text edit content is set (this is done, not surprisingly,
+   * in
+   * "setTextEditContent" above).  However, whenever a DOM document is
+   * processed
    * for the first time, nothing is changed in it, so to avoid the annoying
-   * "Save File" queries when nothing has been done yet, we unset the flag here.
+   * "Save File" queries when nothing has been done yet, we unset the flag
+   * here.
    */
   m_fileContentsChanged = false;
 }
@@ -587,7 +603,8 @@ void MainWindow::saveTempFile() {
                  .arg(m_currentXMLFileName.split("/").last())
                  .arg(dbName.remove(".db")));
 
-  /* Since this is an attempt at auto-saving, we aim for a "best case" scenario
+  /* Since this is an attempt at auto-saving, we aim for a "best case"
+   * scenario
    * and don't display error messages if encountered. */
   if (file.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
     QTextStream outStream(&file);

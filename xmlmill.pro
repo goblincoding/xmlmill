@@ -59,7 +59,8 @@ SOURCES += main.cpp\
     utils/treewidgetitem.cpp \
     forms/addsnippetsform.cpp \
     utils/plaintextedit.cpp \
-    utils/globalsettings.cpp
+    utils/globalsettings.cpp \
+    ../QtWaitingSpinner/QtWaitingSpinner.cpp
 
 HEADERS  += \
     db/dbinterface.h \
@@ -77,7 +78,8 @@ HEADERS  += \
     utils/treewidgetitem.h \
     forms/addsnippetsform.h \
     utils/plaintextedit.h \
-    utils/globalsettings.h
+    utils/globalsettings.h \
+    ../QtWaitingSpinner/QtWaitingSpinner.h
 
 FORMS    += \
     mainwindow.ui \

@@ -32,7 +32,6 @@
 #include "../utils/globalsettings.h"
 
 #include <QDomDocument>
-#include <QApplication>
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlRecord>
@@ -86,39 +85,50 @@ DB::DB() : m_db() {
 
 /*----------------------------------------------------------------------------*/
 
-void DB::processDomDocument(const QDomDocument &domDoc) {
-  //  assert(domDoc.isNull() &&
-  //         "DB: Attempting to batch process a NULL DOM Document");
+void DB::processDocumentXml(const QString &xml) {
+  if (!xml.isEmpty()) {
+    QDomDocument doc;
+    QString xmlErr("");
+    int line(-1);
+    int col(-1);
 
-  if (!domDoc.isNull()) {
-    QString root = domDoc.documentElement().tagName();
-    addRootElement(root);
+    if (doc.setContent(xml, &xmlErr, &line, &col)) {
+      QString root = doc.documentElement().tagName();
+      addRootElement(root);
 
-    qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+      /* Have to start transaction before we create the query. */
+      m_db.transaction();
+      QSqlQuery query = createQuery();
 
-    QSqlQuery query = createQuery();
-    m_db.transaction();
+      if (query.prepare("INSERT OR REPLACE INTO xml( "
+                        "value, attribute, element, parent, root ) "
+                        "VALUES( ?, ?, ?, ?, ? )")) {
+        BatchProcessHelper helper(doc);
+        helper.bindValues(query);
 
-    if (!query.prepare("INSERT OR REPLACE INTO xml( "
-                       "value, attribute, element, parent, root ) "
-                       "VALUES( ?, ?, ?, ?, ? )")) {
-      QString error = QString("Prepare batch INSERT elements failed: [%1]")
-                          .arg(query.lastError().text());
+        if (!query.execBatch()) {
+          QString error =
+              QString("Batch INSERT or REPLACE elements failed: [%1]")
+                  .arg(query.lastError().text());
+          emit result(Result::Failed, error);
+        }
 
+        m_db.commit();
+        emit result(Result::Success, "");
+      } else {
+        QString error = QString("Prepare batch INSERT elements failed: [%1]")
+                            .arg(query.lastError().text());
+
+        m_db.rollback();
+        emit result(Result::Failed, error);
+      }
+    } else {
+      QString error = QString("XML is broken: [%1], line %2, column %3")
+                          .arg(xmlErr)
+                          .arg(line)
+                          .arg(col);
       emit result(Result::Failed, error);
-      return;
     }
-
-    BatchProcessHelper helper(domDoc);
-    helper.bindValues(query);
-
-    if (!query.execBatch()) {
-      QString error = QString("Batch INSERT or REPLACE elements failed: [%1]")
-                          .arg(query.lastError().text());
-      emit result(Result::Failed, error);
-    }
-
-    m_db.commit();
   }
 }
 
