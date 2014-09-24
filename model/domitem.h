@@ -21,7 +21,7 @@ public:
   int row();
 
 private:
-  QString toString() const;
+  QVariant toString() const;
   QString elementString() const;
   QString commentString() const;
 

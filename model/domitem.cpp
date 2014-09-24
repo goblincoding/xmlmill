@@ -15,17 +15,8 @@ DomItem::~DomItem() { qDeleteAll(m_childItems); }
 //----------------------------------------------------------------------
 
 QVariant DomItem::data(const QModelIndex &index, int role) const {
-  QStringList attributes;
-  QDomNamedNodeMap attributeMap = m_domNode.attributes();
-
   switch (index.column()) {
-  case 0:
-    if (role == Qt::DisplayRole) {
-      return m_rowNumber;
-    }
-
-    break;
-  case 1:
+  case 0:    
     if (role == Qt::DisplayRole) {
       return toString();
     }
@@ -83,14 +74,14 @@ int DomItem::row() { return m_rowNumber; }
 
 //----------------------------------------------------------------------
 
-QString DomItem::toString() const {
+QVariant DomItem::toString() const {
   if (m_domNode.isElement()) {
     return elementString();
   } else if (m_domNode.isComment()) {
     return m_domNode.nodeValue();
   }
 
-  return QString();
+  return QVariant();
 }
 
 //----------------------------------------------------------------------

@@ -257,15 +257,19 @@ void MainWindow::importXMLFromFile() {
   m_importedXmlFileName = "";
 
   if (!xml.isEmpty()) {
-    QXmlInputSource source;
-    source.setData(xml);
-    QXmlSimpleReader reader;
+    /* Reading file with Input Source and simple reader results in a lot of
+     * empty rows in the model, for now, revert to "standard" DOM string content
+     * set method. */
+    // QXmlInputSource source();
+    // source.setData(xml);
+    // QXmlSimpleReader reader;
 
     QString xmlErr("");
     int line(-1);
     int col(-1);
 
-    if (m_tmpDomDoc.setContent(&source, &reader, &xmlErr, &line, &col)) {
+    // if (m_tmpDomDoc.setContent(&source, &reader, &xmlErr, &line, &col)) {
+    if (m_tmpDomDoc.setContent(xml, &xmlErr, &line, &col)) {
       m_importedXmlFileName = fileName;
       m_spinner->start();
 
