@@ -74,7 +74,7 @@ MainWindow::MainWindow(QWidget *parent)
 
   /* XML File related. */
   connect(ui->actionNew, SIGNAL(triggered()), this, SLOT(newFile()));
-  connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(openFile()));
+  connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(importXMLFromFile()));
   connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(saveFile()));
   connect(ui->actionSaveAs, SIGNAL(triggered()), this, SLOT(saveFileAs()));
   connect(ui->actionCloseFile, SIGNAL(triggered()), this, SLOT(closeFile()));
@@ -94,17 +94,10 @@ MainWindow::MainWindow(QWidget *parent)
   connect(ui->actionShowHelpButtons, SIGNAL(triggered(bool)), this,
           SLOT(setShowHelpButtons(bool)));
 
-  /* Database related. */
-  connect(ui->actionImportXMLToDatabase, SIGNAL(triggered()), this,
-          SLOT(importXMLFromFile()));
-
-  readSettings();
-
-  m_spinner = new QtWaitingSpinner(Qt::ApplicationModal, this, true);
+  readSavedSettings();
   setUpDBThread();
 
   ui->treeView->setItemDelegate(new DomDelegate(this));
-
   m_model = new DomModel(QDomDocument(), this);
   ui->treeView->setModel(m_model);
 
@@ -116,7 +109,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow() {
   delete ui;
-  delete m_spinner;
 
   m_dbThread.quit();
   m_dbThread.wait();
@@ -125,8 +117,6 @@ MainWindow::~MainWindow() {
 /*----------------------------------------------------------------------------*/
 
 void MainWindow::handleDBResult(DB::Result result, const QString &msg) {
-  m_spinner->stop();
-
   switch (result) {
   case DB::Result::ImportSuccess: {
     QMessageBox::StandardButtons accepted = QMessageBox::question(
@@ -173,6 +163,35 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
 /*----------------------------------------------------------------------------*/
 
+void MainWindow::setUpDBThread() {
+  /* Required for the cross-thread signal/slot communication. */
+  qRegisterMetaType<DB::Result>("DB::Result");
+
+  DB *db = new DB;
+  db->moveToThread(&m_dbThread);
+  connect(&m_dbThread, &QThread::finished, db, &QObject::deleteLater);
+
+  /* Set up comms between DB and Main Window. */
+  connect(this, &MainWindow::processDocumentXml, db, &DB::processDocumentXml);
+  connect(db, &DB::result, this, &MainWindow::handleDBResult);
+
+  /* Automatically kill the spinner once the DB has finished with whatever it
+   * was doing. */
+  connect(db, &DB::result, m_spinner, &QtWaitingSpinner::stop);
+  connect(db, &DB::result, m_spinner, &QtWaitingSpinner::deleteLater);
+
+  m_dbThread.start();
+}
+
+/*----------------------------------------------------------------------------*/
+
+void MainWindow::createSpinner() {
+  m_spinner = new QtWaitingSpinner(Qt::ApplicationModal, this, true);
+  m_spinner->start();
+}
+
+/*----------------------------------------------------------------------------*/
+
 QString MainWindow::getOpenFileName() {
   /* Start off where the user finished last. */
   QString fileName = QFileDialog::getOpenFileName(
@@ -191,19 +210,6 @@ QString MainWindow::getOpenFileName() {
 }
 
 /*----------------------------------------------------------------------------*/
-void MainWindow::setUpDBThread() {
-  /* Required for the cross-thread signal/slot communication. */
-  qRegisterMetaType<DB::Result>("DB::Result");
-
-  DB *db = new DB;
-  db->moveToThread(&m_dbThread);
-  connect(&m_dbThread, &QThread::finished, db, &QObject::deleteLater);
-  connect(this, &MainWindow::processDocumentXml, db, &DB::processDocumentXml);
-  connect(db, &DB::result, this, &MainWindow::handleDBResult);
-  m_dbThread.start();
-}
-
-/*----------------------------------------------------------------------------*/
 
 void MainWindow::openFile(const QString &fileName) {
   if (!saveAndContinue("Save document before continuing?")) {
@@ -214,6 +220,10 @@ void MainWindow::openFile(const QString &fileName) {
     m_domDoc.clear();
     m_domDoc.appendChild(m_tmpDomDoc.documentElement().cloneNode());
 
+    delete m_model;
+    m_model = new DomModel(m_domDoc, this);
+    ui->treeView->setModel(m_model);
+
     /* Enable file save options. */
     ui->actionCloseFile->setEnabled(true);
     ui->actionSave->setEnabled(true);
@@ -221,6 +231,61 @@ void MainWindow::openFile(const QString &fileName) {
 
     m_currentXMLFileName = fileName;
     m_fileContentsChanged = false; // at first load, nothing has changed
+  }
+}
+
+/*----------------------------------------------------------------------------*/
+
+QString MainWindow::readFile(const QString &fileName) {
+  if (!fileName.isEmpty()) {
+    QFile file(fileName);
+
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+      QTextStream inStream(&file);
+      QString fileContent(inStream.readAll());
+      file.close();
+      return fileContent;
+    } else {
+      QString errorMsg = QString("Failed to open file \"%1\": [%2]")
+                             .arg(fileName)
+                             .arg(file.errorString());
+      MessageSpace::showErrorMessageBox(this, errorMsg);
+    }
+  }
+
+  return QString();
+}
+
+/*----------------------------------------------------------------------------*/
+
+void MainWindow::importXMLFromFile() {
+  QString fileName = getOpenFileName();
+  QString xml = readFile(fileName);
+  m_importedXmlFileName = "";
+
+  if (!xml.isEmpty()) {
+    QXmlInputSource source;
+    source.setData(xml);
+    QXmlSimpleReader reader;
+
+    QString xmlErr("");
+    int line(-1);
+    int col(-1);
+
+    if (m_tmpDomDoc.setContent(&source, &reader, &xmlErr, &line, &col)) {
+      m_importedXmlFileName = fileName;
+      createSpinner();
+
+      /* If the document was processed successfully, the user will be prompted
+       * to open the file as well (see "handleDBResult") */
+      emit processDocumentXml(xml);
+    } else {
+      QString errorMsg = QString("XML is broken: %1: line [%2], column")
+                             .arg(xmlErr)
+                             .arg(line)
+                             .arg(col);
+      MessageSpace::showErrorMessageBox(this, errorMsg);
+    }
   }
 }
 
@@ -295,54 +360,6 @@ bool MainWindow::saveFileAs() {
 void MainWindow::closeFile() {
   if (saveAndContinue("Save document before continuing?")) {
     resetDOM();
-  }
-}
-
-/*----------------------------------------------------------------------------*/
-
-QString MainWindow::readFile(const QString &fileName) {
-  if (!fileName.isEmpty()) {
-    QFile file(fileName);
-
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-      QTextStream inStream(&file);
-      QString fileContent(inStream.readAll());
-      file.close();
-      return fileContent;
-    } else {
-      QString errorMsg = QString("Failed to open file \"%1\": [%2]")
-                             .arg(fileName)
-                             .arg(file.errorString());
-      MessageSpace::showErrorMessageBox(this, errorMsg);
-    }
-  }
-
-  return QString();
-}
-
-/*----------------------------------------------------------------------------*/
-
-void MainWindow::importXMLFromFile() {
-  QString fileName = getOpenFileName();
-  QString xml = readFile(fileName);
-  m_importedXmlFileName = "";
-
-  if (!xml.isEmpty()) {
-    QXmlInputSource source;
-    source.setData(xml);
-    QXmlSimpleReader reader;
-
-    QString xmlErr("");
-    int line(-1);
-    int col(-1);
-
-    if (m_tmpDomDoc.setContent(&source, &reader, &xmlErr, &line, &col)) {
-      m_importedXmlFileName = fileName;
-      m_spinner->start();
-      emit processDocumentXml(xml);
-    } else {
-      // ERROR HANDLING TO ADD
-    }
   }
 }
 
@@ -512,7 +529,7 @@ void MainWindow::startSaveTimer() {
 
 /*----------------------------------------------------------------------------*/
 
-void MainWindow::readSettings() {
+void MainWindow::readSavedSettings() {
   restoreGeometry(GlobalSettings::windowGeometry());
   restoreState(GlobalSettings::windowState());
 

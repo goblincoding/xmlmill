@@ -217,7 +217,7 @@ private:
   /*! Reads the saved window state, geometry and theme settings from the
      registry/XML/ini file.
       \sa saveSettings */
-  void readSettings();
+  void readSavedSettings();
 
   /*! Saves the window state, geometry and theme settings to the
      registry/XML/ini file.
@@ -239,6 +239,8 @@ private:
   QString getOpenFileName();
 
   void setUpDBThread();
+
+  void createSpinner();
 
 private:
   Ui::MainWindow *ui;

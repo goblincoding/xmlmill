@@ -55,7 +55,6 @@
      </property>
     </widget>
     <addaction name="separator"/>
-    <addaction name="actionImportXMLToDatabase"/>
     <addaction name="separator"/>
     <addaction name="menuAddItems"/>
     <addaction name="separator"/>
@@ -112,7 +111,6 @@
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
    <addaction name="separator"/>
-   <addaction name="actionImportXMLToDatabase"/>
    <addaction name="separator"/>
    <addaction name="actionHelpContents"/>
    <addaction name="separator"/>
@@ -214,21 +212,6 @@
    </property>
    <property name="whatsThis">
     <string>Forget all saved preferences regarding messages/warnings/queries.</string>
-   </property>
-  </action>
-  <action name="actionImportXMLToDatabase">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/resources/importxml.png</normaloff>:/resources/importxml.png</iconset>
-   </property>
-   <property name="text">
-    <string>I&amp;mport XML to Profile</string>
-   </property>
-   <property name="whatsThis">
-    <string>Import the current XML document to the active profile.</string>
    </property>
   </action>
   <action name="actionHelpContents">
