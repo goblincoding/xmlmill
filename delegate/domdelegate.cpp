@@ -32,7 +32,7 @@
 #include <QPainter>
 #include <QPlainTextEdit>
 
-#include <xml/xmlsyntaxhighlighter.h>
+#include "xmlsyntaxhighlighter.h"
 
 /* Information on paint and sizeHint methods originally obtained from
  * http://stackoverflow.com/questions/1956542/how-to-make-item-view-render-rich-html-text-in-qt

@@ -47,7 +47,6 @@ SOURCES += main.cpp\
     db/dbinterface.cpp \
     mainwindow.cpp \
     db/batchprocesshelper.cpp \
-    xml/xmlsyntaxhighlighter.cpp \
     utils/combobox.cpp \
     utils/messagespace.cpp \
     forms/helpdialog.cpp \
@@ -64,14 +63,14 @@ SOURCES += main.cpp\
     delegate/domdelegate.cpp \
     model/dommodel.cpp \
     utils/QtWaitingSpinner.cpp \
-    view/domtreeview.cpp
+    view/domtreeview.cpp \
+    delegate/xmlsyntaxhighlighter.cpp
     ../QtWaitingSpinner/QtWaitingSpinner.cpp
 
 HEADERS  += \
     db/dbinterface.h \
     mainwindow.h \
     db/batchprocesshelper.h \
-    xml/xmlsyntaxhighlighter.h \
     utils/combobox.h \
     utils/messagespace.h \
     forms/helpdialog.h \
@@ -88,7 +87,8 @@ HEADERS  += \
     model/domitem.h \
     model/dommodel.h \
     utils/QtWaitingSpinner.h \
-    view/domtreeview.h
+    view/domtreeview.h \
+    delegate/xmlsyntaxhighlighter.h
     ../QtWaitingSpinner/QtWaitingSpinner.h
 
 FORMS    += \

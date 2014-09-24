@@ -29,7 +29,7 @@
 
 #include "restorefilesform.h"
 #include "ui_restorefilesform.h"
-#include "xml/xmlsyntaxhighlighter.h"
+#include "delegate/xmlsyntaxhighlighter.h"
 #include "db/dbinterface.h"
 #include "utils/globalsettings.h"
 #include "utils/messagespace.h"

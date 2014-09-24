@@ -28,7 +28,7 @@
  */
 
 #include "plaintextedit.h"
-#include "xml/xmlsyntaxhighlighter.h"
+#include "delegate/xmlsyntaxhighlighter.h"
 #include "utils/globalsettings.h"
 #include "utils/messagespace.h"
 
