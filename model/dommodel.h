@@ -68,11 +68,11 @@ public:
   virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
 private:
-  DomItem *domItem(const QModelIndex &index);
+  DomItem *itemFromIndex(const QModelIndex &index) const;
 
 private:
-  QDomDocument domDocument;
-  DomItem *rootItem;
+  QDomDocument m_domDocument;
+  DomItem *m_rootItem;
 };
 
 #endif // DOMMODEL_H

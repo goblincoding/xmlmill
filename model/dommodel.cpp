@@ -34,13 +34,13 @@
 //----------------------------------------------------------------------
 
 DomModel::DomModel(QDomDocument document, QObject *parent)
-    : QAbstractItemModel(parent), domDocument(document) {
-  rootItem = new DomItem(domDocument, 0);
+    : QAbstractItemModel(parent), m_domDocument(document) {
+  m_rootItem = new DomItem(m_domDocument, 0);
 }
 
 //----------------------------------------------------------------------
 
-DomModel::~DomModel() { delete rootItem; }
+DomModel::~DomModel() { delete m_rootItem; }
 
 //----------------------------------------------------------------------
 
@@ -48,14 +48,13 @@ int DomModel::columnCount(const QModelIndex & /*parent*/) const { return 1; }
 
 //----------------------------------------------------------------------
 
-DomItem *DomModel::domItem(const QModelIndex &index) {
+DomItem *DomModel::itemFromIndex(const QModelIndex &index) const {
   if (index.isValid()) {
     DomItem *item = static_cast<DomItem *>(index.internalPointer());
-    if (item) {
-      return item;
-    }
+    return item;
   }
-  return rootItem;
+
+  return m_rootItem;
 }
 
 //----------------------------------------------------------------------
@@ -63,7 +62,7 @@ DomItem *DomModel::domItem(const QModelIndex &index) {
 bool DomModel::setData(const QModelIndex &index, const QVariant &value,
                        int role) {
   if (index.isValid() && role == Qt::EditRole) {
-    DomItem *item = domItem(index);
+    DomItem *item = itemFromIndex(index);
     bool result = item->setData(index, value);
 
     if (result) {
@@ -72,6 +71,7 @@ bool DomModel::setData(const QModelIndex &index, const QVariant &value,
 
     return result;
   }
+
   return false;
 }
 
@@ -85,7 +85,7 @@ QVariant DomModel::data(const QModelIndex &index, int role) const {
     return QVariant();
   }
 
-  DomItem *item = static_cast<DomItem *>(index.internalPointer());
+  DomItem *item = itemFromIndex(index);
   return item->data(index, role);
 }
 
@@ -121,15 +121,9 @@ QModelIndex DomModel::index(int row, int column,
     return QModelIndex();
   }
 
-  DomItem *parentItem;
-
-  if (!parent.isValid()) {
-    parentItem = rootItem;
-  } else {
-    parentItem = static_cast<DomItem *>(parent.internalPointer());
-  }
-
+  DomItem *parentItem = itemFromIndex(parent);
   DomItem *childItem = parentItem->child(row);
+
   if (childItem) {
     return createIndex(row, column, childItem);
   }
@@ -144,10 +138,10 @@ QModelIndex DomModel::parent(const QModelIndex &child) const {
     return QModelIndex();
   }
 
-  DomItem *childItem = static_cast<DomItem *>(child.internalPointer());
+  DomItem *childItem = itemFromIndex(child);
   DomItem *parentItem = childItem->parent();
 
-  if (!parentItem || parentItem == rootItem) {
+  if (!parentItem || parentItem == m_rootItem) {
     return QModelIndex();
   }
 
@@ -161,15 +155,8 @@ int DomModel::rowCount(const QModelIndex &parent) const {
     return 0;
   }
 
-  DomItem *parentItem;
-
-  if (!parent.isValid()) {
-    parentItem = rootItem;
-  } else {
-    parentItem = static_cast<DomItem *>(parent.internalPointer());
-  }
-
-  return parentItem->node().childNodes().count();
+  DomItem *parentItem = itemFromIndex(parent);
+  return parentItem->childCount();
 }
 
 //----------------------------------------------------------------------

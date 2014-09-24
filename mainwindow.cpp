@@ -89,7 +89,8 @@ MainWindow::MainWindow(QWidget *parent)
           SLOT(goToSite()));
   connect(ui->actionUseDarkTheme, SIGNAL(triggered(bool)), this,
           SLOT(useDarkTheme(bool)));
-  connect(ui->expandAllCheckBox, SIGNAL(toggled(bool)), this, SLOT(expandCollapse(bool)));
+  connect(ui->expandAllCheckBox, SIGNAL(toggled(bool)), this,
+          SLOT(expandCollapse(bool)));
 
   /* Help related. */
   connect(ui->actionShowHelpButtons, SIGNAL(triggered(bool)), this,

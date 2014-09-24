@@ -44,7 +44,7 @@ DomItem::~DomItem() { qDeleteAll(m_childItems); }
 
 QVariant DomItem::data(const QModelIndex &index, int role) const {
   switch (index.column()) {
-  case 0:    
+  case 0:
     if (role == Qt::DisplayRole) {
       return toString();
     }
@@ -75,10 +75,6 @@ bool DomItem::setData(const QModelIndex &index, const QVariant &value) {
 
 //----------------------------------------------------------------------
 
-QDomNode DomItem::node() const { return m_domNode; }
-
-//----------------------------------------------------------------------
-
 DomItem *DomItem::parent() { return m_parentItem; }
 
 //----------------------------------------------------------------------
@@ -93,12 +89,17 @@ DomItem *DomItem::child(int i) {
     m_childItems[i] = childItem;
     return childItem;
   }
+
   return nullptr;
 }
 
 //----------------------------------------------------------------------
 
 int DomItem::row() { return m_rowNumber; }
+
+//----------------------------------------------------------------------
+
+int DomItem::childCount() const { return m_domNode.childNodes().count(); }
 
 //----------------------------------------------------------------------
 

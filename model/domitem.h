@@ -45,8 +45,8 @@ public:
 
   DomItem *child(int i);
   DomItem *parent();
-  QDomNode node() const;
   int row();
+  int childCount() const;
 
 private:
   QVariant toString() const;
