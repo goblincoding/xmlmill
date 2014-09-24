@@ -1,7 +1,6 @@
 QMainWindow
 {
   background-color: rgba(200, 200, 200, 255);
-  font: 20px;
 }
 
 QMainWindow::separator
@@ -36,7 +35,6 @@ QMessageBox > QLabel
   background-color: rgb(220,220,220);
   border-radius: 6px;
   padding: 1px;
-  font: 12px;
 }
 
 QPushButton
@@ -47,7 +45,6 @@ QPushButton
   border-radius: 5px;
   border-color: rgba(90, 90, 90, 255);
   border-style: solid;
-  font: 12px;
   min-width: 5em;
   min-height: 1em;
   padding: 3px;
@@ -123,7 +120,6 @@ QComboBox
   border-radius: 5px;
   border-color: rgb(60, 60, 60);
   border-style: outset;
-  font: 12px;
   min-width: 7em;
   min-height: 1em;
   padding: 2px;
@@ -168,7 +164,6 @@ QListView
   border-color: rgb(40, 40, 40);
   border-style: inset;
   background-color: qlineargradient(spread:reflect, x1:0.767, y1:1, x2:1, y2:0, stop:0 rgba(40, 40, 40, 200), stop:1 rgba(120, 120, 120, 255));
-  font: 11px;
   color: rgb(240, 240, 240);
 }
 
@@ -180,7 +175,6 @@ QDockWidget
   border: 1px solid black;
   color: rgb(220, 220, 220);
   min-width: 20em;
-  font: 13px;
   titlebar-close-icon: url(":/resources/close.png");
   titlebar-normal-icon: url(":/resources/undock.png");
 }
@@ -230,7 +224,6 @@ QLabel
   background-color: rgba(140, 140, 140, 200);
   border-radius: 6px;
   padding: 1px;
-  font: 12px;
 }
 
 QCheckBox
@@ -243,7 +236,6 @@ QCheckBox
   min-height: 20px;
   min-width: 20px;
   icon-size: 20px;
-  font: 12px;
 }
 
 QCheckBox::indicator
@@ -271,7 +263,6 @@ QLineEdit
   padding: 2 4px;
   background-color: rgb(220,220,220);
   selection-background-color: rgba(140, 140, 140, 200);
-  font: 12px;
 }
 
 QLineEdit:disabled
@@ -287,7 +278,6 @@ QTableView
   background-color: rgb(220,220,220);
   selection-background-color: rgba(140, 140, 140, 200);
   alternate-background-color: rgba(170, 170, 170, 255);
-  font: 13px;
 }
 
 QTableView::indicator:unchecked
@@ -382,7 +372,6 @@ QHeaderView::section
   border-radius: 3px;
   border-color: darkgray;
   border-style: flat;
-  font: 11px;
   min-width: 5em;
   min-height: 1em;
   padding: 3px;
@@ -410,7 +399,6 @@ QTreeView
   background-color: rgb(220,220,220);
   selection-background-color: rgba(140, 140, 140, 200);
   alternate-background-color: rgba(170, 170, 170, 255);
-  font: 13px;
 }
 
 QTreeView::branch:has-children:!has-siblings:closed, QTreeView::branch:closed:has-children:has-siblings
@@ -610,7 +598,6 @@ QSpinBox
   padding: 1 3px;
   background-color: qlineargradient(spread:pad, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0 rgba(180, 180, 180, 240), stop:1 rgba(140, 140, 140, 255));
   selection-background-color: rgb(110, 110, 110);
-  font: 12px;
 }
 
 QSpinBox::up-arrow
