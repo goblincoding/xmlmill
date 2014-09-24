@@ -67,6 +67,10 @@ public:
 
   virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
+  virtual bool hasChildren(const QModelIndex &parent) const;
+  virtual bool canFetchMore(const QModelIndex &parent) const;
+  virtual void fetchMore(const QModelIndex &parent);
+
 private:
   DomItem *itemFromIndex(const QModelIndex &index) const;
 

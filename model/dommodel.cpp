@@ -48,6 +48,51 @@ int DomModel::columnCount(const QModelIndex & /*parent*/) const { return 1; }
 
 //----------------------------------------------------------------------
 
+int DomModel::rowCount(const QModelIndex &parent) const {
+  if (parent.column() > 0) {
+    return 0;
+  }
+
+  DomItem *parentItem = itemFromIndex(parent);
+  return parentItem->childCount();
+}
+
+//----------------------------------------------------------------------
+
+bool DomModel::hasChildren(const QModelIndex &parent) const {
+  DomItem *parentItem = itemFromIndex(parent);
+  return parentItem->hasChildren();
+}
+
+//----------------------------------------------------------------------
+
+bool DomModel::canFetchMore(const QModelIndex &parent) const {
+  if (parent.isValid()) {
+    DomItem *parentItem = itemFromIndex(parent);
+    return parentItem->hasChildren() && !parentItem->hasFetchedChildren();
+  }
+
+  return false;
+}
+
+//----------------------------------------------------------------------
+
+void DomModel::fetchMore(const QModelIndex &parent) {
+  if (canFetchMore(parent)) {
+    DomItem *parentItem = itemFromIndex(parent);
+    int childCount = parentItem->childCount();
+    int childrenFetched = parentItem->childrenFetched();
+
+    int remainder = childCount - childrenFetched;
+    int childrenToFetch = qMin(100, remainder);
+    beginInsertRows(parent, childrenFetched,
+                    childrenFetched + childrenToFetch - 1);
+    endInsertRows();
+  }
+}
+
+//----------------------------------------------------------------------
+
 DomItem *DomModel::itemFromIndex(const QModelIndex &index) const {
   if (index.isValid()) {
     DomItem *item = static_cast<DomItem *>(index.internalPointer());
@@ -146,17 +191,6 @@ QModelIndex DomModel::parent(const QModelIndex &child) const {
   }
 
   return createIndex(parentItem->row(), 0, parentItem);
-}
-
-//----------------------------------------------------------------------
-
-int DomModel::rowCount(const QModelIndex &parent) const {
-  if (parent.column() > 0) {
-    return 0;
-  }
-
-  DomItem *parentItem = itemFromIndex(parent);
-  return parentItem->childCount();
 }
 
 //----------------------------------------------------------------------

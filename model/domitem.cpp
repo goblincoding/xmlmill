@@ -95,7 +95,7 @@ DomItem *DomItem::child(int i) {
 
 //----------------------------------------------------------------------
 
-int DomItem::row() { return m_rowNumber; }
+int DomItem::row() const { return m_rowNumber; }
 
 //----------------------------------------------------------------------
 
@@ -103,14 +103,30 @@ int DomItem::childCount() const { return m_domNode.childNodes().count(); }
 
 //----------------------------------------------------------------------
 
-QVariant DomItem::toString() const {
+int DomItem::childrenFetched() const { return m_childItems.size(); }
+
+//----------------------------------------------------------------------
+
+bool DomItem::hasChildren() const { return childCount() > 0; }
+
+//----------------------------------------------------------------------
+
+bool DomItem::hasFetchedChildren() const {
+  return m_childItems.size() == childCount();
+}
+
+//----------------------------------------------------------------------
+
+QString DomItem::toString() const {
   if (m_domNode.isElement()) {
     return elementString();
   } else if (m_domNode.isComment()) {
-    return m_domNode.nodeValue();
+    return commentString();
+  } else if (m_domNode.isProcessingInstruction()) {
+    return "FIND THIS STRING AND FIX IT!";
   }
 
-  return QVariant();
+  return m_domNode.nodeValue();
 }
 
 //----------------------------------------------------------------------

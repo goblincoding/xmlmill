@@ -45,11 +45,16 @@ public:
 
   DomItem *child(int i);
   DomItem *parent();
-  int row();
+
+  int row() const;
   int childCount() const;
+  int childrenFetched() const;
+
+  bool hasChildren() const;
+  bool hasFetchedChildren() const;
 
 private:
-  QVariant toString() const;
+  QString toString() const;
   QString elementString() const;
   QString commentString() const;
 
