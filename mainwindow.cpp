@@ -95,9 +95,10 @@ MainWindow::MainWindow(QWidget *parent)
           SLOT(setShowHelpButtons(bool)));
 
   m_spinner = new QtWaitingSpinner(Qt::ApplicationModal, this, true);
-  ui->treeView->setItemDelegate(new DomDelegate(this));
+
   m_model = new DomModel(QDomDocument(), this);
   ui->treeView->setModel(m_model);
+  ui->treeView->setItemDelegate(new DomDelegate(this));
 
   readSavedSettings();
   setUpDBThread();

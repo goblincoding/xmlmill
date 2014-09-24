@@ -23,7 +23,7 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="centralLayout">
     <item>
-     <widget class="QTreeView" name="treeView"/>
+     <widget class="DomTreeView" name="treeView"/>
     </item>
    </layout>
   </widget>
@@ -293,6 +293,13 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>DomTreeView</class>
+   <extends>QTreeView</extends>
+   <header>view/domtreeview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="resources/resources.qrc"/>
  </resources>
