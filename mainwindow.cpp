@@ -211,7 +211,7 @@ void MainWindow::openFile(const QString &fileName) {
 
   if (!fileName.isEmpty()) {
     m_domDoc.clear();
-    m_domDoc.appendChild(m_tmpDomDoc.documentElement().cloneNode());
+    m_domDoc = m_tmpDomDoc.cloneNode().toDocument();
 
     delete m_model;
     m_model = new DomModel(m_domDoc, this);
