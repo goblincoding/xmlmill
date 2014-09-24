@@ -28,11 +28,88 @@
  */
 #include "domdelegate.h"
 
+#include <QApplication>
+#include <QPainter>
 #include <QPlainTextEdit>
+
+#include <xml/xmlsyntaxhighlighter.h>
+
+/* Information on paint and sizeHint methods originally obtained from
+ * http://stackoverflow.com/questions/1956542/how-to-make-item-view-render-rich-html-text-in-qt
+ */
 
 //----------------------------------------------------------------------
 
 DomDelegate::DomDelegate(QObject *parent) : QStyledItemDelegate(parent) {}
+
+/*----------------------------------------------------------------------------*/
+
+void DomDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+                        const QModelIndex &index) const {
+  /* Create a QStyleOptionViewItem that we can manipulate locally. */
+  QStyleOptionViewItemV4 optionV4 = option;
+  initStyleOption(&optionV4, index);
+
+  /* Create the document and initialise the font, setting the document margin to
+   * 0 allows us to change the font (e.g. via style sheets) without affecting
+   * the layout. */
+  QTextDocument doc;
+  doc.setDocumentMargin(0);
+  doc.setDefaultFont(optionV4.font);
+  doc.setPlainText(optionV4.text);
+
+  /* Everything happens automagically after we add the syntax highlighter to the
+   * document. */
+  XmlSyntaxHighlighter highLighter(&doc);
+  Q_UNUSED(highLighter);
+
+  /* Get the style associated with the option widget (if we have one). */
+  QStyle *style =
+      optionV4.widget ? optionV4.widget->style() : QApplication::style();
+
+  /* Draw the item view item without text (required for highlighting
+   * etc to work as expected). */
+  optionV4.text = QString();
+  style->drawControl(QStyle::CE_ItemViewItem, &optionV4, painter);
+
+  /* Determine the correct text area to paint. */
+  QRect textRect =
+      style->subElementRect(QStyle::SE_ItemViewItemText, &optionV4);
+
+  painter->save();
+  painter->translate(textRect.topLeft());
+  painter->setClipRect(textRect.translated(-textRect.topLeft()));
+
+  /* Adjust for highlighted text. */
+  QAbstractTextDocumentLayout::PaintContext ctx;
+
+  if (optionV4.state & QStyle::State_Selected) {
+    ctx.palette.setColor(
+        QPalette::Text,
+        optionV4.palette.color(QPalette::Active, QPalette::HighlightedText));
+  } else {
+    ctx.palette.setColor(QPalette::Text, optionV4.palette.color(
+                                             QPalette::Active, QPalette::Text));
+  }
+
+  doc.documentLayout()->draw(painter, ctx);
+  painter->restore();
+}
+
+/*----------------------------------------------------------------------------*/
+
+QSize DomDelegate::sizeHint(const QStyleOptionViewItem &option,
+                            const QModelIndex &index) const {
+  QStyleOptionViewItemV4 optionV4 = option;
+  initStyleOption(&optionV4, index);
+
+  QTextDocument doc;
+  doc.setDocumentMargin(0);
+  doc.setDefaultFont(optionV4.font);
+  doc.setPlainText(optionV4.text);
+  doc.setTextWidth(optionV4.rect.width());
+  return QSize(doc.idealWidth(), doc.size().height());
+}
 
 //----------------------------------------------------------------------
 
