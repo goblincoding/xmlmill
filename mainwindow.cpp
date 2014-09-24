@@ -89,6 +89,7 @@ MainWindow::MainWindow(QWidget *parent)
           SLOT(goToSite()));
   connect(ui->actionUseDarkTheme, SIGNAL(triggered(bool)), this,
           SLOT(useDarkTheme(bool)));
+  connect(ui->expandAllCheckBox, SIGNAL(toggled(bool)), this, SLOT(expandCollapse(bool)));
 
   /* Help related. */
   connect(ui->actionShowHelpButtons, SIGNAL(triggered(bool)), this,
@@ -217,6 +218,7 @@ void MainWindow::openFile(const QString &fileName) {
     delete m_model;
     m_model = new DomModel(m_domDoc, this);
     ui->treeView->setModel(m_model);
+    expandCollapse(ui->expandAllCheckBox->isChecked());
 
     /* Enable file save options. */
     ui->actionCloseFile->setEnabled(true);
@@ -575,6 +577,12 @@ void MainWindow::queryRestoreFiles() {
       restore->exec();
     }
   }
+}
+
+/*----------------------------------------------------------------------------*/
+
+void MainWindow::expandCollapse(bool expand) {
+  expand ? ui->treeView->expandAll() : ui->treeView->collapseAll();
 }
 
 /*----------------------------------------------------------------------------*/

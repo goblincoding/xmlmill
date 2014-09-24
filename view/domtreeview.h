@@ -37,10 +37,6 @@ class DomTreeView : public QTreeView
 public:
   explicit DomTreeView(QWidget *parent = 0);
 
-signals:
-
-public slots:
-
 private slots:
   /*! Connected to a context menu action.  Renames the element on which the
    * context menu action was invoked. An element with the new name will be added

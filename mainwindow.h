@@ -202,6 +202,8 @@ private slots:
       \sa deleteTempFile */
   void queryRestoreFiles();
 
+  void expandCollapse(bool expand);
+
 private:
   /*! Kicks off a recursive DOM tree traversal to populate the tree widget and
    * element maps with the information contained in the active DOM document. */

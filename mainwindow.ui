@@ -21,9 +21,36 @@
    <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="centralLayout">
+   <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="DomTreeView" name="treeView"/>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QCheckBox" name="expandAllCheckBox">
+        <property name="text">
+         <string>Expand All</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -54,8 +81,6 @@
       <string>Edit &amp;Profile</string>
      </property>
     </widget>
-    <addaction name="separator"/>
-    <addaction name="separator"/>
     <addaction name="menuAddItems"/>
     <addaction name="separator"/>
    </widget>
@@ -110,7 +135,6 @@
    <addaction name="actionNew"/>
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
-   <addaction name="separator"/>
    <addaction name="separator"/>
    <addaction name="actionHelpContents"/>
    <addaction name="separator"/>
