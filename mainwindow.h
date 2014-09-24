@@ -240,8 +240,6 @@ private:
 
   void setUpDBThread();
 
-  void createSpinner();
-
 private:
   Ui::MainWindow *ui;
   QtWaitingSpinner *m_spinner;

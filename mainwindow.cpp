@@ -94,12 +94,13 @@ MainWindow::MainWindow(QWidget *parent)
   connect(ui->actionShowHelpButtons, SIGNAL(triggered(bool)), this,
           SLOT(setShowHelpButtons(bool)));
 
-  readSavedSettings();
-  setUpDBThread();
-
+  m_spinner = new QtWaitingSpinner(Qt::ApplicationModal, this, true);
   ui->treeView->setItemDelegate(new DomDelegate(this));
   m_model = new DomModel(QDomDocument(), this);
   ui->treeView->setModel(m_model);
+
+  readSavedSettings();
+  setUpDBThread();
 
   /* Wait for the event loop to be initialised before calling this function. */
   QTimer::singleShot(0, this, SLOT(queryRestoreFiles()));
@@ -175,19 +176,11 @@ void MainWindow::setUpDBThread() {
   connect(this, &MainWindow::processDocumentXml, db, &DB::processDocumentXml);
   connect(db, &DB::result, this, &MainWindow::handleDBResult);
 
-  /* Automatically kill the spinner once the DB has finished with whatever it
+  /* Automatically stop the spinner once the DB has finished with whatever it
    * was doing. */
   connect(db, &DB::result, m_spinner, &QtWaitingSpinner::stop);
-  connect(db, &DB::result, m_spinner, &QtWaitingSpinner::deleteLater);
 
   m_dbThread.start();
-}
-
-/*----------------------------------------------------------------------------*/
-
-void MainWindow::createSpinner() {
-  m_spinner = new QtWaitingSpinner(Qt::ApplicationModal, this, true);
-  m_spinner->start();
 }
 
 /*----------------------------------------------------------------------------*/
@@ -274,7 +267,7 @@ void MainWindow::importXMLFromFile() {
 
     if (m_tmpDomDoc.setContent(&source, &reader, &xmlErr, &line, &col)) {
       m_importedXmlFileName = fileName;
-      createSpinner();
+      m_spinner->start();
 
       /* If the document was processed successfully, the user will be prompted
        * to open the file as well (see "handleDBResult") */
