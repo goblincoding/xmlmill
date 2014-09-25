@@ -33,6 +33,12 @@
 
 //----------------------------------------------------------------------
 
+constexpr int columnNumber(DomModel::ModelColumns col) {
+  return static_cast<int>(col);
+}
+
+//----------------------------------------------------------------------
+
 DomModel::DomModel(QDomDocument document, QObject *parent)
     : QAbstractItemModel(parent), m_domDocument(document) {
   m_rootItem = new DomItem(m_domDocument, 0);
@@ -108,12 +114,6 @@ DomItem *DomModel::itemFromIndex(const QModelIndex &index) const {
   }
 
   return m_rootItem;
-}
-
-//----------------------------------------------------------------------
-
-constexpr int DomModel::columnNumber(DomModel::ModelColumns col) {
-  return static_cast<int>(col);
 }
 
 //----------------------------------------------------------------------

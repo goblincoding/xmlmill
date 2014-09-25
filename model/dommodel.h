@@ -77,7 +77,6 @@ private:
    * root item by default (note that this item could be NULL if the model is
    * empty). */
   DomItem *itemFromIndex(const QModelIndex &index) const;
-  static constexpr int columnNumber(ModelColumns col);
 
 private:
   QDomDocument m_domDocument;
