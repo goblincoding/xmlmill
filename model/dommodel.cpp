@@ -69,33 +69,20 @@ bool DomModel::hasChildren(const QModelIndex &parent) const {
 //----------------------------------------------------------------------
 
 bool DomModel::canFetchMore(const QModelIndex &parent) const {
-  if (parent.isValid()) {
-    DomItem *parentItem = itemFromIndex(parent);
-
-    if (parentItem) {
-      return parentItem->hasChildren() && !parentItem->hasFetchedChildren();
-    }
-  }
-
-  return false;
+  DomItem *parentItem = itemFromIndex(parent);
+  return parentItem ? parentItem->canFetchMore() : false;
 }
 
 //----------------------------------------------------------------------
 
 void DomModel::fetchMore(const QModelIndex &parent) {
-  if (canFetchMore(parent)) {
-    DomItem *parentItem = itemFromIndex(parent);
+  DomItem *parentItem = itemFromIndex(parent);
 
-    if (parentItem) {
-      int childCount = parentItem->childCount();
-      int childrenFetched = parentItem->childrenFetched();
-
-      int remainder = childCount - childrenFetched;
-      int childrenToFetch = qMin(100, remainder);
-      beginInsertRows(parent, childrenFetched,
-                      childrenFetched + childrenToFetch - 1);
-      endInsertRows();
-    }
+  if (parentItem) {
+    beginInsertRows(parent, parentItem->firstRowToInsert(),
+                    parentItem->lastRowToInsert());
+    parentItem->fetchMore();
+    endInsertRows();
   }
 }
 
