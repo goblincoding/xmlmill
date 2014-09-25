@@ -43,6 +43,8 @@ class DomModel : public QAbstractItemModel {
   Q_OBJECT
 
 public:
+  enum class ModelColumns { Xml = 0, ColumnCount };
+
   explicit DomModel(QDomDocument document, QObject *parent = 0);
   virtual ~DomModel();
 
@@ -52,13 +54,12 @@ public:
                               int role = Qt::DisplayRole) const;
 
   virtual QVariant data(const QModelIndex &index, int role) const;
-
   virtual bool setData(const QModelIndex &index, const QVariant &value,
                        int role);
 
   virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
-  virtual QModelIndex index(int row, int column,
+  virtual QModelIndex index(int row, int columnNumber,
                             const QModelIndex &parent = QModelIndex()) const;
 
   virtual QModelIndex parent(const QModelIndex &child) const;
@@ -72,7 +73,11 @@ public:
   virtual void fetchMore(const QModelIndex &parent);
 
 private:
+  /*! Returns the relevant item if index is valid, if invalid, we return the
+   * root item by default (note that this item could be NULL if the model is
+   * empty). */
   DomItem *itemFromIndex(const QModelIndex &index) const;
+  static constexpr int columnNumber(ModelColumns col);
 
 private:
   QDomDocument m_domDocument;

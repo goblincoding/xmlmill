@@ -44,24 +44,27 @@ DomModel::~DomModel() { delete m_rootItem; }
 
 //----------------------------------------------------------------------
 
-int DomModel::columnCount(const QModelIndex & /*parent*/) const { return 1; }
+int DomModel::columnCount(const QModelIndex & /*parent*/) const {
+  int column = columnNumber(ModelColumns::ColumnCount);
+  return columnNumber(ModelColumns::ColumnCount);
+}
 
 //----------------------------------------------------------------------
 
 int DomModel::rowCount(const QModelIndex &parent) const {
-  if (parent.column() > 0) {
+  if (parent.column() > columnNumber(ModelColumns::Xml)) {
     return 0;
   }
 
   DomItem *parentItem = itemFromIndex(parent);
-  return parentItem->childCount();
+  return parentItem ? parentItem->childCount() : 0;
 }
 
 //----------------------------------------------------------------------
 
 bool DomModel::hasChildren(const QModelIndex &parent) const {
   DomItem *parentItem = itemFromIndex(parent);
-  return parentItem->hasChildren();
+  return parentItem ? parentItem->hasChildren() : false;
 }
 
 //----------------------------------------------------------------------
@@ -69,7 +72,10 @@ bool DomModel::hasChildren(const QModelIndex &parent) const {
 bool DomModel::canFetchMore(const QModelIndex &parent) const {
   if (parent.isValid()) {
     DomItem *parentItem = itemFromIndex(parent);
-    return parentItem->hasChildren() && !parentItem->hasFetchedChildren();
+
+    if (parentItem) {
+      return parentItem->hasChildren() && !parentItem->hasFetchedChildren();
+    }
   }
 
   return false;
@@ -80,14 +86,17 @@ bool DomModel::canFetchMore(const QModelIndex &parent) const {
 void DomModel::fetchMore(const QModelIndex &parent) {
   if (canFetchMore(parent)) {
     DomItem *parentItem = itemFromIndex(parent);
-    int childCount = parentItem->childCount();
-    int childrenFetched = parentItem->childrenFetched();
 
-    int remainder = childCount - childrenFetched;
-    int childrenToFetch = qMin(100, remainder);
-    beginInsertRows(parent, childrenFetched,
-                    childrenFetched + childrenToFetch - 1);
-    endInsertRows();
+    if (parentItem) {
+      int childCount = parentItem->childCount();
+      int childrenFetched = parentItem->childrenFetched();
+
+      int remainder = childCount - childrenFetched;
+      int childrenToFetch = qMin(100, remainder);
+      beginInsertRows(parent, childrenFetched,
+                      childrenFetched + childrenToFetch - 1);
+      endInsertRows();
+    }
   }
 }
 
@@ -104,11 +113,17 @@ DomItem *DomModel::itemFromIndex(const QModelIndex &index) const {
 
 //----------------------------------------------------------------------
 
+constexpr int DomModel::columnNumber(DomModel::ModelColumns col) {
+  return static_cast<int>(col);
+}
+
+//----------------------------------------------------------------------
+
 bool DomModel::setData(const QModelIndex &index, const QVariant &value,
                        int role) {
   if (index.isValid() && role == Qt::EditRole) {
     DomItem *item = itemFromIndex(index);
-    bool result = item->setData(index, value);
+    bool result = item ? item->setData(index, value) : false;
 
     if (result) {
       emit dataChanged(index, index);
@@ -123,15 +138,16 @@ bool DomModel::setData(const QModelIndex &index, const QVariant &value,
 //----------------------------------------------------------------------
 
 QVariant DomModel::data(const QModelIndex &index, int role) const {
-  if (!index.isValid())
+  if (!index.isValid()) {
     return QVariant();
+  }
 
   if (role != Qt::DisplayRole) {
     return QVariant();
   }
 
   DomItem *item = itemFromIndex(index);
-  return item->data(index, role);
+  return item ? item->data(index, role) : QVariant();
 }
 
 //----------------------------------------------------------------------
@@ -150,7 +166,7 @@ QVariant DomModel::headerData(int section, Qt::Orientation orientation,
                               int role) const {
   if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
     switch (section) {
-    case 0:
+    case columnNumber(ModelColumns::Xml) :
       return tr("Node");
     }
   }
@@ -167,7 +183,7 @@ QModelIndex DomModel::index(int row, int column,
   }
 
   DomItem *parentItem = itemFromIndex(parent);
-  DomItem *childItem = parentItem->child(row);
+  DomItem *childItem = parentItem ? parentItem->child(row) : nullptr;
 
   if (childItem) {
     return createIndex(row, column, childItem);
@@ -184,13 +200,14 @@ QModelIndex DomModel::parent(const QModelIndex &child) const {
   }
 
   DomItem *childItem = itemFromIndex(child);
-  DomItem *parentItem = childItem->parent();
+  DomItem *parentItem = childItem ? childItem->parent() : nullptr;
 
   if (!parentItem || parentItem == m_rootItem) {
     return QModelIndex();
   }
 
-  return createIndex(parentItem->row(), 0, parentItem);
+  return createIndex(parentItem->row(), columnNumber(ModelColumns::Xml),
+                     parentItem);
 }
 
 //----------------------------------------------------------------------
