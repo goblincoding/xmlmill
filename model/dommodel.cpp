@@ -45,7 +45,6 @@ DomModel::~DomModel() { delete m_rootItem; }
 //----------------------------------------------------------------------
 
 int DomModel::columnCount(const QModelIndex & /*parent*/) const {
-  int column = columnNumber(ModelColumns::ColumnCount);
   return columnNumber(ModelColumns::ColumnCount);
 }
 
