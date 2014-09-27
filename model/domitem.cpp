@@ -34,11 +34,12 @@
 //----------------------------------------------------------------------
 
 DomItem::DomItem(QDomNode &node, int row, DomItem *parent)
-    : m_domNode(node), m_rowNumber(row), m_parentItem(parent), m_childItems() {}
+    : m_domNode(node), m_rowNumber(row), m_finishedLoading(false),
+      m_parent(parent), m_children() {}
 
 //----------------------------------------------------------------------
 
-DomItem::~DomItem() { qDeleteAll(m_childItems); }
+DomItem::~DomItem() { qDeleteAll(m_children); }
 
 //----------------------------------------------------------------------
 
@@ -75,23 +76,24 @@ bool DomItem::setData(const QModelIndex &index, const QVariant &value) {
 
 //----------------------------------------------------------------------
 
-DomItem *DomItem::parent() { return m_parentItem; }
+void DomItem::fetchMore() {
+  for (int i = firstRowToInsert(); i < lastRowToInsert(); ++i) {
+    QDomNode childNode = m_domNode.childNodes().item(i);
+    m_children << new DomItem(childNode, i, this);
+  }
+}
 
 //----------------------------------------------------------------------
 
-DomItem *DomItem::child(int i) {
-  if (m_childItems.contains(i))
-    return m_childItems[i];
+bool DomItem::canFetchMore() const { return m_children.size() < childCount(); }
 
-  if (i >= 0 && i < m_domNode.childNodes().count()) {
-    QDomNode childNode = m_domNode.childNodes().item(i);
-    DomItem *childItem = new DomItem(childNode, i, this);
-    m_childItems[i] = childItem;
-    return childItem;
-  }
+//----------------------------------------------------------------------
 
-  return nullptr;
-}
+DomItem *DomItem::parent() const { return m_parent; }
+
+//----------------------------------------------------------------------
+
+DomItem *DomItem::child(int i) const { return m_children.value(i, nullptr); }
 
 //----------------------------------------------------------------------
 
@@ -103,17 +105,20 @@ int DomItem::childCount() const { return m_domNode.childNodes().count(); }
 
 //----------------------------------------------------------------------
 
-int DomItem::childrenFetched() const { return m_childItems.size(); }
+int DomItem::firstRowToInsert() const { return m_children.size(); }
+
+//----------------------------------------------------------------------
+
+int DomItem::lastRowToInsert() const {
+  int firstRow = firstRowToInsert();
+  int remainder = childCount() - firstRow;
+  int childrenToFetch = qMin(100, remainder);
+  return firstRow + childrenToFetch;
+}
 
 //----------------------------------------------------------------------
 
 bool DomItem::hasChildren() const { return childCount() > 0; }
-
-//----------------------------------------------------------------------
-
-bool DomItem::hasFetchedChildren() const {
-  return m_childItems.size() == childCount();
-}
 
 //----------------------------------------------------------------------
 

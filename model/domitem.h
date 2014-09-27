@@ -40,18 +40,22 @@ public:
   DomItem(QDomNode &node, int row, DomItem *parent = 0);
   ~DomItem();
 
+  DomItem *child(int i) const;
+  DomItem *parent() const;
+
   QVariant data(const QModelIndex &index, int role) const;
   bool setData(const QModelIndex &index, const QVariant &value);
 
-  DomItem *child(int i);
-  DomItem *parent();
+  void fetchMore();
+  bool canFetchMore() const;
 
   int row() const;
   int childCount() const;
-  int childrenFetched() const;
+
+  int firstRowToInsert() const;
+  int lastRowToInsert() const;
 
   bool hasChildren() const;
-  bool hasFetchedChildren() const;
 
 private:
   QString toString() const;
@@ -61,9 +65,10 @@ private:
 private:
   QDomNode m_domNode;
   int m_rowNumber;
+  bool m_finishedLoading;
 
-  DomItem *m_parentItem;
-  QHash<int, DomItem *> m_childItems;
+  DomItem *m_parent;
+  QList<DomItem *> m_children;
 };
 
 #endif // DOMITEM_H
