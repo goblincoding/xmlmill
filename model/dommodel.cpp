@@ -65,33 +65,6 @@ int DomModel::rowCount(const QModelIndex &parent) const {
 
 //----------------------------------------------------------------------
 
-bool DomModel::hasChildren(const QModelIndex &parent) const {
-  DomItem *parentItem = itemFromIndex(parent);
-  return parentItem ? parentItem->hasChildren() : false;
-}
-
-//----------------------------------------------------------------------
-
-bool DomModel::canFetchMore(const QModelIndex &parent) const {
-  DomItem *parentItem = itemFromIndex(parent);
-  return parentItem ? parentItem->canFetchMore() : false;
-}
-
-//----------------------------------------------------------------------
-
-void DomModel::fetchMore(const QModelIndex &parent) {
-  DomItem *parentItem = itemFromIndex(parent);
-
-  if (parentItem) {
-    beginInsertRows(parent, parentItem->firstRowToInsert(),
-                    parentItem->lastRowToInsert());
-    parentItem->fetchMore();
-    endInsertRows();
-  }
-}
-
-//----------------------------------------------------------------------
-
 DomItem *DomModel::itemFromIndex(const QModelIndex &index) const {
   if (index.isValid()) {
     DomItem *item = static_cast<DomItem *>(index.internalPointer());

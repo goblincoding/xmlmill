@@ -78,19 +78,6 @@ bool DomItem::setData(const QModelIndex &index, const QVariant &value) {
 
 //----------------------------------------------------------------------
 
-void DomItem::fetchMore() {
-  for (int i = firstRowToInsert(); i < lastRowToInsert(); ++i) {
-    QDomNode childNode = m_childNodes.at(i);
-    m_childItems << new DomItem(childNode, i, this);
-  }
-}
-
-//----------------------------------------------------------------------
-
-bool DomItem::canFetchMore() const { return m_childItems.size() < childCount(); }
-
-//----------------------------------------------------------------------
-
 DomItem *DomItem::parent() const { return m_parent; }
 
 //----------------------------------------------------------------------
@@ -104,23 +91,6 @@ int DomItem::row() const { return m_rowNumber; }
 //----------------------------------------------------------------------
 
 int DomItem::childCount() const { return m_childNodes.size(); }
-
-//----------------------------------------------------------------------
-
-int DomItem::firstRowToInsert() const { return m_childItems.size(); }
-
-//----------------------------------------------------------------------
-
-int DomItem::lastRowToInsert() const {
-  int firstRow = firstRowToInsert();
-  int remainder = childCount() - firstRow;
-  int childrenToFetch = qMin(100, remainder);
-  return firstRow + childrenToFetch;
-}
-
-//----------------------------------------------------------------------
-
-bool DomItem::hasChildren() const { return childCount() > 0; }
 
 //----------------------------------------------------------------------
 

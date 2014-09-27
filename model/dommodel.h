@@ -66,10 +66,6 @@ public:
 
   virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
-  virtual bool hasChildren(const QModelIndex &parent) const;
-  virtual bool canFetchMore(const QModelIndex &parent) const;
-  virtual void fetchMore(const QModelIndex &parent);
-
 private:
   /*! Returns the relevant item if index is valid, if invalid, we return the
    * root item by default (note that this item could be NULL if the model is

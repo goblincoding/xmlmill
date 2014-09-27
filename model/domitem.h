@@ -51,16 +51,8 @@ public:
   QVariant data(const QModelIndex &index, int role) const;
   bool setData(const QModelIndex &index, const QVariant &value);
 
-  void fetchMore();
-  bool canFetchMore() const;
-
   int row() const;
   int childCount() const;
-
-  int firstRowToInsert() const;
-  int lastRowToInsert() const;
-
-  bool hasChildren() const;
 
 private:
   QString toString() const;
