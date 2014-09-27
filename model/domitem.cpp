@@ -35,19 +35,27 @@
 
 DomItem::DomItem(QDomNode &node, int row, DomItem *parent)
     : m_domNode(node), m_rowNumber(row), m_finishedLoading(false),
-      m_parent(parent), m_children() {}
+      m_parent(parent), m_stringRepresentation(), m_childItems() {
+  m_stringRepresentation = toString();
+
+  for( int i = 0; i < m_domNode.childNodes().count(); ++i) {
+    QDomNode childNode = m_domNode.childNodes().at(i);
+    m_childNodes.append(childNode);
+    m_childItems << new DomItem(childNode, i, this);
+  }
+}
 
 //----------------------------------------------------------------------
 
-DomItem::~DomItem() { qDeleteAll(m_children); }
+DomItem::~DomItem() { qDeleteAll(m_childItems); }
 
 //----------------------------------------------------------------------
 
 QVariant DomItem::data(const QModelIndex &index, int role) const {
   switch (index.column()) {
-  case 0:
+  case columnNumber(Column::Xml) :
     if (role == Qt::DisplayRole) {
-      return toString();
+      return m_stringRepresentation;
     }
   }
 
@@ -58,16 +66,10 @@ QVariant DomItem::data(const QModelIndex &index, int role) const {
 
 bool DomItem::setData(const QModelIndex &index, const QVariant &value) {
   switch (index.column()) {
-  case 0:
+  case columnNumber(Column::Xml) :
     if (m_domNode.isElement()) {
       m_domNode.toElement().setTagName(value.toString());
     }
-    return true;
-  case 1:
-    // nothing to do here for now, just testing the concepts
-    return true;
-  case 2:
-    // nothing to do here for now, just testing the concepts
     return true;
   }
 
@@ -78,14 +80,14 @@ bool DomItem::setData(const QModelIndex &index, const QVariant &value) {
 
 void DomItem::fetchMore() {
   for (int i = firstRowToInsert(); i < lastRowToInsert(); ++i) {
-    QDomNode childNode = m_domNode.childNodes().item(i);
-    m_children << new DomItem(childNode, i, this);
+    QDomNode childNode = m_childNodes.at(i);
+    m_childItems << new DomItem(childNode, i, this);
   }
 }
 
 //----------------------------------------------------------------------
 
-bool DomItem::canFetchMore() const { return m_children.size() < childCount(); }
+bool DomItem::canFetchMore() const { return m_childItems.size() < childCount(); }
 
 //----------------------------------------------------------------------
 
@@ -93,7 +95,7 @@ DomItem *DomItem::parent() const { return m_parent; }
 
 //----------------------------------------------------------------------
 
-DomItem *DomItem::child(int i) const { return m_children.value(i, nullptr); }
+DomItem *DomItem::child(int i) const { return m_childItems.value(i, nullptr); }
 
 //----------------------------------------------------------------------
 
@@ -101,11 +103,11 @@ int DomItem::row() const { return m_rowNumber; }
 
 //----------------------------------------------------------------------
 
-int DomItem::childCount() const { return m_domNode.childNodes().count(); }
+int DomItem::childCount() const { return m_childNodes.size(); }
 
 //----------------------------------------------------------------------
 
-int DomItem::firstRowToInsert() const { return m_children.size(); }
+int DomItem::firstRowToInsert() const { return m_childItems.size(); }
 
 //----------------------------------------------------------------------
 

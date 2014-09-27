@@ -37,6 +37,11 @@
 
 class DomItem {
 public:
+  enum class Column { Xml = 0, ColumnCount };
+  static constexpr int columnNumber(Column col) {
+    return static_cast<int>(col);
+  }
+
   DomItem(QDomNode &node, int row, DomItem *parent = 0);
   ~DomItem();
 
@@ -68,7 +73,9 @@ private:
   bool m_finishedLoading;
 
   DomItem *m_parent;
-  QList<DomItem *> m_children;
+  QString m_stringRepresentation;
+  QList<QDomNode> m_childNodes;
+  QList<DomItem *> m_childItems;
 };
 
 #endif // DOMITEM_H

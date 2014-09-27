@@ -43,8 +43,6 @@ class DomModel : public QAbstractItemModel {
   Q_OBJECT
 
 public:
-  enum class ModelColumns { Xml = 0, ColumnCount };
-
   explicit DomModel(QDomDocument document, QObject *parent = 0);
   virtual ~DomModel();
 

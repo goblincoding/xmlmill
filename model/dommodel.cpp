@@ -33,9 +33,7 @@
 
 //----------------------------------------------------------------------
 
-constexpr int columnNumber(DomModel::ModelColumns col) {
-  return static_cast<int>(col);
-}
+using Column = DomItem::Column;
 
 //----------------------------------------------------------------------
 
@@ -51,13 +49,13 @@ DomModel::~DomModel() { delete m_rootItem; }
 //----------------------------------------------------------------------
 
 int DomModel::columnCount(const QModelIndex & /*parent*/) const {
-  return columnNumber(ModelColumns::ColumnCount);
+  return DomItem::columnNumber(Column::ColumnCount);
 }
 
 //----------------------------------------------------------------------
 
 int DomModel::rowCount(const QModelIndex &parent) const {
-  if (parent.column() > columnNumber(ModelColumns::Xml)) {
+  if (parent.column() > DomItem::columnNumber(Column::Xml)) {
     return 0;
   }
 
@@ -152,7 +150,7 @@ QVariant DomModel::headerData(int section, Qt::Orientation orientation,
                               int role) const {
   if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
     switch (section) {
-    case columnNumber(ModelColumns::Xml) :
+    case DomItem::columnNumber(Column::Xml) :
       return tr("Node");
     }
   }
@@ -192,7 +190,7 @@ QModelIndex DomModel::parent(const QModelIndex &child) const {
     return QModelIndex();
   }
 
-  return createIndex(parentItem->row(), columnNumber(ModelColumns::Xml),
+  return createIndex(parentItem->row(), DomItem::columnNumber(Column::Xml),
                      parentItem);
 }
 
