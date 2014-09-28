@@ -31,6 +31,7 @@
 #define MAINWINDOW_H
 
 #include "db/dbinterface.h"
+#include "model/dommodel.h"
 
 #include <QDomDocument>
 #include <QMainWindow>
@@ -41,8 +42,6 @@ class MainWindow;
 }
 
 class QTimer;
-class QLabel;
-class QMovie;
 class DomModel;
 class QtWaitingSpinner;
 
@@ -253,7 +252,7 @@ private:
   QThread m_dbThread;
 
   DB m_db;
-  DomModel *m_model;
+  DomModel m_model;
 
   bool m_fileContentsChanged;
 };

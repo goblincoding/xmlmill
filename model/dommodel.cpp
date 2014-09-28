@@ -30,6 +30,7 @@
 #include "dommodel.h"
 
 #include <QDomDocument>
+#include <QApplication>
 
 //----------------------------------------------------------------------
 
@@ -37,14 +38,24 @@ using Column = DomItem::Column;
 
 //----------------------------------------------------------------------
 
-DomModel::DomModel(QDomDocument document, QObject *parent)
-    : QAbstractItemModel(parent), m_domDocument(document) {
-  m_rootItem = new DomItem(m_domDocument, 0);
-}
+DomModel::DomModel(QObject *parent)
+    : QAbstractItemModel(parent), m_domDocument(), m_rootItem() {}
 
 //----------------------------------------------------------------------
 
-DomModel::~DomModel() { delete m_rootItem; }
+DomModel::~DomModel() {}
+
+//----------------------------------------------------------------------
+
+void DomModel::setDomDocument(QDomDocument document) {
+  beginResetModel();
+  m_domDocument = document;
+
+  m_rootItem =
+      std::move(std::unique_ptr<DomItem>(new DomItem(m_domDocument, 0)));
+
+  endResetModel();
+}
 
 //----------------------------------------------------------------------
 
@@ -71,7 +82,7 @@ DomItem *DomModel::itemFromIndex(const QModelIndex &index) const {
     return item;
   }
 
-  return m_rootItem;
+  return m_rootItem.get();
 }
 
 //----------------------------------------------------------------------
@@ -159,7 +170,7 @@ QModelIndex DomModel::parent(const QModelIndex &child) const {
   DomItem *childItem = itemFromIndex(child);
   DomItem *parentItem = childItem ? childItem->parent() : nullptr;
 
-  if (!parentItem || parentItem == m_rootItem) {
+  if (!parentItem || parentItem == m_rootItem.get()) {
     return QModelIndex();
   }
 

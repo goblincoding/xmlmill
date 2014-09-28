@@ -33,6 +33,8 @@
 #include <QDomDocument>
 #include <QModelIndex>
 
+#include <memory>
+
 //----------------------------------------------------------------------
 
 class DomItem;
@@ -43,8 +45,10 @@ class DomModel : public QAbstractItemModel {
   Q_OBJECT
 
 public:
-  explicit DomModel(QDomDocument document, QObject *parent = 0);
+  explicit DomModel(QObject *parent = 0);
   virtual ~DomModel();
+
+  void setDomDocument(QDomDocument document);
 
   // QAbstractItemModel interface
 public:
@@ -74,7 +78,7 @@ private:
 
 private:
   QDomDocument m_domDocument;
-  DomItem *m_rootItem;
+  std::unique_ptr<DomItem> m_rootItem;
 };
 
 #endif // DOMMODEL_H

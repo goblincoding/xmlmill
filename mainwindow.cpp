@@ -50,14 +50,10 @@
 #include <QTextStream>
 #include <QComboBox>
 #include <QTimer>
-#include <QLabel>
 #include <QUrl>
 #include <QCloseEvent>
 #include <QFont>
-#include <QScrollBar>
-#include <QMovie>
 #include <QSettings>
-#include <QXmlInputSource>
 
 /*----------------------------------------------------------------------------*/
 
@@ -98,8 +94,9 @@ MainWindow::MainWindow(QWidget *parent)
 
   m_spinner = new QtWaitingSpinner(Qt::ApplicationModal, this, true);
 
-  m_model = new DomModel(QDomDocument(), this);
-  ui->treeView->setModel(m_model);
+  connect(&m_model, SIGNAL(finishedLoading()), m_spinner, SLOT(stop()));
+
+  ui->treeView->setModel(&m_model);
   ui->treeView->setItemDelegate(new DomDelegate(this));
 
   readSavedSettings();
@@ -123,13 +120,7 @@ MainWindow::~MainWindow() {
 void MainWindow::handleDBResult(DB::Result result, const QString &msg) {
   switch (result) {
   case DB::Result::ImportSuccess: {
-    QMessageBox::StandardButtons accepted = QMessageBox::question(
-        this, "Edit file", "Also open file for editing?",
-        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-
-    if (accepted == QMessageBox::Yes) {
-      openFile(m_importedXmlFileName);
-    }
+    openFile(m_importedXmlFileName);
     break;
   }
   case DB::Result::Failed: {
@@ -216,9 +207,7 @@ void MainWindow::openFile(const QString &fileName) {
     m_domDoc.clear();
     m_domDoc = m_tmpDomDoc.cloneNode().toDocument();
 
-    delete m_model;
-    m_model = new DomModel(m_domDoc, this);
-    ui->treeView->setModel(m_model);
+    m_model.setDomDocument(m_domDoc);
     expandCollapse(ui->expandAllCheckBox->isChecked());
 
     /* Enable file save options. */

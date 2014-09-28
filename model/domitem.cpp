@@ -38,7 +38,7 @@ DomItem::DomItem(QDomNode &node, int row, DomItem *parent)
       m_parent(parent), m_stringRepresentation(), m_childItems() {
   m_stringRepresentation = toString();
 
-  for( int i = 0; i < m_domNode.childNodes().count(); ++i) {
+  for (int i = 0; i < m_domNode.childNodes().count(); ++i) {
     QDomNode childNode = m_domNode.childNodes().at(i);
     m_childNodes.append(childNode);
     m_childItems << new DomItem(childNode, i, this);
