@@ -48,7 +48,7 @@ BatchProcessHelper::BatchProcessHelper(const QDomDocument &domDoc)
 
 /*----------------------------------------------------------------------------*/
 
-void BatchProcessHelper::bindValues(QSqlQuery &query) {
+void BatchProcessHelper::bindValues(QSqlQuery &query) const {
   query.addBindValue(m_attributeValues);
   query.addBindValue(m_attributes);
   query.addBindValue(m_elements);

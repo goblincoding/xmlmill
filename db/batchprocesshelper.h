@@ -48,7 +48,7 @@ public:
 
   /*! Binds the batch values to 'query' (which must have been prepared
    * before hand).*/
-  void bindValues(QSqlQuery &query);
+  void bindValues(QSqlQuery &query) const;
 
 private:
   /*! Walk the DOM tree.*/
