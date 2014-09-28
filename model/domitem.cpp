@@ -27,6 +27,7 @@
  *                    <http://www.gnu.org/licenses/>
  */
 #include "domitem.h"
+#include "utils/domnodeparser.h"
 
 #include <QDomNode>
 #include <QModelIndex>
@@ -34,11 +35,10 @@
 
 //----------------------------------------------------------------------
 
-DomItem::DomItem(QDomNode &node, int row, DomItem *parent)
+DomItem::DomItem(QDomNode node, int row, DomItem *parent)
     : m_domNode(node), m_rowNumber(row), m_parent(parent),
       m_stringRepresentation(), m_childItems() {
-  m_stringRepresentation = toString();
-
+  updateStringRepresentation();
   qApp->processEvents();
 
   for (int i = 0; i < m_domNode.childNodes().count(); ++i) {
@@ -74,6 +74,8 @@ bool DomItem::setData(const QModelIndex &index, const QVariant &value,
     if (m_domNode.isElement()) {
       m_domNode.toElement().setTagName(value.toString());
     }
+
+    updateStringRepresentation();
     return true;
   }
 
@@ -96,71 +98,17 @@ int DomItem::row() const { return m_rowNumber; }
 
 //----------------------------------------------------------------------
 
+void DomItem::updateStringRepresentation() {
+  DomNodeParser parser;
+  m_stringRepresentation = parser.toString(m_domNode);
+}
+
+//----------------------------------------------------------------------
+
 int DomItem::childCount() const { return m_childNodes.size(); }
 
 //----------------------------------------------------------------------
 
 bool DomItem::hasChildren() const { return !m_childNodes.empty(); }
-
-//----------------------------------------------------------------------
-
-QString DomItem::toString() const {
-  if (m_domNode.isElement()) {
-    return elementString();
-  } else if (m_domNode.isComment()) {
-    return commentString();
-  } else if (m_domNode.isProcessingInstruction()) {
-    return "FIND THIS STRING AND FIX IT!";
-  }
-
-  return m_domNode.nodeValue();
-}
-
-//----------------------------------------------------------------------
-
-QString DomItem::elementString() const {
-  QString text("<");
-  text += m_domNode.nodeName();
-
-  QDomNamedNodeMap attributeMap = m_domNode.attributes();
-
-  /* For elements with no attributes (e.g. <element/>). */
-  if (attributeMap.isEmpty() && m_domNode.childNodes().isEmpty()) {
-    text += "/>";
-    return text;
-  }
-
-  if (!attributeMap.isEmpty()) {
-    for (int i = 0; i < attributeMap.size(); ++i) {
-      QDomNode attribute = attributeMap.item(i);
-      text += " ";
-      text += attribute.nodeName();
-      text += "=\"";
-      text += attribute.nodeValue();
-      text += "\"";
-    }
-
-    /* For elements without children but with attributes. */
-    if (m_domNode.firstChild().isNull()) {
-      text += "/>";
-    } else {
-      /* For elements with children and attributes. */
-      text += ">";
-    }
-  } else {
-    text += ">";
-  }
-
-  return text;
-}
-
-//----------------------------------------------------------------------
-
-QString DomItem::commentString() const {
-  QString text("<!-- ");
-  text += m_domNode.nodeValue();
-  text += " -->";
-  return text;
-}
 
 //----------------------------------------------------------------------

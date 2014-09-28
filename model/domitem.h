@@ -35,7 +35,8 @@
 //----------------------------------------------------------------------
 
 /*! A wrapper class for QDomNodes.  Each DomItem wraps a QDomNode in the DOM
- * document represented by a DomModel. */
+ * document represented by a DomModel. Note: QDomNodes are implicitly shared, so
+ * all modifications to a DomItem's QDomNodes will affect all copies.*/
 class DomItem {
 public:
   /*! Represents the columns in the model.  We'll probably only ever have one,
@@ -49,10 +50,10 @@ public:
   }
 
   /*! Constructor.
-   * @param node - the QDomNode corresponding to this item.
+   * @param node - the (implicitly shared) QDomNode corresponding to this item.
    * @param row - this item's row number (relative to its parent).
    * @param parent - this item's parent (if any). */
-  DomItem(QDomNode &node, int row, DomItem *parent = nullptr);
+  DomItem(QDomNode node, int row, DomItem *parent = nullptr);
 
   /*! Destructor. */
   ~DomItem();
@@ -81,16 +82,7 @@ public:
   int row() const;
 
 private:
-  /*! Returns the underlying DomNode's string representation. */
-  QString toString() const;
-
-  /*! Called if the QDomNode is an element.
-   * \sa toString */
-  QString elementString() const;
-
-  /*! Called if the QDomNode is a comment.
-   * \sa toString */
-  QString commentString() const;
+  void updateStringRepresentation();
 
 private:
   QDomNode m_domNode;

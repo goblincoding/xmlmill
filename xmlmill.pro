@@ -64,7 +64,8 @@ SOURCES += main.cpp\
     model/dommodel.cpp \
     utils/QtWaitingSpinner.cpp \
     view/domtreeview.cpp \
-    delegate/xmlsyntaxhighlighter.cpp
+    delegate/xmlsyntaxhighlighter.cpp \
+    utils/domnodeparser.cpp
     ../QtWaitingSpinner/QtWaitingSpinner.cpp
 
 HEADERS  += \
@@ -88,7 +89,8 @@ HEADERS  += \
     model/dommodel.h \
     utils/QtWaitingSpinner.h \
     view/domtreeview.h \
-    delegate/xmlsyntaxhighlighter.h
+    delegate/xmlsyntaxhighlighter.h \
+    utils/domnodeparser.h
     ../QtWaitingSpinner/QtWaitingSpinner.h
 
 FORMS    += \

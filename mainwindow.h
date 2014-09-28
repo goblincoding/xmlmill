@@ -62,7 +62,6 @@ class QtWaitingSpinner;
  * for a list ofpossible download options.  If you find any bugs or errors in
  * the code, or typo's in the documentation, please use the
  * <ahref="http://goblincoding.com/contact">contact form</a> to let me know. */
-
 class MainWindow : public QMainWindow {
   Q_OBJECT
 
