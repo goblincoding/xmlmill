@@ -42,9 +42,9 @@
     * "xml" - each record consists of a value, associated attribute, associated
   element, the element's parent and the document's root element name. It is
   possible to have only a trio of element, parent and root (since not all
-  elements have attributes) and each record must be unique. This table
+  elements have attributes) but each record must be unique. This table
   furthermore references the "rootelements" table's "root" column as foreign
-  key. */
+  key in order to identify document "types". */
 
 class DB : public QObject {
   Q_OBJECT
@@ -53,20 +53,14 @@ public:
   /*! Constructor. */
   DB();
 
-  /*! There is no need for this class to be copyable. */
-  DB(const DB &) = delete;
-
-  /*! There is no need for this class to be assignable. */
-  DB &operator=(const DB &) = delete;
-
-  /*! Used to communicate DB errors via the \sa result signal. */
+  /*! Used to communicate DB query outcomes via the \sa result signal. */
   enum class Result {
     ImportSuccess, /*!< The DOM Document import was successful. */
     Failed,        /*!< Generally used to communicate DB query failures. */
     Critical       /*!< Used to communinicate DB creation failures. */
   };
 
-  /*! Processes an entire DOM document, inserting new and replacing
+  /*! Processes an entire DOM document, inserting new and replacing or updating
    * existing records in the database. */
   void processDocumentXml(const QString &xml);
 
@@ -167,6 +161,12 @@ signals:
   void result(DB::Result status, const QString &error) const;
 
 private:
+  /*! There is no need for this class to be copyable. */
+  DB(const DB &) = delete;
+
+  /*! There is no need for this class to be assignable. */
+  DB &operator=(const DB &) = delete;
+
   /*! Returns a list of known attributes. */
   QStringList knownAttributeKeys() const;
 
