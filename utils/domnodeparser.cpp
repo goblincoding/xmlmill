@@ -28,6 +28,8 @@
  */
 #include "domnodeparser.h"
 
+#include <assert.h>
+
 //----------------------------------------------------------------------
 
 QString DomNodeParser::toString(const QDomNode &node) const {
@@ -40,6 +42,22 @@ QString DomNodeParser::toString(const QDomNode &node) const {
   }
 
   return node.nodeValue();
+}
+
+//----------------------------------------------------------------------
+
+QDomNode DomNodeParser::toDomNode(const QString &xml) const {
+  QDomDocument doc;
+  QString xmlErr("");
+  int line(-1);
+  int col(-1);
+
+  if (doc.setContent(xml, &xmlErr, &line, &col)) {
+    return doc.documentElement().cloneNode();
+  }
+
+  assert(false && "DomNodeParser::elementNode XML broken");
+  return QDomNode();
 }
 
 //----------------------------------------------------------------------
