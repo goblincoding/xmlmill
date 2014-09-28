@@ -99,7 +99,6 @@ MainWindow::MainWindow(QWidget *parent)
   ui->treeView->setItemDelegate(new DomDelegate(this));
 
   readSavedSettings();
-  setUpDBThread();
 
   /* Wait for the event loop to be initialised before calling this function. */
   QTimer::singleShot(0, this, SLOT(queryRestoreFiles()));
@@ -157,7 +156,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
 /*----------------------------------------------------------------------------*/
 
-void MainWindow::setUpDBThread() {
+void MainWindow::startBatchProcessingThread() {
   /* Required for the cross-thread signal/slot communication. */
   qRegisterMetaType<DB::Result>("DB::Result");
 
@@ -169,8 +168,8 @@ void MainWindow::setUpDBThread() {
   connect(this, &MainWindow::processDocumentXml, db, &DB::processDocumentXml);
   connect(db, &DB::result, this, &MainWindow::handleDBResult);
 
-  /* Automatically stop the spinner once the DB has finished with whatever it
-   * was doing. */
+  /* Automatically start and stop the spinner. */
+  connect(&m_dbThread, &QThread::started, m_spinner, &QtWaitingSpinner::start);
   connect(db, &DB::result, m_spinner, &QtWaitingSpinner::stop);
 
   m_dbThread.start();
@@ -179,7 +178,8 @@ void MainWindow::setUpDBThread() {
 /*----------------------------------------------------------------------------*/
 
 QLabel *MainWindow::almostThere() {
-  QString text("This is a big file! Don't worry, we're almost there...");
+  QString text(
+      "Wow, this is a big file! Hang in there, we're crunching the numbers...");
   QLabel *label = new QLabel(text, this, Qt::Popup);
   label->show();
   label->move(window()->frameGeometry().topLeft() + window()->rect().center() -
@@ -276,10 +276,13 @@ void MainWindow::importXMLFromFile() {
     // if (m_tmpDomDoc.setContent(&source, &reader, &xmlErr, &line, &col)) {
     if (m_tmpDomDoc.setContent(xml, &xmlErr, &line, &col)) {
       m_importedXmlFileName = fileName;
-      m_spinner->start();
 
-      /* If the document was processed successfully, the user will be prompted
-       * to open the file as well (see "handleDBResult") */
+      /* Fire up the DB thread for the batch processing. */
+      startBatchProcessingThread();
+
+      /* Tell the DB thread what XML needs to be processed. If the document was
+       * processed successfully, the user will be prompted to open the file as
+       * well (see "handleDBResult") */
       emit processDocumentXml(xml);
     } else {
       QString errorMsg = QString("XML is broken: %1: line [%2], column")

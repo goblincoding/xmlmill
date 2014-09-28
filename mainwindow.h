@@ -240,7 +240,7 @@ private:
 
   QString getOpenFileName();
 
-  void setUpDBThread();
+  void startBatchProcessingThread();
 
   QLabel *almostThere();
 
