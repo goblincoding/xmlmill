@@ -2,7 +2,6 @@
     <qresource prefix="/resources">
         <file>goblinicon.png</file>
         <file>close.png</file>
-        <file>undock.png</file>
         <file>downarrow.png</file>
         <file>uparrow.png</file>
         <file>scrollgrip.png</file>
@@ -20,10 +19,8 @@
         <file>upspinarrow.png</file>
         <file>downspinarrowdisabled.png</file>
         <file>upspinarrowdisabled.png</file>
-        <file>spinner.gif</file>
         <file>help/Help.txt</file>
         <file>helpicon.png</file>
-        <file>emptyprofilehelpicon.png</file>
         <file>dark.txt</file>
     </qresource>
 </RCC>
