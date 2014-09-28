@@ -29,18 +29,14 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "db/dbinterface.h"
-#include "forms/additemsform.h"
-#include "forms/removeitemsform.h"
+
 #include "forms/helpdialog.h"
-#include "forms/searchform.h"
-#include "forms/addsnippetsform.h"
 #include "forms/restorefilesform.h"
-#include "utils/treewidgetitem.h"
-#include "utils/combobox.h"
+
 #include "utils/messagespace.h"
 #include "utils/globalsettings.h"
 #include "utils/QtWaitingSpinner.h"
+
 #include "model/dommodel.h"
 #include "delegate/domdelegate.h"
 
@@ -48,55 +44,48 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QTextStream>
-#include <QComboBox>
 #include <QTimer>
 #include <QUrl>
 #include <QCloseEvent>
-#include <QFont>
 #include <QSettings>
 #include <QLabel>
 
 /*----------------------------------------------------------------------------*/
 
-const QString EMPTY("---");
-const QString LEFTRIGHTBRACKETS("\\[|\\]");
-
-/*----------------------------------------------------------------------------*/
-
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), m_saveTimer(nullptr),
-      m_currentXMLFileName(""), m_importedXmlFileName(""), m_dbThread(),
-      m_fileContentsChanged(false) {
+    : QMainWindow(parent), ui(new Ui::MainWindow), m_spinner(nullptr),
+      m_saveTimer(nullptr), m_domDoc(), m_tmpDomDoc(), m_dbThread(), m_model(),
+      m_currentXMLFileName(""), m_fileContentsChanged(false) {
   ui->setupUi(this);
+  ui->treeView->setModel(&m_model);
+  ui->treeView->setItemDelegate(new DomDelegate(this));
 
-  /* XML File related. */
+  m_spinner = new QtWaitingSpinner(Qt::ApplicationModal, this, true);
+
+  /* File related. */
   connect(ui->actionNew, SIGNAL(triggered()), this, SLOT(newFile()));
-  connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(importXMLFromFile()));
+  connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(openFile()));
   connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(saveFile()));
   connect(ui->actionSaveAs, SIGNAL(triggered()), this, SLOT(saveFileAs()));
   connect(ui->actionCloseFile, SIGNAL(triggered()), this, SLOT(closeFile()));
+
+  /* Help related. */
+  connect(ui->actionShowHelpButtons, SIGNAL(triggered(bool)), this,
+          SLOT(setShowHelpButtons(bool)));
+  connect(ui->actionHelpContents, SIGNAL(triggered()), this,
+          SLOT(showMainHelp()));
 
   /* Various other actions. */
   connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(close()));
   connect(ui->actionForgetPreferences, SIGNAL(triggered()), this,
           SLOT(forgetMessagePreferences()));
-  connect(ui->actionHelpContents, SIGNAL(triggered()), this,
-          SLOT(showMainHelp()));
+
   connect(ui->actionVisitOfficialSite, SIGNAL(triggered()), this,
           SLOT(goToSite()));
   connect(ui->actionUseDarkTheme, SIGNAL(triggered(bool)), this,
           SLOT(useDarkTheme(bool)));
   connect(ui->expandAllCheckBox, SIGNAL(toggled(bool)), this,
           SLOT(expandCollapse(bool)));
-
-  /* Help related. */
-  connect(ui->actionShowHelpButtons, SIGNAL(triggered(bool)), this,
-          SLOT(setShowHelpButtons(bool)));
-
-  m_spinner = new QtWaitingSpinner(Qt::ApplicationModal, this, true);
-
-  ui->treeView->setModel(&m_model);
-  ui->treeView->setItemDelegate(new DomDelegate(this));
 
   readSavedSettings();
 
@@ -108,9 +97,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow() {
   delete ui;
-
-  m_dbThread.quit();
-  m_dbThread.wait();
+  stopBatchProcessingThread();
 }
 
 /*----------------------------------------------------------------------------*/
@@ -118,7 +105,8 @@ MainWindow::~MainWindow() {
 void MainWindow::handleDBResult(DB::Result result, const QString &msg) {
   switch (result) {
   case DB::Result::ImportSuccess: {
-    openFile(m_importedXmlFileName);
+    stopBatchProcessingThread();
+    loadDocument();
     break;
   }
   case DB::Result::Failed: {
@@ -177,10 +165,27 @@ void MainWindow::startBatchProcessingThread() {
 
 /*----------------------------------------------------------------------------*/
 
+void MainWindow::stopBatchProcessingThread() {
+  m_dbThread.quit();
+  m_dbThread.wait();
+}
+
+/*----------------------------------------------------------------------------*/
+
+void MainWindow::enableFileActions(bool enabled) {
+  ui->actionCloseFile->setEnabled(enabled);
+  ui->actionSaveAs->setEnabled(enabled);
+  ui->actionSave->setEnabled(enabled);
+}
+
+/*----------------------------------------------------------------------------*/
+
 QLabel *MainWindow::almostThere() {
   QString text(
       "Wow, this is a big file! Hang in there, we're crunching the numbers...");
   QLabel *label = new QLabel(text, this, Qt::Popup);
+
+  /* Show before moving it or it doesn't centre itself properly. */
   label->show();
   label->move(window()->frameGeometry().topLeft() + window()->rect().center() -
               label->rect().center());
@@ -208,28 +213,19 @@ QString MainWindow::getOpenFileName() {
 
 /*----------------------------------------------------------------------------*/
 
-void MainWindow::openFile(const QString &fileName) {
-  if (!saveAndContinue("Save document before continuing?")) {
-    return;
-  }
+void MainWindow::loadDocument() {
+  m_domDoc.clear();
+  m_domDoc = m_tmpDomDoc.cloneNode().toDocument();
 
-  if (!fileName.isEmpty()) {
-    m_domDoc.clear();
-    m_domDoc = m_tmpDomDoc.cloneNode().toDocument();
+  /* Display a message widget for large files...cannot "spin" in main GUI
+   * thread. */
+  std::unique_ptr<QLabel> label{ almostThere() };
+  m_model.setDomDocument(m_domDoc);
 
-    std::unique_ptr<QLabel> label{ almostThere() };
-    m_model.setDomDocument(m_domDoc);
+  expandCollapse(ui->expandAllCheckBox->isChecked());
+  m_fileContentsChanged = false; // at first load, nothing has changed
 
-    expandCollapse(ui->expandAllCheckBox->isChecked());
-
-    /* Enable file save options. */
-    ui->actionCloseFile->setEnabled(true);
-    ui->actionSave->setEnabled(true);
-    ui->actionSaveAs->setEnabled(true);
-
-    m_currentXMLFileName = fileName;
-    m_fileContentsChanged = false; // at first load, nothing has changed
-  }
+  enableFileActions(true);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -256,10 +252,13 @@ QString MainWindow::readFile(const QString &fileName) {
 
 /*----------------------------------------------------------------------------*/
 
-void MainWindow::importXMLFromFile() {
+void MainWindow::openFile() {
+  if (!saveAndContinue("Save document before continuing?")) {
+    return;
+  }
+
   QString fileName = getOpenFileName();
   QString xml = readFile(fileName);
-  m_importedXmlFileName = "";
 
   if (!xml.isEmpty()) {
     /* Reading file with Input Source and simple reader results in a lot of
@@ -275,7 +274,7 @@ void MainWindow::importXMLFromFile() {
 
     // if (m_tmpDomDoc.setContent(&source, &reader, &xmlErr, &line, &col)) {
     if (m_tmpDomDoc.setContent(xml, &xmlErr, &line, &col)) {
-      m_importedXmlFileName = fileName;
+      m_currentXMLFileName = fileName;
 
       /* Fire up the DB thread for the batch processing. */
       startBatchProcessingThread();
@@ -300,9 +299,7 @@ void MainWindow::newFile() {
   if (saveAndContinue("Save document before continuing?")) {
     resetDOM();
     m_currentXMLFileName = "";
-    ui->actionCloseFile->setEnabled(true);
-    ui->actionSaveAs->setEnabled(true);
-    ui->actionSave->setEnabled(true);
+    enableFileActions(true);
   }
 }
 
@@ -365,6 +362,7 @@ bool MainWindow::saveFileAs() {
 void MainWindow::closeFile() {
   if (saveAndContinue("Save document before continuing?")) {
     resetDOM();
+    enableFileActions(false);
   }
 }
 
@@ -390,11 +388,11 @@ void MainWindow::forgetMessagePreferences() {
 
 void MainWindow::resetDOM() {
   m_domDoc.clear();
+  m_model.setDomDocument(m_domDoc);
   m_fileContentsChanged = false;
 
   /* The timer will be reactivated as soon as work starts again on a
-   * legitimate
-   * document and the user saves it for the first time. */
+   * legitimate document and the user saves it for the first time. */
   if (m_saveTimer) {
     m_saveTimer->stop();
   }
@@ -403,10 +401,8 @@ void MainWindow::resetDOM() {
 /*----------------------------------------------------------------------------*/
 
 bool MainWindow::saveAndContinue(const QString &resetReason) {
-  /* There are a number of places and opportunities for "resetDOM" to be
-   * called,
-   * if there is an active document, check if it's content has changed since
-   * the
+  /* There are a number of places and opportunities for "resetDOM" to be called,
+   * if there is an active document, check if it's content has changed since the
    * last time it had changed and make sure we don't accidentally delete
    * anything. */
   if (m_fileContentsChanged) {
@@ -425,37 +421,6 @@ bool MainWindow::saveAndContinue(const QString &resetReason) {
   }
 
   return true;
-}
-
-/*----------------------------------------------------------------------------*/
-
-void MainWindow::showEmptyProfileHelp() {
-  QMessageBox::information(
-      this, "Empty Profile",
-      "The active profile is empty.  You can either import XML from file "
-      "via \"Edit -> Import XML to Profile\" or you can populate the "
-      "profile from scratch via \"Edit -> Edit Profile -> Add Items\".");
-}
-
-/*----------------------------------------------------------------------------*/
-
-void MainWindow::showElementHelp() {
-  QMessageBox::information(this, "Adding Elements and Snippets",
-                           "If the document is still empty, your first element "
-                           "will be the root element.\n\n"
-                           "New elements are added as children of the element "
-                           "selected in the element tree.\n\n"
-                           "\"Empty\" duplicate siblings are added by "
-                           "selecting the element name in the drop down "
-                           "that matches that of the element selected in the "
-                           "element tree (these names will be "
-                           "bracketed by \"[]\").\n\n"
-                           "\"Snippets\" are fully formed XML segments "
-                           "consisting of the entire element hierarchy "
-                           "with the element selected in the drop down combo "
-                           "box as base. Selecting this option will "
-                           "provide you with the opportunity to provide "
-                           "default values for the snippet's attributes.");
 }
 
 /*----------------------------------------------------------------------------*/
@@ -513,9 +478,8 @@ void MainWindow::setShowTreeItemsVerbose(bool verbose) {
 
 /*----------------------------------------------------------------------------*/
 
-void MainWindow::setStatusBarMessage(const QString &message) {
-  Q_UNUSED(message);
-  // TODO.
+void MainWindow::expandCollapse(bool expand) {
+  expand ? ui->treeView->expandAll() : ui->treeView->collapseAll();
 }
 
 /*----------------------------------------------------------------------------*/
@@ -582,12 +546,6 @@ void MainWindow::queryRestoreFiles() {
       restore->exec();
     }
   }
-}
-
-/*----------------------------------------------------------------------------*/
-
-void MainWindow::expandCollapse(bool expand) {
-  expand ? ui->treeView->expandAll() : ui->treeView->collapseAll();
 }
 
 /*----------------------------------------------------------------------------*/

@@ -33,8 +33,8 @@
 #include "db/dbinterface.h"
 #include "model/dommodel.h"
 
-#include <QDomDocument>
 #include <QMainWindow>
+#include <QDomDocument>
 #include <QThread>
 
 namespace Ui {
@@ -43,35 +43,26 @@ class MainWindow;
 
 class QTimer;
 class QLabel;
-class DomModel;
 class QtWaitingSpinner;
 
 /*! \mainpage Goblin Coding's XML Mill
  *
- * \section intro_sec Introduction  Please note that this is not a user manual
- *or "Help" documentation, but rather source documentation intended for use by
- *developers or parties interested in the code.  If you are a user and want to
- *know more about the application and its uses itself, the <a
- *href="http://goblincoding.com/xmlmill/xmlmilloverview/">official site</a>
- *contains all the relevant information about this application.
+ * \section intro_sec Introduction  Please
+ * note that this is not a user manual or "Help" documentation, but rather
+ * source documentation intended for use by developers or parties interested in
+ * the code.  If you are a user and want to know more about the application and
+ * its uses itself, the
+ * <ahref="http://goblincoding.com/xmlmill/xmlmilloverview/">official
+ * site</a>contains all the relevant information about this application. Please
+ * also feel free to <a href="http://goblincoding.com/contact">contact me</a>
+ * for any reason whatsoever.
  *
- * Please also feel free to <a href="http://goblincoding.com/contact">contact
- *me</a> for any reason whatsoever.
- *
- * \section download Download  If you haven't yet, please see the <a
- *href="http://goblincoding.com/xmlmilldownload">download page</a> for a list of
- *possible download options.  If you find any bugs or errors in the code, or
- *typo's in the documentation, please use the <a
- *href="http://goblincoding.com/contact">contact form</a> to let me know. */
+ * \section download Download  If you haven't yet, please
+ * see the <ahref="http://goblincoding.com/xmlmilldownload">download page</a>
+ * for a list ofpossible download options.  If you find any bugs or errors in
+ * the code, or typo's in the documentation, please use the
+ * <ahref="http://goblincoding.com/contact">contact form</a> to let me know. */
 
-/// The main application window class.
-
-/*! All the code refers to "databases" whereas all the user prompts reference
- * "profiles". This is deliberate.  In reality, everything is persisted to
- * SQLite database files, but a friend suggested that end users may be
- * intimidated by the use of the word "database" (especially if they aren't
- * necessarily technically inclined) and that "profile" may be less scary... I
- * agreed :) */
 class MainWindow : public QMainWindow {
   Q_OBJECT
 
@@ -83,10 +74,13 @@ public:
   ~MainWindow();
 
 public slots:
+  /*! Connected to the \sa DB "result" signal. */
   void handleDBResult(DB::Result result, const QString &msg);
 
 signals:
-  void processDocumentXml(const QString &domDoc);
+  /*! Emitted whenever an entire DOM document's XML must be processed. @param
+   * xml - the DOM Doc's string representation. */
+  void processDocumentXml(const QString &xml);
 
 protected:
   /*! Re-implemented from QMainWindow.  Queries user to save before closing and
@@ -94,64 +88,52 @@ protected:
   void closeEvent(QCloseEvent *event);
 
 private slots:
-  /*! Triggered whenever the user decides to open an XML file.
-      \sa newXMLFile
-      \sa saveXMLFile
-      \sa saveXMLFileAs
-      \sa closeXMLFile
-      \sa importXMLFromFile */
-  void openFile(const QString &fileName);
+  /*! Triggered whenever the user decides to open an XML file. Once the XML
+     import to the database has been successfully completed, the file is opened
+     for editing.
+      \sa newFile
+      \sa saveFile
+      \sa saveFileAs
+      \sa closeFile */
+  void openFile();
 
   /*! Triggered whenever the user decides to create a new XML file.
-      \sa openXMLFile
-      \sa saveXMLFile
-      \sa saveXMLFileAs
-      \sa closeXMLFile
-      \sa importXMLFromFile */
+      \sa saveFile
+      \sa saveFileAs
+      \sa closeFile
+      \sa openFile */
   void newFile();
 
   /*! Triggered whenever the user explicitly saves the current document and also
      for scenarios where saving the file is implied/logical (generally preceded
      by a query to the user to confirm the file save operation).
-      \sa newXMLFile
-      \sa openXMLFile
-      \sa saveXMLFileAs
-      \sa closeXMLFile
-      \sa importXMLFromFile */
+      \sa newFile
+      \sa saveFileAs
+      \sa closeFile
+      \sa openFile */
   bool saveFile();
 
   /*! Triggered whenever the user explicitly wishes to save the current document
      with a specific name and also whenever the file save operation is requested
      without an active document name. Returns "false" when the file save
      operation is unsuccessful OR cancelled.
-      \sa newXMLFile
-      \sa saveXMLFile
-      \sa openXMLFile
-      \sa closeXMLFile
-      \sa importXMLFromFile */
+      \sa newFile
+      \sa saveFile
+      \sa closeFile
+      \sa openFile */
   bool saveFileAs();
 
   /*! Triggered whenever the user explicitly wishes to close the current
      document.
-      \sa newXMLFile
-      \sa saveXMLFile
-      \sa saveXMLFileAs
-      \sa openXMLFile
-      \sa importXMLFromFile */
+      \sa newFile
+      \sa saveFile
+      \sa saveFileAs
+      \sa openFile */
   void closeFile();
-
-  /*! Triggered by the "Import XML to Profile" UI action.
-      \sa openXMLFile
-      \sa newXMLFile
-      \sa saveXMLFile
-      \sa saveXMLFileAs
-      \sa importXMLToDatabase */
-  void importXMLFromFile();
 
   /*! Connected to the "Find in Document" UI action. This function creates and
      displays an instance of SearchForm to allow the user to search for specific
-     strings in the current document.
-      \sa itemFound */
+     strings in the current document. */
   void searchDocument();
 
   /*! Connected to the "Forget Message Preferences" UI action.  This slot will
@@ -163,14 +145,6 @@ private slots:
      containing DOM element information.
       \sa queryResetDOM */
   void resetDOM();
-
-  /*! Triggered when the "empty profile help" button is clicked.  This button is
-   * only shown when the active profile is empty and provides information that
-   * will help the user populate the active profile. */
-  void showEmptyProfileHelp();
-
-  /*! Displays a brief message about adding elements to a document. */
-  void showElementHelp();
 
   /*! Connected to the "Help Contents" action.  Displays the main help page. */
   void showMainHelp();
@@ -202,29 +176,29 @@ private slots:
       \sa deleteTempFile */
   void queryRestoreFiles();
 
+  /*! Connected to the "Expand All" check box, expands or collapses the entire
+   * tree. */
   void expandCollapse(bool expand);
 
 private:
-  /*! Kicks off a recursive DOM tree traversal to populate the tree widget and
-   * element maps with the information contained in the active DOM document. */
+  /*! Pops open a QFileDialog for an "open file" name. Returns an empty string
+     if user cancelled.
+     \sa openFile */
+  QString getOpenFileName();
+
+  /*! Returns the contents of "fileName" as a QString if file opening was
+   * successful, displays an error message and returns an empty string if not.
+   * \sa openFile */
   QString readFile(const QString &fileName);
 
-  /*! Displays a message in the status bar. */
-  void setStatusBarMessage(const QString &message);
+  /*! Sets the DomModel's content to the XML contained in "fileName" after a
+     successful database batch process has completed.
+      \sa openFile */
+  void loadDocument();
 
   /*! Starts the timer responsible for the automatic saving of the current
    * document. */
   void startSaveTimer();
-
-  /*! Reads the saved window state, geometry and theme settings from the
-     registry/XML/ini file.
-      \sa saveSettings */
-  void readSavedSettings();
-
-  /*! Saves the window state, geometry and theme settings to the
-     registry/XML/ini file.
-      \sa readSettings */
-  void saveSettings();
 
   /*! Called whenever an action may or will reset the DOM document and prompts
      the user to confirm that it's OK to do so (if not, the action won't be
@@ -238,25 +212,44 @@ private:
       \sa queryRestorefiles */
   void deleteTempFile();
 
-  QString getOpenFileName();
+  /*! Reads the saved window state, geometry and theme settings from the
+     registry/XML/ini file.
+      \sa saveSettings */
+  void readSavedSettings();
 
+  /*! Saves the window state, geometry and theme settings to the
+     registry/XML/ini file.
+      \sa readSettings */
+  void saveSettings();
+
+  /*! Starts a separate database thread for batch processing entire DOM
+   * documents.
+   * \sa stopBatchProcessingThread */
   void startBatchProcessingThread();
 
+  /*! Can be used to explicitly stop the batch processing thread started by \sa
+   * startBatchProcessingThread */
+  void stopBatchProcessingThread();
+
+  /*! Set "save", "save as" and "close" actions to "enabled" */
+  void enableFileActions(bool enabled);
+
+  /*! Creates a pop-up label with a "waiting" message for use during long,
+   * GUI-blocking processes. */
   QLabel *almostThere();
 
 private:
   Ui::MainWindow *ui;
   QtWaitingSpinner *m_spinner;
+  QTimer *m_saveTimer;
+
   QDomDocument m_domDoc;
   QDomDocument m_tmpDomDoc;
-  QTimer *m_saveTimer;
-  QString m_currentXMLFileName;
-  QString m_importedXmlFileName;
-  QThread m_dbThread;
 
-  DB m_db;
+  QThread m_dbThread;
   DomModel m_model;
 
+  QString m_currentXMLFileName;
   bool m_fileContentsChanged;
 };
 
