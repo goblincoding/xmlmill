@@ -96,31 +96,19 @@ DomItem *DomModel::itemFromIndex(const QModelIndex &index) const {
 
 bool DomModel::setData(const QModelIndex &index, const QVariant &value,
                        int role) {
-  if (index.isValid() && role == Qt::EditRole) {
-    DomItem *item = itemFromIndex(index);
-    bool result = item ? item->setData(index, value) : false;
+  DomItem *item = itemFromIndex(index);
+  bool result = item ? item->setData(index, value, role) : false;
 
-    if (result) {
-      emit dataChanged(index, index);
-    }
-
-    return result;
+  if (result) {
+    emit dataChanged(index, index);
   }
 
-  return false;
+  return result;
 }
 
 //----------------------------------------------------------------------
 
 QVariant DomModel::data(const QModelIndex &index, int role) const {
-  if (!index.isValid()) {
-    return QVariant();
-  }
-
-  if (role != Qt::DisplayRole) {
-    return QVariant();
-  }
-
   DomItem *item = itemFromIndex(index);
   return item ? item->data(index, role) : QVariant();
 }
@@ -142,7 +130,7 @@ QVariant DomModel::headerData(int section, Qt::Orientation orientation,
   if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
     switch (section) {
     case DomItem::columnNumber(Column::Xml) :
-      return tr("Node");
+      return tr("DOM Node");
     }
   }
 

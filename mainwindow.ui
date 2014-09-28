@@ -292,6 +292,12 @@
    <property name="text">
     <string>Remember Window Geometry</string>
    </property>
+   <property name="toolTip">
+    <string>Start XML Mill in the same place and shape next time</string>
+   </property>
+   <property name="whatsThis">
+    <string>Start XML Mill in the same place and shape next time</string>
+   </property>
   </action>
   <action name="actionUseDarkTheme">
    <property name="checkable">

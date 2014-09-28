@@ -30,41 +30,71 @@
 #define DOMITEM_H
 
 #include <QDomNode>
-#include <QHash>
 #include <QVariant>
 
 //----------------------------------------------------------------------
 
+/*! A wrapper class for QDomNodes.  Each DomItem wraps a QDomNode in the DOM
+ * document represented by a DomModel. */
 class DomItem {
 public:
+  /*! Represents the columns in the model.  We'll probably only ever have one,
+   * but in case the use case changes, the enumeration should make extension
+   * easier. */
   enum class Column { Xml = 0, ColumnCount };
-  static constexpr int columnNumber(Column col) {
-    return static_cast<int>(col);
+
+  /*! Convenience method returning the integer corresponding to "column" */
+  static constexpr int columnNumber(Column column) {
+    return static_cast<int>(column);
   }
 
-  DomItem(QDomNode &node, int row, DomItem *parent = 0);
+  /*! Constructor.
+   * @param node - the QDomNode corresponding to this item.
+   * @param row - this item's row number (relative to its parent).
+   * @param parent - this item's parent (if any). */
+  DomItem(QDomNode &node, int row, DomItem *parent = nullptr);
+
+  /*! Destructor. */
   ~DomItem();
 
-  DomItem *child(int i) const;
+  /*! Returns this item's child at "row" or a nullptr if no such child exists.
+   */
+  DomItem *child(int row) const;
+
+  /*! Returns this item's parent or a nullptr if no parent exists. */
   DomItem *parent() const;
 
+  /*! Returns the data corresponding to "index" and "role". */
   QVariant data(const QModelIndex &index, int role) const;
-  bool setData(const QModelIndex &index, const QVariant &value);
 
-  int row() const;
-  int childCount() const;
+  /*! Updates the item data (e.g. the underlying QDomNode) related to "index"
+   * and "role" to "value". */
+  bool setData(const QModelIndex &index, const QVariant &value, int role);
 
+  /*! Returns "true" if this item has any children. */
   bool hasChildren() const;
 
+  /*! Returns this item's number of children. */
+  int childCount() const;
+
+  /*! Returns this item's row number relative to its parent item. */
+  int row() const;
+
 private:
+  /*! Returns the underlying DomNode's string representation. */
   QString toString() const;
+
+  /*! Called if the QDomNode is an element.
+   * \sa toString */
   QString elementString() const;
+
+  /*! Called if the QDomNode is a comment.
+   * \sa toString */
   QString commentString() const;
 
 private:
   QDomNode m_domNode;
   int m_rowNumber;
-  bool m_finishedLoading;
 
   DomItem *m_parent;
   QString m_stringRepresentation;

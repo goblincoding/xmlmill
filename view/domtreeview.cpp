@@ -33,7 +33,6 @@
 /*----------------------------------------------------------------------------*/
 
 DomTreeView::DomTreeView(QWidget *parent) : QTreeView(parent) {
-  // setFont(QFont(GlobalSettings::FONT, GlobalSettings::FONTSIZE));
   //setSelectionMode(QAbstractItemView::SingleSelection);
   //setDragDropMode(QAbstractItemView::InternalMove);
   setUniformRowHeights(true);
@@ -49,10 +48,6 @@ DomTreeView::DomTreeView(QWidget *parent) : QTreeView(parent) {
   QAction *separator = new QAction(this);
   separator->setSeparator(true);
   addAction(separator);
-
-  QAction *rename = new QAction("Rename element", this);
-  addAction(rename);
-  connect(rename, SIGNAL(triggered()), this, SLOT(renameItem()));
 
   QAction *remove = new QAction("Remove element", this);
   addAction(remove);
@@ -71,47 +66,6 @@ DomTreeView::DomTreeView(QWidget *parent) : QTreeView(parent) {
   connect(stepDown, SIGNAL(triggered()), this, SLOT(stepDown()));
 
   setContextMenuPolicy(Qt::ActionsContextMenu);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void DomTreeView::renameItem() {
-  //  QString newName = QInputDialog::getText(this, "Change element name",
-  //                                          "Enter the element's new name:");
-
-  //  if (!newName.isEmpty() && m_activeItem) {
-  //    QString oldName = m_activeItem->name();
-  //    m_activeItem->rename(newName);
-  //    updateItemNames(oldName, newName);
-
-  /* The name change may introduce a new element too so we can safely call
-   * "addElement" below as it doesn't do anything if the element already
-   * exists in the database, yet it will obviously add the element if it
-   * doesn't.  In the latter case, the children  and attributes associated
-   * with the old name will be assigned to the new element in the process. */
-  //    QStringList attributes = DB::instance()->attributes(oldName);
-  //    QStringList children = DB::instance()->children(oldName);
-
-  //    if (!DB::instance()->addElement(newName, children,
-  //                                                   attributes)) {
-  //      MessageSpace::showErrorMessageBox(
-  //          this, DB::instance()->lastError());
-  //    }
-
-  /* If we are, in fact, dealing with a new element, we also want the new
-   * element's associated attributes to be updated with the known values of
-   * these attributes. */
-  //    foreach(QString attribute, attributes) {
-  //      QStringList attributeValues =
-  //          DB::instance()->attributeValues(oldName, attribute);
-
-  //      if (!DB::instance()->updateAttributeValues(
-  //              newName, attribute, attributeValues)) {
-  //        MessageSpace::showErrorMessageBox(
-  //            this, DB::instance()->lastError());
-  //      }
-  //    }
-  //}
 }
 
 /*----------------------------------------------------------------------------*/

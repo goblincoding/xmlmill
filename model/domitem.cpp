@@ -35,8 +35,8 @@
 //----------------------------------------------------------------------
 
 DomItem::DomItem(QDomNode &node, int row, DomItem *parent)
-    : m_domNode(node), m_rowNumber(row), m_finishedLoading(false),
-      m_parent(parent), m_stringRepresentation(), m_childItems() {
+    : m_domNode(node), m_rowNumber(row), m_parent(parent),
+      m_stringRepresentation(), m_childItems() {
   m_stringRepresentation = toString();
 
   qApp->processEvents();
@@ -67,7 +67,8 @@ QVariant DomItem::data(const QModelIndex &index, int role) const {
 
 //----------------------------------------------------------------------
 
-bool DomItem::setData(const QModelIndex &index, const QVariant &value) {
+bool DomItem::setData(const QModelIndex &index, const QVariant &value,
+                      int role) {
   switch (index.column()) {
   case columnNumber(Column::Xml) :
     if (m_domNode.isElement()) {
@@ -85,7 +86,9 @@ DomItem *DomItem::parent() const { return m_parent; }
 
 //----------------------------------------------------------------------
 
-DomItem *DomItem::child(int i) const { return m_childItems.value(i, nullptr); }
+DomItem *DomItem::child(int row) const {
+  return m_childItems.value(row, nullptr);
+}
 
 //----------------------------------------------------------------------
 
