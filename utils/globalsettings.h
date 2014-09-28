@@ -107,16 +107,6 @@ void setUseWindowSettings(bool use);
 
 /*----------------------------------------------------------------------------*/
 
-/*! Default font for displaying XML content (directly or via table and tree
- * views). */
-const QString FONT = "Courier New";
-
-/*! Default font size for displaying XML content (directly or via table and tree
- * views). */
-const int FONTSIZE = 10;
-
-/*----------------------------------------------------------------------------*/
-
 const QString DB_NAME = "profiles";
 }
 

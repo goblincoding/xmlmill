@@ -46,7 +46,6 @@ RestoreFilesForm::RestoreFilesForm(const QStringList &tempFiles,
     : QDialog(parent), ui(new Ui::RestoreFilesForm), m_tempFiles(tempFiles),
       m_fileName("") {
   ui->setupUi(this);
-  ui->plainTextEdit->setFont(QFont(GlobalSettings::FONT, GlobalSettings::FONTSIZE));
   setAttribute(Qt::WA_DeleteOnClose);
 
   connect(ui->saveButton, SIGNAL(clicked()), this, SLOT(saveFile()));

@@ -49,11 +49,7 @@ SOURCES += main.cpp\
     db/batchprocesshelper.cpp \
     utils/messagespace.cpp \
     forms/helpdialog.cpp \
-    forms/searchform.cpp \
-    forms/additemsform.cpp \
-    forms/removeitemsform.cpp \
     forms/restorefilesform.cpp \
-    forms/addsnippetsform.cpp \
     utils/globalsettings.cpp \
     model/domitem.cpp \
     delegate/domdelegate.cpp \
@@ -70,11 +66,7 @@ HEADERS  += \
     db/batchprocesshelper.h \
     utils/messagespace.h \
     forms/helpdialog.h \
-    forms/searchform.h \
-    forms/additemsform.h \
-    forms/removeitemsform.h \
     forms/restorefilesform.h \
-    forms/addsnippetsform.h \
     utils/globalsettings.h \
     delegate/domdelegate.h \
     model/domitem.h \
@@ -89,11 +81,7 @@ FORMS    += \
     mainwindow.ui \
     forms/messagedialog.ui \
     forms/helpdialog.ui \
-    forms/searchform.ui \
-    forms/removeitemsform.ui \
-    forms/additemsform.ui \
-    forms/restorefilesform.ui \
-    forms/addsnippetsform.ui
+    forms/restorefilesform.ui
 
 RESOURCES += \
     resources/resources.qrc
