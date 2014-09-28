@@ -179,10 +179,11 @@ void MainWindow::setUpDBThread() {
 /*----------------------------------------------------------------------------*/
 
 QLabel *MainWindow::almostThere() {
-  QLabel *label = new QLabel(this, Qt::Popup);
-  label->setText("This is a big file! Don't worry, we're almost there...");
-  label->move(this->frameGeometry().topLeft() + this->rect().center() -
-              label->rect().topRight());
+  QString text("This is a big file! Don't worry, we're almost there...");
+  QLabel *label = new QLabel(text, this, Qt::Popup);
+  label->show();
+  label->move(window()->frameGeometry().topLeft() + window()->rect().center() -
+              label->rect().center());
   return label;
 }
 
@@ -217,7 +218,6 @@ void MainWindow::openFile(const QString &fileName) {
     m_domDoc = m_tmpDomDoc.cloneNode().toDocument();
 
     std::unique_ptr<QLabel> label{ almostThere() };
-    label->show();
     m_model.setDomDocument(m_domDoc);
 
     expandCollapse(ui->expandAllCheckBox->isChecked());
