@@ -47,17 +47,13 @@ SOURCES += main.cpp\
     db/dbinterface.cpp \
     mainwindow.cpp \
     db/batchprocesshelper.cpp \
-    utils/combobox.cpp \
     utils/messagespace.cpp \
     forms/helpdialog.cpp \
     forms/searchform.cpp \
     forms/additemsform.cpp \
     forms/removeitemsform.cpp \
     forms/restorefilesform.cpp \
-    utils/domtreewidget.cpp \
-    utils/treewidgetitem.cpp \
     forms/addsnippetsform.cpp \
-    utils/plaintextedit.cpp \
     utils/globalsettings.cpp \
     model/domitem.cpp \
     delegate/domdelegate.cpp \
@@ -72,17 +68,13 @@ HEADERS  += \
     db/dbinterface.h \
     mainwindow.h \
     db/batchprocesshelper.h \
-    utils/combobox.h \
     utils/messagespace.h \
     forms/helpdialog.h \
     forms/searchform.h \
     forms/additemsform.h \
     forms/removeitemsform.h \
     forms/restorefilesform.h \
-    utils/domtreewidget.h \
-    utils/treewidgetitem.h \
     forms/addsnippetsform.h \
-    utils/plaintextedit.h \
     utils/globalsettings.h \
     delegate/domdelegate.h \
     model/domitem.h \
