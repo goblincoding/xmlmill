@@ -65,6 +65,13 @@ int DomModel::columnCount(const QModelIndex & /*parent*/) const {
 
 //----------------------------------------------------------------------
 
+bool DomModel::hasChildren(const QModelIndex &parent) const {
+  DomItem *parentItem = itemFromIndex(parent);
+  return parentItem ? parentItem->hasChildren() : false;
+}
+
+//----------------------------------------------------------------------
+
 int DomModel::rowCount(const QModelIndex &parent) const {
   if (parent.column() > DomItem::columnNumber(Column::Xml)) {
     return 0;

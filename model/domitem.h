@@ -54,6 +54,8 @@ public:
   int row() const;
   int childCount() const;
 
+  bool hasChildren() const;
+
 private:
   QString toString() const;
   QString elementString() const;

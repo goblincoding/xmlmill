@@ -54,6 +54,7 @@
 #include <QCloseEvent>
 #include <QFont>
 #include <QSettings>
+#include <QLabel>
 
 /*----------------------------------------------------------------------------*/
 
@@ -93,8 +94,6 @@ MainWindow::MainWindow(QWidget *parent)
           SLOT(setShowHelpButtons(bool)));
 
   m_spinner = new QtWaitingSpinner(Qt::ApplicationModal, this, true);
-
-  connect(&m_model, SIGNAL(finishedLoading()), m_spinner, SLOT(stop()));
 
   ui->treeView->setModel(&m_model);
   ui->treeView->setItemDelegate(new DomDelegate(this));
@@ -179,6 +178,16 @@ void MainWindow::setUpDBThread() {
 
 /*----------------------------------------------------------------------------*/
 
+QLabel *MainWindow::almostThere() {
+  QLabel *label = new QLabel(this, Qt::Popup);
+  label->setText("This is a big file! Don't worry, we're almost there...");
+  label->move(this->frameGeometry().topLeft() + this->rect().center() -
+              label->rect().topRight());
+  return label;
+}
+
+/*----------------------------------------------------------------------------*/
+
 QString MainWindow::getOpenFileName() {
   /* Start off where the user finished last. */
   QString fileName = QFileDialog::getOpenFileName(
@@ -207,7 +216,10 @@ void MainWindow::openFile(const QString &fileName) {
     m_domDoc.clear();
     m_domDoc = m_tmpDomDoc.cloneNode().toDocument();
 
+    std::unique_ptr<QLabel> label{ almostThere() };
+    label->show();
     m_model.setDomDocument(m_domDoc);
+
     expandCollapse(ui->expandAllCheckBox->isChecked());
 
     /* Enable file save options. */

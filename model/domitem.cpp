@@ -30,6 +30,7 @@
 
 #include <QDomNode>
 #include <QModelIndex>
+#include <QApplication>
 
 //----------------------------------------------------------------------
 
@@ -37,6 +38,8 @@ DomItem::DomItem(QDomNode &node, int row, DomItem *parent)
     : m_domNode(node), m_rowNumber(row), m_finishedLoading(false),
       m_parent(parent), m_stringRepresentation(), m_childItems() {
   m_stringRepresentation = toString();
+
+  qApp->processEvents();
 
   for (int i = 0; i < m_domNode.childNodes().count(); ++i) {
     QDomNode childNode = m_domNode.childNodes().at(i);
@@ -91,6 +94,10 @@ int DomItem::row() const { return m_rowNumber; }
 //----------------------------------------------------------------------
 
 int DomItem::childCount() const { return m_childNodes.size(); }
+
+//----------------------------------------------------------------------
+
+bool DomItem::hasChildren() const { return !m_childNodes.empty(); }
 
 //----------------------------------------------------------------------
 

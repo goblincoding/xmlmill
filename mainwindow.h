@@ -42,6 +42,7 @@ class MainWindow;
 }
 
 class QTimer;
+class QLabel;
 class DomModel;
 class QtWaitingSpinner;
 
@@ -240,6 +241,8 @@ private:
   QString getOpenFileName();
 
   void setUpDBThread();
+
+  QLabel *almostThere();
 
 private:
   Ui::MainWindow *ui;
