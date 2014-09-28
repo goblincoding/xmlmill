@@ -30,7 +30,6 @@
 #include "dommodel.h"
 
 #include <QDomDocument>
-#include <QApplication>
 
 //----------------------------------------------------------------------
 
@@ -50,46 +49,16 @@ DomModel::~DomModel() {}
 void DomModel::setDomDocument(QDomDocument document) {
   beginResetModel();
   m_domDocument = document;
-
   m_rootItem =
       std::move(std::unique_ptr<DomItem>(new DomItem(m_domDocument, 0)));
-
   endResetModel();
 }
 
 //----------------------------------------------------------------------
 
-int DomModel::columnCount(const QModelIndex & /*parent*/) const {
-  return DomItem::columnNumber(Column::ColumnCount);
-}
-
-//----------------------------------------------------------------------
-
-bool DomModel::hasChildren(const QModelIndex &parent) const {
-  DomItem *parentItem = itemFromIndex(parent);
-  return parentItem ? parentItem->hasChildren() : false;
-}
-
-//----------------------------------------------------------------------
-
-int DomModel::rowCount(const QModelIndex &parent) const {
-  if (parent.column() > DomItem::columnNumber(Column::Xml)) {
-    return 0;
-  }
-
-  DomItem *parentItem = itemFromIndex(parent);
-  return parentItem ? parentItem->childCount() : 0;
-}
-
-//----------------------------------------------------------------------
-
-DomItem *DomModel::itemFromIndex(const QModelIndex &index) const {
-  if (index.isValid()) {
-    DomItem *item = static_cast<DomItem *>(index.internalPointer());
-    return item;
-  }
-
-  return m_rootItem.get();
+QVariant DomModel::data(const QModelIndex &index, int role) const {
+  DomItem *item = itemFromIndex(index);
+  return item ? item->data(index, role) : QVariant();
 }
 
 //----------------------------------------------------------------------
@@ -108,23 +77,6 @@ bool DomModel::setData(const QModelIndex &index, const QVariant &value,
 
 //----------------------------------------------------------------------
 
-QVariant DomModel::data(const QModelIndex &index, int role) const {
-  DomItem *item = itemFromIndex(index);
-  return item ? item->data(index, role) : QVariant();
-}
-
-//----------------------------------------------------------------------
-
-Qt::ItemFlags DomModel::flags(const QModelIndex &index) const {
-  if (!index.isValid()) {
-    return 0;
-  }
-
-  return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
-}
-
-//----------------------------------------------------------------------
-
 QVariant DomModel::headerData(int section, Qt::Orientation orientation,
                               int role) const {
   if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
@@ -135,6 +87,16 @@ QVariant DomModel::headerData(int section, Qt::Orientation orientation,
   }
 
   return QVariant();
+}
+
+//----------------------------------------------------------------------
+
+Qt::ItemFlags DomModel::flags(const QModelIndex &index) const {
+  if (!index.isValid()) {
+    return 0;
+  }
+
+  return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
 }
 
 //----------------------------------------------------------------------
@@ -158,10 +120,6 @@ QModelIndex DomModel::index(int row, int column,
 //----------------------------------------------------------------------
 
 QModelIndex DomModel::parent(const QModelIndex &child) const {
-  if (!child.isValid()) {
-    return QModelIndex();
-  }
-
   DomItem *childItem = itemFromIndex(child);
   DomItem *parentItem = childItem ? childItem->parent() : nullptr;
 
@@ -171,6 +129,37 @@ QModelIndex DomModel::parent(const QModelIndex &child) const {
 
   return createIndex(parentItem->row(), DomItem::columnNumber(Column::Xml),
                      parentItem);
+}
+
+//----------------------------------------------------------------------
+
+bool DomModel::hasChildren(const QModelIndex &parent) const {
+  DomItem *parentItem = itemFromIndex(parent);
+  return parentItem ? parentItem->hasChildren() : false;
+}
+
+//----------------------------------------------------------------------
+
+int DomModel::rowCount(const QModelIndex &parent) const {
+  DomItem *parentItem = itemFromIndex(parent);
+  return parentItem ? parentItem->childCount() : 0;
+}
+
+//----------------------------------------------------------------------
+
+int DomModel::columnCount(const QModelIndex & /*parent*/) const {
+  return DomItem::columnNumber(Column::ColumnCount);
+}
+
+//----------------------------------------------------------------------
+
+DomItem *DomModel::itemFromIndex(const QModelIndex &index) const {
+  if (index.isValid()) {
+    DomItem *item = static_cast<DomItem *>(index.internalPointer());
+    return item;
+  }
+
+  return m_rootItem.get();
 }
 
 //----------------------------------------------------------------------

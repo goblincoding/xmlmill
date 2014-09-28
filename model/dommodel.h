@@ -41,40 +41,63 @@ class DomItem;
 
 //----------------------------------------------------------------------
 
+/*! A model representation of a DOM document. */
 class DomModel : public QAbstractItemModel {
   Q_OBJECT
 
 public:
+  /*! Constructor. */
   explicit DomModel(QObject *parent = 0);
+
+  /*! Destructor. */
   virtual ~DomModel();
 
+  /*! Implicit sharing of QDomNodes means that all modifications to the set
+   * QDomDocument made by the model will be shared by the original document
+   * (wherever it may live). Calling setDocument resets the underlying DOM
+   * document */
   void setDomDocument(QDomDocument document);
 
-  // QAbstractItemModel interface
 public:
-  virtual QVariant headerData(int section, Qt::Orientation orientation,
-                              int role = Qt::DisplayRole) const;
+  /*! Returns the data corresponding to "index" and "role" */
+  virtual QVariant data(const QModelIndex &index, int role) const override;
 
-  virtual QVariant data(const QModelIndex &index, int role) const;
+  /*! Sets the data corresponding to "index" and "role" to "value" */
   virtual bool setData(const QModelIndex &index, const QVariant &value,
-                       int role);
+                       int role) override;
 
-  virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+  /*! Returns the header data corresponding to "section" and "role". Since
+   * DomModel is intended for a hierarchical tree view, only horizontal
+   * orientations are catered for. */
+  virtual QVariant headerData(int section, Qt::Orientation orientation,
+                              int role = Qt::DisplayRole) const override;
 
-  virtual QModelIndex index(int row, int columnNumber,
-                            const QModelIndex &parent = QModelIndex()) const;
+  /*! Returns the flags corresponding to "index" */
+  virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-  virtual QModelIndex parent(const QModelIndex &child) const;
+  /*! Returns the index corresponding to "row" and "columnNumber" relative to
+   * "parent" */
+  virtual QModelIndex
+  index(int row, int columnNumber,
+        const QModelIndex &parent = QModelIndex()) const override;
 
-  virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+  /*! Returns the index corresponding to "child"'s parent */
+  virtual QModelIndex parent(const QModelIndex &child) const override;
 
-  virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+  /*! Returns "true" if "parent" has children. */
+  virtual bool hasChildren(const QModelIndex &parent) const override;
 
-  virtual bool hasChildren(const QModelIndex &parent) const;
+  /*! Returns the number of rows under "parent" (direct child count) */
+  virtual int
+  rowCount(const QModelIndex &parent = QModelIndex()) const override;
+
+  /*! Returns the number of columns corresponding to "parent" */
+  virtual int
+  columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
 private:
-  /*! Returns the relevant item if index is valid, if invalid, we return the
-   * root item by default (note that this item could be NULL if the model is
+  /*! Returns the underlying DomItem if "index" is valid, if invalid, we return
+   * the root item by default (note that this item could be NULL if the model is
    * empty). */
   DomItem *itemFromIndex(const QModelIndex &index) const;
 
