@@ -182,7 +182,7 @@ void MainWindow::enableFileActions(bool enabled) {
 
 QLabel *MainWindow::almostThere() {
   QString text(
-      "Wow, this is a big file! Hang in there, we're crunching the numbers...");
+      "Wow, this is a big document! Don't give up, we're crunching the numbers...");
   QLabel *label = new QLabel(text, this, Qt::Popup);
 
   /* Show before moving it or it doesn't centre itself properly. */
@@ -214,7 +214,7 @@ QString MainWindow::getOpenFileName() {
 /*----------------------------------------------------------------------------*/
 
 void MainWindow::loadDocument() {
-  m_domDoc.clear();
+  resetDOM();
   m_domDoc = m_tmpDomDoc.cloneNode().toDocument();
 
   /* Display a message widget for large files...cannot "spin" in main GUI
