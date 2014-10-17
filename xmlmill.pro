@@ -54,10 +54,12 @@ SOURCES += main.cpp\
     model/domitem.cpp \
     delegate/domdelegate.cpp \
     model/dommodel.cpp \
-    utils/QtWaitingSpinner.cpp \
     view/domtreeview.cpp \
     delegate/xmlsyntaxhighlighter.cpp \
-    utils/domnodeparser.cpp
+    utils/domnodeparser.cpp \
+    widgets/domeditwidget.cpp \
+    widgets/qtwaitingspinner.cpp \
+    widgets/domnodeedit.cpp
     ../QtWaitingSpinner/QtWaitingSpinner.cpp
 
 HEADERS  += \
@@ -71,10 +73,12 @@ HEADERS  += \
     delegate/domdelegate.h \
     model/domitem.h \
     model/dommodel.h \
-    utils/QtWaitingSpinner.h \
     view/domtreeview.h \
     delegate/xmlsyntaxhighlighter.h \
-    utils/domnodeparser.h
+    utils/domnodeparser.h \
+    widgets/domeditwidget.h \
+    widgets/qtwaitingspinner.h \
+    widgets/domnodeedit.h
     ../QtWaitingSpinner/QtWaitingSpinner.h
 
 FORMS    += \

@@ -81,7 +81,7 @@ QVariant DomModel::headerData(int section, Qt::Orientation orientation,
                               int role) const {
   if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
     switch (section) {
-    case DomItem::columnNumber(Column::Xml) :
+    case DomItem::columnNumber(Column::Xml):
       return tr("DOM Node");
     }
   }

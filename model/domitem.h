@@ -65,17 +65,23 @@ public:
   /*! Returns this item's parent or a nullptr if no parent exists. */
   DomItem *parent() const;
 
+  /*! Returns the underlying DOM node. */
+  QDomNode node() const;
+
   /*! Returns the data corresponding to "index" and "role". */
   QVariant data(const QModelIndex &index, int role) const;
+
+  /*! Returns a list of this item's first-level child items. */
+  const QList<DomItem *>& childItems() const;
 
   /*! Updates the item data (e.g. the underlying QDomNode) related to "index"
    * and "role" to "value". */
   bool setData(const QModelIndex &index, const QVariant &value, int role);
 
-  /*! Returns "true" if this item has any children. */
+  /*! Convenience function, returns "true" if this item has any children. */
   bool hasChildren() const;
 
-  /*! Returns this item's number of children. */
+  /*! Convenience function, returns this item's number of children. */
   int childCount() const;
 
   /*! Returns this item's row number relative to its parent item. */

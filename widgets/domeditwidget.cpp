@@ -26,40 +26,44 @@
  *
  *                    <http://www.gnu.org/licenses/>
  */
-#ifndef DOMTREEVIEW_H
-#define DOMTREEVIEW_H
+#include "domeditwidget.h"
+#include "domnodeedit.h"
+#include "model/domitem.h"
 
-#include <QTreeView>
+#include <QVBoxLayout>
+#include <QModelIndex>
 
-class DomTreeView : public QTreeView {
-  Q_OBJECT
-public:
-  explicit DomTreeView(QWidget *parent = 0);
+//----------------------------------------------------------------------
 
-private slots:
-  /*! Connected to a context menu action. Removes the item (and it's
-   * corresponding element) on which the context menu action was invoked from
-   * the tree and underlying DOM. This function will furthermore remove all
-   * comment nodes directly above the element node. */
-  void removeItem();
+DomEditWidget::DomEditWidget(QWidget *parent)
+    : QWidget(parent), m_nodeEdits() {}
 
-  /*! Connected to a context menu action.  Moves the active (selected) item to
-     the level of its parent.
-      \sa stepDown */
-  void stepUp();
+//----------------------------------------------------------------------
 
-  /*! Connected to a context menu action.  Moves the active (selected) item to
-     the level of its children.
-      \sa stepUp */
-  void stepDown();
+void DomEditWidget::indexSelected(QModelIndex &index) {
 
-  /*! Connected to a context menu action.  Expands active (selected) item.
-      \sa collapse */
-  void expandSelection();
+  if (index.isValid()) {
+    qDeleteAll(m_nodeEdits);
 
-  /*! Connected to a context menu action.  Collapses the active (selected) item.
-      \sa expand */
-  void collapseSelection();
-};
+    QVBoxLayout *layout = this->layout();
+    delete layout;
+    layout = new QVBoxLayout();
 
-#endif // DOMTREEVIEW_H
+    DomItem *item = static_cast<DomItem *>(index.internalPointer());
+    addNodeEdit(item);
+
+    for (DomItem *child : item->childItems()) {
+      addNodeEdit(child);
+    }
+  }
+}
+
+//----------------------------------------------------------------------
+
+void DomEditWidget::addNodeEdit(DomItem *item) {
+  DomNodeEdit *edit = new DomNodeEdit(item->node(), this);
+  layout->addWidget(edit);
+  m_nodeEdits.append(edit);
+}
+
+//----------------------------------------------------------------------

@@ -26,40 +26,32 @@
  *
  *                    <http://www.gnu.org/licenses/>
  */
-#ifndef DOMTREEVIEW_H
-#define DOMTREEVIEW_H
+#ifndef DOMEDITWIDGET_H
+#define DOMEDITWIDGET_H
 
-#include <QTreeView>
+#include <QWidget>
 
-class DomTreeView : public QTreeView {
+//----------------------------------------------------------------------
+
+class QModelIndex;
+class DomItem;
+class DomNodeEdit;
+
+//----------------------------------------------------------------------
+
+class DomEditWidget : public QWidget {
   Q_OBJECT
 public:
-  explicit DomTreeView(QWidget *parent = 0);
+  explicit DomEditWidget(QWidget *parent = 0);
 
-private slots:
-  /*! Connected to a context menu action. Removes the item (and it's
-   * corresponding element) on which the context menu action was invoked from
-   * the tree and underlying DOM. This function will furthermore remove all
-   * comment nodes directly above the element node. */
-  void removeItem();
+public slots:
+  void indexSelected(QModelIndex &index);
 
-  /*! Connected to a context menu action.  Moves the active (selected) item to
-     the level of its parent.
-      \sa stepDown */
-  void stepUp();
+private:
+  void addNodeEdit(DomItem *item);
 
-  /*! Connected to a context menu action.  Moves the active (selected) item to
-     the level of its children.
-      \sa stepUp */
-  void stepDown();
-
-  /*! Connected to a context menu action.  Expands active (selected) item.
-      \sa collapse */
-  void expandSelection();
-
-  /*! Connected to a context menu action.  Collapses the active (selected) item.
-      \sa expand */
-  void collapseSelection();
+private:
+  QList<DomNodeEdit *> m_nodeEdits;
 };
 
-#endif // DOMTREEVIEW_H
+#endif // DOMEDITWIDGET_H

@@ -35,8 +35,9 @@
 
 #include "utils/messagespace.h"
 #include "utils/globalsettings.h"
-#include "utils/QtWaitingSpinner.h"
 
+#include "widgets/qtwaitingspinner.h"
+#include "widgets/domeditwidget.h"
 #include "model/dommodel.h"
 #include "delegate/domdelegate.h"
 
@@ -59,6 +60,9 @@ MainWindow::MainWindow(QWidget *parent)
   ui->setupUi(this);
   ui->treeView->setModel(&m_model);
   ui->treeView->setItemDelegate(new DomDelegate(this));
+
+  connect(ui->treeView, SIGNAL(clicked(const QModelIndex &)), ui->domEditWidget,
+          SLOT(indexSelected(const QModelIndex &)));
 
   m_spinner = new QtWaitingSpinner(Qt::ApplicationModal, this, true);
 
@@ -181,8 +185,8 @@ void MainWindow::enableFileActions(bool enabled) {
 /*----------------------------------------------------------------------------*/
 
 QLabel *MainWindow::almostThere() {
-  QString text(
-      "Wow, this is a big document! Don't give up, we're crunching the numbers...");
+  QString text("Wow, this is a big document! Don't give up, we're crunching "
+               "the numbers...");
   QLabel *label = new QLabel(text, this, Qt::Popup);
 
   /* Show before moving it or it doesn't centre itself properly. */
@@ -219,7 +223,7 @@ void MainWindow::loadDocument() {
 
   /* Display a message widget for large files...cannot "spin" in main GUI
    * thread. */
-  std::unique_ptr<QLabel> label{ almostThere() };
+  std::unique_ptr<QLabel> label{almostThere()};
   m_model.setDomDocument(m_domDoc);
 
   expandCollapse(ui->expandAllCheckBox->isChecked());
@@ -530,8 +534,10 @@ void MainWindow::saveSettings() {
 
 void MainWindow::queryRestoreFiles() {
   QString dbName = GlobalSettings::DB_NAME;
-  QStringList tempFiles = QDir::current().entryList(QDir::Files).filter(
-      QString("%1_temp").arg(dbName.remove(".db")));
+  QStringList tempFiles =
+      QDir::current()
+          .entryList(QDir::Files)
+          .filter(QString("%1_temp").arg(dbName.remove(".db")));
 
   if (!tempFiles.empty()) {
     QMessageBox::StandardButton accept = QMessageBox::information(

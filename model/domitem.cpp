@@ -56,7 +56,7 @@ DomItem::~DomItem() { qDeleteAll(m_childItems); }
 
 QVariant DomItem::data(const QModelIndex &index, int role) const {
   switch (index.column()) {
-  case columnNumber(Column::Xml) :
+  case columnNumber(Column::Xml):
     if (role == Qt::DisplayRole) {
       return m_stringRepresentation;
     }
@@ -67,10 +67,14 @@ QVariant DomItem::data(const QModelIndex &index, int role) const {
 
 //----------------------------------------------------------------------
 
+const QList<DomItem *> &DomItem::childItems() const { return m_childItems; }
+
+//----------------------------------------------------------------------
+
 bool DomItem::setData(const QModelIndex &index, const QVariant &value,
                       int role) {
   switch (index.column()) {
-  case columnNumber(Column::Xml) :
+  case columnNumber(Column::Xml):
     if (m_domNode.isElement()) {
       m_domNode.toElement().setTagName(value.toString());
     }
@@ -85,6 +89,10 @@ bool DomItem::setData(const QModelIndex &index, const QVariant &value,
 //----------------------------------------------------------------------
 
 DomItem *DomItem::parent() const { return m_parent; }
+
+//----------------------------------------------------------------------
+
+QDomNode DomItem::node() const { return m_domNode; }
 
 //----------------------------------------------------------------------
 
