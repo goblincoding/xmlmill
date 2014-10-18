@@ -45,7 +45,7 @@ void DomEditWidget::indexSelected(QModelIndex &index) {
   if (index.isValid()) {
     qDeleteAll(m_nodeEdits);
 
-    QVBoxLayout *layout = this->layout();
+    QLayout *layout = this->layout();
     delete layout;
     layout = new QVBoxLayout();
 
@@ -62,7 +62,7 @@ void DomEditWidget::indexSelected(QModelIndex &index) {
 
 void DomEditWidget::addNodeEdit(DomItem *item) {
   DomNodeEdit *edit = new DomNodeEdit(item->node(), this);
-  layout->addWidget(edit);
+  this->layout()->addWidget(edit);
   m_nodeEdits.append(edit);
 }
 
