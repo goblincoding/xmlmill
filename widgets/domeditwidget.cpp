@@ -44,7 +44,7 @@ DomEditWidget::DomEditWidget(QWidget *parent)
 
 //----------------------------------------------------------------------
 
-void DomEditWidget::indexSelected(const QModelIndex &index) {
+void DomEditWidget::treeIndexSelected(const QModelIndex &index) {
   assert(index.isValid());
 
   if (index.isValid()) {

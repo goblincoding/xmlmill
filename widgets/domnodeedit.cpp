@@ -96,6 +96,7 @@ void DomNodeEdit::insertElementNameItem() {
   m_table->setRowCount(row + 1);
 
   QTableWidgetItem *header = new QTableWidgetItem(m_elementName);
+  header->setFlags(Qt::NoItemFlags);
 
   /* Switch foreground and background colours. */
   QBrush background(style()->standardPalette().brush(QPalette::WindowText));

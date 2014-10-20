@@ -45,7 +45,7 @@ public:
   explicit DomEditWidget(QWidget *parent = 0);
 
 public slots:
-  void indexSelected(const QModelIndex &index);
+  void treeIndexSelected(const QModelIndex &index);
 
 private:
     void setupTable();
