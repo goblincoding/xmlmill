@@ -27,10 +27,10 @@
  *                    <http://www.gnu.org/licenses/>
  */
 #include "domnodeedit.h"
+#include "valuecombobox.h"
 #include "db/dbinterface.h"
 #include "utils/messagespace.h"
 
-#include <QComboBox>
 #include <QStringListModel>
 #include <QTableWidgetItem>
 #include <QLabel>
@@ -53,12 +53,12 @@ DomNodeEdit::DomNodeEdit(QDomElement element, QTableWidget *table)
 
   if (!m_element.isNull()) {
     m_elementName = m_element.tagName();
+    m_documentRoot = m_element.ownerDocument().documentElement().tagName();
 
     /* If we don't have a parent node, we're dealing with the document root. */
     if (!m_element.parentNode().isNull() &&
         m_element.parentNode().isElement()) {
       m_parentElementName = m_element.parentNode().toElement().tagName();
-      m_documentRoot = m_element.ownerDocument().documentElement().tagName();
     }
 
     retrieveAssociatedAttributes();
@@ -125,7 +125,7 @@ void DomNodeEdit::populateTable() {
     m_table->setItem(row, intFromEnum(Columns::Attribute), attributeItem);
 
     /* Table takes ownership through setItem */
-    QComboBox *valueCombo = new QComboBox();
+    ValueComboBox *valueCombo = new ValueComboBox();
     valueCombo->setEnabled(isAttributeActive);
     valueCombo->setEditable(true);
 

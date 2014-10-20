@@ -59,7 +59,8 @@ SOURCES += main.cpp\
     utils/domnodeparser.cpp \
     widgets/domeditwidget.cpp \
     widgets/qtwaitingspinner.cpp \
-    widgets/domnodeedit.cpp
+    widgets/domnodeedit.cpp \
+    widgets/valuecombobox.cpp
     ../QtWaitingSpinner/QtWaitingSpinner.cpp
 
 HEADERS  += \
@@ -78,7 +79,8 @@ HEADERS  += \
     utils/domnodeparser.h \
     widgets/domeditwidget.h \
     widgets/qtwaitingspinner.h \
-    widgets/domnodeedit.h
+    widgets/domnodeedit.h \
+    widgets/valuecombobox.h
     ../QtWaitingSpinner/QtWaitingSpinner.h
 
 FORMS    += \

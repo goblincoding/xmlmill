@@ -26,46 +26,22 @@
  *
  *                    <http://www.gnu.org/licenses/>
  */
-#ifndef DOMNODEEDIT_H
-#define DOMNODEEDIT_H
+#ifndef VALUECOMBOBOX_H
+#define VALUECOMBOBOX_H
 
-#include "db/dbinterface.h"
-
-#include <QWidget>
-#include <QDomElement>
+#include <QComboBox>
 
 //----------------------------------------------------------------------
 
-class QTableWidget;
-
-//----------------------------------------------------------------------
-
-class DomNodeEdit : public QWidget {
+class ValueComboBox : public QComboBox
+{
   Q_OBJECT
 public:
-  enum class Columns { Attribute, Value, Count };
+  explicit ValueComboBox(QWidget *parent = 0);
 
-  /*! Constructor.  QDomNode's are explicitly shared, all changes to "node" will
-   * propagate to the parent DOM document. */
-  explicit DomNodeEdit(QDomElement element, QTableWidget *table);
-  static int intFromEnum(Columns column);
+protected:
+  void wheelEvent(QWheelEvent *e);
 
-private slots:
-  void processResult(DB::Result status, const QString &error);
-
-private:
-  void retrieveAssociatedAttributes();
-  void insertElementNameItem();
-  void populateTable();
-
-private:
-  QDomElement m_element;
-  QTableWidget *m_table;
-
-  QStringList m_associatedAttributes;
-  QString m_elementName;
-  QString m_parentElementName;
-  QString m_documentRoot;
 };
 
-#endif // DOMNODEEDIT_H
+#endif // VALUECOMBOBOX_H
