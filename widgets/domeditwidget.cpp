@@ -30,15 +30,16 @@
 #include "domnodeedit.h"
 #include "model/domitem.h"
 
-#include <QVBoxLayout>
 #include <QModelIndex>
+#include <QHeaderView>
 
 #include <assert.h>
 
 //----------------------------------------------------------------------
 
 DomEditWidget::DomEditWidget(QWidget *parent)
-    : QWidget(parent), m_nodeEdits(), m_layout(nullptr) {
+    : QTableWidget(parent), m_nodeEdits() {
+  setupTable();
 }
 
 //----------------------------------------------------------------------
@@ -47,11 +48,10 @@ void DomEditWidget::indexSelected(const QModelIndex &index) {
   assert(index.isValid());
 
   if (index.isValid()) {
+    clearContents();
+    setRowCount(0);
     qDeleteAll(m_nodeEdits);
     m_nodeEdits.clear();
-
-    delete m_layout;
-    m_layout = new QVBoxLayout(this);
 
     DomItem *item = static_cast<DomItem *>(index.internalPointer());
     addNodeEdit(item);
@@ -60,8 +60,20 @@ void DomEditWidget::indexSelected(const QModelIndex &index) {
       addNodeEdit(child);
     }
 
-    this->setLayout(m_layout);
+    resizeColumnToContents(
+        DomNodeEdit::intFromEnum(DomNodeEdit::Columns::Attribute));
   }
+}
+
+//----------------------------------------------------------------------
+
+void DomEditWidget::setupTable() {
+  QStringList header;
+  header << "Attribute:"
+         << "Value:";
+  setColumnCount(DomNodeEdit::intFromEnum(DomNodeEdit::Columns::Count));
+  setHorizontalHeaderLabels(header);
+  horizontalHeader()->setStretchLastSection(true);
 }
 
 //----------------------------------------------------------------------
@@ -71,13 +83,6 @@ void DomEditWidget::addNodeEdit(DomItem *item) {
 
   if (!item->node().isNull() && item->node().isElement()) {
     DomNodeEdit *edit = new DomNodeEdit(item->node().toElement(), this);
-
-    if (edit->hasContent()) {
-      m_layout->addWidget(edit);
-    }
-
-    /* Add it to the list regardless of whether it has content so we can clean
-     * it up later. */
     m_nodeEdits.append(edit);
   }
 }

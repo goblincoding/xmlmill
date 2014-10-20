@@ -32,21 +32,23 @@
 
 #include <QComboBox>
 #include <QStringListModel>
-#include <QVBoxLayout>
+#include <QTableWidgetItem>
+#include <QLabel>
 
 #include <assert.h>
 
 //----------------------------------------------------------------------
 
-const int c_attributeColumn = 0;
-const int c_valueColumn = 1;
+int DomNodeEdit::intFromEnum(Columns column) {
+  return static_cast<int>(column);
+}
 
 //----------------------------------------------------------------------
 
-DomNodeEdit::DomNodeEdit(QDomElement element, QWidget *parent)
-    : QWidget(parent), m_element(element), m_associatedAttributes(),
-      m_elementName(), m_parentElementName(), m_documentRoot(), m_table(),
-      m_hasContent(false) {
+DomNodeEdit::DomNodeEdit(QDomElement element, QTableWidget *table)
+    : QWidget(nullptr), m_element(element), m_table(table),
+      m_associatedAttributes(), m_elementName(), m_parentElementName(),
+      m_documentRoot() {
   assert(!m_element.isNull());
 
   if (!m_element.isNull()) {
@@ -60,22 +62,13 @@ DomNodeEdit::DomNodeEdit(QDomElement element, QWidget *parent)
     }
 
     retrieveAssociatedAttributes();
-    m_hasContent = !m_associatedAttributes.isEmpty();
 
-    if (m_hasContent) {
-      setTableHeaderItem();
+    if (!m_associatedAttributes.isEmpty()) {
+      insertElementNameItem();
       populateTable();
-
-      QVBoxLayout* layout = new QVBoxLayout(this);
-      layout->addWidget(&m_table);
-      this->setLayout(layout);
     }
   }
 }
-
-//----------------------------------------------------------------------
-
-bool DomNodeEdit::hasContent() const { return m_hasContent; }
 
 //----------------------------------------------------------------------
 
@@ -98,12 +91,22 @@ void DomNodeEdit::retrieveAssociatedAttributes() {
 
 //----------------------------------------------------------------------
 
-void DomNodeEdit::setTableHeaderItem() {
-  QTableWidgetItem *item = new QTableWidgetItem(m_elementName);
-  QBrush foregroundBrush = item->foreground();
-  item->setForeground(item->background());
-  item->setForeground(foregroundBrush);
-  m_table.setHorizontalHeaderItem(c_attributeColumn, item);
+void DomNodeEdit::insertElementNameItem() {
+  const int row = m_table->rowCount();
+  m_table->setRowCount(row + 1);
+
+  QTableWidgetItem *header = new QTableWidgetItem(m_elementName);
+
+  /* Switch foreground and background colours. */
+  QBrush background(style()->standardPalette().brush(QPalette::WindowText));
+  QBrush foreground(style()->standardPalette().brush(QPalette::Window));
+
+  header->setBackground(background);
+  header->setForeground(foreground);
+
+  m_table->setItem(row, intFromEnum(Columns::Attribute), header);
+  m_table->setSpan(row, intFromEnum(Columns::Attribute), 1,
+                   intFromEnum(Columns::Count));
 }
 
 //----------------------------------------------------------------------
@@ -111,14 +114,14 @@ void DomNodeEdit::setTableHeaderItem() {
 void DomNodeEdit::populateTable() {
   foreach (QString attribute, m_associatedAttributes) {
     const bool isAttributeActive = m_element.hasAttribute(attribute);
-    const int row = m_associatedAttributes.indexOf(attribute);
-    m_table.setRowCount(row + 1);
+    const int row = m_table->rowCount();
+    m_table->setRowCount(row + 1);
 
     QTableWidgetItem *attributeItem = new QTableWidgetItem(attribute);
     attributeItem->setFlags(attributeItem->flags() | Qt::ItemIsUserCheckable);
     attributeItem->setCheckState(isAttributeActive ? Qt::Checked
                                                    : Qt::Unchecked);
-    m_table.setItem(row, c_attributeColumn, attributeItem);
+    m_table->setItem(row, intFromEnum(Columns::Attribute), attributeItem);
 
     /* Table takes ownership through setItem */
     QComboBox *valueCombo = new QComboBox();
@@ -137,7 +140,7 @@ void DomNodeEdit::populateTable() {
     valueCombo->setModel(listModel);
     valueCombo->setCurrentText(m_element.attribute(attribute));
 
-    m_table.setCellWidget(row, c_valueColumn, valueCombo);
+    m_table->setCellWidget(row, intFromEnum(Columns::Value), valueCombo);
   }
 }
 

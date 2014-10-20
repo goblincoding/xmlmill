@@ -29,18 +29,17 @@
 #ifndef DOMEDITWIDGET_H
 #define DOMEDITWIDGET_H
 
-#include <QWidget>
+#include <QTableWidget>
 
 //----------------------------------------------------------------------
 
 class QModelIndex;
-class QVBoxLayout;
 class DomItem;
 class DomNodeEdit;
 
 //----------------------------------------------------------------------
 
-class DomEditWidget : public QWidget {
+class DomEditWidget : public QTableWidget {
   Q_OBJECT
 public:
   explicit DomEditWidget(QWidget *parent = 0);
@@ -49,11 +48,11 @@ public slots:
   void indexSelected(const QModelIndex &index);
 
 private:
+    void setupTable();
   void addNodeEdit(DomItem *item);
 
 private:
   QList<DomNodeEdit *> m_nodeEdits;
-  QVBoxLayout* m_layout;
 };
 
 #endif // DOMEDITWIDGET_H

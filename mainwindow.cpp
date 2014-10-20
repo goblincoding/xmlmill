@@ -61,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent)
   ui->treeView->setModel(&m_model);
   ui->treeView->setItemDelegate(new DomDelegate(this));
 
-  connect(ui->treeView, SIGNAL(clicked(const QModelIndex &)), ui->domEditWidget,
+  connect(ui->treeView, SIGNAL(clicked(const QModelIndex &)), ui->tableWidget,
           SLOT(indexSelected(const QModelIndex &)));
 
   m_spinner = new QtWaitingSpinner(Qt::ApplicationModal, this, true);

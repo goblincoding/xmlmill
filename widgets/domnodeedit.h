@@ -33,36 +33,43 @@
 
 #include <QWidget>
 #include <QDomElement>
-#include <QTableWidget>
+
+//----------------------------------------------------------------------
+
+class QTableWidget;
 
 //----------------------------------------------------------------------
 
 class DomNodeEdit : public QWidget {
   Q_OBJECT
 public:
+  enum class Columns {
+    Attribute,
+    Value,
+    Count
+  };
+
   /*! Constructor.  QDomNode's are explicitly shared, all changes to "node" will
    * propagate to the parent DOM document. */
-  explicit DomNodeEdit(QDomElement element, QWidget *parent = 0);
-
-  /*! Returns "true" if the DomNodeEdit contains any editable widgets. */
-  bool hasContent() const;
+  explicit DomNodeEdit(QDomElement element, QTableWidget *table);
+  static int intFromEnum(Columns column);
 
 private slots:
   void processResult(DB::Result status, const QString &error);
 
 private:
   void retrieveAssociatedAttributes();
-  void setTableHeaderItem();
+  void insertElementNameItem();
   void populateTable();
 
 private:
   QDomElement m_element;
+  QTableWidget *m_table;
+
   QStringList m_associatedAttributes;
   QString m_elementName;
   QString m_parentElementName;
   QString m_documentRoot;
-  QTableWidget m_table;
-  bool m_hasContent;
 };
 
 #endif // DOMNODEEDIT_H
