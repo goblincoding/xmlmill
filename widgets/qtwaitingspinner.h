@@ -90,8 +90,8 @@ private:
   int m_innerRadius;
 
 private:
-  QtWaitingSpinner(const QtWaitingSpinner&);
-  QtWaitingSpinner& operator=(const QtWaitingSpinner&);
+  QtWaitingSpinner(const QtWaitingSpinner &);
+  QtWaitingSpinner &operator=(const QtWaitingSpinner &);
 
   QTimer *m_timer;
   QWidget *m_parent;

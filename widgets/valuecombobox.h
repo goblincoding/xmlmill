@@ -33,15 +33,13 @@
 
 //----------------------------------------------------------------------
 
-class ValueComboBox : public QComboBox
-{
+class ValueComboBox : public QComboBox {
   Q_OBJECT
 public:
   explicit ValueComboBox(QWidget *parent = 0);
 
 protected:
   void wheelEvent(QWheelEvent *e);
-
 };
 
 #endif // VALUECOMBOBOX_H

@@ -48,7 +48,7 @@ public slots:
   void treeIndexSelected(const QModelIndex &index);
 
 private:
-    void setupTable();
+  void setupTable();
   void addNodeEdit(DomItem *item);
 
 private:

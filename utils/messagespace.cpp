@@ -86,8 +86,9 @@ public:
     switch (icon) {
     case MessageSpace::Information:
       ui->iconLabel->setPixmap(
-          style()->standardIcon(QStyle::SP_MessageBoxInformation).pixmap(32,
-                                                                         32));
+          style()
+              ->standardIcon(QStyle::SP_MessageBoxInformation)
+              .pixmap(32, 32));
       break;
     case MessageSpace::Warning:
       ui->iconLabel->setPixmap(

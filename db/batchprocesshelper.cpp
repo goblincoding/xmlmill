@@ -123,7 +123,7 @@ void BatchProcessHelper::processElement(const QDomElement &element) {
 /*----------------------------------------------------------------------------*/
 
 void BatchProcessHelper::createVariantLists() {
-  for(const XmlRecord& record : m_records) {
+  for (const XmlRecord &record : m_records) {
     m_attributeValues << record.m_value;
     m_attributes << record.m_attribute;
     m_elements << record.m_element;
