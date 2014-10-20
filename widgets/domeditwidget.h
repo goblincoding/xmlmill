@@ -34,6 +34,7 @@
 //----------------------------------------------------------------------
 
 class QModelIndex;
+class QVBoxLayout;
 class DomItem;
 class DomNodeEdit;
 
@@ -45,13 +46,14 @@ public:
   explicit DomEditWidget(QWidget *parent = 0);
 
 public slots:
-  void indexSelected(QModelIndex &index);
+  void indexSelected(const QModelIndex &index);
 
 private:
   void addNodeEdit(DomItem *item);
 
 private:
   QList<DomNodeEdit *> m_nodeEdits;
+  QVBoxLayout* m_layout;
 };
 
 #endif // DOMEDITWIDGET_H

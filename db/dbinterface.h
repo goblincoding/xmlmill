@@ -139,19 +139,23 @@ public:
                        const QString &root);
 
   /*! Returns an UNSORTED list of all the attribute names associated with
-     "element" and the "associatedRoot" document type in the database (the
-     reason this list is unsorted is that all the other lists are used to
-     populate combo boxes, where ordering makes sense, but this particular list
-     is used to populate a table), or an empty QStringList if unsuccessful/none
-     exist. */
+   * "element", or an empty QStringList if unsuccessful/none exist.
+     @param element - the unique element name
+     @param parent - the name of the element's parent
+     @param root - the name of the root element of the associated document type
+   */
   QStringList attributes(const QString &element, const QString &parent,
                          const QString &root);
 
-  /*! Returns a sorted (case sensitive, ascending) list of all the attribute
-     values associated with "element" and its corresponding "attribute" in the
-     active database or, an empty QStringList if unsuccessful/none exist. */
-  QStringList attributeValues(const QString &element,
-                              const QString &attribute) const;
+  /*! Returns an UNSORTED list of all the attribute values associated with
+   * "attribute", or an empty QStringList if unsuccessful/none exist.
+     @param attribute - the unique attribute name
+     @param element - the unique name of the element that owns "attribute"
+     @param parent - the name of the element's parent
+     @param root - the name of the root element of the associated document type
+   */
+  QStringList attributeValues(const QString &attribute, const QString &element,
+                              const QString &parent, const QString &root);
 
   /*! Returns a sorted (case sensitive, ascending) list of all the document root
      elements known to the the active database. */
@@ -180,11 +184,11 @@ private:
      from the database and returns the active query. */
   QSqlQuery selectAllElements(const QString &associatedRoot) const;
 
-  /*! Selects the "attribute" corresponding to "associatedElement" from the
-     database.  The active query for the command is returned (the function
-     does not care whether or not the record exists). */
-  QSqlQuery selectAttribute(const QString &attribute,
-                            const QString &associatedElement) const;
+  /*! Selects the "attribute" corresponding to "element", "parent" and "root"
+   * from the database.  The active query for the command is returned (the
+   * function does not care whether or not the record exists). */
+  QSqlQuery selectAttribute(const QString &attribute, const QString &element,
+                            const QString &parent, const QString &root);
 
   /*! Selects all the known attributes from the database and returns the active
    * query. */

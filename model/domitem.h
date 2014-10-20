@@ -65,14 +65,15 @@ public:
   /*! Returns this item's parent or a nullptr if no parent exists. */
   DomItem *parent() const;
 
-  /*! Returns the underlying DOM node. */
+  /*! Returns the underlying DOM node, since QDomNode's are explicitly shared,
+   * this means we're dealing with a shallow copy. */
   QDomNode node() const;
 
   /*! Returns the data corresponding to "index" and "role". */
   QVariant data(const QModelIndex &index, int role) const;
 
   /*! Returns a list of this item's first-level child items. */
-  const QList<DomItem *>& childItems() const;
+  const QList<DomItem *> &childItems() const;
 
   /*! Updates the item data (e.g. the underlying QDomNode) related to "index"
    * and "role" to "value". */

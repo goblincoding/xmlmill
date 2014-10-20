@@ -29,8 +29,11 @@
 #ifndef DOMNODEEDIT_H
 #define DOMNODEEDIT_H
 
+#include "db/dbinterface.h"
+
 #include <QWidget>
-#include <QDomNode>
+#include <QDomElement>
+#include <QTableWidget>
 
 //----------------------------------------------------------------------
 
@@ -39,11 +42,27 @@ class DomNodeEdit : public QWidget {
 public:
   /*! Constructor.  QDomNode's are explicitly shared, all changes to "node" will
    * propagate to the parent DOM document. */
-  explicit DomNodeEdit(QDomNode node, QWidget *parent = 0);
+  explicit DomNodeEdit(QDomElement element, QWidget *parent = 0);
 
-signals:
+  /*! Returns "true" if the DomNodeEdit contains any editable widgets. */
+  bool hasContent() const;
 
-public slots:
+private slots:
+  void processResult(DB::Result status, const QString &error);
+
+private:
+  void retrieveAssociatedAttributes();
+  void setTableHeaderItem();
+  void populateTable();
+
+private:
+  QDomElement m_element;
+  QStringList m_associatedAttributes;
+  QString m_elementName;
+  QString m_parentElementName;
+  QString m_documentRoot;
+  QTableWidget m_table;
+  bool m_hasContent;
 };
 
 #endif // DOMNODEEDIT_H

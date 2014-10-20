@@ -33,21 +33,25 @@
 #include <QVBoxLayout>
 #include <QModelIndex>
 
+#include <assert.h>
+
 //----------------------------------------------------------------------
 
 DomEditWidget::DomEditWidget(QWidget *parent)
-    : QWidget(parent), m_nodeEdits() {}
+    : QWidget(parent), m_nodeEdits(), m_layout(nullptr) {
+}
 
 //----------------------------------------------------------------------
 
-void DomEditWidget::indexSelected(QModelIndex &index) {
+void DomEditWidget::indexSelected(const QModelIndex &index) {
+  assert(index.isValid());
 
   if (index.isValid()) {
     qDeleteAll(m_nodeEdits);
+    m_nodeEdits.clear();
 
-    QLayout *layout = this->layout();
-    delete layout;
-    layout = new QVBoxLayout();
+    delete m_layout;
+    m_layout = new QVBoxLayout(this);
 
     DomItem *item = static_cast<DomItem *>(index.internalPointer());
     addNodeEdit(item);
@@ -55,15 +59,27 @@ void DomEditWidget::indexSelected(QModelIndex &index) {
     for (DomItem *child : item->childItems()) {
       addNodeEdit(child);
     }
+
+    this->setLayout(m_layout);
   }
 }
 
 //----------------------------------------------------------------------
 
 void DomEditWidget::addNodeEdit(DomItem *item) {
-  DomNodeEdit *edit = new DomNodeEdit(item->node(), this);
-  this->layout()->addWidget(edit);
-  m_nodeEdits.append(edit);
+  assert(!item->node().isNull());
+
+  if (!item->node().isNull() && item->node().isElement()) {
+    DomNodeEdit *edit = new DomNodeEdit(item->node().toElement(), this);
+
+    if (edit->hasContent()) {
+      m_layout->addWidget(edit);
+    }
+
+    /* Add it to the list regardless of whether it has content so we can clean
+     * it up later. */
+    m_nodeEdits.append(edit);
+  }
 }
 
 //----------------------------------------------------------------------
