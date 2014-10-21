@@ -177,7 +177,7 @@ private:
   /*! Selects "element" from the "associatedRoot" document type from the
      database.  The active query for the command is returned (the function does
      not care whether or not the record exists). */
-  QSqlQuery selectElement(const QString &element, const QString &parent,
+  QSqlQuery selectDistinctAttributes(const QString &element, const QString &parent,
                           const QString &root);
 
   /*! Selects all the known elements from the "associatedRoot" document type
@@ -187,7 +187,7 @@ private:
   /*! Selects the "attribute" corresponding to "element", "parent" and "root"
    * from the database.  The active query for the command is returned (the
    * function does not care whether or not the record exists). */
-  QSqlQuery selectAttribute(const QString &attribute, const QString &element,
+  QSqlQuery selectDistinctValues(const QString &attribute, const QString &element,
                             const QString &parent, const QString &root);
 
   /*! Selects all the known attributes from the database and returns the active

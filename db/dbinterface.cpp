@@ -136,32 +136,32 @@ void DB::processDocumentXml(const QString &xml) {
 
 void DB::addElement(const QString &element, const QString &parent,
                     const QString &root) {
-  QSqlQuery query = selectElement(root, parent, element);
+//  QSqlQuery query = selectElement(root, parent, element);
 
-  /* If we don't have an existing record, add it. */
-  if (!query.first()) {
-    if (!query.prepare(
-            "INSERT INTO xml( value, attribute, element, parent, root ) "
-            "VALUES( \"\", \"\", ?, ?, ? )")) {
-      QString error =
-          QString("Prepare INSERT element failed for element \"%1\": [%2]")
-              .arg(element)
-              .arg(query.lastError().text());
-      emit result(Result::Failed, error);
-      return;
-    }
+//  /* If we don't have an existing record, add it. */
+//  if (!query.first()) {
+//    if (!query.prepare(
+//            "INSERT INTO xml( value, attribute, element, parent, root ) "
+//            "VALUES( \"\", \"\", ?, ?, ? )")) {
+//      QString error =
+//          QString("Prepare INSERT element failed for element \"%1\": [%2]")
+//              .arg(element)
+//              .arg(query.lastError().text());
+//      emit result(Result::Failed, error);
+//      return;
+//    }
 
-    query.addBindValue(element);
-    query.addBindValue(parent);
-    query.addBindValue(root);
+//    query.addBindValue(element);
+//    query.addBindValue(parent);
+//    query.addBindValue(root);
 
-    if (!query.exec()) {
-      QString error = QString("INSERT element failed for element \"%1\": [%2]")
-                          .arg(element)
-                          .arg(query.lastError().text());
-      emit result(Result::Failed, error);
-    }
-  }
+//    if (!query.exec()) {
+//      QString error = QString("INSERT element failed for element \"%1\": [%2]")
+//                          .arg(element)
+//                          .arg(query.lastError().text());
+//      emit result(Result::Failed, error);
+//    }
+//  }
 }
 
 /*----------------------------------------------------------------------------*/
@@ -278,31 +278,31 @@ void DB::updateAttributeValues(const QString &element, const QString &attribute,
 
 void DB::removeElement(const QString &element, const QString &parent,
                        const QString &root) {
-  QSqlQuery query = selectElement(element, parent, root);
+//  QSqlQuery query = selectElement(element, parent, root);
 
-  /* Only continue if we have an existing record. */
-  if (query.first()) {
-    if (!query.prepare(
-            "DELETE FROM xml WHERE element = ? AND parent = ? AND root = ?")) {
-      QString error =
-          QString("Prepare DELETE element failed for element \"%1\": [%3]")
-              .arg(element)
-              .arg(query.lastError().text());
-      emit result(Result::Failed, error);
-      return;
-    }
+//  /* Only continue if we have an existing record. */
+//  if (query.first()) {
+//    if (!query.prepare(
+//            "DELETE FROM xml WHERE element = ? AND parent = ? AND root = ?")) {
+//      QString error =
+//          QString("Prepare DELETE element failed for element \"%1\": [%3]")
+//              .arg(element)
+//              .arg(query.lastError().text());
+//      emit result(Result::Failed, error);
+//      return;
+//    }
 
-    query.addBindValue(element);
-    query.addBindValue(parent);
-    query.addBindValue(root);
+//    query.addBindValue(element);
+//    query.addBindValue(parent);
+//    query.addBindValue(root);
 
-    if (!query.exec()) {
-      QString error = QString("DELETE element failed for element \"%1\": [%3]")
-                          .arg(element)
-                          .arg(query.lastError().text());
-      emit result(Result::Failed, error);
-    }
-  }
+//    if (!query.exec()) {
+//      QString error = QString("DELETE element failed for element \"%1\": [%3]")
+//                          .arg(element)
+//                          .arg(query.lastError().text());
+//      emit result(Result::Failed, error);
+//    }
+//  }
 }
 
 /*----------------------------------------------------------------------------*/
@@ -370,37 +370,34 @@ QStringList DB::knownElements(const QString &associatedRoot) const {
 
 QStringList DB::children(const QString &element, const QString &parent,
                          const QString &root) {
-  QSqlQuery query = selectElement(element, parent, root);
+//  QSqlQuery query = selectElement(element, parent, root);
 
-  /* There should be only one record corresponding to this element. */
-  if (!query.first()) {
-    QString error = QString("Result::Failed to obtain the list of "
-                            "children for element \"%1\"").arg(element);
-    emit result(Result::Failed, error);
-    return QStringList();
-  }
+//  /* There should be only one record corresponding to this element. */
+//  if (!query.first()) {
+//    QString error = QString("Result::Failed to obtain the list of "
+//                            "children for element \"%1\"").arg(element);
+//    emit result(Result::Failed, error);
+//    return QStringList();
+//  }
 
-  QStringList children; /*=
-      query.record().value("children").toString().split(SEPARATOR);
-  cleanList(children);*/
-  children.sort();
-  return children;
+//  QStringList children; /*=
+//      query.record().value("children").toString().split(SEPARATOR);
+//  cleanList(children);*/
+//  children.sort();
+//  return children;
 }
 
 /*----------------------------------------------------------------------------*/
 
 QStringList DB::attributes(const QString &element, const QString &parent,
                            const QString &root) {
-  QSqlQuery query = selectElement(element, parent, root);
+  QSqlQuery query = selectDistinctAttributes(element, parent, root);
   QStringList attributes;
 
-  if (query.first()) {
-    do {
-      attributes << query.record().value("attribute").toString();
-    } while (query.next());
+  while (query.next()){
+    attributes << query.value(0).toString();
   }
 
-  attributes.removeDuplicates();
   return attributes;
 }
 
@@ -409,16 +406,13 @@ QStringList DB::attributes(const QString &element, const QString &parent,
 QStringList DB::attributeValues(const QString &attribute,
                                 const QString &element, const QString &parent,
                                 const QString &root) {
-  QSqlQuery query = selectAttribute(attribute, element, parent, root);
+  QSqlQuery query = selectDistinctValues(attribute, element, parent, root);
   QStringList attributeValues;
 
-  if (query.first()) {
-    do {
-      attributeValues << query.record().value("value").toString();
-    } while (query.next());
+  while (query.next()) {
+    attributeValues << query.value(0).toString();
   }
 
-  attributeValues.removeDuplicates();
   return attributeValues;
 }
 
@@ -471,17 +465,16 @@ QStringList DB::knownAttributeKeys() const {
 
 /*----------------------------------------------------------------------------*/
 
-QSqlQuery DB::selectElement(const QString &element, const QString &parent,
+QSqlQuery DB::selectDistinctAttributes(const QString &element, const QString &parent,
                             const QString &root) {
   assert(!element.isEmpty());
-  // assert(!parent.isEmpty()); Parent could be empty if we're dealing with the
-  // ROOT
+  // assert(!parent.isEmpty()); could be empty if we're dealing with ROOT
   assert(!root.isEmpty());
 
   QSqlQuery query = createQuery();
 
   if (!query.prepare(
-          "SELECT * FROM xml WHERE element = ? AND parent = ? AND root = ?")) {
+          "SELECT DISTINCT attribute FROM xml WHERE element = ? AND parent = ? AND root = ?")) {
     QString error = QString("Prepare SELECT failed for element \"%1\": [%2]")
                         .arg(element)
                         .arg(query.lastError().text());
@@ -527,7 +520,7 @@ QSqlQuery DB::selectAllElements(const QString &associatedRoot) const {
 
 /*----------------------------------------------------------------------------*/
 
-QSqlQuery DB::selectAttribute(const QString &attribute, const QString &element,
+QSqlQuery DB::selectDistinctValues(const QString &attribute, const QString &element,
                               const QString &parent, const QString &root) {
   assert(!attribute.isEmpty());
   assert(!element.isEmpty());
@@ -536,7 +529,7 @@ QSqlQuery DB::selectAttribute(const QString &attribute, const QString &element,
 
   QSqlQuery query = createQuery();
 
-  if (!query.prepare("SELECT * FROM xml WHERE attribute = ? AND element = ? "
+  if (!query.prepare("SELECT DISTINCT value FROM xml WHERE attribute = ? AND element = ? "
                      "AND parent = ? AND root = ?")) {
     QString error = QString("Prepare SELECT failed for element \"%1\": [%2]")
                         .arg(element)
