@@ -59,11 +59,14 @@ MainWindow::MainWindow(QWidget *parent)
       m_currentXMLFileName(""), m_fileContentsChanged(false) {
   ui->setupUi(this);
   ui->treeView->setModel(&m_model);
+
+  /* "this" takes ownership */
   ui->treeView->setItemDelegate(new DomDelegate(this));
 
   connect(ui->treeView, SIGNAL(clicked(const QModelIndex &)), ui->tableWidget,
           SLOT(treeIndexSelected(const QModelIndex &)));
 
+  /* "this" takes ownership */
   m_spinner = new QtWaitingSpinner(Qt::ApplicationModal, this, true);
 
   /* File related. */
@@ -187,6 +190,8 @@ void MainWindow::enableFileActions(bool enabled) {
 QLabel *MainWindow::almostThere() {
   QString text("Wow, this is a big document! Don't give up, we're crunching "
                "the numbers...");
+
+  /* "this" takes ownership */
   QLabel *label = new QLabel(text, this, Qt::Popup);
 
   /* Show before moving it or it doesn't centre itself properly. */
@@ -491,6 +496,7 @@ void MainWindow::expandCollapse(bool expand) {
 void MainWindow::startSaveTimer() {
   /* Automatically save the file at five minute intervals. */
   if (!m_saveTimer) {
+    /* "this" takes ownership */
     m_saveTimer = new QTimer(this);
     connect(m_saveTimer, SIGNAL(timeout()), this, SLOT(saveTempFile()));
     m_saveTimer->start(300000);

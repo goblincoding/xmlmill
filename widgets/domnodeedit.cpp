@@ -101,7 +101,6 @@ void DomNodeEdit::insertElementNameItem() {
   /* Switch foreground and background colours. */
   QBrush background(style()->standardPalette().brush(QPalette::WindowText));
   QBrush foreground(style()->standardPalette().brush(QPalette::Window));
-
   header->setBackground(background);
   header->setForeground(foreground);
 
