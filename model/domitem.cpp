@@ -72,7 +72,7 @@ const QList<DomItem *> &DomItem::childItems() const { return m_childItems; }
 //----------------------------------------------------------------------
 
 bool DomItem::setData(const QModelIndex &index, const QVariant &value,
-                      int role) {
+                      int /*role*/) {
   switch (index.column()) {
   case columnNumber(Column::Xml):
     if (m_domNode.isElement()) {

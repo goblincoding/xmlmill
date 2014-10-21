@@ -47,12 +47,20 @@ public:
 public slots:
   void treeIndexSelected(const QModelIndex &index);
 
+private slots:
+  void processChildItems();
+
 private:
   void setupTable();
-  void addNodeEdit(DomItem *item);
+  void resetState();
+  void createAddMoreButton();
+  void removeAddMoreButton();
+  void processItem(DomItem *item);
 
 private:
   QList<DomNodeEdit *> m_nodeEdits;
+  DomItem *m_currentItem;
+  int m_childrenProcessed;
 };
 
 #endif // DOMEDITWIDGET_H

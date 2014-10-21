@@ -32,36 +32,40 @@
 
 #include <QModelIndex>
 #include <QHeaderView>
+#include <QPushButton>
 
 #include <assert.h>
 
 //----------------------------------------------------------------------
 
+/* The number of children we add per increment for indices with large
+ * amounts of child items. */
+const int c_childCountIncrement = 10;
+
+using Columns = DomNodeEdit::Columns;
+
+//----------------------------------------------------------------------
+
 DomEditWidget::DomEditWidget(QWidget *parent)
-    : QTableWidget(parent), m_nodeEdits() {
+    : QTableWidget(parent), m_nodeEdits(), m_currentItem(nullptr),
+      m_childrenProcessed(0) {
   setupTable();
 }
 
 //----------------------------------------------------------------------
 
 void DomEditWidget::treeIndexSelected(const QModelIndex &index) {
-  assert(index.isValid());
+  resetState();
 
   if (index.isValid()) {
-    clearContents();
-    setRowCount(0);
-    qDeleteAll(m_nodeEdits);
-    m_nodeEdits.clear();
-
     DomItem *item = static_cast<DomItem *>(index.internalPointer());
-    addNodeEdit(item);
 
-    for (DomItem *child : item->childItems()) {
-      addNodeEdit(child);
+    if (item != m_currentItem) {
+      m_currentItem = item;
+      processItem(m_currentItem);
+      processChildItems();
+      resizeColumnToContents(DomNodeEdit::intFromEnum(Columns::Attribute));
     }
-
-    resizeColumnToContents(
-        DomNodeEdit::intFromEnum(DomNodeEdit::Columns::Attribute));
   }
 }
 
@@ -71,19 +75,88 @@ void DomEditWidget::setupTable() {
   QStringList header;
   header << "Attribute:"
          << "Value:";
-  setColumnCount(DomNodeEdit::intFromEnum(DomNodeEdit::Columns::Count));
+  setColumnCount(DomNodeEdit::intFromEnum(Columns::Count));
   setHorizontalHeaderLabels(header);
   horizontalHeader()->setStretchLastSection(true);
 }
 
 //----------------------------------------------------------------------
 
-void DomEditWidget::addNodeEdit(DomItem *item) {
-  assert(!item->node().isNull());
+void DomEditWidget::resetState() {
+  clearContents();
+  setRowCount(0);
+  qDeleteAll(m_nodeEdits);
+  m_nodeEdits.clear();
+  m_currentItem = nullptr;
+  m_childrenProcessed = 0;
+}
 
-  if (!item->node().isNull() && item->node().isElement()) {
-    DomNodeEdit *edit = new DomNodeEdit(item->node().toElement(), this);
-    m_nodeEdits.append(edit);
+//----------------------------------------------------------------------
+
+void DomEditWidget::createAddMoreButton() {
+  setRowCount(rowCount() + 1);
+  const int finalRow = rowCount() - 1;
+  const int column = DomNodeEdit::intFromEnum(Columns::Attribute);
+
+  QPushButton *button = new QPushButton("Load More", this);
+  connect(button, SIGNAL(clicked()), this, SLOT(processChildItems()));
+
+  setCellWidget(finalRow, column, button);
+  setSpan(finalRow, column, 1, DomNodeEdit::intFromEnum(Columns::Count));
+  updateGeometries();
+}
+
+//----------------------------------------------------------------------
+
+void DomEditWidget::removeAddMoreButton() {
+  const int finalRow = rowCount() - 1;
+  const int column = DomNodeEdit::intFromEnum(Columns::Attribute);
+  QPushButton *button =
+      dynamic_cast<QPushButton *>(cellWidget(finalRow, column));
+
+  if (button) {
+    removeRow(finalRow);
+    delete button;
+  }
+}
+
+//----------------------------------------------------------------------
+
+void DomEditWidget::processItem(DomItem *item) {
+  assert(item && !m_currentItem->node().isNull());
+
+  if (item) {
+    QDomElement element = item->node().toElement();
+
+    if (!element.isNull()) {
+      DomNodeEdit *edit = new DomNodeEdit(element, this);
+      m_nodeEdits.append(edit);
+    }
+  }
+}
+
+//----------------------------------------------------------------------
+
+void DomEditWidget::processChildItems() {
+  assert(m_currentItem);
+
+  if (m_currentItem) {
+    removeAddMoreButton();
+
+    auto children = m_currentItem->childItems();
+    const int incrementCount = m_childrenProcessed + c_childCountIncrement;
+    const bool incrementalUpdate = incrementCount < children.size();
+    const int count = incrementalUpdate ? incrementCount : children.size();
+
+    for (int i = m_childrenProcessed; i < count; ++i) {
+      auto child = children.at(i);
+      processItem(child);
+      ++m_childrenProcessed;
+    }
+
+    if (incrementalUpdate) {
+      createAddMoreButton();
+    }
   }
 }
 
