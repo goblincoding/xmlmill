@@ -27,7 +27,7 @@
  *                    <http://www.gnu.org/licenses/>
  */
 #include "elementedittablewidget.h"
-#include "domnodeedit.h"
+#include "elementeditwidget.h"
 #include "model/domitem.h"
 
 #include <QModelIndex>
@@ -42,7 +42,7 @@
  * amounts of child items. */
 const int c_childCountIncrement = 10;
 
-using Columns = DomNodeEdit::Columns;
+using Columns = ElementEditWidget::Columns;
 
 //----------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ void ElementEditTableWidget::treeIndexSelected(const QModelIndex &index) {
       m_currentItem = item;
       processItem(m_currentItem);
       processChildItems();
-      resizeColumnToContents(DomNodeEdit::intFromEnum(Columns::Attribute));
+      resizeColumnToContents(ElementEditWidget::intFromEnum(Columns::Attribute));
     }
   }
 }
@@ -75,7 +75,7 @@ void ElementEditTableWidget::setupTable() {
   QStringList header;
   header << "Attribute:"
          << "Value:";
-  setColumnCount(DomNodeEdit::intFromEnum(Columns::Count));
+  setColumnCount(ElementEditWidget::intFromEnum(Columns::Count));
   setHorizontalHeaderLabels(header);
   horizontalHeader()->setStretchLastSection(true);
 }
@@ -96,13 +96,13 @@ void ElementEditTableWidget::resetState() {
 void ElementEditTableWidget::createAddMoreButton() {
   setRowCount(rowCount() + 1);
   const int finalRow = rowCount() - 1;
-  const int column = DomNodeEdit::intFromEnum(Columns::Attribute);
+  const int column = ElementEditWidget::intFromEnum(Columns::Attribute);
 
   QPushButton *button = new QPushButton("Load More", this);
   connect(button, SIGNAL(clicked()), this, SLOT(processChildItems()));
 
   setCellWidget(finalRow, column, button);
-  setSpan(finalRow, column, 1, DomNodeEdit::intFromEnum(Columns::Count));
+  setSpan(finalRow, column, 1, ElementEditWidget::intFromEnum(Columns::Count));
   updateGeometries();
 }
 
@@ -110,7 +110,7 @@ void ElementEditTableWidget::createAddMoreButton() {
 
 void ElementEditTableWidget::removeAddMoreButton() {
   const int finalRow = rowCount() - 1;
-  const int column = DomNodeEdit::intFromEnum(Columns::Attribute);
+  const int column = ElementEditWidget::intFromEnum(Columns::Attribute);
   QPushButton *button =
       dynamic_cast<QPushButton *>(cellWidget(finalRow, column));
 
@@ -129,7 +129,7 @@ void ElementEditTableWidget::processItem(DomItem *item) {
     QDomElement element = item->node().toElement();
 
     if (!element.isNull()) {
-      DomNodeEdit *edit = new DomNodeEdit(element, this);
+      ElementEditWidget *edit = new ElementEditWidget(element, this);
       m_nodeEdits.append(edit);
     }
   }

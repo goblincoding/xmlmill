@@ -35,7 +35,7 @@
 
 class QModelIndex;
 class DomItem;
-class DomNodeEdit;
+class ElementEditWidget;
 
 //----------------------------------------------------------------------
 
@@ -58,7 +58,7 @@ private:
   void processItem(DomItem *item);
 
 private:
-  QList<DomNodeEdit *> m_nodeEdits;
+  QList<ElementEditWidget *> m_nodeEdits;
   DomItem *m_currentItem;
   int m_childrenProcessed;
 };

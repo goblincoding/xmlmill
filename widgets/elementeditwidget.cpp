@@ -26,7 +26,7 @@
  *
  *                    <http://www.gnu.org/licenses/>
  */
-#include "domnodeedit.h"
+#include "elementeditwidget.h"
 #include "valuecombobox.h"
 #include "db/dbinterface.h"
 #include "utils/messagespace.h"
@@ -39,13 +39,13 @@
 
 //----------------------------------------------------------------------
 
-int DomNodeEdit::intFromEnum(Columns column) {
+int ElementEditWidget::intFromEnum(Columns column) {
   return static_cast<int>(column);
 }
 
 //----------------------------------------------------------------------
 
-DomNodeEdit::DomNodeEdit(QDomElement element, QTableWidget *table)
+ElementEditWidget::ElementEditWidget(QDomElement element, QTableWidget *table)
     : QWidget(nullptr), m_element(element), m_table(table),
       m_associatedAttributes(), m_elementName(), m_parentElementName(),
       m_documentRoot() {
@@ -72,7 +72,7 @@ DomNodeEdit::DomNodeEdit(QDomElement element, QTableWidget *table)
 
 //----------------------------------------------------------------------
 
-void DomNodeEdit::processResult(DB::Result status, const QString &error) {
+void ElementEditWidget::processResult(DB::Result status, const QString &error) {
   if (status != DB::Result::Failed) {
     MessageSpace::showErrorMessageBox(this, error);
   }
@@ -80,7 +80,7 @@ void DomNodeEdit::processResult(DB::Result status, const QString &error) {
 
 //----------------------------------------------------------------------
 
-void DomNodeEdit::retrieveAssociatedAttributes() {
+void ElementEditWidget::retrieveAssociatedAttributes() {
   DB db;
   connect(&db, SIGNAL(result(DB::Result, QString)), this,
           SLOT(processResult(DB::Result, QString)));
@@ -91,7 +91,7 @@ void DomNodeEdit::retrieveAssociatedAttributes() {
 
 //----------------------------------------------------------------------
 
-void DomNodeEdit::insertElementNameItem() {
+void ElementEditWidget::insertElementNameItem() {
   const int row = m_table->rowCount();
   m_table->setRowCount(row + 1);
 
@@ -111,7 +111,7 @@ void DomNodeEdit::insertElementNameItem() {
 
 //----------------------------------------------------------------------
 
-void DomNodeEdit::populateTable() {
+void ElementEditWidget::populateTable() {
   foreach (QString attribute, m_associatedAttributes) {
     const bool isAttributeActive = m_element.hasAttribute(attribute);
     const int row = m_table->rowCount();

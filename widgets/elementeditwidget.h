@@ -40,14 +40,14 @@ class QTableWidget;
 
 //----------------------------------------------------------------------
 
-class DomNodeEdit : public QWidget {
+class ElementEditWidget : public QWidget {
   Q_OBJECT
 public:
   enum class Columns { Attribute, Value, Count };
 
   /*! Constructor.  QDomNode's are explicitly shared, all changes to "node" will
    * propagate to the parent DOM document. */
-  explicit DomNodeEdit(QDomElement element, QTableWidget *table);
+  explicit ElementEditWidget(QDomElement element, QTableWidget *table);
   static int intFromEnum(Columns column);
 
 private slots:
