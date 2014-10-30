@@ -41,7 +41,7 @@
         <enum>QFrame::Sunken</enum>
        </property>
       </widget>
-      <widget class="DomEditWidget" name="tableWidget">
+      <widget class="ElementEditTableWidget" name="tableWidget">
        <property name="alternatingRowColors">
         <bool>true</bool>
        </property>
@@ -356,9 +356,9 @@
    <header>view/domtreeview.h</header>
   </customwidget>
   <customwidget>
-   <class>DomEditWidget</class>
+   <class>ElementEditTableWidget</class>
    <extends>QTableWidget</extends>
-   <header>widgets\domeditwidget.h</header>
+   <header>widgets/elementedittablewidget.h</header>
   </customwidget>
  </customwidgets>
  <resources>

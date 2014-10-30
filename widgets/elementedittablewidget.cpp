@@ -26,7 +26,7 @@
  *
  *                    <http://www.gnu.org/licenses/>
  */
-#include "domeditwidget.h"
+#include "elementedittablewidget.h"
 #include "domnodeedit.h"
 #include "model/domitem.h"
 
@@ -46,7 +46,7 @@ using Columns = DomNodeEdit::Columns;
 
 //----------------------------------------------------------------------
 
-DomEditWidget::DomEditWidget(QWidget *parent)
+ElementEditTableWidget::ElementEditTableWidget(QWidget *parent)
     : QTableWidget(parent), m_nodeEdits(), m_currentItem(nullptr),
       m_childrenProcessed(0) {
   setupTable();
@@ -54,7 +54,7 @@ DomEditWidget::DomEditWidget(QWidget *parent)
 
 //----------------------------------------------------------------------
 
-void DomEditWidget::treeIndexSelected(const QModelIndex &index) {
+void ElementEditTableWidget::treeIndexSelected(const QModelIndex &index) {
   resetState();
 
   if (index.isValid()) {
@@ -71,7 +71,7 @@ void DomEditWidget::treeIndexSelected(const QModelIndex &index) {
 
 //----------------------------------------------------------------------
 
-void DomEditWidget::setupTable() {
+void ElementEditTableWidget::setupTable() {
   QStringList header;
   header << "Attribute:"
          << "Value:";
@@ -82,7 +82,7 @@ void DomEditWidget::setupTable() {
 
 //----------------------------------------------------------------------
 
-void DomEditWidget::resetState() {
+void ElementEditTableWidget::resetState() {
   clearContents();
   setRowCount(0);
   qDeleteAll(m_nodeEdits);
@@ -93,7 +93,7 @@ void DomEditWidget::resetState() {
 
 //----------------------------------------------------------------------
 
-void DomEditWidget::createAddMoreButton() {
+void ElementEditTableWidget::createAddMoreButton() {
   setRowCount(rowCount() + 1);
   const int finalRow = rowCount() - 1;
   const int column = DomNodeEdit::intFromEnum(Columns::Attribute);
@@ -108,7 +108,7 @@ void DomEditWidget::createAddMoreButton() {
 
 //----------------------------------------------------------------------
 
-void DomEditWidget::removeAddMoreButton() {
+void ElementEditTableWidget::removeAddMoreButton() {
   const int finalRow = rowCount() - 1;
   const int column = DomNodeEdit::intFromEnum(Columns::Attribute);
   QPushButton *button =
@@ -122,7 +122,7 @@ void DomEditWidget::removeAddMoreButton() {
 
 //----------------------------------------------------------------------
 
-void DomEditWidget::processItem(DomItem *item) {
+void ElementEditTableWidget::processItem(DomItem *item) {
   assert(item && !m_currentItem->node().isNull());
 
   if (item) {
@@ -137,7 +137,7 @@ void DomEditWidget::processItem(DomItem *item) {
 
 //----------------------------------------------------------------------
 
-void DomEditWidget::processChildItems() {
+void ElementEditTableWidget::processChildItems() {
   assert(m_currentItem);
 
   if (m_currentItem) {

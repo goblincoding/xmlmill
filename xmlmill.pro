@@ -57,11 +57,10 @@ SOURCES += main.cpp\
     view/domtreeview.cpp \
     delegate/xmlsyntaxhighlighter.cpp \
     utils/domnodeparser.cpp \
-    widgets/domeditwidget.cpp \
     widgets/qtwaitingspinner.cpp \
     widgets/domnodeedit.cpp \
-    widgets/valuecombobox.cpp
-    ../QtWaitingSpinner/QtWaitingSpinner.cpp
+    widgets/valuecombobox.cpp \
+    widgets/elementedittablewidget.cpp
 
 HEADERS  += \
     db/dbinterface.h \
@@ -77,11 +76,10 @@ HEADERS  += \
     view/domtreeview.h \
     delegate/xmlsyntaxhighlighter.h \
     utils/domnodeparser.h \
-    widgets/domeditwidget.h \
     widgets/qtwaitingspinner.h \
     widgets/domnodeedit.h \
-    widgets/valuecombobox.h
-    ../QtWaitingSpinner/QtWaitingSpinner.h
+    widgets/valuecombobox.h \
+    widgets/elementedittablewidget.h
 
 FORMS    += \
     mainwindow.ui \

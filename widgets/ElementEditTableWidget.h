@@ -39,10 +39,10 @@ class DomNodeEdit;
 
 //----------------------------------------------------------------------
 
-class DomEditWidget : public QTableWidget {
+class ElementEditTableWidget : public QTableWidget {
   Q_OBJECT
 public:
-  explicit DomEditWidget(QWidget *parent = 0);
+  explicit ElementEditTableWidget(QWidget *parent = 0);
 
 public slots:
   void treeIndexSelected(const QModelIndex &index);

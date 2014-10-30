@@ -37,7 +37,7 @@
 #include "utils/globalsettings.h"
 
 #include "widgets/qtwaitingspinner.h"
-#include "widgets/domeditwidget.h"
+#include "widgets/elementedittablewidget.h"
 #include "model/dommodel.h"
 #include "delegate/domdelegate.h"
 
