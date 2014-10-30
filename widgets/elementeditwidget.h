@@ -37,6 +37,8 @@
 //----------------------------------------------------------------------
 
 class QTableWidget;
+class QTableWidgetItem;
+class ValueComboBox;
 
 //----------------------------------------------------------------------
 
@@ -52,11 +54,16 @@ public:
 
 private slots:
   void processResult(DB::Result status, const QString &error);
+  void attributeChanged(QTableWidgetItem *item);
+  void attributeValueChanged(int row);
 
 private:
   void retrieveAssociatedAttributes();
   void insertElementNameItem();
   void populateTable();
+
+  ValueComboBox *valueComboForRow(int row);
+  QTableWidgetItem *itemForRow(int row);
 
 private:
   QDomElement m_element;

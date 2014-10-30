@@ -66,6 +66,8 @@ ElementEditWidget::ElementEditWidget(QDomElement element, QTableWidget *table)
     if (!m_associatedAttributes.isEmpty()) {
       insertElementNameItem();
       populateTable();
+      connect(m_table, SIGNAL(itemChanged(QTableWidgetItem *)), this,
+              SLOT(attributeChanged(QTableWidgetItem *)));
     }
   }
 }
@@ -76,6 +78,37 @@ void ElementEditWidget::processResult(DB::Result status, const QString &error) {
   if (status != DB::Result::Failed) {
     MessageSpace::showErrorMessageBox(this, error);
   }
+}
+
+//----------------------------------------------------------------------
+
+void ElementEditWidget::attributeChanged(QTableWidgetItem *item) {
+  assert(item);
+
+  if (item) {
+    ValueComboBox *combo = valueComboForRow(item->row());
+
+    if (combo) {
+      bool checked = item->checkState() == Qt::Checked;
+      combo->setEnabled(checked);
+
+      QString attribute = item->text();
+
+      if (checked) {
+        QString value = combo->currentText();
+        m_element.setAttribute(attribute, value);
+      } else {
+        m_element.removeAttribute(attribute);
+      }
+    }
+  }
+}
+
+//----------------------------------------------------------------------
+
+void ElementEditWidget::attributeValueChanged(int row) {
+  QTableWidgetItem *item = itemForRow(row);
+  attributeChanged(item);
 }
 
 //----------------------------------------------------------------------
@@ -118,13 +151,14 @@ void ElementEditWidget::populateTable() {
     m_table->setRowCount(row + 1);
 
     QTableWidgetItem *attributeItem = new QTableWidgetItem(attribute);
-    attributeItem->setFlags(attributeItem->flags() | Qt::ItemIsUserCheckable);
+    attributeItem->setFlags((attributeItem->flags() | Qt::ItemIsUserCheckable) ^
+                            Qt::ItemIsEditable);
     attributeItem->setCheckState(isAttributeActive ? Qt::Checked
                                                    : Qt::Unchecked);
     m_table->setItem(row, intFromEnum(Columns::Attribute), attributeItem);
 
     /* Table takes ownership through setItem */
-    ValueComboBox *valueCombo = new ValueComboBox();
+    ValueComboBox *valueCombo = new ValueComboBox(row);
     valueCombo->setEnabled(isAttributeActive);
     valueCombo->setEditable(true);
 
@@ -140,8 +174,23 @@ void ElementEditWidget::populateTable() {
     valueCombo->setModel(listModel);
     valueCombo->setCurrentText(m_element.attribute(attribute));
 
+    connect(valueCombo, SIGNAL(valueChanged(int)), this,
+            SLOT(attributeValueChanged(int)));
     m_table->setCellWidget(row, intFromEnum(Columns::Value), valueCombo);
   }
+}
+
+//----------------------------------------------------------------------
+
+ValueComboBox *ElementEditWidget::valueComboForRow(int row) {
+  return dynamic_cast<ValueComboBox *>(
+      m_table->cellWidget(row, intFromEnum(Columns::Value)));
+}
+
+//----------------------------------------------------------------------
+
+QTableWidgetItem *ElementEditWidget::itemForRow(int row) {
+  return m_table->item(row, intFromEnum(Columns::Attribute));
 }
 
 //----------------------------------------------------------------------

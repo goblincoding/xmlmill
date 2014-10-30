@@ -36,10 +36,19 @@
 class ValueComboBox : public QComboBox {
   Q_OBJECT
 public:
-  explicit ValueComboBox(QWidget *parent = 0);
+  explicit ValueComboBox(int row, QWidget *parent = 0);
+
+signals:
+  void valueChanged(int row);
 
 protected:
   void wheelEvent(QWheelEvent *e);
+
+private slots:
+  void valueChanged();
+
+private:
+  int m_rowNumber; /*!< the table row number where this item resides */
 };
 
 #endif // VALUECOMBOBOX_H

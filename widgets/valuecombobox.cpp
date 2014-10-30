@@ -32,10 +32,19 @@
 
 //----------------------------------------------------------------------
 
-ValueComboBox::ValueComboBox(QWidget *parent) : QComboBox(parent) {}
+ValueComboBox::ValueComboBox(int row, QWidget *parent)
+    : QComboBox(parent), m_rowNumber(row) {
+  connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(valueChanged()));
+  connect(this, SIGNAL(currentTextChanged(QString)), this,
+          SLOT(valueChanged()));
+}
 
 //----------------------------------------------------------------------
 
 void ValueComboBox::wheelEvent(QWheelEvent *e) { e->ignore(); }
+
+//----------------------------------------------------------------------
+
+void ValueComboBox::valueChanged() { emit valueChanged(m_rowNumber); }
 
 //----------------------------------------------------------------------
