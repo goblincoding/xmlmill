@@ -104,6 +104,10 @@ DomItem *DomItem::child(int row) const {
 
 int DomItem::row() const { return m_rowNumber; }
 
+/*----------------------------------------------------------------------------*/
+
+void DomItem::updateState() { updateStringRepresentation(); }
+
 //----------------------------------------------------------------------
 
 void DomItem::updateStringRepresentation() {

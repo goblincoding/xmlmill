@@ -58,6 +58,9 @@ public:
    * document */
   void setDomDocument(QDomDocument document);
 
+public slots:
+  void dataChangedExternally(const QModelIndex &index);
+
 public:
   /*! Returns the data corresponding to "index" and "role" */
   virtual QVariant data(const QModelIndex &index, int role) const override;

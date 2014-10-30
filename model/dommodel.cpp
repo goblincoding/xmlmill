@@ -54,6 +54,17 @@ void DomModel::setDomDocument(QDomDocument document) {
   endResetModel();
 }
 
+/*----------------------------------------------------------------------------*/
+
+void DomModel::dataChangedExternally(const QModelIndex &index) {
+  DomItem *item = itemFromIndex(index);
+
+  if (item) {
+    item->updateState();
+    emit dataChanged(index, index);
+  }
+}
+
 //----------------------------------------------------------------------
 
 QVariant DomModel::data(const QModelIndex &index, int role) const {

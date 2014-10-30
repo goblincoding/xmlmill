@@ -52,6 +52,9 @@ public:
   explicit ElementEditWidget(QDomElement element, QTableWidget *table);
   static int intFromEnum(Columns column);
 
+signals:
+  void contentsChanged();
+
 private slots:
   void processResult(DB::Result status, const QString &error);
   void attributeChanged(QTableWidgetItem *item);

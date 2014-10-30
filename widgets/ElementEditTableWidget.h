@@ -30,9 +30,11 @@
 #define DOMEDITWIDGET_H
 
 #include <QTableWidget>
+#include <memory>
 
 //----------------------------------------------------------------------
 
+class QPersistentModelIndex;
 class QModelIndex;
 class DomItem;
 class ElementEditWidget;
@@ -44,8 +46,12 @@ class ElementEditTableWidget : public QTableWidget {
 public:
   explicit ElementEditTableWidget(QWidget *parent = 0);
 
+signals:
+  void treeIndexDataChanged(const QModelIndex &);
+
 public slots:
   void treeIndexSelected(const QModelIndex &index);
+  void contentsChanged();
 
 private slots:
   void processChildItems();
@@ -58,6 +64,8 @@ private:
   void processItem(DomItem *item);
 
 private:
+  using PersistentPtr = std::unique_ptr<QPersistentModelIndex>;
+  PersistentPtr m_persistentTreeIndex;
   QList<ElementEditWidget *> m_nodeEdits;
   DomItem *m_currentItem;
   int m_childrenProcessed;

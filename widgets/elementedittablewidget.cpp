@@ -30,6 +30,7 @@
 #include "elementeditwidget.h"
 #include "model/domitem.h"
 
+#include <QPersistentModelIndex>
 #include <QModelIndex>
 #include <QHeaderView>
 #include <QPushButton>
@@ -47,8 +48,8 @@ using Columns = ElementEditWidget::Columns;
 //----------------------------------------------------------------------
 
 ElementEditTableWidget::ElementEditTableWidget(QWidget *parent)
-    : QTableWidget(parent), m_nodeEdits(), m_currentItem(nullptr),
-      m_childrenProcessed(0) {
+    : QTableWidget(parent), m_persistentTreeIndex(nullptr), m_nodeEdits(),
+      m_currentItem(nullptr), m_childrenProcessed(0) {
   setupTable();
 }
 
@@ -61,11 +62,24 @@ void ElementEditTableWidget::treeIndexSelected(const QModelIndex &index) {
     DomItem *item = static_cast<DomItem *>(index.internalPointer());
 
     if (item != m_currentItem) {
+      PersistentPtr persistentIndex(new QPersistentModelIndex(index));
+      m_persistentTreeIndex = std::move(persistentIndex);
+
       m_currentItem = item;
       processItem(m_currentItem);
       processChildItems();
-      resizeColumnToContents(ElementEditWidget::intFromEnum(Columns::Attribute));
+      resizeColumnToContents(
+          ElementEditWidget::intFromEnum(Columns::Attribute));
     }
+  }
+}
+
+//----------------------------------------------------------------------
+
+void ElementEditTableWidget::contentsChanged() {
+  if (m_persistentTreeIndex) {
+    QModelIndex index = *m_persistentTreeIndex.get();
+    emit treeIndexDataChanged(index);
   }
 }
 
@@ -130,6 +144,7 @@ void ElementEditTableWidget::processItem(DomItem *item) {
 
     if (!element.isNull()) {
       ElementEditWidget *edit = new ElementEditWidget(element, this);
+      connect(edit, SIGNAL(contentsChanged()), this, SLOT(contentsChanged()));
       m_nodeEdits.append(edit);
     }
   }

@@ -88,6 +88,10 @@ public:
   /*! Returns this item's row number relative to its parent item. */
   int row() const;
 
+  /*! Updates the item's state to reflect that of its underlying QDomNode
+   * after an external adjustment (QDomNodes are shared explicitly). */
+  void updateState();
+
 private:
   void updateStringRepresentation();
 

@@ -100,6 +100,8 @@ void ElementEditWidget::attributeChanged(QTableWidgetItem *item) {
       } else {
         m_element.removeAttribute(attribute);
       }
+
+      emit contentsChanged();
     }
   }
 }
