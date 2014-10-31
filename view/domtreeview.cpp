@@ -35,7 +35,7 @@
 DomTreeView::DomTreeView(QWidget *parent) : QTreeView(parent) {
   // setSelectionMode(QAbstractItemView::SingleSelection);
   // setDragDropMode(QAbstractItemView::InternalMove);
-  setUniformRowHeights(true);
+  // setUniformRowHeights(true);
 
   QAction *expand = new QAction("Expand", this);
   addAction(expand);

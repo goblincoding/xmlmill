@@ -107,7 +107,7 @@ Qt::ItemFlags DomModel::flags(const QModelIndex &index) const {
     return 0;
   }
 
-  return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
+  return QAbstractItemModel::flags(index);
 }
 
 //----------------------------------------------------------------------
