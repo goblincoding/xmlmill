@@ -30,6 +30,7 @@
 #define DOMDELEGATE_H
 
 #include <QStyledItemDelegate>
+#include <QTextDocument>
 
 //----------------------------------------------------------------------
 
@@ -52,6 +53,12 @@ public:
   virtual void updateEditorGeometry(QWidget *editor,
                                     const QStyleOptionViewItem &option,
                                     const QModelIndex &) const;
+
+private:
+  void editTextDocument(QStyleOptionViewItemV4 &option) const;
+
+private:
+  mutable QTextDocument m_textDocument;
 };
 
 #endif // DOMDELEGATE_H

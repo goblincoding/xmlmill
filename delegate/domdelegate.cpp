@@ -40,9 +40,22 @@
 
 //----------------------------------------------------------------------
 
-DomDelegate::DomDelegate(QObject *parent) : QStyledItemDelegate(parent) {}
+DomDelegate::DomDelegate(QObject *parent)
+    : QStyledItemDelegate(parent), m_textDocument() {
+  /* Create the document and initialise the font, setting the document margin to
+   * 0 allows us to change the font (e.g. via style sheets) without affecting
+   * the layout. */
+  QTextOption textOption;
+  textOption.setWrapMode(QTextOption::WordWrap);
+  m_textDocument.setDefaultTextOption(textOption);
 
-/*----------------------------------------------------------------------------*/
+  /* Everything happens automagically after we add the syntax highlighter to the
+   * document. */
+  XmlSyntaxHighlighter* highLighter = new XmlSyntaxHighlighter(&m_textDocument);
+  Q_UNUSED(highLighter);
+}
+
+//----------------------------------------------------------------------
 
 void DomDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                         const QModelIndex &index) const {
@@ -50,18 +63,7 @@ void DomDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
   QStyleOptionViewItemV4 optionV4 = option;
   initStyleOption(&optionV4, index);
 
-  /* Create the document and initialise the font, setting the document margin to
-   * 0 allows us to change the font (e.g. via style sheets) without affecting
-   * the layout. */
-  QTextDocument doc;
-  doc.setDocumentMargin(0);
-  doc.setDefaultFont(optionV4.font);
-  doc.setPlainText(optionV4.text);
-
-  /* Everything happens automagically after we add the syntax highlighter to the
-   * document. */
-  XmlSyntaxHighlighter highLighter(&doc);
-  Q_UNUSED(highLighter);
+  editTextDocument(optionV4);
 
   /* Get the style associated with the option widget (if we have one). */
   QStyle *style =
@@ -92,23 +94,18 @@ void DomDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                                              QPalette::Active, QPalette::Text));
   }
 
-  doc.documentLayout()->draw(painter, ctx);
+  m_textDocument.documentLayout()->draw(painter, ctx);
   painter->restore();
 }
 
-/*----------------------------------------------------------------------------*/
+//----------------------------------------------------------------------
 
 QSize DomDelegate::sizeHint(const QStyleOptionViewItem &option,
                             const QModelIndex &index) const {
   QStyleOptionViewItemV4 optionV4 = option;
   initStyleOption(&optionV4, index);
-
-  QTextDocument doc;
-  doc.setDocumentMargin(0);
-  doc.setDefaultFont(optionV4.font);
-  doc.setPlainText(optionV4.text);
-  doc.setTextWidth(optionV4.rect.width());
-  return QSize(doc.idealWidth(), doc.size().height());
+  editTextDocument(optionV4);
+  return QSize(m_textDocument.idealWidth(), m_textDocument.size().height());
 }
 
 //----------------------------------------------------------------------
@@ -150,6 +147,15 @@ void DomDelegate::updateEditorGeometry(QWidget *editor,
                                        const QStyleOptionViewItem &option,
                                        const QModelIndex & /*index*/) const {
   editor->setGeometry(option.rect);
+}
+
+//----------------------------------------------------------------------
+
+void DomDelegate::editTextDocument(QStyleOptionViewItemV4 &option) const {
+  m_textDocument.setDocumentMargin(0);
+  m_textDocument.setDefaultFont(option.font);
+  m_textDocument.setPlainText(option.text);
+  m_textDocument.setTextWidth(option.widget->rect().width());
 }
 
 //----------------------------------------------------------------------
