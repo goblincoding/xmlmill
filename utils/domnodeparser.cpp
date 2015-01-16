@@ -33,15 +33,22 @@
 //----------------------------------------------------------------------
 
 QString DomNodeParser::toString(const QDomNode &node) const {
-  if (node.isElement()) {
-    return elementString(node);
-  } else if (node.isComment()) {
-    return commentString(node);
-  } else if (node.isProcessingInstruction()) {
-    return "FIND THIS STRING AND FIX IT!";
+  if (!node.isNull()) {
+    if (node.isElement()) {
+      return node.nodeName();
+    } else if (node.isComment()) {
+      return node.nodeValue();
+    } else if (node.isProcessingInstruction()) {
+      return "FIND THIS STRING AND FIX IT!";
+    } else if(node.isDocument()) {
+      return QString();
+    }
+
+    assert(false && "Missing a node type that we should have catered for.");
+    return QString("");
   }
 
-  return node.nodeValue();
+  return QString();
 }
 
 //----------------------------------------------------------------------
@@ -58,53 +65,6 @@ QDomNode DomNodeParser::toDomNode(const QString &xml) const {
 
   assert(false && "DomNodeParser::elementNode XML broken");
   return QDomNode();
-}
-
-//----------------------------------------------------------------------
-
-QString DomNodeParser::elementString(const QDomNode &node) const {
-  QString text("<");
-  text += node.nodeName();
-
-  QDomNamedNodeMap attributeMap = node.attributes();
-
-  /* For elements with no attributes (e.g. <element/>). */
-  if (attributeMap.isEmpty() && node.childNodes().isEmpty()) {
-    text += "/>";
-    return text;
-  }
-
-  if (!attributeMap.isEmpty()) {
-    for (int i = 0; i < attributeMap.size(); ++i) {
-      QDomNode attribute = attributeMap.item(i);
-      text += " ";
-      text += attribute.nodeName();
-      text += "=\"";
-      text += attribute.nodeValue();
-      text += "\"";
-    }
-
-    /* For elements without children but with attributes. */
-    if (node.firstChild().isNull()) {
-      text += "/>";
-    } else {
-      /* For elements with children and attributes. */
-      text += ">";
-    }
-  } else {
-    text += ">";
-  }
-
-  return text;
-}
-
-//----------------------------------------------------------------------
-
-QString DomNodeParser::commentString(const QDomNode &node) const {
-  QString text("<!-- ");
-  text += node.nodeValue();
-  text += " -->";
-  return text;
 }
 
 //----------------------------------------------------------------------

@@ -42,15 +42,6 @@ public:
   /*! Returns a QDomNode corresponding to "xml" by means of
    * QDomNode::cloneNode() */
   QDomNode toDomNode(const QString &xml) const;
-
-private:
-  /*! Called if the QDomNode is an element.
-   * \sa toString */
-  QString elementString(const QDomNode &node) const;
-
-  /*! Called if the QDomNode is a comment.
-   * \sa toString */
-  QString commentString(const QDomNode &node) const;
 };
 
 #endif // DOMNODEPARSER_H

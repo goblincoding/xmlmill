@@ -60,8 +60,9 @@ MainWindow::MainWindow(QWidget *parent)
   ui->setupUi(this);
   ui->treeView->setModel(&m_model);
 
-  /* "this" takes ownership */
-  ui->treeView->setItemDelegate(new DomDelegate(this));
+  /* Need to determine if the use of a Delegate is actually necessary, it seems
+   * as if it might actually be superfluous. "this" takes ownership */
+  // ui->treeView->setItemDelegate(new DomDelegate(this));
 
   connect(ui->treeView, SIGNAL(clicked(const QModelIndex &)), ui->tableWidget,
           SLOT(treeIndexSelected(const QModelIndex &)));
