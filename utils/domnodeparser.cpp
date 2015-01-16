@@ -37,7 +37,7 @@ QString DomNodeParser::toString(const QDomNode &node) const {
     if (node.isElement()) {
       return node.nodeName();
     } else if (node.isComment()) {
-      return node.nodeValue();
+      return QString("<<-- %1 -->").arg(node.nodeValue());
     } else if (node.isProcessingInstruction()) {
       return "FIND THIS STRING AND FIX IT!";
     } else if(node.isDocument()) {

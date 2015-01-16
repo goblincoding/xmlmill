@@ -100,13 +100,13 @@ void DomDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 
 //----------------------------------------------------------------------
 
-QSize DomDelegate::sizeHint(const QStyleOptionViewItem &option,
-                            const QModelIndex &index) const {
-  QStyleOptionViewItemV4 optionV4 = option;
-  initStyleOption(&optionV4, index);
-  editTextDocument(optionV4);
-  return QSize(m_textDocument.idealWidth(), m_textDocument.size().height());
-}
+//QSize DomDelegate::sizeHint(const QStyleOptionViewItem &option,
+//                            const QModelIndex &index) const {
+//  QStyleOptionViewItemV4 optionV4 = option;
+//  initStyleOption(&optionV4, index);
+//  editTextDocument(optionV4);
+//  return QSize(m_textDocument.idealWidth(), m_textDocument.size().height());
+//}
 
 //----------------------------------------------------------------------
 
