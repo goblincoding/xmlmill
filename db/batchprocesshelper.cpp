@@ -111,6 +111,10 @@ void BatchProcessHelper::processElement(const QDomElement &element) {
         XmlRecord record;
         record.m_value = attribute.value();
         record.m_attribute = attribute.name();
+
+        if(record.m_attribute.toString().isEmpty()) {
+          int bob = 0;
+        }
         record.m_element = elementName;
         record.m_parent = parentName;
         record.m_root = m_rootName;

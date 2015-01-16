@@ -74,6 +74,13 @@ static const QLatin1String
 
 /*----------------------------------------------------------------------------*/
 
+void sanitize(QStringList& list) {
+  list.removeAll("");
+  list.removeDuplicates();
+}
+
+/*----------------------------------------------------------------------------*/
+
 DB::DB() : m_db() {
   openConnection();
 
@@ -361,8 +368,8 @@ QStringList DB::knownElements(const QString &associatedRoot) const {
     elementNames.append(query.record().field("element").value().toString());
   }
 
-  // cleanList(elementNames);
   elementNames.sort();
+  sanitize(elementNames);
   return elementNames;
 }
 
@@ -398,6 +405,7 @@ QStringList DB::attributes(const QString &element, const QString &parent,
     attributes << query.value(0).toString();
   }
 
+  sanitize(attributes);
   return attributes;
 }
 
@@ -413,6 +421,7 @@ QStringList DB::attributeValues(const QString &attribute,
     attributeValues << query.value(0).toString();
   }
 
+  sanitize(attributeValues);
   return attributeValues;
 }
 
@@ -522,7 +531,7 @@ QSqlQuery DB::selectAllElements(const QString &associatedRoot) const {
 
 QSqlQuery DB::selectDistinctValues(const QString &attribute, const QString &element,
                               const QString &parent, const QString &root) {
-  assert(!attribute.isEmpty());
+  //assert(!attribute.isEmpty());
   assert(!element.isEmpty());
   assert(!parent.isEmpty());
   assert(!root.isEmpty());
