@@ -134,7 +134,7 @@ void ElementEditWidget::insertElementNameItem(bool primary) {
   QString name =
       m_elementName +
       QString(" (%1)").arg(primary ? "selected element"
-                                   : "\" + m_parentElementName + "\" child");
+                                   : "\"" + m_parentElementName + "\" child");
   QTableWidgetItem *header = new QTableWidgetItem(name);
   header->setFlags(Qt::NoItemFlags);
 
