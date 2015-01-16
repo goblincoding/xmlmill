@@ -332,7 +332,7 @@ bool MainWindow::saveFile() {
       return false;
     } else {
       QTextStream outStream(&file);
-      // outStream << ui->treeWidget->toString();
+      outStream << m_domDoc.toString(2);
       file.close();
 
       m_fileContentsChanged = false;
@@ -573,11 +573,10 @@ void MainWindow::saveTempFile() {
                  .arg(dbName.remove(".db")));
 
   /* Since this is an attempt at auto-saving, we aim for a "best case"
-   * scenario
-   * and don't display error messages if encountered. */
+   * scenario and don't display error messages if encountered. */
   if (file.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
     QTextStream outStream(&file);
-    // outStream << ui->treeWidget->toString();
+    outStream << m_domDoc.toString(2);
     file.close();
     startSaveTimer();
   }

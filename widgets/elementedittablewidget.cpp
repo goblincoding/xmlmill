@@ -28,6 +28,7 @@
  */
 #include "elementedittablewidget.h"
 #include "elementeditwidget.h"
+#include "qtwaitingspinner.h"
 #include "model/domitem.h"
 
 #include <QPersistentModelIndex>
@@ -66,7 +67,7 @@ void ElementEditTableWidget::treeIndexSelected(const QModelIndex &index) {
       m_persistentTreeIndex = std::move(persistentIndex);
 
       m_currentItem = item;
-      processItem(m_currentItem);
+      processItem(m_currentItem, true);
       processChildItems();
       resizeColumnToContents(
           ElementEditWidget::intFromEnum(Columns::Attribute));
@@ -136,14 +137,14 @@ void ElementEditTableWidget::removeAddMoreButton() {
 
 //----------------------------------------------------------------------
 
-void ElementEditTableWidget::processItem(DomItem *item) {
+void ElementEditTableWidget::processItem(DomItem *item, bool primary) {
   assert(item && !m_currentItem->node().isNull());
 
   if (item) {
     QDomElement element = item->node().toElement();
 
     if (!element.isNull()) {
-      ElementEditWidget *edit = new ElementEditWidget(element, this);
+      ElementEditWidget *edit = new ElementEditWidget(element, this, primary);
       connect(edit, SIGNAL(contentsChanged()), this, SLOT(contentsChanged()));
       m_nodeEdits.append(edit);
     }
@@ -165,7 +166,7 @@ void ElementEditTableWidget::processChildItems() {
 
     for (int i = m_childrenProcessed; i < count; ++i) {
       auto child = children.at(i);
-      processItem(child);
+      processItem(child, false);
       ++m_childrenProcessed;
     }
 

@@ -47,9 +47,12 @@ class ElementEditWidget : public QWidget {
 public:
   enum class Columns { Attribute, Value, Count };
 
-  /*! Constructor.  QDomNode's are explicitly shared, all changes to "node" will
-   * propagate to the parent DOM document. */
-  explicit ElementEditWidget(QDomElement element, QTableWidget *table);
+  /*! Constructor.  QDomNode's are explicitly shared, all changes to "element"
+   * will propagate to the parent DOM document.
+   * @param element - the DOM element represented by this widget
+   * @param table - the parent table to add this widget to
+   * @primary - whether this element is a primary element, or a first level child */
+  explicit ElementEditWidget(QDomElement element, QTableWidget *table, bool primary);
   static int intFromEnum(Columns column);
 
 signals:
@@ -62,7 +65,7 @@ private slots:
 
 private:
   void retrieveAssociatedAttributes();
-  void insertElementNameItem();
+  void insertElementNameItem(bool primary);
   void populateTable();
 
   ValueComboBox *valueComboForRow(int row);

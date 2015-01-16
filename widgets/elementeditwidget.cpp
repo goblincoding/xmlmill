@@ -45,7 +45,8 @@ int ElementEditWidget::intFromEnum(Columns column) {
 
 //----------------------------------------------------------------------
 
-ElementEditWidget::ElementEditWidget(QDomElement element, QTableWidget *table)
+ElementEditWidget::ElementEditWidget(QDomElement element, QTableWidget *table,
+                                     bool primary)
     : QWidget(nullptr), m_element(element), m_table(table),
       m_associatedAttributes(), m_elementName(), m_parentElementName(),
       m_documentRoot() {
@@ -64,7 +65,7 @@ ElementEditWidget::ElementEditWidget(QDomElement element, QTableWidget *table)
     retrieveAssociatedAttributes();
 
     if (!m_associatedAttributes.isEmpty()) {
-      insertElementNameItem();
+      insertElementNameItem(primary);
       populateTable();
       connect(m_table, SIGNAL(itemChanged(QTableWidgetItem *)), this,
               SLOT(attributeChanged(QTableWidgetItem *)));
@@ -126,11 +127,15 @@ void ElementEditWidget::retrieveAssociatedAttributes() {
 
 //----------------------------------------------------------------------
 
-void ElementEditWidget::insertElementNameItem() {
+void ElementEditWidget::insertElementNameItem(bool primary) {
   const int row = m_table->rowCount();
   m_table->setRowCount(row + 1);
 
-  QTableWidgetItem *header = new QTableWidgetItem(m_elementName);
+  QString name =
+      m_elementName +
+      QString(" (%1)").arg(primary ? "selected element"
+                                   : "\" + m_parentElementName + "\" child");
+  QTableWidgetItem *header = new QTableWidgetItem(name);
   header->setFlags(Qt::NoItemFlags);
 
   /* Switch foreground and background colours. */

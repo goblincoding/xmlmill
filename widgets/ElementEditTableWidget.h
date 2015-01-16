@@ -57,11 +57,11 @@ private slots:
   void processChildItems();
 
 private:
+  void processItem(DomItem *item, bool primary);
   void setupTable();
   void resetState();
   void createAddMoreButton();
-  void removeAddMoreButton();
-  void processItem(DomItem *item);
+  void removeAddMoreButton();  
 
 private:
   using PersistentPtr = std::unique_ptr<QPersistentModelIndex>;
