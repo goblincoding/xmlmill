@@ -51,8 +51,10 @@ public:
    * will propagate to the parent DOM document.
    * @param element - the DOM element represented by this widget
    * @param table - the parent table to add this widget to
-   * @primary - whether this element is a primary element, or a first level child */
-  explicit ElementEditWidget(QDomElement element, QTableWidget *table, bool primary);
+   * @primary - whether this element is a primary element, or a first level
+   * child */
+  explicit ElementEditWidget(QDomElement element, QTableWidget *table,
+                             bool primary);
   static int intFromEnum(Columns column);
 
 signals:

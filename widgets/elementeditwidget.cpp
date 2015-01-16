@@ -51,6 +51,7 @@ ElementEditWidget::ElementEditWidget(QDomElement element, QTableWidget *table,
       m_associatedAttributes(), m_elementName(), m_parentElementName(),
       m_documentRoot() {
   assert(!m_element.isNull());
+  assert(m_table);
 
   if (!m_element.isNull()) {
     m_elementName = m_element.tagName();
@@ -183,6 +184,7 @@ void ElementEditWidget::populateTable() {
 
     connect(valueCombo, SIGNAL(valueChanged(int)), this,
             SLOT(attributeValueChanged(int)));
+    // Takes ownership.
     m_table->setCellWidget(row, intFromEnum(Columns::Value), valueCombo);
   }
 }

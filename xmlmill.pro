@@ -60,7 +60,8 @@ SOURCES += main.cpp\
     widgets/qtwaitingspinner.cpp \
     widgets/valuecombobox.cpp \
     widgets/elementedittablewidget.cpp \
-    widgets/elementeditwidget.cpp
+    widgets/elementeditwidget.cpp \
+    widgets/commenteditwidget.cpp
 
 HEADERS  += \
     db/dbinterface.h \
@@ -79,7 +80,8 @@ HEADERS  += \
     widgets/qtwaitingspinner.h \
     widgets/valuecombobox.h \
     widgets/elementedittablewidget.h \
-    widgets/elementeditwidget.h
+    widgets/elementeditwidget.h \
+    widgets/commenteditwidget.h
 
 FORMS    += \
     mainwindow.ui \

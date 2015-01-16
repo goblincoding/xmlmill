@@ -26,45 +26,44 @@
  *
  *                    <http://www.gnu.org/licenses/>
  */
-#include "domnodeparser.h"
 
+#include "commenteditwidget.h"
+#include "elementeditwidget.h"
+
+#include <QPlainTextEdit>
+#include <QTableWidget>
 #include <assert.h>
 
 //----------------------------------------------------------------------
 
-QString DomNodeParser::toString(const QDomNode &node) const {
-  if (!node.isNull()) {
-    if (node.isElement()) {
-      return node.nodeName();
-    } else if (node.isComment()) {
-      return QString("<<!-- Select Comment to View/Edit -->>");
-    } else if (node.isProcessingInstruction()) {
-      return "FIND THIS STRING AND FIX IT!";
-    } else if(node.isDocument()) {
-      return QString();
-    }
+CommentEditWidget::CommentEditWidget(QDomComment comment, QTableWidget *table)
+    : QWidget(nullptr), m_comment(comment), m_table(table),
+      m_textEdit(nullptr) {
+  assert(!m_comment.isNull());
+  assert(m_table);
 
-    assert(false && "Missing a node type that we should have catered for.");
-    return QString("");
+  if (!m_comment.isNull()) {
+    const int row = m_table->rowCount();
+    m_table->setRowCount(row + 1);
+
+    m_textEdit = new QPlainTextEdit();
+    m_textEdit->setPlainText(m_comment.nodeValue());
+    connect(m_textEdit, SIGNAL(textChanged()), this, SLOT(textChanged()));
+
+    using Columns = ElementEditWidget::Columns;
+    // Takes ownership.
+    m_table->setCellWidget(
+        row, ElementEditWidget::intFromEnum(Columns::Attribute), m_textEdit);
+    m_table->setSpan(row, ElementEditWidget::intFromEnum(Columns::Attribute), 1,
+                     ElementEditWidget::intFromEnum(Columns::Count));
   }
-
-  return QString();
 }
 
 //----------------------------------------------------------------------
 
-QDomNode DomNodeParser::toDomNode(const QString &xml) const {
-  QDomDocument doc;
-  QString xmlErr("");
-  int line(-1);
-  int col(-1);
-
-  if (doc.setContent(xml, &xmlErr, &line, &col)) {
-    return doc.documentElement().cloneNode();
-  }
-
-  assert(false && "DomNodeParser::elementNode XML broken");
-  return QDomNode();
+void CommentEditWidget::textChanged() {
+  m_comment.setNodeValue(m_textEdit->toPlainText());
+  emit contentsChanged();
 }
 
 //----------------------------------------------------------------------

@@ -37,7 +37,6 @@
 class QPersistentModelIndex;
 class QModelIndex;
 class DomItem;
-class ElementEditWidget;
 
 //----------------------------------------------------------------------
 
@@ -61,12 +60,12 @@ private:
   void setupTable();
   void resetState();
   void createAddMoreButton();
-  void removeAddMoreButton();  
+  void removeAddMoreButton();
 
 private:
   using PersistentPtr = std::unique_ptr<QPersistentModelIndex>;
   PersistentPtr m_persistentTreeIndex;
-  QList<ElementEditWidget *> m_nodeEdits;
+  QList<QWidget *> m_nodeEdits;
   DomItem *m_currentItem;
   int m_childrenProcessed;
 };

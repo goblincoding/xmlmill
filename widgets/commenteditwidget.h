@@ -26,45 +26,38 @@
  *
  *                    <http://www.gnu.org/licenses/>
  */
-#include "domnodeparser.h"
+#ifndef COMMENTEDITWIDGET_H
+#define COMMENTEDITWIDGET_H
 
-#include <assert.h>
-
-//----------------------------------------------------------------------
-
-QString DomNodeParser::toString(const QDomNode &node) const {
-  if (!node.isNull()) {
-    if (node.isElement()) {
-      return node.nodeName();
-    } else if (node.isComment()) {
-      return QString("<<!-- Select Comment to View/Edit -->>");
-    } else if (node.isProcessingInstruction()) {
-      return "FIND THIS STRING AND FIX IT!";
-    } else if(node.isDocument()) {
-      return QString();
-    }
-
-    assert(false && "Missing a node type that we should have catered for.");
-    return QString("");
-  }
-
-  return QString();
-}
+#include <QDomComment>
+#include <QWidget>
 
 //----------------------------------------------------------------------
 
-QDomNode DomNodeParser::toDomNode(const QString &xml) const {
-  QDomDocument doc;
-  QString xmlErr("");
-  int line(-1);
-  int col(-1);
-
-  if (doc.setContent(xml, &xmlErr, &line, &col)) {
-    return doc.documentElement().cloneNode();
-  }
-
-  assert(false && "DomNodeParser::elementNode XML broken");
-  return QDomNode();
-}
+class QTableWidget;
+class QPlainTextEdit;
 
 //----------------------------------------------------------------------
+
+class CommentEditWidget : public QWidget {
+  Q_OBJECT
+public:
+  /*! Constructor.  QDomNode's are explicitly shared, all changes to "comment"
+   * will propagate to the parent DOM document.
+   * @param comment - the DOM comment represented by this widget
+   * @param table - the parent table to add this widget to */
+  explicit CommentEditWidget(QDomComment comment, QTableWidget *table);
+
+signals:
+  void contentsChanged();
+
+private slots:
+  void textChanged();
+
+private:
+  QDomComment m_comment;
+  QTableWidget *m_table;
+  QPlainTextEdit *m_textEdit;
+};
+
+#endif // COMMENTEDITWIDGET_H

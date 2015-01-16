@@ -26,6 +26,7 @@
  *
  *                    <http://www.gnu.org/licenses/>
  */
+#include "commenteditwidget.h"
 #include "elementedittablewidget.h"
 #include "elementeditwidget.h"
 #include "qtwaitingspinner.h"
@@ -104,6 +105,7 @@ void ElementEditTableWidget::resetState() {
   m_nodeEdits.clear();
   m_currentItem = nullptr;
   m_childrenProcessed = 0;
+  this->horizontalHeader()->setVisible(true);
 }
 
 //----------------------------------------------------------------------
@@ -141,12 +143,17 @@ void ElementEditTableWidget::processItem(DomItem *item, bool primary) {
   assert(item && !m_currentItem->node().isNull());
 
   if (item) {
-    QDomElement element = item->node().toElement();
-
-    if (!element.isNull()) {
+    if (item->node().isElement()) {
+      QDomElement element = item->node().toElement();
       ElementEditWidget *edit = new ElementEditWidget(element, this, primary);
       connect(edit, SIGNAL(contentsChanged()), this, SLOT(contentsChanged()));
       m_nodeEdits.append(edit);
+    } else if (item->node().isComment() && primary) {
+      QDomComment comment = item->node().toComment();
+      CommentEditWidget *edit = new CommentEditWidget(comment, this);
+      connect(edit, SIGNAL(contentsChanged()), this, SLOT(contentsChanged()));
+      m_nodeEdits.append(edit);
+      this->horizontalHeader()->setVisible(false);
     }
   }
 }
