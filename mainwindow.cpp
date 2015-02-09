@@ -65,6 +65,8 @@ MainWindow::MainWindow(QWidget *parent)
 
   connect(ui->treeView, SIGNAL(clicked(const QModelIndex &)), ui->tableWidget,
           SLOT(treeIndexSelected(const QModelIndex &)));
+  connect(ui->treeView, SIGNAL(activated(const QModelIndex &)), ui->tableWidget,
+          SLOT(treeIndexSelected(const QModelIndex &)));
   connect(ui->tableWidget, SIGNAL(treeIndexDataChanged(const QModelIndex &)),
           &m_model, SLOT(dataChangedExternally(const QModelIndex &)));
 
